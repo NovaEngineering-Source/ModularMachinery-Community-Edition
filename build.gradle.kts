@@ -165,6 +165,7 @@ dependencies {
     compileOnly(rfg.deobf("curse.maven:mantle-74924:2713386"))
     implementation(rfg.deobf("curse.maven:tx-loader-706505:4515357"))
     implementation(rfg.deobf("curse.maven:applied-energistics-2-223794:2747063"))
+    implementation("curse.maven:modularui-624243:4779301-sources-4779302")
 
 //    compileOnly(rfg.deobf("curse.maven:gregtech-293327:3266351"))
     implementation(rfg.deobf("curse.maven:gregtech-ce-unofficial-557242:4799055"))
