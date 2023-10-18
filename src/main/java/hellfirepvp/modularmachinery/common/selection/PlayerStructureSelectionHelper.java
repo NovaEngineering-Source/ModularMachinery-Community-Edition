@@ -8,6 +8,7 @@
 
 package hellfirepvp.modularmachinery.common.selection;
 
+import com.cleanroommc.modularui.manager.GuiManager;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import hellfirepvp.modularmachinery.ModularMachinery;
@@ -15,7 +16,9 @@ import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.network.PktSyncSelection;
 import hellfirepvp.modularmachinery.common.util.BlockArray;
 import hellfirepvp.modularmachinery.common.util.IBlockStateDescriptor;
+import me.oganesson.gui.MachineSavingSettingGUI;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -30,6 +33,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import net.minecraftforge.fml.common.network.internal.OpenGuiHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,6 +73,7 @@ public class PlayerStructureSelectionHelper {
     }
 
     public static void finalizeSelection(EnumFacing controllerFacing, World world, BlockPos pos, EntityPlayer player) {
+        if (player.world.isRemote) GuiManager.openClientUI(player, new MachineSavingSettingGUI());
         StructureSelection sel = activeSelectionMap.get(player.getUniqueID());
         if (sel == null || sel.selectedPositions.isEmpty()) {
             player.sendMessage(new TextComponentTranslation("message.structurebuild.empty"));
