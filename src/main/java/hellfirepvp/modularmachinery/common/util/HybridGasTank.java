@@ -154,4 +154,8 @@ public class HybridGasTank extends HybridTank implements IGasHandler {
         nbt.setTag("gasTag", subGas);
     }
 
+    public GasTank getTank(){
+        return gasTank;
+    }
+
 }

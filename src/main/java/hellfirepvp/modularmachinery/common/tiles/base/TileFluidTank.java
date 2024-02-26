@@ -37,11 +37,14 @@ import javax.annotation.Nullable;
         @Optional.Interface(modid = "mekanism", iface = "mekanism.api.gas.ITubeConnection")
 })
 @SuppressWarnings("deprecation")
-public abstract class TileFluidTank extends TileColorableMachineComponent implements MachineComponentTile, IGasHandler, ITubeConnection, SelectiveUpdateTileEntity {
+public abstract class TileFluidTank extends TileEntityRestrictedTick implements MachineComponentTile, IGasHandler, ITubeConnection, SelectiveUpdateTileEntity {
 
     private HybridTank tank;
     private IOType ioType;
     private FluidHatchSize hatchSize;
+
+    protected int successCounter = 0;
+    protected boolean inventoryChanged = false;
 
     public TileFluidTank() {
     }
@@ -50,6 +53,36 @@ public abstract class TileFluidTank extends TileColorableMachineComponent implem
         this.tank = size.buildTank(this, true, true);
         this.hatchSize = size;
         this.ioType = type;
+    }
+
+    @Override
+    public void doRestrictedTick() {
+    }
+
+    protected boolean canWork(int minWorkDelay, int maxWorkDelay) {
+        if (inventoryChanged) {
+            inventoryChanged = false;
+            return true;
+        }
+
+        if (successCounter <= 0) {
+            return ticksExisted % maxWorkDelay == 0;
+        }
+        int workDelay = Math.max(minWorkDelay, maxWorkDelay - (successCounter * 5));
+        return ticksExisted % workDelay == 0;
+    }
+
+    protected void incrementSuccessCounter(int maxWorkDelay, int minWorkDelay) {
+        int max = (maxWorkDelay - minWorkDelay) / 5;
+        if (successCounter < max) {
+            successCounter++;
+        }
+    }
+
+    protected void decrementSuccessCounter() {
+        if (successCounter > 0) {
+            successCounter--;
+        }
     }
 
     @Optional.Method(modid = "mekanism")
