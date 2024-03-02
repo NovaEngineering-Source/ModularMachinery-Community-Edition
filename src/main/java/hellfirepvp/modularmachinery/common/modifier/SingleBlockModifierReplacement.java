@@ -16,6 +16,7 @@ import hellfirepvp.modularmachinery.common.util.IBlockStateDescriptor;
 import hellfirepvp.modularmachinery.common.util.nbt.NBTJsonDeserializer;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -30,14 +31,24 @@ import java.util.List;
 public class SingleBlockModifierReplacement extends AbstractModifierReplacement {
 
     private final BlockArray.BlockInformation info;
+    private BlockPos pos = null;
 
     public SingleBlockModifierReplacement(BlockArray.BlockInformation info, List<RecipeModifier> modifier, String description) {
-        super(modifier, description);
+        super(modifier, description, info.getDescriptiveStack(0));
         this.info = info;
     }
 
     public BlockArray.BlockInformation getBlockInformation() {
         return info;
+    }
+
+    public BlockPos getPos() {
+        return pos;
+    }
+
+    public SingleBlockModifierReplacement setPos(final BlockPos pos) {
+        this.pos = pos;
+        return this;
     }
 
     public static class Deserializer implements JsonDeserializer<SingleBlockModifierReplacement> {

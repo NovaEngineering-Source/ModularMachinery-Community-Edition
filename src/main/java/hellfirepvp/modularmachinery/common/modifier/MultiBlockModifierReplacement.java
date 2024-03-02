@@ -4,6 +4,7 @@ import crafttweaker.annotations.ZenRegister;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.BlockArray;
 import hellfirepvp.modularmachinery.common.util.BlockArrayCache;
+import net.minecraft.item.ItemStack;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenGetter;
 import stanhebben.zenscript.annotations.ZenMethod;
@@ -15,8 +16,8 @@ import java.util.List;
 public class MultiBlockModifierReplacement extends AbstractModifierReplacement {
     private final BlockArray blockArray;
 
-    public MultiBlockModifierReplacement(String modifierName, BlockArray blockArray, List<RecipeModifier> modifiers, List<String> description) {
-        super(modifierName, modifiers, description);
+    public MultiBlockModifierReplacement(String modifierName, BlockArray blockArray, List<RecipeModifier> modifiers, List<String> description, ItemStack descriptiveStack) {
+        super(modifierName, modifiers, description, descriptiveStack);
         this.blockArray = blockArray;
     }
 

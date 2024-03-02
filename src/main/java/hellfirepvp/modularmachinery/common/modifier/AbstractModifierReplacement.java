@@ -2,6 +2,7 @@ package hellfirepvp.modularmachinery.common.modifier;
 
 import com.google.common.collect.Lists;
 import hellfirepvp.modularmachinery.common.util.MiscUtils;
+import net.minecraft.item.ItemStack;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,21 +13,24 @@ public abstract class AbstractModifierReplacement {
     protected final String modifierName;
     protected final List<RecipeModifier> modifier;
     protected final List<String> description;
+    protected final ItemStack descriptiveStack;
 
-    public AbstractModifierReplacement(List<RecipeModifier> modifier, String description) {
-        this(null, modifier, description);
+    public AbstractModifierReplacement(List<RecipeModifier> modifier, String description, ItemStack descriptiveStack) {
+        this(null, modifier, description, descriptiveStack);
     }
 
-    public AbstractModifierReplacement(String modifierName, List<RecipeModifier> modifier, String description) {
+    public AbstractModifierReplacement(String modifierName, List<RecipeModifier> modifier, String description, ItemStack descriptiveStack) {
         this.modifierName = modifierName == null ? "ReplacementModifier - " + DEFAULT_NAME_COUNTER.getAndIncrement() : modifierName;
         this.modifier = modifier;
         this.description = description.isEmpty() ? Lists.newArrayList() : MiscUtils.splitStringBy(description, "\n");
+        this.descriptiveStack = descriptiveStack;
     }
 
-    public AbstractModifierReplacement(String modifierName, List<RecipeModifier> modifier, List<String> description) {
+    public AbstractModifierReplacement(String modifierName, List<RecipeModifier> modifier, List<String> description, ItemStack descriptiveStack) {
         this.modifierName = modifierName;
         this.modifier = modifier;
         this.description = description;
+        this.descriptiveStack = descriptiveStack;
     }
 
     public String getModifierName() {
@@ -39,5 +43,9 @@ public abstract class AbstractModifierReplacement {
 
     public List<String> getDescriptionLines() {
         return description;
+    }
+
+    public ItemStack getDescriptiveStack() {
+        return descriptiveStack;
     }
 }

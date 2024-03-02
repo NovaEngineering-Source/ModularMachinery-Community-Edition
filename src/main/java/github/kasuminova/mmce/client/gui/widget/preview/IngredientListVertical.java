@@ -9,19 +9,22 @@ import hellfirepvp.modularmachinery.ModularMachinery;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 
 import static github.kasuminova.mmce.client.gui.widget.preview.MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION;
 
-public class SelectedBlockIngredientList extends IngredientList {
+public class IngredientListVertical extends IngredientList {
+    protected ResourceLocation listBgTexLocation = WIDGETS_TEX_LOCATION;
     protected int listBgTexX = 229;
     protected int listBgTexY = 125;
     protected int listBgTexWidth = 25;
     protected int listBgTexWidthWithNoScrollbar = 18;
     protected int listBgTexHeight = 126;
 
-    public SelectedBlockIngredientList() {
+    public IngredientListVertical() {
         setWidthHeight(25, 126);
     }
 
@@ -37,12 +40,19 @@ public class SelectedBlockIngredientList extends IngredientList {
                 .setUnavailableTextureXY(208, 175)
                 .setTextureLocation(WIDGETS_TEX_LOCATION)
                 .setWidthHeight(6, 17);
+        checkScrollbarRange();
     }
 
     @Override
     public void update(final WidgetGui gui) {
         super.update(gui);
-        scrollbar.setDisabled(scrollbar.getRange() <= 0);
+        checkScrollbarRange();
+    }
+
+    protected void checkScrollbarRange() {
+        boolean shouldDisable = scrollbar.getRange() <= 0;
+        scrollbar.setDisabled(shouldDisable);
+        setWidth(scrollbar.isDisabled() ? listBgTexWidthWithNoScrollbar : listBgTexWidth);
     }
 
     @Override
@@ -65,7 +75,7 @@ public class SelectedBlockIngredientList extends IngredientList {
 
     protected void drawListBg(final WidgetGui widgetGui, final RenderPos renderPos) {
         GuiScreen gui = widgetGui.getGui();
-        gui.mc.getTextureManager().bindTexture(WIDGETS_TEX_LOCATION);
+        gui.mc.getTextureManager().bindTexture(listBgTexLocation);
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         gui.drawTexturedModalRect(
@@ -73,11 +83,10 @@ public class SelectedBlockIngredientList extends IngredientList {
                 listBgTexX, listBgTexY,
                 scrollbar.isDisabled() ? listBgTexWidthWithNoScrollbar : listBgTexWidth, listBgTexHeight
         );
-        GlStateManager.disableBlend();
     }
 
     @Override
-    public SelectedBlockIngredientList setStackList(final List<ItemStack> list) {
+    public IngredientListVertical setStackList(final List<ItemStack> list) {
         getWidgets().clear();
         list.stream().map(SlotVirtual::ofJEI).forEach(this::addWidget);
         return this;

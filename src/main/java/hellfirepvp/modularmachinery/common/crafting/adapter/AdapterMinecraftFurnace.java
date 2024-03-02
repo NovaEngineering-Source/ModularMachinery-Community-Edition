@@ -9,9 +9,9 @@
 package hellfirepvp.modularmachinery.common.crafting.adapter;
 
 import crafttweaker.util.IEventHandler;
+import github.kasuminova.mmce.common.event.Phase;
 import github.kasuminova.mmce.common.event.recipe.RecipeCheckEvent;
 import github.kasuminova.mmce.common.event.recipe.RecipeEvent;
-import hellfirepvp.modularmachinery.common.crafting.ActiveMachineRecipe;
 import hellfirepvp.modularmachinery.common.crafting.MachineRecipe;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
 import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementEnergy;
@@ -64,10 +64,10 @@ public class AdapterMinecraftFurnace extends RecipeAdapter {
                     new ResourceLocation("minecraft", "smelting_" + incId + "_" + input + "_" + output),
                     owningMachineName,
                     tickTime, 0, false);
-
             recipe.addRecipeEventHandler(RecipeCheckEvent.class, (IEventHandler<RecipeCheckEvent>) event -> {
-                ActiveMachineRecipe machineRecipe = event.getActiveRecipe();
-                machineRecipe.getDataCompound().setFloat("experience", experience);
+                if (event.phase == Phase.START) {
+                    event.getActiveRecipe().getDataCompound().setFloat("experience", experience);
+                }
             });
 
             int inAmount = Math.round(RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_ITEM, IOType.INPUT, input.getCount(), false));

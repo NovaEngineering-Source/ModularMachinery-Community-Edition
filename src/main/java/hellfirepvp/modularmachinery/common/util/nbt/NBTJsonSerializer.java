@@ -14,6 +14,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraftforge.common.util.Constants;
 
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -28,40 +29,46 @@ public class NBTJsonSerializer {
     public static String serializeNBT(NBTBase nbtBase) {
         StringBuilder sb = new StringBuilder();
         switch (nbtBase.getId()) {
-            case Constants.NBT.TAG_BYTE, Constants.NBT.TAG_SHORT, Constants.NBT.TAG_INT, Constants.NBT.TAG_LONG, Constants.NBT.TAG_FLOAT, Constants.NBT.TAG_DOUBLE -> {
+            case Constants.NBT.TAG_BYTE:
+            case Constants.NBT.TAG_SHORT:
+            case Constants.NBT.TAG_INT:
+            case Constants.NBT.TAG_LONG:
+            case Constants.NBT.TAG_FLOAT:
+            case Constants.NBT.TAG_DOUBLE:
                 sb.append(NBTTagString.quoteAndEscape(nbtBase.toString()));
-            }
-            case Constants.NBT.TAG_STRING -> {
+                break;
+            case Constants.NBT.TAG_STRING:
                 sb.append(nbtBase);
-            }
-            case Constants.NBT.TAG_LIST -> {
-                StringBuilder stringbuilder = new StringBuilder("[");
+                break;
+            case Constants.NBT.TAG_LIST:
+                sb.append('[');
                 NBTTagList listTag = (NBTTagList) nbtBase;
 
                 for (int i = 0; i < listTag.tagCount(); ++i) {
-                    if (i != 0) {
-                        stringbuilder.append(',');
+                    if (i != 0 && i + 1 < listTag.tagCount()) {
+                        sb.append(',');
                     }
-
-                    stringbuilder.append(serializeNBT(listTag.get(i)));
+                    sb.append(serializeNBT(listTag.get(i)));
                 }
-                sb.append(stringbuilder.append(']'));
-            }
-            case Constants.NBT.TAG_COMPOUND -> {
-                StringBuilder stringbuilder = new StringBuilder("{");
+                sb.append('}');
+                break;
+            case Constants.NBT.TAG_COMPOUND:
+                sb.append('}');
                 NBTTagCompound cmpTag = (NBTTagCompound) nbtBase;
                 Set<String> collection = cmpTag.getKeySet();
 
-                for (String s : collection) {
-                    if (stringbuilder.length() != 1) {
-                        stringbuilder.append(',');
+                int i = 0;
+                for (Iterator<String> iterator = collection.iterator(); iterator.hasNext(); ) {
+                    final String s = iterator.next();
+                    if (i != 0 && iterator.hasNext()) {
+                        sb.append(',');
                     }
-
-                    stringbuilder.append(NBTTagString.quoteAndEscape(s)).append(':').append(serializeNBT(cmpTag.getTag(s)));
+                    sb.append(NBTTagString.quoteAndEscape(s)).append(':').append(serializeNBT(cmpTag.getTag(s)));
+                    i++;
                 }
 
-                sb.append(stringbuilder.append('}'));
-            }
+                sb.append('}');
+                break;
         }
         return sb.toString();
     }

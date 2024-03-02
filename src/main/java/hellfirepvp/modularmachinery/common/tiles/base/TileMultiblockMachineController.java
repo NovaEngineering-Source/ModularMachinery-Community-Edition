@@ -496,7 +496,6 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         final long start = System.nanoTime() / 1000;
 
         foundPattern.getPattern().forEach((pos, blockInfo) -> {
-
             if (!blockInfo.hasStatedMachineComponent()) {
                 return;
             }
@@ -872,13 +871,38 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
      * @return CraftingCheckResult
      */
     public RecipeCraftingContext.CraftingCheckResult onCheck(RecipeCraftingContext context) {
+        RecipeCraftingContext.CraftingCheckResult failure = checkPreStartResult(context);
+        if (failure != null) return failure;
+
         RecipeCraftingContext.CraftingCheckResult result = context.getActiveRecipe().canStartCrafting(context);
         return checkStartResult(context, result);
     }
 
+    /**
+     * <p>机器开始检查配方能否工作，只在重新开始时调用。</p>
+     *
+     * @param context RecipeCraftingContext
+     * @return CraftingCheckResult
+     */
     public RecipeCraftingContext.CraftingCheckResult onRestartCheck(RecipeCraftingContext context) {
+        RecipeCraftingContext.CraftingCheckResult failure = checkPreStartResult(context);
+        if (failure != null) return failure;
+
         RecipeCraftingContext.CraftingCheckResult result = context.getActiveRecipe().canRestartCrafting(context);
         return checkStartResult(context, result);
+    }
+
+    @Nullable
+    public RecipeCraftingContext.CraftingCheckResult checkPreStartResult(final RecipeCraftingContext context) {
+        RecipeCheckEvent event = new RecipeCheckEvent(this, context, Phase.START);
+        event.postEvent();
+
+        if (event.isFailure()) {
+            RecipeCraftingContext.CraftingCheckResult failure = new RecipeCraftingContext.CraftingCheckResult();
+            failure.addError(event.getFailureReason());
+            return failure;
+        }
+        return null;
     }
 
     @Nonnull
@@ -887,7 +911,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
             return result;
         }
 
-        RecipeCheckEvent event = new RecipeCheckEvent(this, context);
+        RecipeCheckEvent event = new RecipeCheckEvent(this, context, Phase.END);
         event.postEvent();
 
         if (event.isFailure()) {

@@ -14,6 +14,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
@@ -79,10 +80,15 @@ public class TileEntitySynchronized extends TileEntity {
         readNetNBT(packet.getNbtCompound());
     }
 
+    @SuppressWarnings("ConstantValue")
     public void markNoUpdate() {
+        World world = getWorld();
+        if (world == null) {
+            return;
+        }
         markDirty();
         inMarkTask = false;
-        lastUpdateTick = getWorld().getTotalWorldTime();
+        lastUpdateTick = world.getTotalWorldTime();
     }
 
     public void markForUpdate() {
@@ -91,8 +97,11 @@ public class TileEntitySynchronized extends TileEntity {
     }
 
     public void notifyUpdate() {
+        World world = getWorld();
+        if (world == null) {
+            return;
+        }
         IBlockState state = world.getBlockState(pos);
-
         world.notifyBlockUpdate(pos, state, state, 3);
         inUpdateTask = false;
     }
@@ -113,10 +122,6 @@ public class TileEntitySynchronized extends TileEntity {
         if (inUpdateTask) {
             return;
         }
-//        if (this instanceof SelectiveUpdateTileEntity) {
-//            markNoUpdateSync();
-//            return;
-//        }
         ModularMachinery.EXECUTE_MANAGER.addTEUpdateTask(this);
         inUpdateTask = true;
         inMarkTask = true;

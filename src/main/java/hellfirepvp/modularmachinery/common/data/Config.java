@@ -40,6 +40,7 @@ public class Config {
     public static boolean enableFactoryControllerByDefault = false;
     public static boolean controllerOutputComparatorSignal = true;
     public static boolean enableStructurePreviewDisplayList = false;
+    public static boolean enableDurationMultiplier = true;
     public static int machineColor;
     public static int maxMachineParallelism = 2048;
     public static int defaultFactoryMaxThread = 20;
@@ -84,6 +85,8 @@ public class Config {
         machineColor = col;
         onlyOneMachineController = lastReadConfig.getBoolean("only-one-machine-controller", "general", false,
                 "When enabled, Modules no longer register a separate controller for each machine, and the modular-controller-compatible-mode option is turned off.");
+        enableDurationMultiplier = lastReadConfig.getBoolean("enable-duration-multiplier", "general", false,
+                "If enabled, and the RecipeModifier modifies the recipe duration, certain requirements (e.g., energy) will change over time.");
 
         // Client
         enableStructurePreviewDisplayList = lastReadConfig.getBoolean("enable-structure-preview-display-list", "client", false,

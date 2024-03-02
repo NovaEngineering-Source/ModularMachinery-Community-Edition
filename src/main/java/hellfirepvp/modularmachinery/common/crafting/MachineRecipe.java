@@ -121,7 +121,7 @@ public class MachineRecipe implements Comparable<MachineRecipe> {
     public void mergeAdapter(final RecipeAdapterBuilder adapterBuilder) {
         this.parallelized = adapterBuilder.isParallelized();
         this.tooltipList.addAll(adapterBuilder.getTooltipList());
-        if (!this.getThreadName().isEmpty()) {
+        if (!adapterBuilder.getThreadName().isEmpty()) {
             this.threadName = adapterBuilder.getThreadName();
         }
         if (adapterBuilder.getMaxThreads() != -1) {

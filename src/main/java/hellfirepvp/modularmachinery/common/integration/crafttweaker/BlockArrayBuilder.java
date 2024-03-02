@@ -264,9 +264,9 @@ public class BlockArrayBuilder {
     public BlockArrayBuilder setNBT(IData data) {
         if (lastInformation != null) {
             NBTTagCompound tag = CraftTweakerMC.getNBTCompound(data);
-            lastInformation.matchingTag = tag;
-            if (lastInformation.previewTag == null) {
-                lastInformation.previewTag = tag;
+            lastInformation.setMatchingTag(tag);
+            if (lastInformation.getPreviewTag() == null) {
+                lastInformation.setPreviewTag(tag);
             }
         }
         return this;
@@ -280,7 +280,7 @@ public class BlockArrayBuilder {
     @ZenMethod
     public BlockArrayBuilder setPreviewNBT(IData data) {
         if (lastInformation != null) {
-            lastInformation.previewTag = CraftTweakerMC.getNBTCompound(data);
+            lastInformation.setPreviewTag(CraftTweakerMC.getNBTCompound(data));
         }
         return this;
     }

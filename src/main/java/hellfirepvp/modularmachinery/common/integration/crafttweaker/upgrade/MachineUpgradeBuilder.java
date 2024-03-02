@@ -15,9 +15,14 @@ import hellfirepvp.modularmachinery.common.integration.crafttweaker.helper.IFunc
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.helper.UpgradeEventHandlerCT;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.machine.MachineRegistry;
+import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
 import net.minecraft.util.ResourceLocation;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @ZenRegister
 @ZenClass("mods.modularmachinery.MachineUpgradeBuilder")
@@ -110,6 +115,36 @@ public class MachineUpgradeBuilder {
         return this;
     }
 
+    /**
+     * 快速添加一个修改器升级。<br/>
+     * Quickly add a modifier upgrade.
+     *
+     * @param stackAble 是否受堆叠影响<br/>
+     *                  Whether affected by stacking.
+     * @param modifiers 配方修改器<br/>
+     *                  RecipeModifiers.
+     */
+    @ZenMethod
+    public MachineUpgradeBuilder addModifier(boolean stackAble, RecipeModifier... modifiers) {
+        List<RecipeModifier> modifierList = Arrays.asList(modifiers);
+        addEventHandler(RecipeCheckEvent.class, (event, upgrade) -> {
+            if (((RecipeCheckEvent) event).phase != Phase.START) {
+                return;
+            }
+            if (upgrade.getStackSize() <= 1 || !stackAble) {
+                ((RecipeCheckEvent) event).getContext().addModifier(modifierList);
+                return;
+            }
+            List<RecipeModifier> list = new ArrayList<>();
+            for (RecipeModifier modifier : modifierList) {
+                RecipeModifier multiply = modifier.multiply(upgrade.getStackSize());
+                list.add(multiply);
+            }
+            ((RecipeCheckEvent) event).getContext().addModifier(list);
+        });
+        return this;
+    }
+
     //--------------------------------------------------------
     // 以下方法均为监听机械的事件。
     // 它们将会在配方中添加的事件执行前执行。
@@ -117,9 +152,29 @@ public class MachineUpgradeBuilder {
     // 详情请参考 MMEvents 和 MachineUpgradeHelper。
     //--------------------------------------------------------
 
+    @Deprecated
     @ZenMethod
     public MachineUpgradeBuilder addRecipeCheckHandler(UpgradeEventHandlerCT handler) {
+        CraftTweakerAPI.logWarning("[ModularMachinery] Deprecated method addRecipeCheckHandler()! Consider using addPostRecipeCheckHandler()");
         addEventHandler(RecipeCheckEvent.class, handler);
+        return this;
+    }
+
+    @ZenMethod
+    public MachineUpgradeBuilder addPreRecipeCheckHandler(UpgradeEventHandlerCT handler) {
+        addEventHandler(RecipeCheckEvent.class, (event, upgrade) -> {
+            if (((RecipeCheckEvent) event).phase != Phase.START) return;
+            handler.handle(event, upgrade);
+        });
+        return this;
+    }
+
+    @ZenMethod
+    public MachineUpgradeBuilder addPostRecipeCheckHandler(UpgradeEventHandlerCT handler) {
+        addEventHandler(RecipeCheckEvent.class, (event, upgrade) -> {
+            if (((RecipeCheckEvent) event).phase != Phase.END) return;
+            handler.handle(event, upgrade);
+        });
         return this;
     }
 

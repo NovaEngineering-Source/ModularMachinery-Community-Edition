@@ -14,6 +14,7 @@ import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
@@ -84,9 +85,9 @@ public class MachineAssembly {
         fluidIngredient:
         while (fluidIngredientIter.hasNext()) {
             final StructureIngredient.FluidIngredient fluidIngredient = fluidIngredientIter.next();
-            final BlockPos pos = fluidIngredient.getPos();
+            final BlockPos pos = fluidIngredient.pos();
 
-            for (final Tuple<FluidStack, IBlockState> tuple : fluidIngredient.getIngredientList()) {
+            for (final Tuple<FluidStack, IBlockState> tuple : fluidIngredient.ingredientList()) {
                 FluidStack required = tuple.getFirst();
                 IBlockState state = tuple.getSecond();
 
@@ -133,14 +134,14 @@ public class MachineAssembly {
         while (iterator.hasNext()) {
             StructureIngredient.ItemIngredient ingredient = iterator.next();
 
-            for (final Tuple<ItemStack, IBlockState> tuple : ingredient.getIngredientList()) {
+            for (final Tuple<ItemStack, IBlockState> tuple : ingredient.ingredientList()) {
                 ItemStack required = tuple.getFirst();
                 if (!consumeInventoryItem(required, inventory)) {
                     continue;
                 }
 
                 result.add(new StructureIngredient.ItemIngredient(
-                        ingredient.getPos(), Collections.singletonList(tuple))
+                        ingredient.pos(), Collections.singletonList(tuple), ingredient.nbt())
                 );
 
                 iterator.remove();
@@ -158,7 +159,7 @@ public class MachineAssembly {
         while (itemIngredientIter.hasNext()) {
             final StructureIngredient.ItemIngredient ingredient = itemIngredientIter.next();
 
-            for (final Tuple<ItemStack, IBlockState> tuple : ingredient.getIngredientList()) {
+            for (final Tuple<ItemStack, IBlockState> tuple : ingredient.ingredientList()) {
                 ItemStack required = tuple.getFirst();
                 if (required.isEmpty() || consumeInventoryItem(required, inventory)) {
                     itemIngredientIter.remove();
@@ -177,7 +178,7 @@ public class MachineAssembly {
         while (fluidIngredientIter.hasNext()) {
             final StructureIngredient.FluidIngredient fluidIngredient = fluidIngredientIter.next();
 
-            for (final Tuple<FluidStack, IBlockState> tuple : fluidIngredient.getIngredientList()) {
+            for (final Tuple<FluidStack, IBlockState> tuple : fluidIngredient.ingredientList()) {
                 FluidStack required = tuple.getFirst();
 
                 if (consumeInventoryFluid(required, fluidHandlers)) {
@@ -220,11 +221,11 @@ public class MachineAssembly {
 
         fluidIng:
         for (final StructureIngredient.FluidIngredient ingredient : fluidIngredientList) {
-            if (ingredient.getIngredientList().isEmpty()) {
+            if (ingredient.ingredientList().isEmpty()) {
                 continue;
             }
 
-            List<FluidStack> stackIngList = ingredient.getIngredientList()
+            List<FluidStack> stackIngList = ingredient.ingredientList()
                     .stream()
                     .map(Tuple::getFirst)
                     .collect(Collectors.toList());
@@ -256,12 +257,12 @@ public class MachineAssembly {
 
         itemIng:
         for (final StructureIngredient.ItemIngredient itemIng : itemIngredientList) {
-            if (itemIng.getIngredientList().isEmpty()) {
+            if (itemIng.ingredientList().isEmpty()) {
                 continue;
             }
 
             @SuppressWarnings("SimplifyStreamApiCallChains")
-            List<ItemStack> stackIngList = itemIng.getIngredientList()
+            List<ItemStack> stackIngList = itemIng.ingredientList()
                     .stream()
                     .map(Tuple::getFirst)
                     .collect(Collectors.toList());
@@ -317,18 +318,18 @@ public class MachineAssembly {
 
     public void assemblyCreative() {
         for (final StructureIngredient.ItemIngredient itemIngredient : ingredient.itemIngredient()) {
-            List<Tuple<ItemStack, IBlockState>> ingredientList = itemIngredient.getIngredientList();
+            List<Tuple<ItemStack, IBlockState>> ingredientList = itemIngredient.ingredientList();
             if (ingredientList.isEmpty()) continue;
 
             IBlockState state = ingredientList.get(0).getSecond();
-            world.setBlockState(ctrlPos.add(itemIngredient.getPos()), state);
+            world.setBlockState(ctrlPos.add(itemIngredient.pos()), state);
         }
         for (final StructureIngredient.FluidIngredient fluidIngredient : ingredient.fluidIngredient()) {
-            List<Tuple<FluidStack, IBlockState>> ingredientList = fluidIngredient.getIngredientList();
+            List<Tuple<FluidStack, IBlockState>> ingredientList = fluidIngredient.ingredientList();
             if (ingredientList.isEmpty()) continue;
 
             IBlockState state = ingredientList.get(0).getSecond();
-            world.setBlockState(ctrlPos.add(fluidIngredient.getPos()), state);
+            world.setBlockState(ctrlPos.add(fluidIngredient.pos()), state);
         }
         world.playSound(null, ctrlPos, SoundEvents.BLOCK_STONE_PLACE, SoundCategory.BLOCKS, 1.0F, 1.0F);
         player.sendMessage(new TextComponentTranslation("message.assembly.tip.success"));
@@ -337,74 +338,80 @@ public class MachineAssembly {
     private void assemblyItemBlocks(final boolean consumeInventory, final List<StructureIngredient.ItemIngredient> itemIngredient) {
         Iterator<StructureIngredient.ItemIngredient> iterator = itemIngredient.iterator();
         StructureIngredient.ItemIngredient ingredient = iterator.next();
-        BlockPos realPos = ctrlPos.add(ingredient.getPos());
+        BlockPos realPos = ctrlPos.add(ingredient.pos());
 
         if (!replaceCheck(realPos, world, player)) {
             iterator.remove();
             return;
         }
 
-        Tuple<ItemStack, IBlockState> tuple = ingredient.getIngredientList().get(0);
+        Tuple<ItemStack, IBlockState> tuple = ingredient.ingredientList().get(0);
         ItemStack required = tuple.getFirst();
         IBlockState state = tuple.getSecond();
 
-        if (consumeInventory) {
-            if (!consumeInventoryItem(required, player.inventory.mainInventory)) {
-                String posToString = hellfirepvp.modularmachinery.common.util.MiscUtils.posToString(realPos);
-                player.sendMessage(new TextComponentTranslation("message.assembly.tip.missing", posToString));
+        if (consumeInventory && !consumeInventoryItem(required, player.inventory.mainInventory)) {
+            String posToString = hellfirepvp.modularmachinery.common.util.MiscUtils.posToString(realPos);
+            player.sendMessage(new TextComponentTranslation("message.assembly.tip.missing", posToString));
 
-                List<List<ItemStack>> itemStackIngList = new ArrayList<>();
-                itemStackIngList.add(Collections.singletonList(required));
-                PktAssemblyReport pkt = new PktAssemblyReport(
-                        itemStackIngList,
-                        new ArrayList<>());
-                if (player instanceof EntityPlayerMP) {
-                    ModularMachinery.NET_CHANNEL.sendTo(pkt, (EntityPlayerMP) player);
-                }
-                player.sendMessage(new TextComponentTranslation("message.assembly.tip.skipped", posToString));
-
-                iterator.remove();
-                return;
+            List<List<ItemStack>> itemStackIngList = new ArrayList<>();
+            itemStackIngList.add(Collections.singletonList(required));
+            PktAssemblyReport pkt = new PktAssemblyReport(
+                    itemStackIngList,
+                    new ArrayList<>());
+            if (player instanceof EntityPlayerMP) {
+                ModularMachinery.NET_CHANNEL.sendTo(pkt, (EntityPlayerMP) player);
             }
+            player.sendMessage(new TextComponentTranslation("message.assembly.tip.skipped", posToString));
+
+            iterator.remove();
+            return;
         }
 
         world.setBlockState(realPos, state);
         world.playSound(null, realPos, SoundEvents.BLOCK_STONE_PLACE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        TileEntity te = world.getTileEntity(realPos);
+        if (te != null && ingredient.nbt() != null) {
+            try {
+                te.readFromNBT(ingredient.nbt());
+            } catch (Exception e) {
+                ModularMachinery.log.warn("Failed to apply NBT to TileEntity!", e);
+                world.removeTileEntity(realPos);
+                world.setTileEntity(realPos, state.getBlock().createTileEntity(world, state));
+            }
+        }
         iterator.remove();
     }
 
     private void assemblyFluidBlocks(final boolean consumeInventory, final List<StructureIngredient.FluidIngredient> fluidIngredient) {
         Iterator<StructureIngredient.FluidIngredient> iterator = fluidIngredient.iterator();
         StructureIngredient.FluidIngredient ingredient = iterator.next();
-        BlockPos realPos = ctrlPos.add(ingredient.getPos());
+        BlockPos realPos = ctrlPos.add(ingredient.pos());
 
         if (!replaceCheck(realPos, world, player)) {
             iterator.remove();
             return;
         }
 
-        Tuple<FluidStack, IBlockState> tuple = ingredient.getIngredientList().get(0);
+        Tuple<FluidStack, IBlockState> tuple = ingredient.ingredientList().get(0);
         FluidStack required = tuple.getFirst();
         IBlockState state = tuple.getSecond();
 
-        if (consumeInventory) {
-            if (!consumeInventoryFluid(required, getFluidHandlerItems(player.inventory.mainInventory))) {
-                String posToString = hellfirepvp.modularmachinery.common.util.MiscUtils.posToString(realPos);
-                player.sendMessage(new TextComponentTranslation("message.assembly.tip.missing", posToString));
+        if (consumeInventory && !consumeInventoryFluid(required, getFluidHandlerItems(player.inventory.mainInventory))) {
+            String posToString = hellfirepvp.modularmachinery.common.util.MiscUtils.posToString(realPos);
+            player.sendMessage(new TextComponentTranslation("message.assembly.tip.missing", posToString));
 
-                List<List<FluidStack>> fluidStackIngList = new ArrayList<>();
-                fluidStackIngList.add(Collections.singletonList(required));
-                PktAssemblyReport pkt = new PktAssemblyReport(
-                        new ArrayList<>(),
-                        fluidStackIngList);
-                if (player instanceof EntityPlayerMP) {
-                    ModularMachinery.NET_CHANNEL.sendTo(pkt, (EntityPlayerMP) player);
-                }
-                player.sendMessage(new TextComponentTranslation("message.assembly.tip.skipped", posToString));
-
-                iterator.remove();
-                return;
+            List<List<FluidStack>> fluidStackIngList = new ArrayList<>();
+            fluidStackIngList.add(Collections.singletonList(required));
+            PktAssemblyReport pkt = new PktAssemblyReport(
+                    new ArrayList<>(),
+                    fluidStackIngList);
+            if (player instanceof EntityPlayerMP) {
+                ModularMachinery.NET_CHANNEL.sendTo(pkt, (EntityPlayerMP) player);
             }
+            player.sendMessage(new TextComponentTranslation("message.assembly.tip.skipped", posToString));
+
+            iterator.remove();
+            return;
         }
 
         world.setBlockState(realPos, state);

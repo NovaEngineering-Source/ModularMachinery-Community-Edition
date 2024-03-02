@@ -1,5 +1,7 @@
 package ink.ikx.mmce.common.utils;
 
+import github.kasuminova.mmce.common.machine.pattern.SpecialItemBlockProxy;
+import github.kasuminova.mmce.common.machine.pattern.SpecialItemBlockProxyRegistry;
 import hellfirepvp.modularmachinery.common.block.BlockController;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
@@ -9,6 +11,8 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.fluids.*;
 
 import java.util.List;
@@ -36,6 +40,15 @@ public class StackUtils {
             }
         }
         return new ItemStack(Item.getItemFromBlock(block), 1, block.damageDropped(state));
+    }
+
+    public static ItemStack getStackFromBlockState(IBlockState state, BlockPos pos, World world) {
+        ItemStack rawStack = getStackFromBlockState(state);
+        SpecialItemBlockProxy specialItemBlockProxy = SpecialItemBlockProxyRegistry.INSTANCE.getValidProxy(rawStack);
+        if (specialItemBlockProxy != null) {
+            return specialItemBlockProxy.getTrueStack(world.getBlockState(pos), world.getTileEntity(pos));
+        }
+        return rawStack;
     }
 
     public static ItemStack hasStacks(List<ItemStack> inputStacks, List<ItemStack> outputStacks, boolean isRemove) {

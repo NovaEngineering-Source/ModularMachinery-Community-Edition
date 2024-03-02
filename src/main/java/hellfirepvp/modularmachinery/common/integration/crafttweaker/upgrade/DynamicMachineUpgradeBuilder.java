@@ -116,9 +116,29 @@ public class DynamicMachineUpgradeBuilder {
     // 详情请参考 MMEvents 和 MachineUpgradeHelper。
     //--------------------------------------------------------
 
+    @Deprecated
     @ZenMethod
     public DynamicMachineUpgradeBuilder addRecipeCheckHandler(UpgradeEventHandlerCT handler) {
+        CraftTweakerAPI.logWarning("[ModularMachinery] Deprecated method addRecipeCheckHandler()! Consider using addPostRecipeCheckHandler()");
         addEventHandler(RecipeCheckEvent.class, handler);
+        return this;
+    }
+
+    @ZenMethod
+    public DynamicMachineUpgradeBuilder addPreRecipeCheckHandler(UpgradeEventHandlerCT handler) {
+        addEventHandler(RecipeCheckEvent.class, (event, upgrade) -> {
+            if (((RecipeCheckEvent) event).phase != Phase.START) return;
+            handler.handle(event, upgrade);
+        });
+        return this;
+    }
+
+    @ZenMethod
+    public DynamicMachineUpgradeBuilder addPostRecipeCheckHandler(UpgradeEventHandlerCT handler) {
+        addEventHandler(RecipeCheckEvent.class, (event, upgrade) -> {
+            if (((RecipeCheckEvent) event).phase != Phase.END) return;
+            handler.handle(event, upgrade);
+        });
         return this;
     }
 

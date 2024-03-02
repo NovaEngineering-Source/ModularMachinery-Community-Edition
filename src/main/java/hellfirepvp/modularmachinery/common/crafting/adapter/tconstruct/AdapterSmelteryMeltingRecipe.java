@@ -1,10 +1,10 @@
 package hellfirepvp.modularmachinery.common.crafting.adapter.tconstruct;
 
 import crafttweaker.util.IEventHandler;
+import github.kasuminova.mmce.common.event.Phase;
 import github.kasuminova.mmce.common.event.recipe.RecipeCheckEvent;
 import github.kasuminova.mmce.common.event.recipe.RecipeEvent;
 import github.kasuminova.mmce.common.itemtype.ChancedIngredientStack;
-import hellfirepvp.modularmachinery.common.crafting.ActiveMachineRecipe;
 import hellfirepvp.modularmachinery.common.crafting.MachineRecipe;
 import hellfirepvp.modularmachinery.common.crafting.adapter.RecipeAdapter;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
@@ -45,8 +45,9 @@ public class AdapterSmelteryMeltingRecipe extends RecipeAdapter {
                     incId, false
             );
             recipe.addRecipeEventHandler(RecipeCheckEvent.class, (IEventHandler<RecipeCheckEvent>) event -> {
-                ActiveMachineRecipe machineRecipe = event.getActiveRecipe();
-                machineRecipe.getDataCompound().setInteger("temperatureRequired", meltingRecipe.temperature);
+                if (event.phase == Phase.START) {
+                    event.getActiveRecipe().getDataCompound().setFloat("temperatureRequired", meltingRecipe.temperature);
+                }
             });
 
             // Item Input

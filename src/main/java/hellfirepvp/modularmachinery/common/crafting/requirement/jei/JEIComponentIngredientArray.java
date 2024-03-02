@@ -4,18 +4,13 @@ import com.google.common.collect.Lists;
 import github.kasuminova.mmce.common.itemtype.ChancedIngredientStack;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
 import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementIngredientArray;
-import hellfirepvp.modularmachinery.common.integration.ingredient.IngredientItemStack;
 import hellfirepvp.modularmachinery.common.integration.recipe.RecipeLayoutPart;
 import hellfirepvp.modularmachinery.common.machine.IOType;
-import hellfirepvp.modularmachinery.common.util.ItemUtils;
 import hellfirepvp.modularmachinery.common.util.MiscUtils;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
-import net.minecraftforge.oredict.OreDictionary;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class JEIComponentIngredientArray extends ComponentRequirement.JEIComponent<ItemStack> {
@@ -71,12 +66,16 @@ public class JEIComponentIngredientArray extends ComponentRequirement.JEICompone
                 tooltipBuilder.append(" * ").append(stack.count);
             }
 
-            float chance = actionType == IOType.INPUT ? (stack.chance * requirement.chance) : (totalChance == 0 ? 0 : stack.chance / totalChance);
+            if (input) {
+                continue;
+            }
+
+            float chance = totalChance == 0 ? 0 : stack.chance / totalChance;
             if (chance < 1F && chance >= 0F) {
                 tooltipBuilder.append(" (");
 
-                String keyNever = input ? "tooltip.machinery.chance.in.never" : "tooltip.machinery.chance.out.never";
-                String keyChance = input ? "tooltip.machinery.chance.in" : "tooltip.machinery.ingredient_array_output.weight";
+                String keyNever = "tooltip.machinery.chance.out.never";
+                String keyChance = "tooltip.machinery.ingredient_array_output.weight";
 
                 if (chance == 0F) {
                     tooltipBuilder.append(I18n.format(keyNever));

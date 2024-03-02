@@ -4,6 +4,7 @@ import com.github.bsideup.jabel.Desugar;
 import hellfirepvp.modularmachinery.common.util.BlockArray;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -24,10 +25,10 @@ public record StructureIngredient(List<ItemIngredient> itemIngredient, List<Flui
         Iterator<ItemIngredient> iterator = itemIngredients.iterator();
         while (iterator.hasNext()) {
             final ItemIngredient itemIngredient = iterator.next();
-            final BlockPos pos = itemIngredient.getPos();
+            final BlockPos pos = itemIngredient.pos();
             final List<Tuple<FluidStack, IBlockState>> fluidIngredient = new ArrayList<>();
 
-            for (final Tuple<ItemStack, IBlockState> tuple : itemIngredient.getIngredientList()) {
+            for (final Tuple<ItemStack, IBlockState> tuple : itemIngredient.ingredientList()) {
                 IBlockState state = tuple.getSecond();
                 FluidStack fluidStack = FluidUtils.getFluidStackFromBlockState(state);
                 if (fluidStack == null) {
@@ -49,40 +50,12 @@ public record StructureIngredient(List<ItemIngredient> itemIngredient, List<Flui
         return new StructureIngredient(new ArrayList<>(itemIngredient), new ArrayList<>(fluidIngredient));
     }
 
-    public static class ItemIngredient {
-        private final BlockPos pos;
-        private final List<Tuple<ItemStack, IBlockState>> ingredientList;
-
-        public ItemIngredient(final BlockPos pos, final List<Tuple<ItemStack, IBlockState>> ingredientList) {
-            this.pos = pos;
-            this.ingredientList = ingredientList;
-        }
-
-        public BlockPos getPos() {
-            return pos;
-        }
-
-        public List<Tuple<ItemStack, IBlockState>> getIngredientList() {
-            return ingredientList;
-        }
+    @Desugar
+    public record ItemIngredient(BlockPos pos, List<Tuple<ItemStack, IBlockState>> ingredientList, NBTTagCompound nbt) {
     }
 
-    public static class FluidIngredient {
-        private final BlockPos pos;
-        private final List<Tuple<FluidStack, IBlockState>> ingredientList;
-
-        public FluidIngredient(final BlockPos pos, final List<Tuple<FluidStack, IBlockState>> ingredientList) {
-            this.pos = pos;
-            this.ingredientList = ingredientList;
-        }
-
-        public BlockPos getPos() {
-            return pos;
-        }
-
-        public List<Tuple<FluidStack, IBlockState>> getIngredientList() {
-            return ingredientList;
-        }
+    @Desugar
+    public record FluidIngredient(BlockPos pos, List<Tuple<FluidStack, IBlockState>> ingredientList) {
     }
 
 }

@@ -424,9 +424,9 @@ public class MachineBuilder {
     public MachineBuilder setNBT(IData data) {
         if (lastInformation != null) {
             NBTTagCompound tag = CraftTweakerMC.getNBTCompound(data);
-            lastInformation.matchingTag = tag;
-            if (lastInformation.previewTag == null) {
-                lastInformation.previewTag = tag;
+            lastInformation.setMatchingTag(tag);
+            if (lastInformation.getPreviewTag() == null) {
+                lastInformation.setPreviewTag(tag);
             }
         }
         return this;
@@ -440,7 +440,7 @@ public class MachineBuilder {
     @ZenMethod
     public MachineBuilder setPreviewNBT(IData data) {
         if (lastInformation != null) {
-            lastInformation.previewTag = CraftTweakerMC.getNBTCompound(data);
+            lastInformation.setPreviewTag(CraftTweakerMC.getNBTCompound(data));
         }
         return this;
     }
@@ -543,7 +543,7 @@ public class MachineBuilder {
     private void addSingleBlockModifier(BlockPos pos, BlockArray.BlockInformation information, String description, RecipeModifier... modifiers) {
         Map<BlockPos, List<SingleBlockModifierReplacement>> modifierReplacements = this.machine.getModifiers();
         modifierReplacements.putIfAbsent(pos, new ArrayList<>());
-        modifierReplacements.get(pos).add(new SingleBlockModifierReplacement(information, Arrays.asList(modifiers), description));
+        modifierReplacements.get(pos).add(new SingleBlockModifierReplacement(information, Arrays.asList(modifiers), description).setPos(pos));
         lastInformation = information;
         lastPos = pos;
     }

@@ -249,7 +249,7 @@ public class DynamicMachine extends AbstractMachine {
                     continue; //We're not going to overwrite the controller.
                 }
                 machine.modifiers.putIfAbsent(permutation, Lists.newArrayList());
-                machine.modifiers.get(permutation).add(mod);
+                machine.modifiers.get(permutation).add(mod.setPos(permutation));
             }
         }
 
@@ -557,7 +557,9 @@ public class DynamicMachine extends AbstractMachine {
                     throw new JsonParseException("A part of 'parts' is not a compound object!");
                 }
                 JsonObject part = element.getAsJsonObject();
-                NBTTagCompound match = null;
+                NBTTagCompound matchNBT = null;
+                NBTTagCompound previewNBT = null;
+
                 if (part.has("nbt")) {
                     JsonElement je = part.get("nbt");
                     if (!je.isJsonObject()) {
@@ -565,14 +567,26 @@ public class DynamicMachine extends AbstractMachine {
                     }
                     String jsonStr = je.toString();
                     try {
-                        match = NBTJsonDeserializer.deserialize(jsonStr);
+                        matchNBT = NBTJsonDeserializer.deserialize(jsonStr);
+                    } catch (NBTException exc) {
+                        throw new JsonParseException("Error trying to parse NBTTag! Rethrowing exception...", exc);
+                    }
+                }
+                if (part.has("preview-nbt")) {
+                    JsonElement je = part.get("preview-nbt");
+                    if (!je.isJsonObject()) {
+                        throw new JsonParseException("The ComponentType 'preview-nbt' expects a json compound that defines the NBT tag to preview the tileentity's nbt against!");
+                    }
+                    String jsonStr = je.toString();
+                    try {
+                        previewNBT = NBTJsonDeserializer.deserialize(jsonStr);
                     } catch (NBTException exc) {
                         throw new JsonParseException("Error trying to parse NBTTag! Rethrowing exception...", exc);
                     }
                 }
 
                 if (!part.has("elements")) {
-                    throw new JsonParseException("Part contained no element!");
+                    throw new JsonParseException("Part contained empty element!");
                 }
                 JsonElement partElement = part.get("elements");
                 if (partElement.isJsonPrimitive() && partElement.getAsJsonPrimitive().isString()) {
@@ -583,8 +597,11 @@ public class DynamicMachine extends AbstractMachine {
                     } else {
                         descr = descr.copy(); //Avoid NBT-definitions bleed into variable context
                     }
-                    if (match != null) {
-                        descr.setMatchingTag(match);
+                    if (matchNBT != null) {
+                        descr.setMatchingTag(matchNBT);
+                    }
+                    if (previewNBT != null) {
+                        descr.setPreviewTag(previewNBT);
                     }
                     addDescriptorWithPattern(pattern, descr, part);
                 } else if (partElement.isJsonArray()) {
@@ -607,8 +624,11 @@ public class DynamicMachine extends AbstractMachine {
                         throw new JsonParseException("'elements' array didn't contain any blockstate descriptors!");
                     }
                     BlockArray.BlockInformation bi = new BlockArray.BlockInformation(descriptors);
-                    if (match != null) {
-                        bi.setMatchingTag(match);
+                    if (matchNBT != null) {
+                        bi.setMatchingTag(matchNBT);
+                    }
+                    if (previewNBT != null) {
+                        bi.setPreviewTag(previewNBT);
                     }
                     addDescriptorWithPattern(pattern, bi, part);
                 } else {

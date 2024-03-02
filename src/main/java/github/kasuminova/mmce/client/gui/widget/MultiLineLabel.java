@@ -9,13 +9,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 public class MultiLineLabel extends DynamicWidget {
-    public static final int DEFAULT_FONT_HEIGHT = 9;
+    public static final int DEFAULT_FONT_HEIGHT = 10;
 
     protected List<String> contents;
 

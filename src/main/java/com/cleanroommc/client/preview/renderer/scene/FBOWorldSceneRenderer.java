@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.EXTFramebufferObject;
@@ -81,10 +80,10 @@ public class FBOWorldSceneRenderer extends WorldSceneRenderer {
         return winPos;
     }
 
-    public void render(float x, float y, float width, float height, float mouseX, float mouseY) {
+    public void render(float x, float y, float width, float height, float mouseX, float mouseY, final boolean traceBlock) {
         // bind to FBO
         int lastID = bindFBO();
-        super.render(0, 0, this.resolutionWidth, this.resolutionHeight, (int) (this.resolutionWidth * (mouseX - x) / width), (int) (this.resolutionHeight * (1 - (mouseY - y) / height)));
+        super.render(0, 0, this.resolutionWidth, this.resolutionHeight, (int) (this.resolutionWidth * (mouseX - x) / width), (int) (this.resolutionHeight * (1 - (mouseY - y) / height)), traceBlock);
         // unbind FBO
         unbindFBO(lastID);
 
@@ -109,8 +108,8 @@ public class FBOWorldSceneRenderer extends WorldSceneRenderer {
         GlStateManager.bindTexture(lastID);
     }
 
-    public void render(float x, float y, float width, float height, int mouseX, int mouseY) {
-        render(x, y, width, height, (float) mouseX, (float) mouseY);
+    public void render(float x, float y, float width, float height, int mouseX, int mouseY, final boolean traceBlock) {
+        render(x, y, width, height, (float) mouseX, (float) mouseY, traceBlock);
     }
 
     private int bindFBO(){

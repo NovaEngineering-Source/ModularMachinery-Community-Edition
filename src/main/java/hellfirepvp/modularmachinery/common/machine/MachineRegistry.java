@@ -8,6 +8,7 @@
 
 package hellfirepvp.modularmachinery.common.machine;
 
+import crafttweaker.annotations.ZenRegister;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.data.DataLoadProfiler;
@@ -15,6 +16,8 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.fml.common.ProgressManager;
+import stanhebben.zenscript.annotations.ZenClass;
+import stanhebben.zenscript.annotations.ZenMethod;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -27,6 +30,8 @@ import java.util.*;
  * Created by HellFirePvP
  * Date: 27.06.2017 / 11:53
  */
+@ZenRegister
+@ZenClass("mods.modularmachinery.MachineRegistry")
 public class MachineRegistry implements Iterable<DynamicMachine> {
 
     private static final MachineRegistry INSTANCE = new MachineRegistry();
@@ -39,6 +44,11 @@ public class MachineRegistry implements Iterable<DynamicMachine> {
 
     public static MachineRegistry getRegistry() {
         return INSTANCE;
+    }
+
+    @ZenMethod
+    public static String[] getAllRegisteredMachinery() {
+        return LOADED_MACHINERY.keySet().stream().map(rl -> rl.getNamespace() + "." + rl.getPath()).toArray(String[]::new);
     }
 
     public static void preloadMachines() {

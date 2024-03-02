@@ -24,6 +24,7 @@ public class PreviewStatusBar extends Column {
 
     protected boolean shaderPackLoaded = false;
     protected boolean vboUnsupported = false;
+    protected boolean vboDisabled = false;
 
     public PreviewStatusBar(WorldSceneRendererWidget renderer) {
         this.renderer = renderer;
@@ -32,9 +33,7 @@ public class PreviewStatusBar extends Column {
     @Override
     public void initWidget(final WidgetGui gui) {
         super.initWidget(gui);
-        messageLabel.setAutoRecalculateSize(false)
-                .setScale(.72f)
-                .setHeight(MultiLineLabel.DEFAULT_FONT_HEIGHT)
+        messageLabel.setScale(.72f)
                 .setMarginLeft(22);
         progressLine.setColor(0xFF87CEFA)
                 .setHeight(2);
@@ -46,11 +45,9 @@ public class PreviewStatusBar extends Column {
         super.update(gui);
         float progress = renderer.getWorldRenderer().getCompileProgress();
 
-        if (ShaderManager.isOptifineShaderPackLoaded()) {
-            shaderPackLoaded = true;
-        } else if (!OpenGlHelper.useVbo()) {
-            vboUnsupported = true;
-        }
+        shaderPackLoaded = ShaderManager.isOptifineShaderPackLoaded();
+        vboUnsupported = !OpenGlHelper.vboSupported;
+        vboDisabled = !OpenGlHelper.useVbo();
 
         if (progress > 0) {
             progressLine.setWidth((int) Math.floor(maxWidth * progress));
@@ -68,8 +65,11 @@ public class PreviewStatusBar extends Column {
         }
         if (vboUnsupported) {
             contents.add(I18n.format("gui.preview.vbo_unsupported_warn"));
+        } else if (vboDisabled) {
+            contents.add(I18n.format("gui.preview.vbo_disabled_warn"));
         }
         messageLabel.setContents(contents);
+        setMaxWidth(maxWidth);
     }
 
     public PreviewStatusBar setMaxWidth(final int maxWidth) {

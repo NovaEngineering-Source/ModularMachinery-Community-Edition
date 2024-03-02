@@ -25,11 +25,11 @@ import java.util.List;
 @ZenRegister
 @ZenClass("mods.modularmachinery.MMEvents")
 public class MMEvents {
-    public static final List<Action> WAIT_FOR_REGISTER_LIST = new LinkedList<>();
+    public static final List<Action> WAIT_FOR_MODIFY = new LinkedList<>();
 
     @ZenMethod
     public static void onStructureFormed(String machineRegistryName, IEventHandler<MachineStructureFormedEvent> function) {
-        WAIT_FOR_REGISTER_LIST.add(() -> {
+        WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
                 machine.addMachineEventHandler(MachineStructureFormedEvent.class, function);
@@ -41,7 +41,7 @@ public class MMEvents {
 
     @ZenMethod
     public static void onStructureUpdate(String machineRegistryName, IEventHandler<MachineStructureUpdateEvent> function) {
-        WAIT_FOR_REGISTER_LIST.add(() -> {
+        WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
                 machine.addMachineEventHandler(MachineStructureUpdateEvent.class, function);
@@ -53,7 +53,7 @@ public class MMEvents {
 
     @ZenMethod
     public static void onMachinePreTick(String machineRegistryName, IEventHandler<MachineTickEvent> function) {
-        WAIT_FOR_REGISTER_LIST.add(() -> {
+        WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
                 machine.addMachineEventHandler(MachineTickEvent.class, event -> {
@@ -70,7 +70,7 @@ public class MMEvents {
 
     @ZenMethod
     public static void onMachinePostTick(String machineRegistryName, IEventHandler<MachineTickEvent> function) {
-        WAIT_FOR_REGISTER_LIST.add(() -> {
+        WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
                 machine.addMachineEventHandler(MachineTickEvent.class, event -> {
@@ -97,7 +97,7 @@ public class MMEvents {
         if (FMLCommonHandler.instance().getSide().isServer()) {
             return;
         }
-        WAIT_FOR_REGISTER_LIST.add(() -> {
+        WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
                 machine.addMachineEventHandler(ControllerGUIRenderEvent.class, function);
@@ -113,7 +113,7 @@ public class MMEvents {
         if (FMLCommonHandler.instance().getSide().isServer()) {
             return;
         }
-        WAIT_FOR_REGISTER_LIST.add(() -> {
+        WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
                 machine.addMachineEventHandler(ControllerModelAnimationEvent.class, function);
@@ -129,7 +129,7 @@ public class MMEvents {
         if (FMLCommonHandler.instance().getSide().isServer()) {
             return;
         }
-        WAIT_FOR_REGISTER_LIST.add(() -> {
+        WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
                 machine.addMachineEventHandler(ControllerModelGetEvent.class, function);
@@ -141,7 +141,7 @@ public class MMEvents {
 
     @ZenMethod
     public static void onSmartInterfaceUpdate(String machineRegistryName, IEventHandler<SmartInterfaceUpdateEvent> function) {
-        WAIT_FOR_REGISTER_LIST.add(() -> {
+        WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
                 machine.addMachineEventHandler(SmartInterfaceUpdateEvent.class, function);
@@ -233,9 +233,9 @@ public class MMEvents {
     }
 
     public static void registryAll() {
-        for (Action waitForRegister : WAIT_FOR_REGISTER_LIST) {
+        for (Action waitForRegister : WAIT_FOR_MODIFY) {
             waitForRegister.doAction();
         }
-        WAIT_FOR_REGISTER_LIST.clear();
+        WAIT_FOR_MODIFY.clear();
     }
 }

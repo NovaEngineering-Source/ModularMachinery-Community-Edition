@@ -359,7 +359,7 @@ public class BlockArrayRenderHelper {
                 BlockPos offset = entry.getKey();
                 BlockArray.BlockInformation info = entry.getValue();
                 BlockArray.TileInstantiateContext context = new BlockArray.TileInstantiateContext(Minecraft.getMinecraft().world, offset);
-                blockRenderData.put(offset, new BakedBlockData(ref, info.matchingStates, info.previewTag, context));
+                blockRenderData.put(offset, new BakedBlockData(ref, info.matchingStates, info.getPreviewTag(), context));
             }
         }
 

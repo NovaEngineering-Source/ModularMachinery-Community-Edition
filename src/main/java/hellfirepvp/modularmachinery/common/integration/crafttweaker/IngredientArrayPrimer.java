@@ -101,7 +101,7 @@ public class IngredientArrayPrimer {
     @ZenMethod
     @Deprecated
     public IngredientArrayPrimer build() {
-        CraftTweakerAPI.logWarning("IngredientArrayPrimer#build is deprecated, it will be removed in future version.");
+        CraftTweakerAPI.logWarning("[ModularMachinery] IngredientArrayPrimer#build is deprecated, it will be removed in future version.");
         return this;
     }
 

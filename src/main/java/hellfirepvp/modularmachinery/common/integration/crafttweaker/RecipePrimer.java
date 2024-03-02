@@ -21,6 +21,7 @@ import crafttweaker.util.IEventHandler;
 import github.kasuminova.mmce.common.event.Phase;
 import github.kasuminova.mmce.common.event.recipe.*;
 import github.kasuminova.mmce.common.util.concurrent.Action;
+import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.crafting.PreparedRecipe;
 import hellfirepvp.modularmachinery.common.crafting.RecipeRegistry;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
@@ -38,6 +39,7 @@ import hellfirepvp.modularmachinery.common.util.SmartInterfaceType;
 import mekanism.api.gas.Gas;
 import mekanism.api.gas.GasRegistry;
 import mekanism.api.gas.GasStack;
+import mekanism.common.integration.crafttweaker.gas.IGasStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
@@ -257,30 +259,41 @@ public class RecipePrimer implements PreparedRecipe {
     }
 
     /**
-     * 设置此配方在工厂中同时运行的数量是否不超过 1。
-     */
-    @ZenMethod
-    @Deprecated
-    public RecipePrimer setSingleThread(boolean singleThread) {
-        CraftTweakerAPI.logWarning("[ModularMachinery] setSingleThread() is deprecated! Consider using setMaxThreads(1)");
-        return setMaxThreads(singleThread ? 1 : -1);
-    }
-
-    /**
      * 设置此配方只能被指定的核心线程执行。
      * @param name 线程名
      */
     @ZenMethod
     public RecipePrimer setThreadName(String name) {
-        this.threadName = name;
+        this.threadName = name == null ? "" : name;
         return this;
     }
 
     //----------------------------------------------------------------------------------------------
     // EventHandlers
     //----------------------------------------------------------------------------------------------
+
     @ZenMethod
+    public RecipePrimer addPreCheckHandler(IEventHandler<RecipeCheckEvent> handler) {
+        addRecipeEventHandler(RecipeCheckEvent.class, event -> {
+            if (event.phase != Phase.START) return;
+            handler.handle(event);
+        });
+        return this;
+    }
+
+    @ZenMethod
+    public RecipePrimer addPostCheckHandler(IEventHandler<RecipeCheckEvent> handler) {
+        addRecipeEventHandler(RecipeCheckEvent.class, event -> {
+            if (event.phase != Phase.END) return;
+            handler.handle(event);
+        });
+        return this;
+    }
+
+    @ZenMethod
+    @Deprecated
     public RecipePrimer addCheckHandler(IEventHandler<RecipeCheckEvent> handler) {
+        CraftTweakerAPI.logWarning("[ModularMachinery] Deprecated method addCheckHandler()! Consider using addPostCheckHandler()");
         addRecipeEventHandler(RecipeCheckEvent.class, handler);
         return this;
     }
@@ -307,13 +320,6 @@ public class RecipePrimer implements PreparedRecipe {
             handler.handle(event);
         });
         return this;
-    }
-
-    @ZenMethod
-    @Deprecated
-    public RecipePrimer addTickHandler(IEventHandler<RecipeTickEvent> handler) {
-        CraftTweakerAPI.logWarning("[ModularMachinery] Deprecated method addTickHandler()! Consider using addPostTickHandler()");
-        return addPostTickHandler(handler);
     }
 
     @ZenMethod
@@ -357,14 +363,6 @@ public class RecipePrimer implements PreparedRecipe {
     }
 
     @ZenMethod
-    @Deprecated
-    public RecipePrimer addFactoryTickHandler(IEventHandler<FactoryRecipeTickEvent> handler) {
-        CraftTweakerAPI.logWarning("[ModularMachinery] Deprecated method addFactoryTickHandler()! Consider using addFactoryPostTickHandler()");
-        addRecipeEventHandler(FactoryRecipeTickEvent.class, handler);
-        return this;
-    }
-
-    @ZenMethod
     public RecipePrimer addFactoryFailureHandler(IEventHandler<FactoryRecipeFailureEvent> handler) {
         addRecipeEventHandler(FactoryRecipeFailureEvent.class, handler);
         return this;
@@ -391,8 +389,9 @@ public class RecipePrimer implements PreparedRecipe {
             input instanceof IOreDictEntry ||
             input instanceof IngredientStack && input.getInternal() instanceof IOreDictEntry) {
             addItemInput(input);
-        } else if (input instanceof ILiquidStack) {
-            addFluidInput((ILiquidStack) input);
+        } else if (input instanceof ILiquidStack liquidStack) {
+            addFluidInput(liquidStack);
+        } else if (Mods.MEKANISM.isPresent() && checkIGasStackAndAdd(IOType.INPUT, input)) {
         } else {
             CraftTweakerAPI.logError(String.format("[ModularMachinery] Invalid input type %s(%s)! Ignored.", input, input.getClass()));
         }
@@ -415,6 +414,7 @@ public class RecipePrimer implements PreparedRecipe {
             addItemOutput(output);
         } else if (output instanceof ILiquidStack) {
             addFluidOutput((ILiquidStack) output);
+        } else if (Mods.MEKANISM.isPresent() && checkIGasStackAndAdd(IOType.OUTPUT, output)) {
         } else {
             CraftTweakerAPI.logError(String.format("[ModularMachinery] Invalid output type %s(%s)! Ignored.", output, output.getClass()));
         }
@@ -427,6 +427,18 @@ public class RecipePrimer implements PreparedRecipe {
             addOutput(output);
         }
         return this;
+    }
+
+    @Optional.Method(modid = "mekanism")
+    private boolean checkIGasStackAndAdd(IOType ioType, IIngredient input) {
+        if (!(input instanceof IGasStack gasStack)) {
+            return false;
+        }
+        switch (ioType) {
+            case INPUT -> addGasInput(gasStack);
+            case OUTPUT -> addGasOutput(gasStack);
+        }
+        return true;
     }
 
     //----------------------------------------------------------------------------------------------
@@ -507,6 +519,7 @@ public class RecipePrimer implements PreparedRecipe {
     // GAS input & output
     //----------------------------------------------------------------------------------------------
     @ZenMethod
+    @Deprecated
     @Optional.Method(modid = "mekanism")
     public RecipePrimer addGasInput(String gasName, int amount) {
         requireGas(IOType.INPUT, gasName, amount);
@@ -514,9 +527,42 @@ public class RecipePrimer implements PreparedRecipe {
     }
 
     @ZenMethod
+    @Deprecated
     @Optional.Method(modid = "mekanism")
     public RecipePrimer addGasOutput(String gasName, int amount) {
         requireGas(IOType.OUTPUT, gasName, amount);
+        return this;
+    }
+
+    @ZenMethod
+    @Optional.Method(modid = "mekanism")
+    public RecipePrimer addGasInput(IGasStack gasStack) {
+        requireGas(IOType.INPUT, gasStack);
+        return this;
+    }
+
+    @ZenMethod
+    @Optional.Method(modid = "mekanism")
+    public RecipePrimer addGasOutput(IGasStack gasStack) {
+        requireGas(IOType.OUTPUT, gasStack);
+        return this;
+    }
+
+    @ZenMethod
+    @Optional.Method(modid = "mekanism")
+    public RecipePrimer addGasInputs(IGasStack... gasStacks) {
+        for (final IGasStack gasStack : gasStacks) {
+            requireGas(IOType.INPUT, gasStack);
+        }
+        return this;
+    }
+
+    @ZenMethod
+    @Optional.Method(modid = "mekanism")
+    public RecipePrimer addGasOutputs(IGasStack... gasStacks) {
+        for (final IGasStack gasStack : gasStacks) {
+            requireGas(IOType.OUTPUT, gasStack);
+        }
         return this;
     }
 
@@ -543,7 +589,7 @@ public class RecipePrimer implements PreparedRecipe {
     public RecipePrimer addItemInput(IOreDictEntry oreDict, int amount) {
         requireFuel(IOType.INPUT, oreDict.getName(), amount);
         CraftTweakerAPI.logWarning(String.format("[ModularMachinery] Deprecated method " +
-                                                 "`addItemInput(<ore:%s>, %s)`! Consider using `addItemInput(<ore:%s> * %s)`",
+                        "`addItemInput(<ore:%s>, %s)`! Consider using `addItemInput(<ore:%s> * %s)`",
                 oreDict.getName(), amount, oreDict.getName(), amount)
         );
         return this;
@@ -604,7 +650,7 @@ public class RecipePrimer implements PreparedRecipe {
     public RecipePrimer addItemOutput(IOreDictEntry oreDict, int amount) {
         requireFuel(IOType.OUTPUT, oreDict.getName(), amount);
         CraftTweakerAPI.logWarning(String.format("[ModularMachinery] Deprecated method " +
-                                                 "`addItemOutput(<ore:%s>, %s)`! Consider using `addItemOutput(<ore:%s> * %s)`",
+                        "`addItemOutput(<ore:%s>, %s)`! Consider using `addItemOutput(<ore:%s> * %s)`",
                 oreDict.getName(), amount, oreDict.getName(), amount)
         );
         return this;
@@ -667,6 +713,7 @@ public class RecipePrimer implements PreparedRecipe {
         }
     }
 
+    @Deprecated
     @Optional.Method(modid = "mekanism")
     private void requireGas(IOType ioType, String gasName, int amount) {
         Gas gas = GasRegistry.getGas(gasName);
@@ -676,7 +723,23 @@ public class RecipePrimer implements PreparedRecipe {
         }
         int max = Math.max(0, amount);
         GasStack gasStack = new GasStack(gas, max);
+        switch (ioType) {
+            case INPUT -> CraftTweakerAPI.logWarning(String.format(
+                    "[ModularMachinery] `addGasInput(%s, %d)` is deprecated, consider using `<gas:%s> * %d`!",
+                    gasName, amount, gasName, amount
+            ));
+            case OUTPUT -> CraftTweakerAPI.logWarning(String.format(
+                    "[ModularMachinery] `addGasOutput(%s, %d)` is deprecated, consider using `<gas:%s> * %d`!",
+                    gasName, amount, gasName, amount
+            ));
+        }
         RequirementFluid req = RequirementFluid.createMekanismGasRequirement(RequirementTypesMM.REQUIREMENT_GAS, ioType, gasStack);
+        appendComponent(req);
+    }
+
+    @Optional.Method(modid = "mekanism")
+    private void requireGas(IOType ioType, IGasStack gasStack) {
+        RequirementFluid req = RequirementFluid.createMekanismGasRequirement(RequirementTypesMM.REQUIREMENT_GAS, ioType, (GasStack) gasStack.getInternal());
         appendComponent(req);
     }
 
