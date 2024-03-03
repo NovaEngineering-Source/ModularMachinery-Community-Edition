@@ -8,6 +8,7 @@
 
 package hellfirepvp.modularmachinery.common;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import github.kasuminova.mmce.common.capability.CapabilityUpgrade;
 import github.kasuminova.mmce.common.concurrent.TaskExecutor;
 import github.kasuminova.mmce.common.container.ContainerMEFluidInputBus;
@@ -16,7 +17,6 @@ import github.kasuminova.mmce.common.container.ContainerMEItemInputBus;
 import github.kasuminova.mmce.common.container.ContainerMEItemOutputBus;
 import github.kasuminova.mmce.common.handler.EventHandler;
 import github.kasuminova.mmce.common.handler.UpgradeEventHandler;
-import github.kasuminova.mmce.common.handler.UpgradeMachineEventHandler;
 import github.kasuminova.mmce.common.integration.ModIntegrationAE2;
 import github.kasuminova.mmce.common.integration.gregtech.ModIntegrationGTCEU;
 import github.kasuminova.mmce.common.tile.MEFluidInputBus;
@@ -52,10 +52,17 @@ import hellfirepvp.modularmachinery.common.tiles.base.TileItemBus;
 import hellfirepvp.modularmachinery.common.util.BlockArrayCache;
 import hellfirepvp.modularmachinery.common.util.FuelItemHelper;
 import ink.ikx.mmce.core.AssemblyEventHandler;
+import kport.gugu_utils.GuGuCompoments;
+import kport.gugu_utils.GuGuEvent;
+import kport.gugu_utils.GuGuRequirements;
+import kport.gugu_utils.common.pressure.ContainerPressureHatch;
+import kport.gugu_utils.common.starlight.ContainerStarlightInputHatch;
+import kport.gugu_utils.common.starlight.TileStarlightInputHatch;
+import kport.gugu_utils.common.tile.TilePressureHatch;
+import kport.gugu_utils.compat.PneumaticCraftCompat;
 import kport.modularmagic.common.container.ContainerLifeEssence;
 import kport.modularmagic.common.crafting.component.ModularMagicComponents;
 import kport.modularmagic.common.crafting.requirement.types.ModularMagicRequirements;
-import kport.modularmagic.common.event.StarlightEventHandler;
 import kport.modularmagic.common.item.ModularMagicItems;
 import kport.modularmagic.common.tile.TileLifeEssenceProvider;
 import net.minecraft.block.Block;
@@ -143,10 +150,10 @@ public class CommonProxy implements IGuiHandler {
         ModularMagicComponents.initComponents();
         ModularMagicRequirements.initRequirements();
 
-        // ModularMagic Compact
-        if (Mods.ASTRAL_SORCERY.isPresent()) {
-            MinecraftForge.EVENT_BUS.register(StarlightEventHandler.class);
-        }
+        //GuGuUtils
+        GuGuCompoments.preInit();
+        GuGuRequirements.preInit();
+        MinecraftForge.EVENT_BUS.register(new GuGuEvent());
     }
 
     public void init() {
@@ -183,6 +190,11 @@ public class CommonProxy implements IGuiHandler {
             action.doAction();
         }
         FactoryRecipeThread.WAIT_FOR_ADD.clear();
+
+        //GuGuUtils
+        if (Mods.PNEUMATICCRAFT.isPresent()) {
+            PneumaticCraftCompat.postInit();
+        }
 
         future.join();
     }
@@ -269,6 +281,20 @@ public class CommonProxy implements IGuiHandler {
                 }
                 return new ContainerLifeEssence((TileLifeEssenceProvider) present, player);
             }
+
+            case GUI_STARLIGHT_PROVIDER -> {
+                if (!Mods.ASTRAL_SORCERY.isPresent()) {
+                    return null;
+                }
+                return new ContainerStarlightInputHatch(player.inventory, (TileStarlightInputHatch) present) ;
+            }
+
+            case GUI_PRESSURE_PROVIDER -> {
+                if (!Mods.PNEUMATICCRAFT.isPresent()) {
+                    return null;
+                }
+                return new ContainerPressureHatch(player.inventory, (TilePressureHatch) present) ;
+            }
         }
 
         return null;
@@ -296,6 +322,8 @@ public class CommonProxy implements IGuiHandler {
         ME_FLUID_OUTPUT_BUS(Mods.AE2.isPresent() ? MEFluidOutputBus.class : null),
         ME_FLUID_INPUT_BUS(Mods.AE2.isPresent() ? MEFluidInputBus.class : null),
         GUI_ESSENCE_PROVIDER(Mods.BM2.isPresent() ? TileLifeEssenceProvider.class : null),
+        GUI_STARLIGHT_PROVIDER(Mods.ASTRAL_SORCERY.isPresent() ? TileStarlightInputHatch.class : null),
+        GUI_PRESSURE_PROVIDER(Mods.PNEUMATICCRAFT.isPresent() ? TilePressureHatch.class : null)
         ;
 
         public final Class<? extends TileEntity> requiredTileEntity;
@@ -303,5 +331,13 @@ public class CommonProxy implements IGuiHandler {
         GuiType(@Nullable Class<? extends TileEntity> requiredTileEntity) {
             this.requiredTileEntity = requiredTileEntity;
         }
+    }
+
+    public ListenableFuture<Object> addScheduledTaskClient(Runnable runnableToSchedule) {
+        throw new IllegalStateException("This should only be called from client side");
+    }
+
+    public EntityPlayer getClientPlayer() {
+        throw new IllegalStateException("This should only be called from client side");
     }
 }

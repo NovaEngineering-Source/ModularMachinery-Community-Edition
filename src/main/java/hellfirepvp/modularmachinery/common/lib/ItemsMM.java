@@ -11,6 +11,7 @@ package hellfirepvp.modularmachinery.common.lib;
 import hellfirepvp.modularmachinery.common.item.ItemBlueprint;
 import hellfirepvp.modularmachinery.common.item.ItemConstructTool;
 import hellfirepvp.modularmachinery.common.item.ItemModularium;
+import kport.gugu_utils.common.tools.ItemRangedConstructTool;
 import net.minecraft.item.Item;
 
 /**
@@ -25,7 +26,7 @@ public class ItemsMM {
     public static ItemBlueprint blueprint;
     public static ItemModularium modularium;
     public static ItemConstructTool constructTool;
-
+    public static ItemRangedConstructTool rangedConstructTool;
     // AppEng Compat
 
     public static Item meItemOutputBus;

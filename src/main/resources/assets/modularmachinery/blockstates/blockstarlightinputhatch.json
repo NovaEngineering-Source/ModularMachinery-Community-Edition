@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "variant=basic": {
+      "model": "gugu-utils:starlightinputhatch_basic"
+    },
+    "variant=trait": {
+      "model": "gugu-utils:starlightinputhatch_trait"
+    },
+    "variant=brilliant": {
+      "model": "gugu-utils:starlightinputhatch_brilliant"
+    }
+  }
+}

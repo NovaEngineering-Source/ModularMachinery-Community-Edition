@@ -1,0 +1,19 @@
+{
+  "parent": "modularmachinery:block/blockmodel_overlay",
+  "textures": {
+    "particle": "#bg_all",
+    "bg_down": "#bg_all",
+    "bg_up": "#bg_all",
+    "bg_north": "#bg_all",
+    "bg_east": "#bg_all",
+    "bg_south": "#bg_all",
+    "bg_west": "#bg_all",
+
+    "ov_down": "#ov_end",
+    "ov_up": "#ov_end",
+    "ov_north": "#ov_side",
+    "ov_east": "#ov_side",
+    "ov_south": "#ov_side",
+    "ov_west": "#ov_side"
+  }
+}

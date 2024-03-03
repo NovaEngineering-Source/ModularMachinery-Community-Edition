@@ -5,8 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import de.ellpeck.naturesaura.api.NaturesAuraAPI;
 import de.ellpeck.naturesaura.api.aura.type.IAuraType;
-import hellfirepvp.astralsorcery.common.constellation.ConstellationRegistry;
-import hellfirepvp.astralsorcery.common.constellation.IConstellation;
 import net.minecraft.util.ResourceLocation;
 import thaumcraft.api.aspects.Aspect;
 
@@ -133,12 +131,6 @@ public class RequirementUtils {
         else throw new JsonParseException("Invalid aura type : " + s);
     }
 
-    public static IConstellation getConstellation(JsonObject json, String key, String requirement) {
-        String s = getRequiredString(json, key, requirement);
-        IConstellation constellation = ConstellationRegistry.getConstellationByName("astralsorcery.constellation." + s);
-        if (constellation != null) return constellation;
-        else throw new JsonParseException("Invalid constellation name : " + s);
-    }
 
     public static EnumDemonWillType getWillType(JsonObject json, String key, String requirement) {
         String s = getRequiredString(json, key, requirement);

@@ -19,8 +19,11 @@ import hellfirepvp.modularmachinery.common.command.CommandPerformanceReport;
 import hellfirepvp.modularmachinery.common.command.CommandSyntax;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.command.CommandCTReload;
 import hellfirepvp.modularmachinery.common.network.*;
+import kport.gugu_utils.network.PacketCollectorPostion;
+import kport.gugu_utils.network.PacketMana;
+import kport.gugu_utils.network.PacketSetContainerSlot;
+import kport.gugu_utils.network.PacketStarlight;
 import kport.modularmagic.common.event.RegistrationEvent;
-import kport.modularmagic.common.network.StarlightMessage;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -100,11 +103,21 @@ public class ModularMachinery {
         NET_CHANNEL.registerMessage(PktParallelControllerUpdate.class, PktParallelControllerUpdate.class, 102, Side.SERVER);
         NET_CHANNEL.registerMessage(PktMEInputBusInvAction.class, PktMEInputBusInvAction.class, 103, Side.SERVER);
 
+        NET_CHANNEL.registerMessage(PacketSetContainerSlot.Handler.class, PacketSetContainerSlot.class, 104, Side.SERVER);
+
+
+        // Client side
+
         proxy.loadModData(event.getModConfigurationDirectory());
 
+        if (Mods.BOTANIA.isPresent()) {
+            NET_CHANNEL.registerMessage(PacketCollectorPostion.Handler.class, PacketCollectorPostion.class, 5, Side.CLIENT);
+            NET_CHANNEL.registerMessage(PacketMana.Handler.class, PacketMana.class, 6, Side.CLIENT);
+        }
         if (Mods.ASTRAL_SORCERY.isPresent()) {
-            NET_CHANNEL.registerMessage(StarlightMessage.StarlightMessageHandler.class, StarlightMessage.class, 0, Side.SERVER);
-            NET_CHANNEL.registerMessage(StarlightMessage.StarlightMessageHandler.class, StarlightMessage.class, 0, Side.CLIENT);
+            NET_CHANNEL.registerMessage(PacketStarlight.Handler.class, PacketStarlight.class, 7, Side.CLIENT);
+            //NET_CHANNEL.registerMessage(StarlightMessage.StarlightMessageHandler.class, StarlightMessage.class, 0, Side.SERVER);
+            //NET_CHANNEL.registerMessage(StarlightMessage.StarlightMessageHandler.class, StarlightMessage.class, 0, Side.CLIENT);
         }
 
         proxy.preInit();

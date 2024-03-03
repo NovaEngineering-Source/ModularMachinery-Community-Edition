@@ -8,6 +8,7 @@
 
 package hellfirepvp.modularmachinery.client;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import github.kasuminova.mmce.client.gui.GuiMEFluidInputBus;
 import github.kasuminova.mmce.client.gui.GuiMEFluidOutputBus;
 import github.kasuminova.mmce.client.gui.GuiMEItemInputBus;
@@ -40,11 +41,14 @@ import hellfirepvp.modularmachinery.common.tiles.*;
 import hellfirepvp.modularmachinery.common.tiles.base.TileEnergyHatch;
 import hellfirepvp.modularmachinery.common.tiles.base.TileFluidTank;
 import hellfirepvp.modularmachinery.common.tiles.base.TileItemBus;
+import kport.gugu_utils.common.pressure.GuiPressureHatch;
+import kport.gugu_utils.common.tile.TilePressureHatch;
+import kport.gugu_utils.common.starlight.ContainerStarlightInputHatch;
+import kport.gugu_utils.common.starlight.GuiStarlightInputHatch;
+import kport.gugu_utils.common.starlight.TileStarlightInputHatch;
 import kport.modularmagic.client.gui.GuiContainerLifeEssence;
-import kport.modularmagic.client.renderer.TileAspectProviderRenderer;
 import kport.modularmagic.client.renderer.TileLifeEssentiaHatchRenderer;
 import kport.modularmagic.common.item.ModularMagicItems;
-import kport.modularmagic.common.tile.TileAspectProvider;
 import kport.modularmagic.common.tile.TileLifeEssenceProvider;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -70,7 +74,6 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -148,11 +151,6 @@ public class ClientProxy extends CommonProxy {
         MinecraftForge.EVENT_BUS.register(new DebugOverlayHelper());
         MinecraftForge.EVENT_BUS.register(new SelectionBoxRenderHelper());
         MinecraftForge.EVENT_BUS.register(new ClientHandler());
-
-        if (Mods.TC6.isPresent()) {
-            ClientRegistry.bindTileEntitySpecialRenderer(TileAspectProvider.Input.class, new TileAspectProviderRenderer());
-            ClientRegistry.bindTileEntitySpecialRenderer(TileAspectProvider.Output.class, new TileAspectProviderRenderer());
-        }
 
         if (Mods.BM2.isPresent()) {
             ClientRegistry.bindTileEntitySpecialRenderer(TileLifeEssenceProvider.Input.class, new TileLifeEssentiaHatchRenderer());
@@ -325,9 +323,31 @@ public class ClientProxy extends CommonProxy {
                 }
                 return new GuiContainerLifeEssence((TileLifeEssenceProvider) present, player);
             }
+            case GUI_STARLIGHT_PROVIDER -> {
+                if (!Mods.ASTRAL_SORCERY.isPresent()) {
+                    return null;
+                }
+                return new GuiStarlightInputHatch((TileStarlightInputHatch) present, new ContainerStarlightInputHatch(player.inventory, (TileStarlightInputHatch) present));
+            }
+            case GUI_PRESSURE_PROVIDER -> {
+                if (!Mods.PNEUMATICCRAFT.isPresent()) {
+                    return null;
+                }
+                return new GuiPressureHatch(player.inventory, (TilePressureHatch) present) ;
+            }
         }
 
         return null;
+    }
+
+    @Override
+    public ListenableFuture<Object> addScheduledTaskClient(Runnable runnableToSchedule) {
+        return Minecraft.getMinecraft().addScheduledTask(runnableToSchedule);
+    }
+
+    @Override
+    public EntityPlayer getClientPlayer() {
+        return Minecraft.getMinecraft().player;
     }
 
 }

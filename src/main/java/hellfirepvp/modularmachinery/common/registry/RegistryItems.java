@@ -11,8 +11,11 @@ package hellfirepvp.modularmachinery.common.registry;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.item.*;
+
+import kport.gugu_utils.common.tools.ItemRangedConstructTool;
 import net.minecraft.item.Item;
 import youyihj.mmce.common.item.MachineProjector;
+
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -38,6 +41,7 @@ public class RegistryItems {
         blueprint = prepareRegister(new ItemBlueprint());
         modularium = prepareRegister(new ItemModularium());
         constructTool = prepareRegister(new ItemConstructTool());
+        rangedConstructTool = prepareRegister(new ItemRangedConstructTool());
         prepareRegisterWithCustomName(MachineProjector.INSTANCE);
 
         registerItemBlocks();

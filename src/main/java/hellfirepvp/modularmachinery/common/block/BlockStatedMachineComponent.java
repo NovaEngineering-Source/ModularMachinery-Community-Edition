@@ -1,5 +1,6 @@
 package hellfirepvp.modularmachinery.common.block;
 
+import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.block.prop.WorkingState;
 import net.minecraft.block.SoundType;
@@ -11,6 +12,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -19,6 +21,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class BlockStatedMachineComponent extends BlockMachineComponent implements BlockVariants {
     public static final List<BlockStatedMachineComponent> WAIT_FOR_REGISTRY = new ArrayList<>();
@@ -33,6 +36,12 @@ public class BlockStatedMachineComponent extends BlockMachineComponent implement
         setSoundType(SoundType.METAL);
         setHarvestLevel("pickaxe", 1);
         setCreativeTab(CommonProxy.creativeTabModularMachinery);
+    }
+
+    @Deprecated
+    public boolean isOpaqueCube(IBlockState state)
+    {
+        return (Objects.equals(this.getTranslationKey(), "block.modularmachinery.crushing_wheels.name"));
     }
 
     public boolean isColoured() {

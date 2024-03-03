@@ -1,0 +1,129 @@
+item.gugu-utils.lensOverclocking.name=魔力透镜： 超频
+item.gugu-utils.lensTransform.name=魔力透镜： 转变
+item.gugu-utils.lensTransform.short.name=转变
+item.gugu-utils.constructionranged.name=范围建造选择工具
+itemGroup.gugu-utils=咕咕工具
+
+
+tile.gugu-utils.sparkmanahatch.input.name=火花魔力输入仓
+tile.gugu-utils.sparkmanahatch.output.name=火花魔力输出仓
+
+tile.gugu-utils.pressurehatch.input.name=压缩空气输入阀门
+tile.gugu-utils.pressurehatch.output.name=压缩空气输出阀门
+
+tile.gugu-utils.starlightinputhatch.basic.name=基础星辉输入仓
+tile.gugu-utils.starlightinputhatch.trait.name=五彩星辉输入仓
+tile.gugu-utils.starlightinputhatch.brilliant.name=闪耀星辉输入仓
+
+
+tile.gugu-utils.emberinputhatch.tiny.name=微型灰烬能量输入仓
+tile.gugu-utils.emberinputhatch.small.name=小型灰烬能量输入仓
+tile.gugu-utils.emberinputhatch.medium.name=中型灰烬能量输入仓
+tile.gugu-utils.emberinputhatch.reinforced.name=强化灰烬能量输入仓
+tile.gugu-utils.emberinputhatch.big.name=大型灰烬能量输入仓
+tile.gugu-utils.emberinputhatch.huge.name=巨型灰烬能量输入仓
+tile.gugu-utils.emberinputhatch.ludicrous.name=超级灰烬能量输入仓
+tile.gugu-utils.emberinputhatch.extreme.name=极限灰烬能量输入仓
+
+tile.gugu-utils.environmenthatch.name=环境传感器
+tile.gugu-utils.aurainputhatch.name=灵气输入仓
+tile.gugu-utils.energyoutputport.name=能源输出端口
+tile.gugu-utils.aspecthatch.input.name=源质输入仓
+tile.gugu-utils.aspecthatch.output.name=源质输出仓
+tile.gugu-utils.hotairinputhatch.name=热空气输入仓
+
+
+
+message.gugu-utils.botaniaaddon.manyflowers=花太多了，效率 %s%%
+
+
+message.gugu-utils.sparkmanahatch=魔力: %s / %s
+message.gugu-utils.starlightinputhatch.ext.basic=相当于 %s 的容量
+message.gugu-utils.starlightinputhatch.ext.trait=相当于 %s 的容量
+message.gugu-utils.starlightinputhatch.ext.brilliant=四倍于 %s 的容量
+message.gugu-utils.starlightinputhatch=最大星能: %s
+message.gugu-utils.rangedconstructtool.creative=范围建造工具，配合默认工具使用=
+
+
+tooltips.gugu-utils.mana_amount=魔力: %s Mana
+tooltips.gugu-utils.mana_amount.tick=魔力: %s Mana/t
+tooltips.gugu-utils.mana_amount.total=总计: %s Mana
+
+tooltips.gugu-utils.starlight=星能: %s
+tooltips.gugu-utils.starlight.constellation= §9需要星座：%s
+
+tooltips.gugu-utils.ember_amount=灰烬能量: %s
+tooltips.gugu-utils.ember_minimum_hatch=需要 %s 或其他更高等级的输入仓
+
+tooltips.gugu-utils.aura_amount.tick=灵气: %s Aura/t
+tooltips.gugu-utils.aura_amount.total=总计: %s 灵气
+tooltips.gugu-utils.aura.force=§4可能耗尽区块内的所有灵气！
+
+tooltips.gugu-utils.environment.altitude=当 Y >= %s 并且 Y <= %s 时工作
+tooltips.gugu-utils.environment.time=在 %s 到 %s 期间工作
+tooltips.gugu-utils.environment.biome=在以下生物群系工作
+tooltips.gugu-utils.environment.biome.type=§9包含标签 %s
+tooltips.gugu-utils.environment.dimension=在以下维度工作
+tooltips.gugu-utils.environment.weather.sunny=在晴天工作
+tooltips.gugu-utils.environment.weather.raining=在雨天工作
+tooltips.gugu-utils.environment.weather.snowing=在雪天工作
+tooltips.gugu-utils.environment.weather.thundering=在雷雨天工作
+tooltips.gugu-utils.environment.moonphase.desc=在以下月相工作
+tooltips.gugu-utils.environment.moonphase.0=满月
+tooltips.gugu-utils.environment.moonphase.1=亏凸月
+tooltips.gugu-utils.environment.moonphase.2=下弦月
+tooltips.gugu-utils.environment.moonphase.3=残月
+tooltips.gugu-utils.environment.moonphase.4=新月
+tooltips.gugu-utils.environment.moonphase.5=娥眉月
+tooltips.gugu-utils.environment.moonphase.6=上弦月
+tooltips.gugu-utils.environment.moonphase.7=盈凸月
+
+tooltips.gugu-utils.gas_amount=空气: %s mL
+tooltips.gugu-utils.gas_amount.tick=空气: %s mL/t
+tooltips.gugu-utils.gas_amount.total=总计: %s mL
+tooltips.gugu-utils.pressure=工作气压: %s bar
+tooltips.gugu-utils.hotair.consume=§6消耗的热量：§f %d°C§r
+
+gugu-utils.jei.category.burst_transform=魔力脉冲转换
+
+
+
+component.missing.gugu-utils:mana.input=缺少魔力输入仓！
+component.missing.gugu-utils:mana.output=缺少魔力输出仓！
+component.missing.gugu-utils:starlight.input=缺少星辉输入仓！
+component.missing.gugu-utils:environment.input=缺少环境传感器！
+component.missing.gugu-utils:aura.input=缺少灵气输入仓！
+component.missing.gugu-utils:pressurehatch.input=缺少压缩空气输入阀门！
+component.missing.gugu-utils:pressurehatch.output=缺少压缩空气输出阀门！
+
+craftcheck.failure.gugu-utils:mana.input=缺少魔力输入！
+craftcheck.failure.gugu-utils:mana.output.space=没有足够的空间用于魔力输出！
+craftcheck.failure.gugu-utils:starlight.input=输入星能不足！
+craftcheck.failure.gugu-utils:starlight.input.wrong_constellation=输入星能的星座不正确！
+craftcheck.failure.gugu-utils:ember.input=余烬能量不足！
+craftcheck.failure.gugu-utils:aura.input=输入灵气不足！
+craftcheck.failure.gugu-utils:compressed_air.input=缺少压缩空气输入！
+craftcheck.failure.gugu-utils:compressed_air.input.not_enough_pressure=气压不足！
+craftcheck.failure.gugu-utils:compressed_air.input.not_enough_vacuum=不够真空！
+craftcheck.failure.gugu-utils:hot_air.input=缺少热空气输入
+craftcheck.failure.gugu-utils:hot_air.input.temp_too_high=输入的热空气温度太高！
+craftcheck.failure.gugu-utils:hot_air.input.temp_too_low=输入的热空气温度太低！
+craftcheck.failure.gugu-utils:environment.altitude=无法在当前海拔下工作！
+craftcheck.failure.gugu-utils:environment.dimensions=无法在当前维度下工作！
+craftcheck.failure.gugu-utils:environment.biomes=无法在当前生物群系工作！
+craftcheck.failure.gugu-utils:environment.time=当前时间段无法工作！
+craftcheck.failure.gugu-utils:environment.weather=机器需要在正确的天气下！
+craftcheck.failure.gugu-utils:environment.moonphase=今晚的月相不满足工作条件！
+
+craftcheck.message.gugu-utils:aspect.consuming=正在抽取源质！
+
+psi.spellpiece.trickAccelerate=启动式：加速
+psi.spellpiece.trickAccelerate.desc=PSI版快乐棒，你值得拥有
+
+
+gui.gugu-utils.crttools.fluid.title=流体数量设定
+gui.gugu-utils.crttools.fluid.ok=确定
+gui.gugu-utils.crttools.fluid.cancel=取消
+
+gui.tab.info.tile.gugu-utils.pressurehatch.output=§0这个方块用来从模块化机械输出压缩空气
+gui.tab.info.tile.gugu-utils.pressurehatch.input=§0这个方块用来从模块化机械输入压缩空气

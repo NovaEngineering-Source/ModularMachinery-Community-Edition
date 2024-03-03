@@ -214,6 +214,10 @@ dependencies {
     compileOnly(rfg.deobf("curse.maven:guideapi-228832:2645992"))
     compileOnly(rfg.deobf("curse.maven:patchouli-306770:3162874"))
     compileOnly(rfg.deobf("curse.maven:thaumic-augmentation-319441:4486505"))
+    compileOnly(rfg.deobf("curse.maven:embers-rekindled-300777:3695248"))
+    compileOnly(rfg.deobf("curse.maven:pneumaticcraft-repressurized-281849:2978408"))
+    compileOnly(rfg.deobf("curse.maven:prodigy-tech-297414:2769520"))
+    compileOnly (rfg.deobf("curse.maven:computercraft-282001:2694855"))
 }
 
 // Publishing to a Maven repository

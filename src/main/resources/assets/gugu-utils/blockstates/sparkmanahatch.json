@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "variant=input": {
+      "model": "gugu-utils:sparkmanainputhatch"
+    },
+    "variant=output": {
+      "model": "gugu-utils:sparkmanaoutputhatch"
+    }
+  }
+}

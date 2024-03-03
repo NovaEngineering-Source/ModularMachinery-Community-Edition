@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "variant=input": {
+      "model": "gugu-utils:aspectinputhatch"
+    },
+    "variant=output": {
+      "model": "gugu-utils:aspectoutputhatch"
+    }
+  }
+}

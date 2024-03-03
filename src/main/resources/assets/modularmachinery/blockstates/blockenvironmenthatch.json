@@ -1,0 +1,18 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "modularmachinery:blockmodel_overlay_all",
+    "textures": {
+      "bg_all": "modularmachinery:blocks/blockcasing_plain",
+      "ov_all": "gugu-utils:blocks/overlay_environmenthatch"
+    }
+  },
+  "variants": {
+    "normal": [
+      {}
+    ],
+    "inventory": [
+      {}
+    ]
+  }
+}
