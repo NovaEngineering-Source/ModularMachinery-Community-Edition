@@ -48,6 +48,14 @@ public class Config {
     private static File lastReadFile;
     private static Configuration lastReadConfig;
 
+    @net.minecraftforge.common.config.Config.Comment("Max aspect in aspect output hatch")
+    @net.minecraftforge.common.config.Config.RangeInt(min = 1)
+    public static int ASPECT_OUTPUT_HATCH_MAX_STORAGE = 500;
+
+    @net.minecraftforge.common.config.Config.Comment("Actions when a aspect output hatch are full, can be 'spill_random', 'spill_all' and 'halt'.")
+    public static String ASPECT_OUTPUT_HATCH_FULL_ACTION = "spill_random";
+
+
     public static void loadFrom(File file) {
         lastReadFile = file;
         lastReadConfig = new Configuration(file);

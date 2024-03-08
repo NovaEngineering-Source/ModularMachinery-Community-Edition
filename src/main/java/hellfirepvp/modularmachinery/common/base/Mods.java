@@ -72,7 +72,11 @@ public enum Mods {
     /**
      * An add-on mod that provides the ability to hide block rendering similar to Multiblocked.
      */
-    COMPONENT_MODEL_HIDER("component_model_hider")
+    COMPONENT_MODEL_HIDER("component_model_hider"),
+    EMBERS("embers"),
+    PNEUMATICCRAFT("pneumaticcraft"),
+
+    PRODIGYTECH("prodigytech")
     ;
 
     public final String modid;

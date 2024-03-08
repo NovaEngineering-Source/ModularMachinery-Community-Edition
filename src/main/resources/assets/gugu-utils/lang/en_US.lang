@@ -1,0 +1,129 @@
+item.gugu-utils.lensOverclocking.name=Overlclocking Lens
+item.gugu-utils.lensTransform.name=Transform Lens
+item.gugu-utils.lensTransform.short.name=Transform
+item.gugu-utils.constructionranged.name=Ranged Construction Selection Tool
+itemGroup.gugu-utils=GuGu Utils
+
+
+tile.gugu-utils.sparkmanahatch.input.name=Spark Mana Input Hatch
+tile.gugu-utils.sparkmanahatch.output.name=Spark Mana Output Hatch
+
+tile.gugu-utils.pressurehatch.input.name=Compressed Air Input Valve
+tile.gugu-utils.pressurehatch.output.name=Compressed Air Output Valve
+
+tile.gugu-utils.starlightinputhatch.basic.name=Basic Starlight Input Hatch
+tile.gugu-utils.starlightinputhatch.trait.name=Trait Starlight Input Hatch
+tile.gugu-utils.starlightinputhatch.brilliant.name=Brilliant Starlight Input Hatch
+
+
+tile.gugu-utils.emberinputhatch.tiny.name=Tiny Ember Input Hatch
+tile.gugu-utils.emberinputhatch.small.name=Small Ember Input Hatch
+tile.gugu-utils.emberinputhatch.medium.name=Medium Ember Input Hatch
+tile.gugu-utils.emberinputhatch.reinforced.name=Reinforced Ember Input Hatch
+tile.gugu-utils.emberinputhatch.big.name=Big Ember Input Hatch
+tile.gugu-utils.emberinputhatch.huge.name=Huge Ember Input Hatch
+tile.gugu-utils.emberinputhatch.ludicrous.name=Ludicrous Ember Input Hatch
+tile.gugu-utils.emberinputhatch.extreme.name=Extreme Ember Input Hatch
+
+tile.gugu-utils.environmenthatch.name=Environment Sensor
+tile.gugu-utils.aurainputhatch.name=Aura Input Hatch
+tile.gugu-utils.energyoutputport.name=Energy Output Port
+tile.gugu-utils.aspecthatch.input.name=Aspect Input Hatch
+tile.gugu-utils.aspecthatch.output.name=Aspect Output Hatch
+tile.gugu-utils.hotairinputhatch.name=Hot Air Input Hatch
+
+
+
+message.gugu-utils.botaniaaddon.manyflowers=Too many flowers, Efficiency %s%%
+
+
+message.gugu-utils.sparkmanahatch=Mana: %s/%s
+message.gugu-utils.starlightinputhatch.ext.basic=Same as %s
+message.gugu-utils.starlightinputhatch.ext.trait=Same as %s
+message.gugu-utils.starlightinputhatch.ext.brilliant=Four times as %s
+message.gugu-utils.starlightinputhatch=Maximum Staright: %s
+message.gugu-utils.rangedconstructtool.creative=Ranged Construction Tool, use together with default tool!
+
+
+tooltips.gugu-utils.mana_amount=Mana: %s Mana
+tooltips.gugu-utils.mana_amount.tick=Mana: %s Mana/t
+tooltips.gugu-utils.mana_amount.total=Total: %s Mana
+
+tooltips.gugu-utils.starlight=Starlight: %s
+tooltips.gugu-utils.starlight.constellation= §9Needed Constellation:  %s
+
+tooltips.gugu-utils.ember_amount=Ember: %s
+tooltips.gugu-utils.ember_minimum_hatch=Require an %s or above
+
+tooltips.gugu-utils.aura_amount.tick=Aura: %s Aura/t
+tooltips.gugu-utils.aura_amount.total=Total: %s Aura
+tooltips.gugu-utils.aura.force=§4Might consume all the aura in the chunk
+
+tooltips.gugu-utils.environment.altitude=Work when Y >= %s and Y <= %s
+tooltips.gugu-utils.environment.time=Work from %s to %s
+tooltips.gugu-utils.environment.biome=Work in the following biomes
+tooltips.gugu-utils.environment.biome.type=§9With such tag: %s
+tooltips.gugu-utils.environment.dimension=Work in the following dimensions
+tooltips.gugu-utils.environment.weather.sunny=Works in Sunny Day
+tooltips.gugu-utils.environment.weather.raining=Works in Raining Day
+tooltips.gugu-utils.environment.weather.snowing=Works in Snowing Day
+tooltips.gugu-utils.environment.weather.thundering=Works in Thundering Day
+tooltips.gugu-utils.environment.moonphase.desc=Work in the following moon phases
+tooltips.gugu-utils.environment.moonphase.0=Full moon
+tooltips.gugu-utils.environment.moonphase.1=Waning gibbous
+tooltips.gugu-utils.environment.moonphase.2=Third quarter
+tooltips.gugu-utils.environment.moonphase.3=Waning crescent
+tooltips.gugu-utils.environment.moonphase.4=New moon
+tooltips.gugu-utils.environment.moonphase.5=Waxing crescent
+tooltips.gugu-utils.environment.moonphase.6=First quarter
+tooltips.gugu-utils.environment.moonphase.7=Waxing gibbouss
+
+tooltips.gugu-utils.gas_amount=Air: %s mL
+tooltips.gugu-utils.gas_amount.tick=Air: %s mL/t
+tooltips.gugu-utils.gas_amount.total=Total: %s mL
+tooltips.gugu-utils.pressure=Working pressure: %s bar
+tooltips.gugu-utils.hotair.consume=§6Heat consume:§f %d°C§r
+
+gugu-utils.jei.category.burst_transform=Mana Burst Transform
+
+
+
+component.missing.gugu-utils:mana.input=No Mana Input Hatch found!
+component.missing.gugu-utils:mana.output=No Mana Output Hatch found!
+component.missing.gugu-utils:starlight.input=No Starlight Input Hatch found!
+component.missing.gugu-utils:environment.input=No Environment Sensor found!
+component.missing.gugu-utils:aura.input=No Aura Input Hatch found!
+component.missing.gugu-utils:pressurehatch.input=No Compressed Air Input Valve found!
+component.missing.gugu-utils:pressurehatch.output=No Compressed Air Output Valve found!
+
+craftcheck.failure.gugu-utils:mana.input=Missing mana input!
+craftcheck.failure.gugu-utils:mana.output.space=Not enough space for mana output!
+craftcheck.failure.gugu-utils:starlight.input=Missing starlight input!
+craftcheck.failure.gugu-utils:starlight.input.wrong_constellation=Starlight did not belong to the correct constellation!
+craftcheck.failure.gugu-utils:ember.input=Missing ember input!
+craftcheck.failure.gugu-utils:aura.input=Missing aura input!
+craftcheck.failure.gugu-utils:compressed_air.input=Missing compressed air input!
+craftcheck.failure.gugu-utils:compressed_air.input.not_enough_pressure=Not enough pressure!
+craftcheck.failure.gugu-utils:compressed_air.input.not_enough_vacuum=Not enough vacuum!
+craftcheck.failure.gugu-utils:hot_air.input=Missing hot air input!
+craftcheck.failure.gugu-utils:hot_air.input.temp_too_high=Hot air's temperature is too high!
+craftcheck.failure.gugu-utils:hot_air.input.temp_too_low=Hot air's temperature is too low!
+craftcheck.failure.gugu-utils:environment.altitude=Altitude is incorrect!
+craftcheck.failure.gugu-utils:environment.dimensions=Dimensions are incorrect!
+craftcheck.failure.gugu-utils:environment.biomes=Biomes are incorrect!
+craftcheck.failure.gugu-utils:environment.time=Not in the correct time!
+craftcheck.failure.gugu-utils:environment.weather=Not in the correct weather!
+craftcheck.failure.gugu-utils:environment.moonphase=Not have the correct moon phase!
+
+craftcheck.message.gugu-utils:aspect.consuming=Pumping Essentia!
+
+psi.spellpiece.trickAccelerate=Trick: Accelerate
+psi.spellpiece.trickAccelerate.desc=Accelerate
+
+
+gui.gugu-utils.crttools.fluid.title=Fluid Amount Setting
+gui.gugu-utils.crttools.fluid.ok=OK
+gui.gugu-utils.crttools.fluid.cancel=Cancel
+
+gui.tab.info.tile.gugu-utils.pressurehatch.output=§0This block is used to output compressed air form a modular machinery.
+gui.tab.info.tile.gugu-utils.pressurehatch.input=§0This block is used to input compressed air to a modular machinery.

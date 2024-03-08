@@ -5,8 +5,6 @@ import crafttweaker.CraftTweakerAPI;
 import crafttweaker.annotations.ZenRegister;
 import de.ellpeck.naturesaura.api.NaturesAuraAPI;
 import de.ellpeck.naturesaura.api.aura.type.IAuraType;
-import hellfirepvp.astralsorcery.common.constellation.ConstellationRegistry;
-import hellfirepvp.astralsorcery.common.constellation.IConstellation;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.RecipePrimer;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import kport.modularmagic.common.crafting.requirement.*;
@@ -87,17 +85,6 @@ public class MagicPrimer {
     }
 
     @ZenMethod
-    public static RecipePrimer addConstellationInput(RecipePrimer primer, String constellationString) {
-        IConstellation constellation = ConstellationRegistry.getConstellationByName("astralsorcery.constellation." + constellationString);
-        if (constellation != null)
-            primer.appendComponent(new RequirementConstellation(IOType.INPUT, constellation));
-        else
-            CraftTweakerAPI.logError("Invalid constellation : " + constellationString);
-
-        return primer;
-    }
-
-    @ZenMethod
     public static RecipePrimer addGridPowerInput(RecipePrimer primer, int amount) {
         if (amount > 0)
             primer.appendComponent(new RequirementGrid(IOType.INPUT, amount));
@@ -144,26 +131,6 @@ public class MagicPrimer {
     }
 
     @ZenMethod
-    public static RecipePrimer addStarlightInput(RecipePrimer primer, float amount) {
-        if (amount > 0)
-            primer.appendComponent(new RequirementStarlight(IOType.INPUT, amount));
-        else
-            CraftTweakerAPI.logError("Invalid Starlight amount : " + amount + " (need to be positive and not null)");
-
-        return primer;
-    }
-
-    @ZenMethod
-    public static RecipePrimer addStarlightOutput(RecipePrimer primer, float amount) {
-        if (amount > 0)
-            primer.appendComponent(new RequirementStarlight(IOType.OUTPUT, amount));
-        else
-            CraftTweakerAPI.logError("Invalid Starlight amount : " + amount + " (need to be positive and not null)");
-
-        return primer;
-    }
-
-    @ZenMethod
     public static RecipePrimer addWillInput(RecipePrimer primer, String willTypeString, int amount) {
         EnumDemonWillType willType = EnumDemonWillType.valueOf(willTypeString);
         if (willType != null)
@@ -203,26 +170,6 @@ public class MagicPrimer {
             primer.appendComponent(new RequirementWill(IOType.OUTPUT, amount, willType, min, max));
         else
             CraftTweakerAPI.logError("Invalid demon will type : " + willTypeString);
-
-        return primer;
-    }
-
-    @ZenMethod
-    public static RecipePrimer addManaInput(RecipePrimer primer, int amount, boolean perTick) {
-        if (amount > 0)
-            primer.appendComponent(new RequirementMana(IOType.INPUT, amount, perTick));
-        else
-            CraftTweakerAPI.logError("Invalid Mana amount : " + amount + " (need to be positive and not null)");
-
-        return primer;
-    }
-
-    @ZenMethod
-    public static RecipePrimer addManaOutput(RecipePrimer primer, int amount, boolean perTick) {
-        if (amount > 0)
-            primer.appendComponent(new RequirementMana(IOType.OUTPUT, amount, perTick));
-        else
-            CraftTweakerAPI.logError("Invalid Mana amount : " + amount + " (need to be positive and not null)");
 
         return primer;
     }

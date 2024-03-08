@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "normal": {
+      "model": "gugu-utils:spreader_overclocking"
+    }
+  }
+}

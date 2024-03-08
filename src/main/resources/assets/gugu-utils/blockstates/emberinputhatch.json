@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "variant=tiny": {
+      "model": "gugu-utils:emberinputhatch_tiny"
+    },
+    "variant=small": {
+      "model": "gugu-utils:emberinputhatch_small"
+    },
+    "variant=medium": {
+      "model": "gugu-utils:emberinputhatch_medium"
+    },
+    "variant=reinforced": {
+      "model": "gugu-utils:emberinputhatch_reinforced"
+    },
+    "variant=big": {
+      "model": "gugu-utils:emberinputhatch_big"
+    },
+    "variant=huge": {
+      "model": "gugu-utils:emberinputhatch_huge"
+    },
+    "variant=ludicrous": {
+      "model": "gugu-utils:emberinputhatch_ludicrous"
+    },
+    "variant=extreme": {
+      "model": "gugu-utils:emberinputhatch_extreme"
+    }
+  }
+}

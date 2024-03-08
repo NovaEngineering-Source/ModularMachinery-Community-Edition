@@ -1,0 +1,23 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "gugu-utils:blockmodel_overlay_column",
+    "textures": {
+      "bg_all": "modularmachinery:blocks/blockcasing_plain",
+      "ov_end": "gugu-utils:blocks/overlay_airinputhatch_end",
+      "ov_side": "gugu-utils:blocks/overlay_airinputhatch_on"
+    }
+  },
+  "variants": {
+    "normal": [{}],
+    "inventory": [{}],
+    "state": {
+      "off": {
+        "textures": {
+          "ov_side": "gugu-utils:blocks/overlay_airinputhatch_off"
+        }
+      },
+      "on": {}
+    }
+  }
+}

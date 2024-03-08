@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "variant=input": {
+      "model": "gugu-utils:pressureinputhatch"
+    },
+    "variant=output": {
+      "model": "gugu-utils:pressureoutputhatch"
+    }
+  }
+}
