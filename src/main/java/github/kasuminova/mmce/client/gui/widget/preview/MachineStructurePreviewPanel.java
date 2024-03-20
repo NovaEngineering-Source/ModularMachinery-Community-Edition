@@ -10,6 +10,7 @@ import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.client.ClientProxy;
 import hellfirepvp.modularmachinery.client.util.DynamicMachineRenderContext;
 import hellfirepvp.modularmachinery.common.data.Config;
+import hellfirepvp.modularmachinery.common.item.ItemBlockController;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.BlockArray;
@@ -208,18 +209,19 @@ public class MachineStructurePreviewPanel extends Row {
 
         // Right Top Menu
         Row rightTopMenu = new Row();
-        if (!machine.getModifiers().isEmpty() || !machine.getMultiBlockModifiers().isEmpty()) {
-            rightTopMenu.addWidgets(showUpgrades.setMarginRight(2));
+        boolean hasModifier = !machine.getModifiers().isEmpty() || !machine.getMultiBlockModifiers().isEmpty();
+        if (hasModifier) {
+            rightTopMenu.addWidgets(showUpgrades.setClicked(true).setMarginRight(2));
         }
         rightTopMenu.addWidgets(resetCenter.setMarginRight(2), toggleFormed.setMarginRight(2), machineExtraInfo.setMarginRight(2));
         rightTopMenu.setAbsXY(PANEL_WIDTH - (rightTopMenu.getWidth() + 6), 28);
 
         // Right menu
         Row rightMenu = (Row) new Row().addWidgets(
-                upgradeIngredientList.setDisabled(true).setMarginRight(2),
+                upgradeIngredientList.setEnabled(hasModifier).setMarginRight(2),
                 layerScrollbar.setDisabled(true).setMarginRight(2)
         );
-        rightMenu.setAbsXY(PANEL_WIDTH - (rightMenu.getWidth() + 6), 44);
+        rightMenu.setAbsXY(PANEL_WIDTH - (rightMenu.getWidth() + (hasModifier ? 0 : 6)), 44);
 
         // Add all widgets to preview panel...
         addWidgets(
@@ -246,7 +248,7 @@ public class MachineStructurePreviewPanel extends Row {
 
         resetCenter.setOnClickedListener(btn -> handleResetCenterButton());
         toggleFormed.setOnClickedListener(btn -> handleToggleFormedButton(toggleFormed));
-        if (!machine.getModifiers().isEmpty() || !machine.getMultiBlockModifiers().isEmpty()) {
+        if (hasModifier) {
             showUpgrades.setOnClickedListener(btn -> handleShowUpgradesButton(upgradeIngredientList, showUpgrades, rightMenu));
         }
 
@@ -329,7 +331,15 @@ public class MachineStructurePreviewPanel extends Row {
     protected void handleRendererPatternUpdate(final DynamicMachine machine, final WorldSceneRendererWidget r, final IngredientList ingredientList) {
         List<ItemStack> stackList = r.getPattern().getDescriptiveStackList(r.getTickSnap(), r.getWorldRenderer().getWorld(), r.getRenderOffset());
         ingredientList.setStackList(stackList.stream()
-                .sorted(Comparator.comparingInt(ItemStack::getCount).reversed())
+                .sorted((left, right) -> {
+                    if (left.getItem() instanceof ItemBlockController) {
+                        return -1;
+                    }
+                    if (right.getItem() instanceof ItemBlockController) {
+                        return 1;
+                    }
+                    return Integer.compare(right.getCount(), left.getCount());
+                })
                 .collect(Collectors.toList()));
         if (r.isStructureFormed()) {
             TileEntity ctrlTE = r.getWorldRenderer().getWorld().getTileEntity(BlockPos.ORIGIN.add(r.getRenderOffset()));

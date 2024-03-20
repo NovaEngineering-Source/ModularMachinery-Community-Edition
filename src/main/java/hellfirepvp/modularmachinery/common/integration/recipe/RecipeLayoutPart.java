@@ -287,7 +287,22 @@ public abstract class RecipeLayoutPart<T> {
                 return 4;
             }
 
-            return (int) Math.round(Math.sqrt(partAmount));
+            int sqrt = (int) Math.round(Math.sqrt(partAmount));
+            if (partAmount % sqrt == 0) {
+                return sqrt;
+            }
+
+            int range = sqrt <= 3 ? sqrt : sqrt / 2;
+            for (int i = 1; i < range; i++) {
+                if (partAmount % (sqrt + i) == 0) {
+                    return sqrt + i;
+                }
+                if (partAmount % (sqrt - i) == 0) {
+                    return sqrt - i;
+                }
+            }
+
+            return sqrt;
         }
 
         @Override

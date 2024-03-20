@@ -487,6 +487,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         } else {
             ModularMachinery.EXECUTE_MANAGER.addSyncTask(() -> updateStatedMachineComponent(working));
         }
+        markForUpdateSync();
     }
 
     protected void updateStatedMachineComponent(final boolean working) {
@@ -759,7 +760,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
     protected void updateMultiBlockModifiers() {
         for (MultiBlockModifierReplacement mod : foundMachine.getMultiBlockModifiers()) {
             if (!mod.matches(this)) {
-                return;
+                continue;
             }
             this.foundModifiers.put(mod.getModifierName(), mod.getModifiers());
         }

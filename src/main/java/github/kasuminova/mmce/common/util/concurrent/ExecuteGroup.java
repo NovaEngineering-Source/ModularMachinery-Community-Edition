@@ -41,6 +41,10 @@ public class ExecuteGroup {
         this.submitted = submitted;
     }
 
+    public long getGroupId() {
+        return groupId;
+    }
+
     @Override
     public int hashCode() {
         return Long.hashCode(groupId);

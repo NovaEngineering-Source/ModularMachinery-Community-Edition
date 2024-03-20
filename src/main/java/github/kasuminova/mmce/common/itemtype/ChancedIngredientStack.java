@@ -38,7 +38,7 @@ public class ChancedIngredientStack extends IngredientStack {
                 ingredient.tag = tag;
                 ingredient.itemChecker = itemChecker;
                 ingredient.itemModifierList.addAll(itemModifierList);
-                yield  ingredient;
+                yield ingredient;
             }
             case ORE_DICT -> {
                 ChancedIngredientStack ingredient = new ChancedIngredientStack(oreDictName, count, chance);

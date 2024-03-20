@@ -44,6 +44,11 @@ public class RecipeEvent extends MachineEvent {
         if (activeRecipe == null || activeRecipe.getRecipe() == null) {
             return;
         }
+
+        super.postCrTEvent();
+        if (isCanceled()) {
+            return;
+        }
         List<IEventHandler<RecipeEvent>> handlers = activeRecipe.getRecipe().getRecipeEventHandlers().get(getClass());
         if (handlers == null) {
             return;

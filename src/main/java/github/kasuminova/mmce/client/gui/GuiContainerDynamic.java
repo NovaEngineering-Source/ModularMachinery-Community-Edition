@@ -2,7 +2,6 @@ package github.kasuminova.mmce.client.gui;
 
 import github.kasuminova.mmce.client.gui.util.MousePos;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetController;
-import github.kasuminova.mmce.client.gui.widget.base.WidgetGui;
 import hellfirepvp.modularmachinery.client.gui.GuiContainerBase;
 import hellfirepvp.modularmachinery.common.container.ContainerBase;
 import net.minecraft.client.gui.FontRenderer;
@@ -18,7 +17,7 @@ import java.util.List;
 
 public abstract class GuiContainerDynamic<T extends ContainerBase<?>> extends GuiContainerBase<T> {
 
-    protected final WidgetController widgetController = new WidgetController(WidgetGui.of(this));
+    protected WidgetController widgetController = null;
     protected Slot hoveredSlot = null;
 
     public GuiContainerDynamic(final T container) {

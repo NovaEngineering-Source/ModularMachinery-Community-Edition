@@ -80,6 +80,8 @@ public class ModIntegrationCrafttweaker {
             loadedMachine.getMachineEventHandlers().clear();
             loadedMachine.getSmartInterfaceTypes().clear();
             loadedMachine.getCoreThreadPreset().clear();
+            loadedMachine.getModifiers().clear();
+            loadedMachine.getMultiBlockModifiers().clear();
         }
         // Reload JSON Machine
         MachineRegistry.preloadMachines();

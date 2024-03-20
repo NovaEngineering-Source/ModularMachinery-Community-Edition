@@ -16,7 +16,8 @@ import hellfirepvp.modularmachinery.common.tiles.base.SelectiveUpdateTileEntity;
 import hellfirepvp.modularmachinery.common.tiles.base.TileEntityRestrictedTick;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.IOInventory;
-import io.netty.util.collection.IntObjectHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -38,7 +39,7 @@ public class TileUpgradeBus extends TileEntityRestrictedTick implements MachineC
     private final UpgradeBusProvider provider = new UpgradeBusProvider();
     private final Map<BlockPos, DynamicMachine> boundedMachine = new HashMap<>();
 
-    private final IntObjectHashMap<List<DynamicMachineUpgrade>> foundDynamicUpgrades = new IntObjectHashMap<>();
+    private final Int2ObjectMap<List<DynamicMachineUpgrade>> foundDynamicUpgrades = new Int2ObjectOpenHashMap<>();
     private final Map<UpgradeType, MachineUpgrade> foundUpgrades = new HashMap<>();
 
     private NBTTagCompound upgradeCustomData = new NBTTagCompound();

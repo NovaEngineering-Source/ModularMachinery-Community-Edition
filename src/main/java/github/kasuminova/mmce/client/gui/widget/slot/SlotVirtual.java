@@ -96,7 +96,7 @@ public class SlotVirtual extends DynamicWidget {
     }
 
     protected void drawHoverOverlay(final MousePos mousePos, final int rx, final int ry) {
-        if (isMouseOver(mousePos)) {
+        if (mouseOver) {
             GlStateManager.disableLighting();
             GlStateManager.disableDepth();
             GlStateManager.colorMask(true, true, true, false);

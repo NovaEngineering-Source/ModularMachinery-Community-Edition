@@ -159,13 +159,11 @@ public class DynamicMachine extends AbstractMachine {
     public ModifierReplacementMap getModifiersAsMatchingReplacements() {
         ModifierReplacementMap infoMap = new ModifierReplacementMap();
         for (BlockPos pos : modifiers.keySet()) {
+            List<BlockArray.BlockInformation> infoList = infoMap.computeIfAbsent(pos, v -> new ArrayList<>());
             List<SingleBlockModifierReplacement> replacements = modifiers.get(pos);
-            List<BlockArray.BlockInformation> informationList = new ArrayList<>();
             for (SingleBlockModifierReplacement replacement : replacements) {
-                informationList.add(replacement.getBlockInformation());
+                infoList.add(replacement.getBlockInformation());
             }
-
-            infoMap.put(pos, informationList);
         }
         return infoMap;
     }

@@ -15,7 +15,8 @@ import hellfirepvp.modularmachinery.common.crafting.helper.RecipeCraftingContext
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.nbt.NBTMatchingHelper;
-import io.netty.util.collection.IntObjectHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -30,7 +31,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -54,7 +54,7 @@ public class ItemUtils {
     //Negative amount: overhead fuel burnt
     //Positive amount: Failure/couldn't find enough fuel
     public static int consumeFromInventoryFuel(IItemHandlerModifiable handler, int fuelAmtToConsume, boolean simulate, @Nullable NBTTagCompound matchNBTTag) {
-        Map<Integer, ItemStack> contents = findItemsIndexedInInventoryFuel(handler, matchNBTTag);
+        Int2ObjectMap<ItemStack> contents = findItemsIndexedInInventoryFuel(handler, matchNBTTag);
         if (contents.isEmpty()) {
             return fuelAmtToConsume;
         }
@@ -93,7 +93,7 @@ public class ItemUtils {
     }
 
     public static boolean consumeFromInventory(IItemHandlerModifiable handler, ItemStack toConsume, boolean simulate, @Nullable NBTTagCompound matchNBTTag) {
-        Map<Integer, ItemStack> contents = findItemsIndexedInInventory(handler, toConsume, false, matchNBTTag);
+        Int2ObjectMap<ItemStack> contents = findItemsIndexedInInventory(handler, toConsume, false, matchNBTTag);
         if (contents.isEmpty()) return false;
 
         int cAmt = toConsume.getCount();
@@ -125,7 +125,7 @@ public class ItemUtils {
     }
 
     public static boolean consumeFromInventory(IItemHandlerModifiable handler, ItemStack toConsume, boolean simulate, AdvancedItemChecker itemChecker, TileMultiblockMachineController controller) {
-        Map<Integer, ItemStack> contents = findItemsIndexedInInventory(handler, toConsume, false, itemChecker, controller);
+        Int2ObjectMap<ItemStack> contents = findItemsIndexedInInventory(handler, toConsume, false, itemChecker, controller);
         if (contents.isEmpty()) return false;
 
         int cAmt = toConsume.getCount();
@@ -157,7 +157,7 @@ public class ItemUtils {
     }
 
     public static int consumeAll(IItemHandlerModifiable handler, ItemStack toConsume, AdvancedItemChecker itemChecker, TileMultiblockMachineController controller) {
-        Map<Integer, ItemStack> contents = findItemsIndexedInInventory(handler, toConsume, false, itemChecker, controller);
+        Int2ObjectMap<ItemStack> contents = findItemsIndexedInInventory(handler, toConsume, false, itemChecker, controller);
         if (toConsume.getCount() <= 0 || contents.isEmpty()) {
             return 0;
         }
@@ -165,7 +165,7 @@ public class ItemUtils {
     }
 
     public static int consumeAll(IItemHandlerModifiable handler, ItemStack toConsume, @Nullable NBTTagCompound matchNBTTag) {
-        Map<Integer, ItemStack> contents = findItemsIndexedInInventory(handler, toConsume, false, matchNBTTag);
+        Int2ObjectMap<ItemStack> contents = findItemsIndexedInInventory(handler, toConsume, false, matchNBTTag);
         if (toConsume.getCount() <= 0 || contents.isEmpty()) {
             return 0;
         }
@@ -173,7 +173,7 @@ public class ItemUtils {
     }
 
     public static int consumeAll(IItemHandlerModifiable handler, String oreName, int amount, AdvancedItemChecker itemChecker, TileMultiblockMachineController controller) {
-        Map<Integer, ItemStack> contents = findItemsIndexedInInventoryOreDict(handler, oreName, itemChecker, controller);
+        Int2ObjectMap<ItemStack> contents = findItemsIndexedInInventoryOreDict(handler, oreName, itemChecker, controller);
         if (amount <= 0 || contents.isEmpty()) {
             return 0;
         }
@@ -181,7 +181,7 @@ public class ItemUtils {
     }
 
     public static int consumeAll(IItemHandlerModifiable handler, String oreName, int amount, @Nullable NBTTagCompound matchNBTTag) {
-        Map<Integer, ItemStack> contents = findItemsIndexedInInventoryOreDict(handler, oreName, matchNBTTag);
+        Int2ObjectMap<ItemStack> contents = findItemsIndexedInInventoryOreDict(handler, oreName, matchNBTTag);
         if (amount <= 0 || contents.isEmpty()) {
             return 0;
         }
@@ -222,10 +222,10 @@ public class ItemUtils {
         return inserted;
     }
 
-    private static int consumeAllInternal(IItemHandlerModifiable handler, Map<Integer, ItemStack> contents, int maxConsume) {
+    private static int consumeAllInternal(IItemHandlerModifiable handler, Int2ObjectMap<ItemStack> contents, int maxConsume) {
         int cAmt = 0;
-        for (Map.Entry<Integer, ItemStack> content : contents.entrySet()) {
-            int slot = content.getKey();
+        for (final Int2ObjectMap.Entry<ItemStack> content : contents.int2ObjectEntrySet()) {
+            int slot = content.getIntKey();
             ItemStack stack = content.getValue();
             int count = stack.getCount();
             if (count > 1) {
@@ -244,128 +244,6 @@ public class ItemUtils {
         }
 
         return cAmt;
-    }
-
-    public static boolean consumeFromInventoryOreDict(IItemHandlerModifiable handler, String oreName, int amount, boolean simulate, @Nullable NBTTagCompound matchNBTTag) {
-        Map<Integer, ItemStack> contents = findItemsIndexedInInventoryOreDict(handler, oreName, matchNBTTag);
-        if (contents.isEmpty()) return false;
-
-        int cAmt = amount;
-        for (int slot : contents.keySet()) {
-            ItemStack inSlot = contents.get(slot);
-            if (inSlot.getItem().hasContainerItem(inSlot)) {
-                if (inSlot.getCount() > 1) {
-                    continue; //uh... rip. we won't consume 16 buckets at once.
-                }
-                ItemStack stack = ForgeHooks.getContainerItem(inSlot);
-                cAmt--;
-                if (!simulate) {
-                    handler.setStackInSlot(slot, stack.copy());
-                }
-                if (cAmt <= 0) {
-                    break;
-                }
-            }
-            int toRemove = Math.min(cAmt, inSlot.getCount());
-            cAmt -= toRemove;
-            if (!simulate) {
-                handler.setStackInSlot(slot, copyStackWithSize(inSlot, inSlot.getCount() - toRemove));
-            }
-            if (cAmt <= 0) {
-                break;
-            }
-        }
-        return cAmt <= 0;
-    }
-
-    public static boolean consumeFromInventoryOreDict(IItemHandlerModifiable handler, String oreName, int amount, boolean simulate, AdvancedItemChecker itemChecker, TileMultiblockMachineController controller) {
-        Map<Integer, ItemStack> contents = findItemsIndexedInInventoryOreDict(handler, oreName, itemChecker, controller);
-        if (contents.isEmpty()) return false;
-
-        int cAmt = amount;
-        for (int slot : contents.keySet()) {
-            ItemStack inSlot = contents.get(slot);
-            if (inSlot.getItem().hasContainerItem(inSlot)) {
-                if (inSlot.getCount() > 1) {
-                    continue; //uh... rip. we won't consume 16 buckets at once.
-                }
-                ItemStack stack = ForgeHooks.getContainerItem(inSlot);
-                cAmt--;
-                if (!simulate) {
-                    handler.setStackInSlot(slot, stack.copy());
-                }
-                if (cAmt <= 0) {
-                    break;
-                }
-            }
-            int toRemove = Math.min(cAmt, inSlot.getCount());
-            cAmt -= toRemove;
-            if (!simulate) {
-                handler.setStackInSlot(slot, copyStackWithSize(inSlot, inSlot.getCount() - toRemove));
-            }
-            if (cAmt <= 0) {
-                break;
-            }
-        }
-        return cAmt <= 0;
-    }
-
-    //Returns the amount inserted
-    public static int tryPlaceItemInInventory(@Nonnull ItemStack stack, IItemHandlerModifiable handler, boolean simulate) {
-        return tryPlaceItemInInventory(stack, handler, 0, handler.getSlots(), simulate);
-    }
-
-    public static int tryPlaceItemInInventory(@Nonnull ItemStack stack, IItemHandlerModifiable handler, int start, int end, boolean simulate) {
-        ItemStack toAdd = stack.copy();
-//        if (!hasInventorySpace(toAdd, handler, start, end)) {
-//            return 0;
-//        }
-        int insertedAmt = 0;
-        int max = toAdd.getMaxStackSize();
-
-        for (int i = start; i < end; i++) {
-            ItemStack in = handler.getStackInSlot(i);
-            if (in.isEmpty()) {
-                int added = Math.min(stack.getCount(), max);
-                stack.shrink(added);
-                if (!simulate) {
-                    handler.setStackInSlot(i, copyStackWithSize(toAdd, added));
-                }
-                insertedAmt += added;
-                if (stack.getCount() <= 0)
-                    return insertedAmt;
-            } else {
-                if (stackEqualsNonNBT(toAdd, in) && matchTags(toAdd, in)) {
-                    int space = max - in.getCount();
-                    int added = Math.min(stack.getCount(), space);
-                    insertedAmt += added;
-                    stack.setCount(stack.getCount() - added);
-                    if (!simulate) {
-                        in.setCount(in.getCount() + added);
-                    }
-                    if (stack.getCount() <= 0)
-                        return insertedAmt;
-                }
-            }
-        }
-        return insertedAmt;
-    }
-
-    public static boolean hasInventorySpace(@Nonnull ItemStack stack, IItemHandler handler, int rangeMin, int rangeMax) {
-        int size = stack.getCount();
-        int max = stack.getMaxStackSize();
-        for (int i = rangeMin; i < rangeMax && size > 0; i++) {
-            ItemStack in = handler.getStackInSlot(i);
-            if (in.isEmpty()) {
-                size -= max;
-            } else {
-                if (stackEqualsNonNBT(stack, in) && matchTags(stack, in)) {
-                    int space = max - in.getCount();
-                    size -= space;
-                }
-            }
-        }
-        return size <= 0;
     }
 
     public static boolean stackEqualsNonNBT(@Nonnull ItemStack stack, @Nonnull ItemStack other) {
@@ -432,8 +310,8 @@ public class ItemUtils {
         return beInserted;
     }
 
-    public static Map<Integer, ItemStack> findItemsIndexedInInventoryFuel(IItemHandlerModifiable handler, @Nullable NBTTagCompound matchNBTTag) {
-        Map<Integer, ItemStack> stacksOut = new IntObjectHashMap<>(handler.getSlots() * 2);
+    public static Int2ObjectMap<ItemStack> findItemsIndexedInInventoryFuel(IItemHandlerModifiable handler, @Nullable NBTTagCompound matchNBTTag) {
+        Int2ObjectMap<ItemStack> stacksOut = new Int2ObjectOpenHashMap<>(handler.getSlots() * 2);
         for (int j = 0; j < handler.getSlots(); j++) {
             ItemStack s = handler.getStackInSlot(j);
             if (TileEntityFurnace.getItemBurnTime(s) > 0 && NBTMatchingHelper.matchNBTCompound(matchNBTTag, s.getTagCompound())) {
@@ -443,8 +321,8 @@ public class ItemUtils {
         return stacksOut;
     }
 
-    public static Map<Integer, ItemStack> findItemsIndexedInInventoryOreDict(IItemHandlerModifiable handler, String oreDict, @Nullable NBTTagCompound matchNBTTag) {
-        Map<Integer, ItemStack> stacksOut = new IntObjectHashMap<>(handler.getSlots() * 2);
+    public static Int2ObjectMap<ItemStack> findItemsIndexedInInventoryOreDict(IItemHandlerModifiable handler, String oreDict, @Nullable NBTTagCompound matchNBTTag) {
+        Int2ObjectMap<ItemStack> stacksOut = new Int2ObjectOpenHashMap<>(handler.getSlots() * 2);
         for (int j = 0; j < handler.getSlots(); j++) {
             ItemStack s = handler.getStackInSlot(j);
             if (s.isEmpty()) continue;
@@ -459,8 +337,8 @@ public class ItemUtils {
         return stacksOut;
     }
 
-    public static Map<Integer, ItemStack> findItemsIndexedInInventoryOreDict(IItemHandlerModifiable handler, String oreDict, AdvancedItemChecker itemChecker, TileMultiblockMachineController controller) {
-        Map<Integer, ItemStack> stacksOut = new IntObjectHashMap<>(handler.getSlots() * 2);
+    public static Int2ObjectMap<ItemStack> findItemsIndexedInInventoryOreDict(IItemHandlerModifiable handler, String oreDict, AdvancedItemChecker itemChecker, TileMultiblockMachineController controller) {
+        Int2ObjectMap<ItemStack> stacksOut = new Int2ObjectOpenHashMap<>(handler.getSlots() * 2);
         for (int j = 0; j < handler.getSlots(); j++) {
             ItemStack s = handler.getStackInSlot(j);
             if (s.isEmpty()) continue;
@@ -475,8 +353,8 @@ public class ItemUtils {
         return stacksOut;
     }
 
-    public static Map<Integer, ItemStack> findItemsIndexedInInventory(IItemHandlerModifiable handler, ItemStack match, boolean strict, @Nullable NBTTagCompound matchNBTTag) {
-        Map<Integer, ItemStack> stacksOut = new IntObjectHashMap<>(handler.getSlots() * 2);
+    public static Int2ObjectMap<ItemStack> findItemsIndexedInInventory(IItemHandlerModifiable handler, ItemStack match, boolean strict, @Nullable NBTTagCompound matchNBTTag) {
+        Int2ObjectMap<ItemStack> stacksOut = new Int2ObjectOpenHashMap<>(handler.getSlots() * 2);
         for (int j = 0; j < handler.getSlots(); j++) {
             ItemStack s = handler.getStackInSlot(j);
             if ((strict ? matchStacks(s, match) : matchStackLoosely(s, match)) && NBTMatchingHelper.matchNBTCompound(matchNBTTag, s.getTagCompound())) {
@@ -486,8 +364,8 @@ public class ItemUtils {
         return stacksOut;
     }
 
-    public static Map<Integer, ItemStack> findItemsIndexedInInventory(IItemHandlerModifiable handler, ItemStack match, boolean strict, AdvancedItemChecker itemChecker, TileMultiblockMachineController controller) {
-        Map<Integer, ItemStack> stacksOut = new IntObjectHashMap<>(handler.getSlots() * 2);
+    public static Int2ObjectMap<ItemStack> findItemsIndexedInInventory(IItemHandlerModifiable handler, ItemStack match, boolean strict, AdvancedItemChecker itemChecker, TileMultiblockMachineController controller) {
+        Int2ObjectMap<ItemStack> stacksOut = new Int2ObjectOpenHashMap<>(handler.getSlots() * 2);
         for (int j = 0; j < handler.getSlots(); j++) {
             ItemStack s = handler.getStackInSlot(j);
             if ((strict ? matchStacks(s, match) : matchStackLoosely(s, match)) && itemChecker.isMatch(controller, s)) {

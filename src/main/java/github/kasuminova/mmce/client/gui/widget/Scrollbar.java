@@ -147,11 +147,9 @@ public class Scrollbar extends DynamicWidget {
     }
 
     public Scrollbar setCurrentScroll(final int currentScroll) {
-        if (this.currentScroll != currentScroll) {
-            this.currentScroll = Math.max(Math.min(currentScroll, this.maxScroll), this.minScroll);
-            if (onValueChanged != null) {
-                onValueChanged.accept(this);
-            }
+        this.currentScroll = Math.max(Math.min(currentScroll, this.maxScroll), this.minScroll);
+        if (onValueChanged != null) {
+            onValueChanged.accept(this);
         }
         return this;
     }

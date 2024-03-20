@@ -16,7 +16,6 @@ import github.kasuminova.mmce.common.container.ContainerMEItemInputBus;
 import github.kasuminova.mmce.common.container.ContainerMEItemOutputBus;
 import github.kasuminova.mmce.common.handler.EventHandler;
 import github.kasuminova.mmce.common.handler.UpgradeEventHandler;
-import github.kasuminova.mmce.common.handler.UpgradeMachineEventHandler;
 import github.kasuminova.mmce.common.integration.ModIntegrationAE2;
 import github.kasuminova.mmce.common.integration.gregtech.ModIntegrationGTCEU;
 import github.kasuminova.mmce.common.tile.MEFluidInputBus;
@@ -171,8 +170,6 @@ public class CommonProxy implements IGuiHandler {
 
         MachineRegistry.registerMachines(MachineRegistry.loadMachines(null));
         MachineRegistry.registerMachines(MachineBuilder.WAIT_FOR_LOAD);
-        CompletableFuture<Void> future = CompletableFuture.runAsync(() ->
-                BlockArrayCache.buildCache(MachineRegistry.getLoadedMachines()));
 
         MachineModifier.loadAll();
         MMEvents.registryAll();
@@ -183,8 +180,10 @@ public class CommonProxy implements IGuiHandler {
             action.doAction();
         }
         FactoryRecipeThread.WAIT_FOR_ADD.clear();
+    }
 
-        future.join();
+    public void loadComplete() {
+        CompletableFuture.runAsync(() -> BlockArrayCache.buildCache(MachineRegistry.getLoadedMachines()));
     }
 
     public void registerBlockModel(Block block) {

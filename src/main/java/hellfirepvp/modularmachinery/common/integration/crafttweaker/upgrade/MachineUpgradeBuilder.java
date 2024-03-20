@@ -16,13 +16,10 @@ import hellfirepvp.modularmachinery.common.integration.crafttweaker.helper.Upgra
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.machine.MachineRegistry;
 import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
+import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import net.minecraft.util.ResourceLocation;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @ZenRegister
 @ZenClass("mods.modularmachinery.MachineUpgradeBuilder")
@@ -119,28 +116,32 @@ public class MachineUpgradeBuilder {
      * 快速添加一个修改器升级。<br/>
      * Quickly add a modifier upgrade.
      *
-     * @param stackAble 是否受堆叠影响<br/>
-     *                  Whether affected by stacking.
-     * @param modifiers 配方修改器<br/>
-     *                  RecipeModifiers.
+     * @param stackAble   是否受堆叠影响<br/>
+     *                    Whether affected by stacking.
+     * @param modifierKey 修改器键<br/>
+     *                    RecipeModifier Key.
+     * @param modifier    配方修改器<br/>
+     *                    RecipeModifier.
      */
     @ZenMethod
-    public MachineUpgradeBuilder addModifier(boolean stackAble, RecipeModifier... modifiers) {
-        List<RecipeModifier> modifierList = Arrays.asList(modifiers);
-        addEventHandler(RecipeCheckEvent.class, (event, upgrade) -> {
-            if (((RecipeCheckEvent) event).phase != Phase.START) {
+    public MachineUpgradeBuilder addModifier(boolean stackAble, String modifierKey, RecipeModifier modifier) {
+        addEventHandler(MachineTickEvent.class, (event, upgrade) -> {
+            if (((MachineTickEvent) event).phase != Phase.START) {
+                return;
+            }
+            TileMultiblockMachineController controller = event.getController();
+            if (controller.hasModifier(modifierKey)) {
                 return;
             }
             if (upgrade.getStackSize() <= 1 || !stackAble) {
-                ((RecipeCheckEvent) event).getContext().addModifier(modifierList);
+                controller.addModifier(modifierKey, modifier);
                 return;
             }
-            List<RecipeModifier> list = new ArrayList<>();
-            for (RecipeModifier modifier : modifierList) {
-                RecipeModifier multiply = modifier.multiply(upgrade.getStackSize());
-                list.add(multiply);
+            RecipeModifier multiply = modifier;
+            for (int i = 0; i < upgrade.getStackSize(); i++) {
+                multiply = multiply.multiply(modifier.getModifier());
             }
-            ((RecipeCheckEvent) event).getContext().addModifier(list);
+            controller.addModifier(modifierKey, multiply);
         });
         return this;
     }

@@ -67,6 +67,8 @@ public class JEIComponentIngredientArray extends ComponentRequirement.JEICompone
             }
 
             if (input) {
+                tooltip.add(tooltipBuilder.toString());
+                tooltipBuilder.setLength(0);
                 continue;
             }
 

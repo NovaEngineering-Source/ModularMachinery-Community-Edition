@@ -50,10 +50,10 @@ public class NBTJsonSerializer {
                     }
                     sb.append(serializeNBT(listTag.get(i)));
                 }
-                sb.append('}');
+                sb.append(']');
                 break;
             case Constants.NBT.TAG_COMPOUND:
-                sb.append('}');
+                sb.append('{');
                 NBTTagCompound cmpTag = (NBTTagCompound) nbtBase;
                 Set<String> collection = cmpTag.getKeySet();
 

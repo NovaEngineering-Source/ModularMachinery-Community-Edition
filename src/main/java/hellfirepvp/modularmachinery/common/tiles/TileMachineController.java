@@ -20,10 +20,7 @@ import hellfirepvp.modularmachinery.common.crafting.ActiveMachineRecipe;
 import hellfirepvp.modularmachinery.common.crafting.MachineRecipe;
 import hellfirepvp.modularmachinery.common.crafting.helper.CraftingStatus;
 import hellfirepvp.modularmachinery.common.crafting.helper.RecipeCraftingContext;
-import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
-import hellfirepvp.modularmachinery.common.machine.MachineRecipeThread;
-import hellfirepvp.modularmachinery.common.machine.MachineRegistry;
-import hellfirepvp.modularmachinery.common.machine.RecipeThread;
+import hellfirepvp.modularmachinery.common.machine.*;
 import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.BlockArrayCache;
@@ -299,9 +296,8 @@ public class TileMachineController extends TileMultiblockMachineController {
     protected void checkAllPatterns() {
         for (DynamicMachine machine : MachineRegistry.getRegistry()) {
             if (machine.isRequiresBlueprint() || machine.isFactoryOnly()) continue;
-            if (matchesRotation(
-                    BlockArrayCache.getBlockArrayCache(machine.getPattern(), controllerRotation),
-                    machine, controllerRotation)) {
+            TaggedPositionBlockArray pattern = BlockArrayCache.getBlockArrayCache(machine.getPattern(), controllerRotation);
+            if (matchesRotation(pattern, machine, controllerRotation)) {
                 onStructureFormed();
                 break;
             }
