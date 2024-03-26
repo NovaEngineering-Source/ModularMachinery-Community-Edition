@@ -17,8 +17,8 @@ import crafttweaker.api.item.IngredientStack;
 import crafttweaker.api.liquid.ILiquidStack;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import crafttweaker.api.oredict.IOreDictEntry;
-import crafttweaker.util.IEventHandler;
 import github.kasuminova.mmce.common.event.Phase;
+import github.kasuminova.mmce.common.event.machine.IEventHandler;
 import github.kasuminova.mmce.common.event.recipe.*;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import hellfirepvp.modularmachinery.common.base.Mods;
@@ -273,7 +273,7 @@ public class RecipePrimer implements PreparedRecipe {
     //----------------------------------------------------------------------------------------------
 
     @ZenMethod
-    public RecipePrimer addPreCheckHandler(IEventHandler<RecipeCheckEvent> handler) {
+    public RecipePrimer addPreCheckHandler(crafttweaker.util.IEventHandler<RecipeCheckEvent> handler) {
         addRecipeEventHandler(RecipeCheckEvent.class, event -> {
             if (event.phase != Phase.START) return;
             handler.handle(event);
@@ -282,7 +282,7 @@ public class RecipePrimer implements PreparedRecipe {
     }
 
     @ZenMethod
-    public RecipePrimer addPostCheckHandler(IEventHandler<RecipeCheckEvent> handler) {
+    public RecipePrimer addPostCheckHandler(crafttweaker.util.IEventHandler<RecipeCheckEvent> handler) {
         addRecipeEventHandler(RecipeCheckEvent.class, event -> {
             if (event.phase != Phase.END) return;
             handler.handle(event);
@@ -292,20 +292,20 @@ public class RecipePrimer implements PreparedRecipe {
 
     @ZenMethod
     @Deprecated
-    public RecipePrimer addCheckHandler(IEventHandler<RecipeCheckEvent> handler) {
+    public RecipePrimer addCheckHandler(crafttweaker.util.IEventHandler<RecipeCheckEvent> handler) {
         CraftTweakerAPI.logWarning("[ModularMachinery] Deprecated method addCheckHandler()! Consider using addPostCheckHandler()");
-        addRecipeEventHandler(RecipeCheckEvent.class, handler);
+        addRecipeEventHandler(RecipeCheckEvent.class, handler::handle);
         return this;
     }
 
     @ZenMethod
-    public RecipePrimer addStartHandler(IEventHandler<RecipeStartEvent> handler) {
-        addRecipeEventHandler(RecipeStartEvent.class, handler);
+    public RecipePrimer addStartHandler(crafttweaker.util.IEventHandler<RecipeStartEvent> handler) {
+        addRecipeEventHandler(RecipeStartEvent.class, handler::handle);
         return this;
     }
 
     @ZenMethod
-    public RecipePrimer addPreTickHandler(IEventHandler<RecipeTickEvent> handler) {
+    public RecipePrimer addPreTickHandler(crafttweaker.util.IEventHandler<RecipeTickEvent> handler) {
         addRecipeEventHandler(RecipeTickEvent.class, event -> {
             if (event.phase != Phase.START) return;
             handler.handle(event);
@@ -314,7 +314,7 @@ public class RecipePrimer implements PreparedRecipe {
     }
 
     @ZenMethod
-    public RecipePrimer addPostTickHandler(IEventHandler<RecipeTickEvent> handler) {
+    public RecipePrimer addPostTickHandler(crafttweaker.util.IEventHandler<RecipeTickEvent> handler) {
         addRecipeEventHandler(RecipeTickEvent.class, event -> {
             if (event.phase != Phase.END) return;
             handler.handle(event);
@@ -323,25 +323,25 @@ public class RecipePrimer implements PreparedRecipe {
     }
 
     @ZenMethod
-    public RecipePrimer addFailureHandler(IEventHandler<RecipeFailureEvent> handler) {
-        addRecipeEventHandler(RecipeFailureEvent.class, handler);
+    public RecipePrimer addFailureHandler(crafttweaker.util.IEventHandler<RecipeFailureEvent> handler) {
+        addRecipeEventHandler(RecipeFailureEvent.class, handler::handle);
         return this;
     }
 
     @ZenMethod
-    public RecipePrimer addFinishHandler(IEventHandler<RecipeFinishEvent> handler) {
-        addRecipeEventHandler(RecipeFinishEvent.class, handler);
+    public RecipePrimer addFinishHandler(crafttweaker.util.IEventHandler<RecipeFinishEvent> handler) {
+        addRecipeEventHandler(RecipeFinishEvent.class, handler::handle);
         return this;
     }
 
     @ZenMethod
-    public RecipePrimer addFactoryStartHandler(IEventHandler<FactoryRecipeStartEvent> handler) {
-        addRecipeEventHandler(FactoryRecipeStartEvent.class, handler);
+    public RecipePrimer addFactoryStartHandler(crafttweaker.util.IEventHandler<FactoryRecipeStartEvent> handler) {
+        addRecipeEventHandler(FactoryRecipeStartEvent.class, handler::handle);
         return this;
     }
 
     @ZenMethod
-    public RecipePrimer addFactoryPreTickHandler(IEventHandler<FactoryRecipeTickEvent> handler) {
+    public RecipePrimer addFactoryPreTickHandler(crafttweaker.util.IEventHandler<FactoryRecipeTickEvent> handler) {
         addRecipeEventHandler(FactoryRecipeTickEvent.class, event -> {
             if (event.phase != Phase.START) {
                 return;
@@ -352,7 +352,7 @@ public class RecipePrimer implements PreparedRecipe {
     }
 
     @ZenMethod
-    public RecipePrimer addFactoryPostTickHandler(IEventHandler<FactoryRecipeTickEvent> handler) {
+    public RecipePrimer addFactoryPostTickHandler(crafttweaker.util.IEventHandler<FactoryRecipeTickEvent> handler) {
         addRecipeEventHandler(FactoryRecipeTickEvent.class, event -> {
             if (event.phase != Phase.END) {
                 return;
@@ -363,14 +363,14 @@ public class RecipePrimer implements PreparedRecipe {
     }
 
     @ZenMethod
-    public RecipePrimer addFactoryFailureHandler(IEventHandler<FactoryRecipeFailureEvent> handler) {
-        addRecipeEventHandler(FactoryRecipeFailureEvent.class, handler);
+    public RecipePrimer addFactoryFailureHandler(crafttweaker.util.IEventHandler<FactoryRecipeFailureEvent> handler) {
+        addRecipeEventHandler(FactoryRecipeFailureEvent.class, handler::handle);
         return this;
     }
 
     @ZenMethod
-    public RecipePrimer addFactoryFinishHandler(IEventHandler<FactoryRecipeFinishEvent> handler) {
-        addRecipeEventHandler(FactoryRecipeFinishEvent.class, handler);
+    public RecipePrimer addFactoryFinishHandler(crafttweaker.util.IEventHandler<FactoryRecipeFinishEvent> handler) {
+        addRecipeEventHandler(FactoryRecipeFinishEvent.class, handler::handle);
         return this;
     }
 

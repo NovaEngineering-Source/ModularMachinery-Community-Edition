@@ -1,13 +1,11 @@
 package github.kasuminova.mmce.common.event.machine;
 
 import crafttweaker.annotations.ZenRegister;
-import crafttweaker.util.IEventHandler;
 import github.kasuminova.mmce.common.handler.UpgradeMachineEventHandler;
 import github.kasuminova.mmce.common.helper.IMachineController;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenGetter;
@@ -56,7 +54,7 @@ public class MachineEvent extends Event {
         }
 
         for (IEventHandler<MachineEvent> handler : handlers) {
-            handler.handle(this);
+            handler.invoke(this);
             if (isCanceled()) {
                 break;
             }

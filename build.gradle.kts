@@ -149,6 +149,7 @@ repositories {
         url = uri("http://jenkins.usrv.eu:8081/nexus/content/groups/public/")
         isAllowInsecureProtocol = true
     }
+    mavenLocal()
 }
 
 dependencies {
@@ -177,6 +178,10 @@ dependencies {
         isTransitive = false
     }
 
+    compileOnlyApi("org.jetbrains:annotations:24.1.0")
+    annotationProcessor("org.jetbrains:annotations:24.1.0")
+
+    api("com.cleanroommc:groovyscript:1.0.0-SNAPSHOT-d") { isTransitive = false }
     implementation("CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.+")
     implementation(rfg.deobf("curse.maven:had-enough-items-557549:4810661"))
     implementation(rfg.deobf("curse.maven:zenutil-401178:5056679"))
@@ -195,7 +200,7 @@ dependencies {
     implementation(rfg.deobf("curse.maven:applied-energistics-2-223794:2747063"))
 //    implementation(rfg.deobf("curse.maven:ae2-extended-life-570458:4961400"))
 //    compileOnly(rfg.deobf("curse.maven:gregtech-293327:3266351"))
-    implementation(rfg.deobf("curse.maven:gregtech-ce-unofficial-557242:4799055"))
+    compileOnly(rfg.deobf("curse.maven:gregtech-ce-unofficial-557242:4799055"))
 
     // GeckoLib
     implementation(rfg.deobf("software.bernie.geckolib:geckolib-forge-1.12.2:3.0.31"))
