@@ -1,14 +1,19 @@
 package github.kasuminova.mmce.common.integration.groovyscript;
 
+import com.cleanroommc.groovyscript.api.GroovyLog;
 import com.cleanroommc.groovyscript.api.GroovyPlugin;
 import com.cleanroommc.groovyscript.api.INamed;
 import com.cleanroommc.groovyscript.compat.mods.GroovyContainer;
 import com.cleanroommc.groovyscript.compat.mods.ModPropertyContainer;
+import com.cleanroommc.groovyscript.event.EventBusType;
+import com.cleanroommc.groovyscript.event.GroovyEventManager;
 import github.kasuminova.mmce.client.model.DynamicMachineModelRegistry;
 import github.kasuminova.mmce.client.resource.GeoModelExternalLoader;
 import github.kasuminova.mmce.common.concurrent.RecipeCraftingContextPool;
+import github.kasuminova.mmce.common.event.machine.IEventHandler;
+import github.kasuminova.mmce.common.event.machine.MachineEvent;
 import github.kasuminova.mmce.common.upgrade.registry.RegistryUpgrade;
-import github.kasuminova.mmce.common.util.concurrent.Action;
+import groovy.lang.Closure;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.client.ClientProxy;
 import hellfirepvp.modularmachinery.common.base.Mods;
@@ -21,26 +26,21 @@ import hellfirepvp.modularmachinery.common.integration.crafttweaker.event.MMEven
 import hellfirepvp.modularmachinery.common.lib.RegistriesMM;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.machine.MachineRegistry;
-import hellfirepvp.modularmachinery.common.machine.factory.FactoryRecipeThread;
 import hellfirepvp.modularmachinery.common.util.BlockArrayCache;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Optional;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import youyihj.zenutils.api.reload.ScriptReloadEvent;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public class Plugin implements GroovyPlugin {
+public class GroovyScriptPlugin implements GroovyPlugin {
 
     private static GroovyContainer<?> container;
 
@@ -65,7 +65,7 @@ public class Plugin implements GroovyPlugin {
 
     @Override
     public void onCompatLoaded(GroovyContainer<?> container) {
-        Plugin.container = container;
+        GroovyScriptPlugin.container = container;
     }
 
     private static void onReload() {
@@ -191,6 +191,17 @@ public class Plugin implements GroovyPlugin {
         public Collection<INamed> getRegistries() {
             return Collections.singleton(this.dummy);
         }
+
+        public void machineEvent(String machineRegistryName, Class<? extends MachineEvent> clazz, Closure<?> listener) {
+            GroovyEventManager.INSTANCE.listen(EventPriority.NORMAL, EventBusType.MAIN, clazz, event -> {
+                DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
+                if (machine != null) {
+                    machine.addMachineEventHandler(clazz, IEventHandler.of(listener));
+                } else {
+                    GroovyLog.get().error("Could not find machine `" + machineRegistryName + "`!");
+                }
+            });
+        }
     }
 
     private static class DummyMachine extends GroovyMachine {
@@ -201,12 +212,12 @@ public class Plugin implements GroovyPlugin {
 
         @Override
         public void onReload() {
-            Plugin.onReload();
+            GroovyScriptPlugin.onReload();
         }
 
         @Override
         public void afterScriptLoad() {
-            Plugin.afterScriptRun();
+            GroovyScriptPlugin.afterScriptRun();
         }
 
         @Override
@@ -214,4 +225,4 @@ public class Plugin implements GroovyPlugin {
             throw new UnsupportedOperationException();
         }
     }
- }
+}
