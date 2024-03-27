@@ -35,6 +35,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -66,6 +67,11 @@ public class GroovyScriptPlugin implements GroovyPlugin {
     @Override
     public void onCompatLoaded(GroovyContainer<?> container) {
         GroovyScriptPlugin.container = container;
+    }
+
+    @Override
+    public @NotNull Collection<String> getAliases() {
+        return Arrays.asList("modmach", "modular_machinery");
     }
 
     private static void onReload() {
@@ -201,6 +207,10 @@ public class GroovyScriptPlugin implements GroovyPlugin {
                     GroovyLog.get().error("Could not find machine `" + machineRegistryName + "`!");
                 }
             });
+        }
+
+        public GroovyMachineBuilder machineBuilder(String registryName) {
+            return GroovyMachineBuilder.builder(registryName);
         }
     }
 

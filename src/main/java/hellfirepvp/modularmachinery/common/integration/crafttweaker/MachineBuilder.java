@@ -1,5 +1,6 @@
 package hellfirepvp.modularmachinery.common.integration.crafttweaker;
 
+import com.cleanroommc.groovyscript.api.GroovyBlacklist;
 import com.google.gson.JsonParseException;
 import crafttweaker.CraftTweakerAPI;
 import crafttweaker.annotations.ZenRegister;
@@ -40,6 +41,7 @@ import stanhebben.zenscript.annotations.ZenMethod;
 
 import java.util.*;
 
+@GroovyBlacklist
 @ZenRegister
 @ZenClass("mods.modularmachinery.MachineBuilder")
 public class MachineBuilder {

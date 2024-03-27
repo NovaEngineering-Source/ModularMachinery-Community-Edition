@@ -8,6 +8,7 @@
 
 package hellfirepvp.modularmachinery.common.integration.crafttweaker;
 
+import com.cleanroommc.groovyscript.api.GroovyBlacklist;
 import crafttweaker.CraftTweakerAPI;
 import crafttweaker.annotations.ZenRegister;
 import hellfirepvp.modularmachinery.ModularMachinery;
@@ -22,6 +23,7 @@ import stanhebben.zenscript.annotations.ZenMethod;
  * Created by HellFirePvP
  * Date: 02.01.2018 / 18:16
  */
+@GroovyBlacklist
 @ZenRegister
 @ZenClass("mods.modularmachinery.RecipeBuilder")
 public class RecipeBuilder {
