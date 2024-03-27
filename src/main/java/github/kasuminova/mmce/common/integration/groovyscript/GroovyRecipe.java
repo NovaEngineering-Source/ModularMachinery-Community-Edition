@@ -1,16 +1,22 @@
 package github.kasuminova.mmce.common.integration.groovyscript;
 
+import WayofTime.bloodmagic.soul.EnumDemonWillType;
 import com.cleanroommc.groovyscript.api.GroovyLog;
 import com.cleanroommc.groovyscript.api.IIngredient;
+import com.cleanroommc.groovyscript.helper.EnumHelper;
 import com.cleanroommc.groovyscript.helper.ingredient.IngredientHelper;
 import com.cleanroommc.groovyscript.helper.ingredient.OreDictIngredient;
 import com.cleanroommc.groovyscript.helper.recipe.RecipeName;
 import com.cleanroommc.groovyscript.sandbox.ClosureHelper;
+import de.ellpeck.naturesaura.api.NaturesAuraAPI;
+import de.ellpeck.naturesaura.api.aura.type.IAuraType;
 import github.kasuminova.mmce.common.event.Phase;
 import github.kasuminova.mmce.common.event.machine.IEventHandler;
 import github.kasuminova.mmce.common.event.recipe.*;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import groovy.lang.Closure;
+import hellfirepvp.astralsorcery.common.constellation.ConstellationRegistry;
+import hellfirepvp.astralsorcery.common.constellation.IConstellation;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.crafting.PreparedRecipe;
@@ -20,6 +26,7 @@ import hellfirepvp.modularmachinery.common.crafting.helper.ComponentSelectorTag;
 import hellfirepvp.modularmachinery.common.crafting.requirement.*;
 import hellfirepvp.modularmachinery.common.data.Config;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.IngredientArrayPrimer;
+import hellfirepvp.modularmachinery.common.integration.crafttweaker.RecipePrimer;
 import hellfirepvp.modularmachinery.common.lib.RequirementTypesMM;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.machine.IOType;
@@ -27,12 +34,15 @@ import hellfirepvp.modularmachinery.common.machine.MachineRegistry;
 import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
 import hellfirepvp.modularmachinery.common.util.SmartInterfaceType;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import kport.modularmagic.common.crafting.requirement.*;
+import kport.modularmagic.common.integration.jei.ingredient.Aura;
 import mekanism.api.gas.GasStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.Optional;
+import thaumcraft.api.aspects.Aspect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -744,6 +754,207 @@ public class GroovyRecipe implements PreparedRecipe {
     public void appendComponent(ComponentRequirement<?, ?> component) {
         this.components.add(component);
         this.lastComponent = component;
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // magic
+    //----------------------------------------------------------------------------------------------
+
+    public GroovyRecipe aspectInput(String aspectString, int amount) {
+        Aspect aspect = Aspect.getAspect(aspectString);
+        if (aspect != null)
+            appendComponent(new RequirementAspect(IOType.INPUT, amount, aspect));
+        else
+            GroovyLog.get().error("Invalid aspect name : " + aspectString);
+
+        return this;
+    }
+
+    public GroovyRecipe aspectOutput(String aspectString, int amount) {
+        Aspect aspect = Aspect.getAspect(aspectString);
+        if (aspect != null)
+            appendComponent(new RequirementAspect(IOType.OUTPUT, amount, aspect));
+        else
+            GroovyLog.get().error("Invalid aspect name : " + aspectString);
+
+        return this;
+    }
+
+    public GroovyRecipe auraInput(String auraType, int amount) {
+        IAuraType aura = NaturesAuraAPI.AURA_TYPES.get(new ResourceLocation("naturesaura", auraType));
+        if (aura != null)
+            appendComponent(new RequirementAura(IOType.INPUT, new Aura(amount, aura), Integer.MAX_VALUE, Integer.MIN_VALUE));
+        else
+            GroovyLog.get().error("Invalid aura name : " + auraType);
+
+        return this;
+    }
+
+    public GroovyRecipe auraOutput(String auraType, int amount) {
+        IAuraType aura = NaturesAuraAPI.AURA_TYPES.get(new ResourceLocation("naturesaura", auraType));
+        if (aura != null)
+            appendComponent(new RequirementAura(IOType.OUTPUT, new Aura(amount, aura), Integer.MAX_VALUE, Integer.MIN_VALUE));
+        else
+            GroovyLog.get().error("Invalid aura name : " + auraType);
+
+        return this;
+    }
+
+    public GroovyRecipe auraInput(String auraType, int amount, int max, int min) {
+        IAuraType aura = NaturesAuraAPI.AURA_TYPES.get(new ResourceLocation("naturesaura", auraType));
+        if (aura != null)
+            appendComponent(new RequirementAura(IOType.INPUT, new Aura(amount, aura), max, min));
+        else
+            GroovyLog.get().error("Invalid aura name : " + auraType);
+
+        return this;
+    }
+
+    public GroovyRecipe auraOutput(String auraType, int amount, int max, int min) {
+        IAuraType aura = NaturesAuraAPI.AURA_TYPES.get(new ResourceLocation("naturesaura", auraType));
+        if (aura != null)
+            appendComponent(new RequirementAura(IOType.OUTPUT, new Aura(amount, aura), max, min));
+        else
+            GroovyLog.get().error("Invalid aura name : " + auraType);
+
+        return this;
+    }
+
+    public GroovyRecipe constellationInput(String constellationString) {
+        IConstellation constellation = ConstellationRegistry.getConstellationByName("astralsorcery.constellation." + constellationString);
+        if (constellation != null)
+            appendComponent(new RequirementConstellation(IOType.INPUT, constellation));
+        else
+            GroovyLog.get().error("Invalid constellation : " + constellationString);
+
+        return this;
+    }
+
+    public GroovyRecipe gridPowerInput(int amount) {
+        if (amount > 0)
+            appendComponent(new RequirementGrid(IOType.INPUT, amount));
+        else
+            GroovyLog.get().error("Invalid Grid Power amount : " + amount + " (need to be positive and not null)");
+
+        return this;
+    }
+
+    public GroovyRecipe gridPowerOutput(int amount) {
+        if (amount > 0)
+            appendComponent(new RequirementGrid(IOType.OUTPUT, amount));
+        else
+            GroovyLog.get().error("Invalid Grid Power amount : " + amount + " (need to be positive and not null)");
+
+        return this;
+    }
+
+    public GroovyRecipe rainbowInput(RecipePrimer primer) {
+        appendComponent(new RequirementRainbow());
+        return this;
+    }
+
+    public GroovyRecipe lifeEssenceInput(int amount, boolean perTick) {
+        if (amount > 0)
+            appendComponent(new RequirementLifeEssence(IOType.INPUT, amount, perTick));
+        else
+            GroovyLog.get().error("Invalid Life Essence amount : " + amount + " (need to be positive and not null)");
+
+        return this;
+    }
+
+    public GroovyRecipe lifeEssenceOutput(int amount, boolean perTick) {
+        if (amount > 0)
+            appendComponent(new RequirementLifeEssence(IOType.OUTPUT, amount, perTick));
+        else
+            GroovyLog.get().error("Invalid Life Essence amount : " + amount + " (need to be positive and not null)");
+
+        return this;
+    }
+
+    public GroovyRecipe starlightInput(float amount) {
+        if (amount > 0)
+            appendComponent(new RequirementStarlight(IOType.INPUT, amount));
+        else
+            GroovyLog.get().error("Invalid Starlight amount : " + amount + " (need to be positive and not null)");
+
+        return this;
+    }
+
+    public GroovyRecipe starlightOutput(float amount) {
+        if (amount > 0)
+            appendComponent(new RequirementStarlight(IOType.OUTPUT, amount));
+        else
+            GroovyLog.get().error("Invalid Starlight amount : " + amount + " (need to be positive and not null)");
+
+        return this;
+    }
+
+    public GroovyRecipe willInput(String willTypeString, int amount) {
+        EnumDemonWillType willType = EnumHelper.valueOfNullable(EnumDemonWillType.class, willTypeString, false);
+        if (willType != null)
+            appendComponent(new RequirementWill(IOType.INPUT, amount, willType, Integer.MIN_VALUE, Integer.MAX_VALUE));
+        else
+            GroovyLog.get().error("Invalid demon will type : " + willTypeString);
+
+        return this;
+    }
+
+    public GroovyRecipe willOutput(String willTypeString, int amount) {
+        EnumDemonWillType willType = EnumHelper.valueOfNullable(EnumDemonWillType.class, willTypeString, false);
+        if (willType != null)
+            appendComponent(new RequirementWill(IOType.OUTPUT, amount, willType, Integer.MIN_VALUE, Integer.MAX_VALUE));
+        else
+            GroovyLog.get().error("Invalid demon will type : " + willTypeString);
+
+        return this;
+    }
+
+    public GroovyRecipe willInput(String willTypeString, int amount, int min, int max) {
+        EnumDemonWillType willType = EnumHelper.valueOfNullable(EnumDemonWillType.class, willTypeString, false);
+        if (willType != null)
+            appendComponent(new RequirementWill(IOType.INPUT, amount, willType, min, max));
+        else
+            GroovyLog.get().error("Invalid demon will type : " + willTypeString);
+
+        return this;
+    }
+
+    public GroovyRecipe willOutput(String willTypeString, int amount, int min, int max) {
+        EnumDemonWillType willType = EnumHelper.valueOfNullable(EnumDemonWillType.class, willTypeString, false);
+        if (willType != null)
+            appendComponent(new RequirementWill(IOType.OUTPUT, amount, willType, min, max));
+        else
+            GroovyLog.get().error("Invalid demon will type : " + willTypeString);
+
+        return this;
+    }
+
+    public GroovyRecipe manaInput(int amount, boolean perTick) {
+        if (amount > 0)
+            appendComponent(new RequirementMana(IOType.INPUT, amount, perTick));
+        else
+            GroovyLog.get().error("Invalid Mana amount : " + amount + " (need to be positive and not null)");
+
+        return this;
+    }
+
+    public GroovyRecipe manaOutput(int amount, boolean perTick) {
+        if (amount > 0)
+            appendComponent(new RequirementMana(IOType.OUTPUT, amount, perTick));
+        else
+            GroovyLog.get().error("Invalid Mana amount : " + amount + " (need to be positive and not null)");
+
+        return this;
+    }
+
+    public GroovyRecipe impetusInput(int amount) {
+        appendComponent(new RequirementImpetus(IOType.INPUT, amount));
+        return this;
+    }
+
+    public GroovyRecipe impetusOutput(int amount) {
+        appendComponent(new RequirementImpetus(IOType.OUTPUT, amount));
+        return this;
     }
 
     //----------------------------------------------------------------------------------------------
