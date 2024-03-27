@@ -18,6 +18,8 @@ import github.kasuminova.mmce.common.handler.EventHandler;
 import github.kasuminova.mmce.common.handler.UpgradeEventHandler;
 import github.kasuminova.mmce.common.integration.ModIntegrationAE2;
 import github.kasuminova.mmce.common.integration.gregtech.ModIntegrationGTCEU;
+import github.kasuminova.mmce.common.integration.groovyscript.GroovyMachineBuilder;
+import github.kasuminova.mmce.common.integration.groovyscript.MachineBuilderEvent;
 import github.kasuminova.mmce.common.tile.MEFluidInputBus;
 import github.kasuminova.mmce.common.tile.MEFluidOutputBus;
 import github.kasuminova.mmce.common.tile.MEItemInputBus;
@@ -126,6 +128,9 @@ public class CommonProxy implements IGuiHandler {
         }
 
         MachineRegistry.preloadMachines();
+        if (Mods.GROOVYSCRIPT.isPresent()) {
+            MinecraftForge.EVENT_BUS.post(new MachineBuilderEvent());
+        }
 
         CapabilityUpgrade.register();
 
@@ -153,6 +158,10 @@ public class CommonProxy implements IGuiHandler {
         IntegrationTypeHelper.filterModIdComponents();
         IntegrationTypeHelper.filterModIdRequirementTypes();
 
+        if (Mods.GROOVYSCRIPT.isPresent()) {
+            // the patter requires all mod block to be loaded
+            GroovyMachineBuilder.initPatterns();
+        }
         if (Mods.TOP.isPresent()) {
             ModIntegrationTOP.registerProvider();
             ModularMachinery.log.info("[ModularMachinery-CE] TheOneProbe integration is enabled! Stop looking at the dark controller gui!");

@@ -209,8 +209,8 @@ public class GroovyScriptPlugin implements GroovyPlugin {
             });
         }
 
-        public GroovyMachineBuilder machineBuilder(String registryName) {
-            return GroovyMachineBuilder.builder(registryName);
+        public void machineBuilderEvent(Closure<?> listener) {
+            GroovyEventManager.INSTANCE.listen(MachineBuilderEvent.class, listener);
         }
     }
 

@@ -6,13 +6,17 @@ import com.cleanroommc.groovyscript.helper.ingredient.NbtHelper;
 import com.cleanroommc.groovyscript.sandbox.ClosureHelper;
 import groovy.lang.Closure;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentSelectorTag;
+import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.machine.TaggedPositionBlockArray;
+import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
+import hellfirepvp.modularmachinery.common.modifier.SingleBlockModifierReplacement;
 import hellfirepvp.modularmachinery.common.util.BlockArray;
 import hellfirepvp.modularmachinery.common.util.IBlockStateDescriptor;
 import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
 import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.chars.CharArraySet;
 import it.unimi.dsi.fastutil.chars.CharSet;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,22 +27,23 @@ import java.util.*;
 
 public class BlockArrayBuilder {
 
-    protected TaggedPositionBlockArray blockArray;
+    private final DynamicMachine machine;
+    private final TaggedPositionBlockArray blockArray;
     private final List<List<String>> tensor = new ArrayList<>();
     private final Char2ObjectMap<BlockArray.BlockInformation> charMap = new Char2ObjectOpenHashMap<>();
     private final Char2ObjectMap<ComponentSelectorTag> selectorTagMap = new Char2ObjectOpenHashMap<>();
+    private final Map<BlockPos, List<SingleBlockModifierReplacement>> blockModifierMap = new Object2ObjectOpenHashMap<>();
+    private final Char2ObjectMap<List<SingleBlockModifierReplacement>> blockModifierCharMap = new Char2ObjectOpenHashMap<>();
     protected BlockArray.BlockInformation lastInformation = null;
     protected char lastChar = Character.MIN_VALUE;
     private char controllerChar = Character.MIN_VALUE;
 
     private static final BlockArray.BlockInformation CONTROLLER = new BlockArray.BlockInformation(Collections.emptyList());
 
-    public BlockArrayBuilder() {
+    public BlockArrayBuilder(DynamicMachine machine) {
+        this.machine = machine;
+        this.blockArray = machine.getPattern();
         this.charMap.put(' ', null);
-    }
-
-    public static BlockArrayBuilder builder() {
-        return new BlockArrayBuilder();
     }
 
     public BlockArrayBuilder layer(String... row) {
@@ -143,6 +148,58 @@ public class BlockArrayBuilder {
         });
     }
 
+    public BlockArrayBuilder blockModifier(int x, int y, int z, IBlockState blockStates, String description, RecipeModifier... modifiers) {
+        return blockModifier(x, y, z, Collections.singletonList(blockStates), description, modifiers);
+    }
+
+    /**
+     * 添加单方块配方修改器。
+     *
+     * @param x           X
+     * @param y           Y
+     * @param z           Z
+     * @param blockStates BlockState
+     * @param description 描述
+     * @param modifiers   修改器列表
+     */
+    public BlockArrayBuilder blockModifier(int x, int y, int z, Iterable<IBlockState> blockStates, String description, RecipeModifier... modifiers) {
+        List<IBlockStateDescriptor> stateDescriptorList = new ArrayList<>();
+        for (IBlockState blockState : blockStates) {
+            stateDescriptorList.add(new IBlockStateDescriptor(blockState));
+        }
+        singleBlockModifier(new BlockPos(x, y, z), new BlockArray.BlockInformation(stateDescriptorList), description, modifiers);
+        return this;
+    }
+
+    public BlockArrayBuilder whereBlockModifier(String c, IBlockState blockStates, String description, RecipeModifier... modifiers) {
+        return whereBlockModifier(c, Collections.singletonList(blockStates), description, modifiers);
+    }
+
+    public BlockArrayBuilder whereBlockModifier(String c, Iterable<IBlockState> blockStates, String description, RecipeModifier... modifiers) {
+        where(c, () -> {
+            List<IBlockStateDescriptor> stateDescriptorList = new ArrayList<>();
+            for (IBlockState blockState : blockStates) {
+                stateDescriptorList.add(new IBlockStateDescriptor(blockState));
+            }
+            singleBlockModifier(c.charAt(0), new BlockArray.BlockInformation(stateDescriptorList), description, modifiers);
+        });
+        return this;
+    }
+
+    private void singleBlockModifier(BlockPos pos, BlockArray.BlockInformation information, String description, RecipeModifier... modifiers) {
+        this.lastInformation = information;
+        this.lastChar = Character.MIN_VALUE;
+        this.blockModifierMap.computeIfAbsent(pos, k -> new ArrayList<>())
+                .add(new SingleBlockModifierReplacement(information, Arrays.asList(modifiers), description));
+    }
+
+    private void singleBlockModifier(char c, BlockArray.BlockInformation information, String description, RecipeModifier... modifiers) {
+        this.lastInformation = information;
+        this.lastChar = c;
+        this.blockModifierCharMap.computeIfAbsent(c, k -> new ArrayList<>())
+                .add(new SingleBlockModifierReplacement(information, Arrays.asList(modifiers), description));
+    }
+
     public BlockArrayBuilder nbt(Map<String, Object> tag) {
         return nbt(NbtHelper.ofMap(tag));
     }
@@ -240,10 +297,9 @@ public class BlockArrayBuilder {
         return new BlockPos(cx, cy, cz);
     }
 
-    public Object build() {
+    public TaggedPositionBlockArray build() {
         BlockPos controller = validate();
         if (controller == null) return null;
-        TaggedPositionBlockArray blockArray = this.blockArray != null ? this.blockArray : new TaggedPositionBlockArray();
 
         for (int x = 0; x < this.tensor.size(); x++) {
             List<String> xLayer = this.tensor.get(x);
@@ -259,13 +315,19 @@ public class BlockArrayBuilder {
                     if (tag != null) {
                         blockArray.setTag(pos, tag);
                     }
-                    onAddBlock(zChar, pos, info);
+                    List<SingleBlockModifierReplacement> modifiers = this.blockModifierMap.get(pos);
+                    if (modifiers != null) {
+                        modifiers.forEach(modifier -> modifier.setPos(pos));
+                        this.machine.getModifiers().computeIfAbsent(pos, k -> new ArrayList<>()).addAll(modifiers);
+                    }
+                    modifiers = this.blockModifierCharMap.get(zChar);
+                    if (modifiers != null) {
+                        modifiers.forEach(modifier -> modifier.setPos(pos));
+                        this.machine.getModifiers().computeIfAbsent(pos, k -> new ArrayList<>()).addAll(modifiers);
+                    }
                 }
             }
         }
         return blockArray;
-    }
-
-    protected void onAddBlock(char c, BlockPos pos, BlockArray.BlockInformation info) {
     }
 }

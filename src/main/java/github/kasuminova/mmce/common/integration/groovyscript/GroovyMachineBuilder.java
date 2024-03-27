@@ -1,45 +1,47 @@
 package github.kasuminova.mmce.common.integration.groovyscript;
 
-import com.cleanroommc.groovyscript.GroovyScript;
+import com.cleanroommc.groovyscript.api.GroovyBlacklist;
 import com.cleanroommc.groovyscript.api.GroovyLog;
+import com.cleanroommc.groovyscript.sandbox.ClosureHelper;
 import github.kasuminova.mmce.common.event.client.ControllerGUIRenderEvent;
 import github.kasuminova.mmce.common.event.client.ControllerModelAnimationEvent;
 import github.kasuminova.mmce.common.event.client.ControllerModelGetEvent;
 import github.kasuminova.mmce.common.event.machine.*;
 import groovy.lang.Closure;
-import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.machine.RecipeFailureActions;
-import hellfirepvp.modularmachinery.common.machine.TaggedPositionBlockArray;
 import hellfirepvp.modularmachinery.common.machine.factory.FactoryRecipeThread;
 import hellfirepvp.modularmachinery.common.modifier.MultiBlockModifierReplacement;
-import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
-import hellfirepvp.modularmachinery.common.modifier.SingleBlockModifierReplacement;
-import hellfirepvp.modularmachinery.common.util.BlockArray;
-import hellfirepvp.modularmachinery.common.util.IBlockStateDescriptor;
 import hellfirepvp.modularmachinery.common.util.SmartInterfaceType;
-import it.unimi.dsi.fastutil.chars.Char2ObjectMap;
-import it.unimi.dsi.fastutil.chars.Char2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Optional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-public class GroovyMachineBuilder extends BlockArrayBuilder {
+public class GroovyMachineBuilder {
 
     public static final Map<ResourceLocation, DynamicMachine> PRE_LOAD_MACHINES = new Object2ObjectOpenHashMap<>();
+    private static final List<GroovyMachineBuilder> PATTERNS = new ArrayList<>();
+
+    @GroovyBlacklist
+    public static void initPatterns() {
+        PATTERNS.forEach(builder -> {
+            BlockArrayBuilder blockArrayBuilder = new BlockArrayBuilder(builder.machine);
+            ClosureHelper.call(builder.pattern, blockArrayBuilder);
+            blockArrayBuilder.build();
+        });
+        PATTERNS.clear();
+    }
 
     private final DynamicMachine machine;
-    private final Map<BlockPos, List<SingleBlockModifierReplacement>> blockModifierMap = new Object2ObjectOpenHashMap<>();
-    private final Char2ObjectMap<List<SingleBlockModifierReplacement>> blockModifierCharMap = new Char2ObjectOpenHashMap<>();
+    private Closure<?> pattern;
 
     public GroovyMachineBuilder(String registryName) {
         this.machine = new DynamicMachine(registryName);
-        this.blockArray = this.machine.getPattern();
         color(0xFFFFFF); // config is read after grs preInit
     }
 
@@ -47,12 +49,6 @@ public class GroovyMachineBuilder extends BlockArrayBuilder {
         return new GroovyMachineBuilder(registryName);
     }
 
-    /**
-     * 获取机械结构组成。
-     */
-    public TaggedPositionBlockArray getBlockArray() {
-        return blockArray;
-    }
 
     /**
      * 设置此机械是否受并行控制器影响。
@@ -79,44 +75,6 @@ public class GroovyMachineBuilder extends BlockArrayBuilder {
      */
     public GroovyMachineBuilder internalParallelism(int parallelism) {
         machine.setInternalParallelism(parallelism);
-        return this;
-    }
-
-    public GroovyMachineBuilder blockModifier(int x, int y, int z, IBlockState blockStates, String description, RecipeModifier... modifiers) {
-        return blockModifier(x, y, z, Collections.singletonList(blockStates), description, modifiers);
-    }
-
-    /**
-     * 添加单方块配方修改器。
-     *
-     * @param x           X
-     * @param y           Y
-     * @param z           Z
-     * @param blockStates BlockState
-     * @param description 描述
-     * @param modifiers   修改器列表
-     */
-    public GroovyMachineBuilder blockModifier(int x, int y, int z, Iterable<IBlockState> blockStates, String description, RecipeModifier... modifiers) {
-        List<IBlockStateDescriptor> stateDescriptorList = new ArrayList<>();
-        for (IBlockState blockState : blockStates) {
-            stateDescriptorList.add(new IBlockStateDescriptor(blockState));
-        }
-        singleBlockModifier(new BlockPos(x, y, z), new BlockArray.BlockInformation(stateDescriptorList), description, modifiers);
-        return this;
-    }
-
-    public GroovyMachineBuilder whereBlockModifier(String c, IBlockState blockStates, String description, RecipeModifier... modifiers) {
-        return whereBlockModifier(c, Collections.singletonList(blockStates), description, modifiers);
-    }
-
-    public GroovyMachineBuilder whereBlockModifier(String c, Iterable<IBlockState> blockStates, String description, RecipeModifier... modifiers) {
-        where(c, () -> {
-            List<IBlockStateDescriptor> stateDescriptorList = new ArrayList<>();
-            for (IBlockState blockState : blockStates) {
-                stateDescriptorList.add(new IBlockStateDescriptor(blockState));
-            }
-            singleBlockModifier(c.charAt(0), new BlockArray.BlockInformation(stateDescriptorList), description, modifiers);
-        });
         return this;
     }
 
@@ -274,46 +232,25 @@ public class GroovyMachineBuilder extends BlockArrayBuilder {
         return this;
     }
 
+    public GroovyMachineBuilder pattern(Closure<?> patternBuilder) {
+        this.pattern = patternBuilder;
+        return this;
+    }
+
     /**
      * 注册此机械。
      */
     public Object build() {
-        if(PRE_LOAD_MACHINES.containsKey(this.machine.getRegistryName())) {
+        if (PRE_LOAD_MACHINES.containsKey(this.machine.getRegistryName())) {
             throw new IllegalStateException("Machine with name " + this.machine.getRegistryName().getPath() + " already exists!");
         }
-        super.build();
+        if (this.pattern == null) {
+            throw new IllegalStateException("Pattern is not defined!");
+        }
         hellfirepvp.modularmachinery.common.integration.crafttweaker.MachineBuilder.WAIT_FOR_LOAD.add(this.machine);
         PRE_LOAD_MACHINES.put(this.machine.getRegistryName(), this.machine);
+        PATTERNS.add(this);
         return machine;
-    }
-
-    @Override
-    protected void onAddBlock(char c, BlockPos pos, BlockArray.BlockInformation info) {
-        super.onAddBlock(c, pos, info);
-        List<SingleBlockModifierReplacement> modifiers = this.blockModifierMap.get(pos);
-        if (modifiers != null) {
-            modifiers.forEach(modifier -> modifier.setPos(pos));
-            this.machine.getModifiers().computeIfAbsent(pos, k -> new ArrayList<>()).addAll(modifiers);
-        }
-        modifiers = this.blockModifierCharMap.get(c);
-        if (modifiers != null) {
-            modifiers.forEach(modifier -> modifier.setPos(pos));
-            this.machine.getModifiers().computeIfAbsent(pos, k -> new ArrayList<>()).addAll(modifiers);
-        }
-    }
-
-    private void singleBlockModifier(BlockPos pos, BlockArray.BlockInformation information, String description, RecipeModifier... modifiers) {
-        this.lastInformation = information;
-        this.lastChar = Character.MIN_VALUE;
-        this.blockModifierMap.computeIfAbsent(pos, k -> new ArrayList<>())
-                .add(new SingleBlockModifierReplacement(information, Arrays.asList(modifiers), description));
-    }
-
-    private void singleBlockModifier(char c, BlockArray.BlockInformation information, String description, RecipeModifier... modifiers) {
-        this.lastInformation = information;
-        this.lastChar = c;
-        this.blockModifierCharMap.computeIfAbsent(c, k -> new ArrayList<>())
-                .add(new SingleBlockModifierReplacement(information, Arrays.asList(modifiers), description));
     }
 
     public DynamicMachine getMachine() {
