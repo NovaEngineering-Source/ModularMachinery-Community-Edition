@@ -9,7 +9,7 @@
 package hellfirepvp.modularmachinery.common.registry;
 
 import github.kasuminova.mmce.common.block.appeng.*;
-import github.kasuminova.mmce.common.integration.groovyscript.GroovyMachineBuilder;
+import github.kasuminova.mmce.common.integration.groovyscript.GroovyMachine;
 import github.kasuminova.mmce.common.tile.MEFluidInputBus;
 import github.kasuminova.mmce.common.tile.MEFluidOutputBus;
 import github.kasuminova.mmce.common.tile.MEItemInputBus;
@@ -255,7 +255,7 @@ public class RegistryBlocks {
 
     private static void registerExampleStatedMachineComponent() {
         registerStatedMachineComponent((BlockStatedMachineComponent)
-                new BlockStatedMachineComponent().setRegistryName("crushing_wheels"));
+                                               new BlockStatedMachineComponent().setRegistryName("crushing_wheels"));
     }
 
     private static void registerCustomStatedMachineComponent() {
@@ -289,8 +289,8 @@ public class RegistryBlocks {
             waitForLoadMachines.add(builder.getMachine());
         }
         MachineBuilder.PRE_LOAD_MACHINES.clear();
-        waitForLoadMachines.addAll(GroovyMachineBuilder.PRE_LOAD_MACHINES.values());
-        GroovyMachineBuilder.PRE_LOAD_MACHINES.clear();
+        waitForLoadMachines.addAll(GroovyMachine.PRE_LOAD_MACHINES.values());
+        GroovyMachine.PRE_LOAD_MACHINES.clear();
 
         if (Config.mocCompatibleMode) {
             for (DynamicMachine machine : waitForLoadMachines) {

@@ -14,6 +14,7 @@ import github.kasuminova.mmce.common.event.machine.IEventHandler;
 import github.kasuminova.mmce.common.event.machine.MachineEvent;
 import github.kasuminova.mmce.common.upgrade.registry.RegistryUpgrade;
 import groovy.lang.Closure;
+import groovy.lang.DelegatesTo;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.client.ClientProxy;
 import hellfirepvp.modularmachinery.common.base.Mods;
@@ -136,16 +137,16 @@ public class GroovyScriptPlugin implements GroovyPlugin {
 
     private static class Container extends ModPropertyContainer {
 
-        private final GroovyMachine dummy = new DummyMachine();
-        private final Map<ResourceLocation, GroovyMachine> machines = new Object2ObjectOpenHashMap<>();
-        private final Map<String, GroovyMachine> properties = new Object2ObjectOpenHashMap<>();
+        private final GroovyMachineRecipes dummy = new DummyMachineRecipes();
+        private final Map<ResourceLocation, GroovyMachineRecipes> machines = new Object2ObjectOpenHashMap<>();
+        private final Map<String, GroovyMachineRecipes> properties = new Object2ObjectOpenHashMap<>();
 
-        public GroovyMachine machine(ResourceLocation rl) {
-            GroovyMachine machine = this.machines.get(rl);
+        public GroovyMachineRecipes machine(ResourceLocation rl) {
+            GroovyMachineRecipes machine = this.machines.get(rl);
             if (machine == null) {
                 DynamicMachine dynamicMachine = MachineRegistry.getRegistry().getMachine(rl);
                 if (dynamicMachine != null) {
-                    machine = new GroovyMachine(rl);
+                    machine = new GroovyMachineRecipes(rl);
                     this.machines.put(rl, machine);
                     this.properties.put(rl.getPath(), machine);
                 }
@@ -153,11 +154,11 @@ public class GroovyScriptPlugin implements GroovyPlugin {
             return machine;
         }
 
-        public GroovyMachine machine(String mod, String name) {
+        public GroovyMachineRecipes machine(String mod, String name) {
             return machine(new ResourceLocation(mod, name));
         }
 
-        public GroovyMachine machine(String name) {
+        public GroovyMachineRecipes machine(String name) {
             String mod;
             int i = name.indexOf(":");
             if (i > 0) {
@@ -181,7 +182,7 @@ public class GroovyScriptPlugin implements GroovyPlugin {
         public Map<String, Object> getProperties() {
             for (DynamicMachine machine : MachineRegistry.getLoadedMachines()) {
                 if (!this.machines.containsKey(machine.getRegistryName())) {
-                    GroovyMachine groovyMachine = new GroovyMachine(machine.getRegistryName());
+                    GroovyMachineRecipes groovyMachine = new GroovyMachineRecipes(machine.getRegistryName());
                     this.machines.put(machine.getRegistryName(), groovyMachine);
                     this.properties.put(machine.getRegistryName().getPath(), groovyMachine);
                 }
@@ -198,6 +199,18 @@ public class GroovyScriptPlugin implements GroovyPlugin {
             return Collections.singleton(this.dummy);
         }
 
+        /*public void registerMachine(String registryName) {
+            registerMachine(registryName, null);
+        }*/
+
+        public void registerMachine(String registryName, @DelegatesTo(MachineBuilderHelper.class) Closure<?> buildFunction) {
+            ResourceLocation rl = new ResourceLocation(ModularMachinery.MODID, registryName);
+            if (GroovyMachine.PRE_LOAD_MACHINES.containsKey(rl)) {
+                throw new IllegalStateException("Machine with name '" + registryName + "' already exists!");
+            }
+            new GroovyMachine(new DynamicMachine(registryName), buildFunction);
+        }
+
         public void machineEvent(String machineRegistryName, Class<? extends MachineEvent> clazz, Closure<?> listener) {
             GroovyEventManager.INSTANCE.listen(EventPriority.NORMAL, EventBusType.MAIN, clazz, event -> {
                 DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
@@ -208,15 +221,11 @@ public class GroovyScriptPlugin implements GroovyPlugin {
                 }
             });
         }
-
-        public void machineBuilderEvent(Closure<?> listener) {
-            GroovyEventManager.INSTANCE.listen(MachineBuilderEvent.class, listener);
-        }
     }
 
-    private static class DummyMachine extends GroovyMachine {
+    private static class DummyMachineRecipes extends GroovyMachineRecipes {
 
-        public DummyMachine() {
+        public DummyMachineRecipes() {
             super(new ResourceLocation(ModularMachinery.MODID, "machine_name"));
         }
 

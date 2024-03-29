@@ -10,14 +10,19 @@ import hellfirepvp.modularmachinery.common.lib.BlocksMM;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraftforge.fml.common.eventhandler.Event;
 
 import javax.annotation.Nullable;
 
-public class MachineBuilderEvent extends Event {
+public class MachineBuilderHelper {
 
-    public GroovyMachineBuilder machineBuilder(String registryName) {
-        return new GroovyMachineBuilder(registryName);
+    private final GroovyMachineBuilder builder;
+
+    public MachineBuilderHelper(GroovyMachineBuilder builder) {
+        this.builder = builder;
+    }
+
+    public GroovyMachineBuilder getBuilder() {
+        return builder;
     }
 
     private IBlockState[] getBlockStates(Block block, int min, int max, @Nullable Block additional) {

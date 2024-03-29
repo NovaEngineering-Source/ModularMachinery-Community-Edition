@@ -2,7 +2,6 @@ package github.kasuminova.mmce.common.integration.groovyscript;
 
 import com.cleanroommc.groovyscript.api.GroovyBlacklist;
 import com.cleanroommc.groovyscript.api.GroovyLog;
-import com.cleanroommc.groovyscript.sandbox.ClosureHelper;
 import github.kasuminova.mmce.common.event.client.ControllerGUIRenderEvent;
 import github.kasuminova.mmce.common.event.client.ControllerModelAnimationEvent;
 import github.kasuminova.mmce.common.event.client.ControllerModelGetEvent;
@@ -13,42 +12,15 @@ import hellfirepvp.modularmachinery.common.machine.RecipeFailureActions;
 import hellfirepvp.modularmachinery.common.machine.factory.FactoryRecipeThread;
 import hellfirepvp.modularmachinery.common.modifier.MultiBlockModifierReplacement;
 import hellfirepvp.modularmachinery.common.util.SmartInterfaceType;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Optional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+public class GroovyMachineBuilder extends BlockArrayBuilder {
 
-public class GroovyMachineBuilder {
-
-    public static final Map<ResourceLocation, DynamicMachine> PRE_LOAD_MACHINES = new Object2ObjectOpenHashMap<>();
-    private static final List<GroovyMachineBuilder> PATTERNS = new ArrayList<>();
-
-    @GroovyBlacklist
-    public static void initPatterns() {
-        PATTERNS.forEach(builder -> {
-            BlockArrayBuilder blockArrayBuilder = new BlockArrayBuilder(builder.machine);
-            ClosureHelper.call(builder.pattern, blockArrayBuilder);
-            blockArrayBuilder.build();
-        });
-        PATTERNS.clear();
-    }
-
-    private final DynamicMachine machine;
-    private Closure<?> pattern;
-
-    public GroovyMachineBuilder(String registryName) {
-        this.machine = new DynamicMachine(registryName);
+    public GroovyMachineBuilder(DynamicMachine machine) {
+        super(machine);
         color(0xFFFFFF); // config is read after grs preInit
     }
-
-    public static GroovyMachineBuilder builder(String registryName) {
-        return new GroovyMachineBuilder(registryName);
-    }
-
 
     /**
      * 设置此机械是否受并行控制器影响。
@@ -232,25 +204,13 @@ public class GroovyMachineBuilder {
         return this;
     }
 
-    public GroovyMachineBuilder pattern(Closure<?> patternBuilder) {
-        this.pattern = patternBuilder;
-        return this;
-    }
-
     /**
      * 注册此机械。
      */
-    public Object build() {
-        if (PRE_LOAD_MACHINES.containsKey(this.machine.getRegistryName())) {
-            throw new IllegalStateException("Machine with name " + this.machine.getRegistryName().getPath() + " already exists!");
-        }
-        if (this.pattern == null) {
-            throw new IllegalStateException("Pattern is not defined!");
-        }
+    @GroovyBlacklist
+    public void build() {
+        super.build();
         hellfirepvp.modularmachinery.common.integration.crafttweaker.MachineBuilder.WAIT_FOR_LOAD.add(this.machine);
-        PRE_LOAD_MACHINES.put(this.machine.getRegistryName(), this.machine);
-        PATTERNS.add(this);
-        return machine;
     }
 
     public DynamicMachine getMachine() {

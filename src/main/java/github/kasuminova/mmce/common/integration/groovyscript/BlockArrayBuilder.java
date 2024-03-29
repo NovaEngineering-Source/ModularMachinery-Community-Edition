@@ -27,7 +27,7 @@ import java.util.*;
 
 public class BlockArrayBuilder {
 
-    private final DynamicMachine machine;
+    protected final DynamicMachine machine;
     private final TaggedPositionBlockArray blockArray;
     private final List<List<String>> tensor = new ArrayList<>();
     private final Char2ObjectMap<BlockArray.BlockInformation> charMap = new Char2ObjectOpenHashMap<>();
@@ -297,9 +297,9 @@ public class BlockArrayBuilder {
         return new BlockPos(cx, cy, cz);
     }
 
-    public TaggedPositionBlockArray build() {
+    public void build() {
         BlockPos controller = validate();
-        if (controller == null) return null;
+        if (controller == null) return;
 
         for (int x = 0; x < this.tensor.size(); x++) {
             List<String> xLayer = this.tensor.get(x);
@@ -328,6 +328,5 @@ public class BlockArrayBuilder {
                 }
             }
         }
-        return blockArray;
     }
 }
