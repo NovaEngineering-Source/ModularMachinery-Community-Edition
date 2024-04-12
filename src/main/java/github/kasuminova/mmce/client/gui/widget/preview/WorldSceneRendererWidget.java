@@ -200,7 +200,7 @@ public class WorldSceneRendererWidget extends DynamicWidget {
         descriptors.add(new IBlockStateDescriptor(ctrl.getDefaultState()));
 
         // Factory
-        if (machine.isHasFactory() || Config.enableFactoryControllerByDefault) {
+        if (machine.isHasFactory()) {
             BlockFactoryController factory = BlockFactoryController.getControllerWithMachine(machine);
             if (factory == null) factory = BlocksMM.blockFactoryController;
             descriptors.add(new IBlockStateDescriptor(factory.getDefaultState()));

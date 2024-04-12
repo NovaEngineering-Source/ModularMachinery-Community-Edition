@@ -408,8 +408,8 @@ public abstract class WorldSceneRenderer {
     }
 
     public float getCompileProgress() {
-        // 1000 blocks, 11 is per block unit.
-        if (maxProgress <= 1000 * TOTAL_PROGRESS_UNIT) {
+        // 2000 blocks, 11 is per block unit.
+        if (maxProgress <= 2000 * TOTAL_PROGRESS_UNIT) {
             return -1;
         }
         return (float) progress.get() / maxProgress;

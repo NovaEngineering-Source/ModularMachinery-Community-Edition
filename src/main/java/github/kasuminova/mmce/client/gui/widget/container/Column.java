@@ -257,7 +257,7 @@ public class Column extends WidgetContainer {
             xOffset = widget.getMarginLeft();
             yOffset = y + widget.getMarginUp();
         } else if (rightAligned) {
-            xOffset = width - widget.getWidth() - widget.getMarginRight();
+            xOffset = width - (widget.getWidth() + widget.getMarginRight());
             yOffset = y + widget.getMarginUp();
         } else {
             // Where does it align?

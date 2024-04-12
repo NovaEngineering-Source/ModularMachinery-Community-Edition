@@ -73,7 +73,7 @@ public class TileItemInputBus extends TileItemBus implements MachineComponentTil
         }
     }
 
-    private void inputFromExternal(IItemHandler external) {
+    private synchronized void inputFromExternal(IItemHandler external) {
         boolean successAtLeastOnce = false;
 
         external:

@@ -8,7 +8,6 @@
 
 package hellfirepvp.modularmachinery.client.util;
 
-import github.kasuminova.mmce.client.gui.widget.preview.WorldSceneRendererWidget;
 import hellfirepvp.modularmachinery.common.block.BlockController;
 import hellfirepvp.modularmachinery.common.block.BlockFactoryController;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
@@ -50,6 +49,7 @@ public class BlockArrayPreviewRenderHelper {
     private DynamicMachine machine = null;
     private BlockPos attachedPosition = null;
     private int renderedLayer = -1;
+    private DynamicMachineRenderContext context = null;
 
     @Nullable
     private static RayTraceResult getLookBlock(Entity e, boolean stopTraceOnLiquids, boolean ignoreBlockWithoutBoundingBox, double range) {
@@ -77,6 +77,7 @@ public class BlockArrayPreviewRenderHelper {
             this.renderHelper.sampleSnap = currentContext.getShiftSnap(); //Just for good measure
             this.renderHelperOffset = currentContext.getMoveOffset();
             this.machine = currentContext.getDisplayedMachine();
+            this.context = currentContext;
             this.attachedPosition = null;
             if (Minecraft.getMinecraft().player != null) {
                 Minecraft.getMinecraft().player.sendMessage(new TextComponentTranslation("gui.blueprint.popout.place"));
@@ -107,6 +108,11 @@ public class BlockArrayPreviewRenderHelper {
                 }
                 attachedPosition = attachPos;
                 updateLayers();
+                if (Minecraft.getMinecraft().player != null) {
+                    if (context.getDynamicPatternSize() > 0) {
+                        Minecraft.getMinecraft().player.sendMessage(new TextComponentTranslation("gui.blueprint.popout.placed.dynamic_pattern"));
+                    }
+                }
                 return true;
             }
         }
@@ -337,10 +343,15 @@ public class BlockArrayPreviewRenderHelper {
         this.renderHelperOffset = null;
         this.attachedPosition = null;
         this.machine = null;
+        this.context = null;
     }
 
     public void unloadWorld() {
         clearSelection();
+    }
+
+    public DynamicMachineRenderContext getContext() {
+        return context;
     }
 
 }

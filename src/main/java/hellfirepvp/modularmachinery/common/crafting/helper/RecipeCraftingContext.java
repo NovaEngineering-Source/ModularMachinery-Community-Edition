@@ -29,6 +29,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
@@ -135,7 +136,7 @@ public class RecipeCraftingContext {
 
     @Nonnull
     public List<RecipeModifier> getModifiers(RequirementType<?, ?> target) {
-        return modifiers.computeIfAbsent(target, t -> new LinkedList<>());
+        return modifiers.computeIfAbsent(target, t -> new CopyOnWriteArrayList<>());
     }
 
     @Nonnull
@@ -532,7 +533,7 @@ public class RecipeCraftingContext {
             if (target == null) {
                 target = RequirementTypesMM.REQUIREMENT_DURATION;
             }
-            this.modifiers.computeIfAbsent(target, t -> new LinkedList<>()).add(modifier);
+            this.modifiers.computeIfAbsent(target, t -> new CopyOnWriteArrayList<>()).add(modifier);
             updateModifierApplier(target);
         }
     }
@@ -545,7 +546,7 @@ public class RecipeCraftingContext {
             if (target == null) {
                 target = RequirementTypesMM.REQUIREMENT_DURATION;
             }
-            this.modifiers.computeIfAbsent(target, t -> new LinkedList<>()).add(modifier);
+            this.modifiers.computeIfAbsent(target, t -> new CopyOnWriteArrayList<>()).add(modifier);
             changed.add(target);
         }
 
@@ -572,7 +573,7 @@ public class RecipeCraftingContext {
     }
 
     public void updateModifierApplier(RequirementType<?, ?> reqType) {
-        addModifierApplier(reqType, modifiers.computeIfAbsent(reqType, v -> new LinkedList<>()));
+        addModifierApplier(reqType, modifiers.computeIfAbsent(reqType, v -> new CopyOnWriteArrayList<>()));
     }
 
     public void addModifierApplier(final RequirementType<?, ?> reqType, final List<RecipeModifier> recipeModifiers) {

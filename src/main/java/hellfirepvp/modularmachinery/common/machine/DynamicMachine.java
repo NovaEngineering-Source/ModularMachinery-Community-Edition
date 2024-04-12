@@ -27,10 +27,12 @@ import hellfirepvp.modularmachinery.common.util.BlockArray;
 import hellfirepvp.modularmachinery.common.util.IBlockStateDescriptor;
 import hellfirepvp.modularmachinery.common.util.SmartInterfaceType;
 import hellfirepvp.modularmachinery.common.util.nbt.NBTJsonDeserializer;
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.JsonUtils;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nonnull;
@@ -60,6 +62,8 @@ public class DynamicMachine extends AbstractMachine {
     private final Map<String, FactoryRecipeThread> coreThreadPreset = new LinkedHashMap<>();
 
     private boolean hideComponentsWhenFormed = false;
+
+    private AxisAlignedBB controllerBoundingBox = Block.FULL_BLOCK_AABB;
 
     public DynamicMachine(String registryName) {
         super(registryName);
@@ -174,13 +178,20 @@ public class DynamicMachine extends AbstractMachine {
     }
 
     public RecipeCraftingContext createContext(ActiveMachineRecipe recipe,
-                                               TileMultiblockMachineController ctrl)
-    {
+            TileMultiblockMachineController ctrl) {
         if (!recipe.getRecipe().getOwningMachineIdentifier().equals(registryName)) {
             throw new IllegalArgumentException("Tried to create context for a recipe that doesn't belong to the referenced machine!");
         }
 
         return RecipeCraftingContextPool.borrowCtx(recipe, ctrl);
+    }
+
+    public AxisAlignedBB getControllerBoundingBox() {
+        return controllerBoundingBox;
+    }
+
+    public void setControllerBoundingBox(AxisAlignedBB controllerBoundingBox) {
+        this.controllerBoundingBox = controllerBoundingBox;
     }
 
     public void mergeFrom(DynamicMachine another) {
@@ -199,6 +210,7 @@ public class DynamicMachine extends AbstractMachine {
         dynamicPatterns.putAll(another.dynamicPatterns);
 
         hideComponentsWhenFormed = another.hideComponentsWhenFormed;
+        controllerBoundingBox = another.controllerBoundingBox;
     }
 
     public static class ModifierReplacementMap extends HashMap<BlockPos, List<BlockArray.BlockInformation>> {
@@ -320,7 +332,6 @@ public class DynamicMachine extends AbstractMachine {
             }
             DynamicMachine machine = new DynamicMachine(registryName);
             machine.setLocalizedName(localized);
-
             // Failure Action
             if (root.has("failure-action")) {
                 machine.setFailureAction(DynamicMachinePreDeserializer.getFailureActions(root));
@@ -349,6 +360,11 @@ public class DynamicMachine extends AbstractMachine {
             // Hide Components When Formed
             if (root.has("hide-components-when-formed")) {
                 machine.setHideComponentsWhenFormed(getHideComponentsWhenFormed(root));
+            }
+
+            // Controller Bounding Box
+            if (root.has("controller-bounding-box")) {
+                setControllerBoundingBox(root, machine);
             }
 
             // Parts
@@ -633,6 +649,21 @@ public class DynamicMachine extends AbstractMachine {
                     throw new JsonParseException("'elements' has to either be a blockstate description, variable or array of blockstate descriptions!");
                 }
             }
+        }
+
+        private static void setControllerBoundingBox(final JsonObject jsonPattern, DynamicMachine machine) {
+            JsonArray boundingBox = JsonUtils.getJsonArray(jsonPattern, "controller-bounding-box");
+            if (boundingBox.size() != 6) {
+                throw new JsonParseException("Invalid 'controllerBoundingBox'!");
+            }
+            machine.setControllerBoundingBox(new AxisAlignedBB(
+                    boundingBox.get(0).getAsDouble(),
+                    boundingBox.get(1).getAsDouble(),
+                    boundingBox.get(2).getAsDouble(),
+                    boundingBox.get(3).getAsDouble(),
+                    boundingBox.get(4).getAsDouble(),
+                    boundingBox.get(5).getAsDouble()
+            ));
         }
     }
 

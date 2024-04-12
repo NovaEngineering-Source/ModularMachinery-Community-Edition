@@ -37,6 +37,11 @@ public abstract class GuiContainerDynamic<T extends ContainerBase<?>> extends Gu
     @Override
     public void initGui() {
         super.initGui();
+        widgetController.getGui()
+                .setGuiLeft(guiLeft)
+                .setGuiTop(guiTop)
+                .setXSize(width)
+                .setYSize(height);
         widgetController.init();
     }
 
@@ -54,7 +59,7 @@ public abstract class GuiContainerDynamic<T extends ContainerBase<?>> extends Gu
     @Override
     protected void drawGuiContainerForegroundLayer(final int mouseX, final int mouseY) {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
-        widgetController.postRender(new MousePos(mouseX, mouseY), false);
+        widgetController.postRender(new MousePos(mouseX, mouseY), true);
     }
 
     @Override

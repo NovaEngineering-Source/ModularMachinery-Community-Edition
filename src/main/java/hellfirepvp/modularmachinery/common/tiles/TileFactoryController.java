@@ -48,6 +48,8 @@ public class TileFactoryController extends TileMultiblockMachineController {
     private FactoryRecipeSearchTask searchTask = null;
     private SequentialTaskExecutor threadTask = null;
 
+    private boolean redstoneEffected = false;
+
     public TileFactoryController() {
 
     }
@@ -67,6 +69,7 @@ public class TileFactoryController extends TileMultiblockMachineController {
     @Override
     public void doControllerTick() {
         if (getStrongPower() > 0) {
+            redstoneEffected = true;
             return;
         }
 
@@ -537,6 +540,15 @@ public class TileFactoryController extends TileMultiblockMachineController {
             }
             ctx.updateComponents(foundComponents.values());
         }
+    }
+
+    @Override
+    protected boolean canCheckStructure() {
+        if (redstoneEffected) {
+            redstoneEffected = false;
+            return true;
+        }
+        return super.canCheckStructure();
     }
 
     @Override

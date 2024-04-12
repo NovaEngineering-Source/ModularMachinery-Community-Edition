@@ -3,8 +3,6 @@ package github.kasuminova.mmce.common.concurrent;
 import github.kasuminova.mmce.common.util.concurrent.*;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.tiles.base.TileEntitySynchronized;
-import io.netty.util.collection.LongObjectHashMap;
-import io.netty.util.collection.LongObjectMap;
 import io.netty.util.internal.ThrowableUtil;
 import io.netty.util.internal.shaded.org.jctools.queues.atomic.MpscLinkedAtomicQueue;
 import it.unimi.dsi.fastutil.longs.*;
@@ -20,7 +18,7 @@ import java.util.concurrent.locks.LockSupport;
 public class TaskExecutor {
     public static final int THREAD_COUNT = Math.min(Math.max(Runtime.getRuntime().availableProcessors() / 4, 4), 8);
 
-    public static final ThreadPoolExecutor THREAD_POOL = new ThreadPoolExecutor(4, THREAD_COUNT,
+    public static final ThreadPoolExecutor THREAD_POOL = new ThreadPoolExecutor(THREAD_COUNT, THREAD_COUNT,
             5000, TimeUnit.MILLISECONDS,
             new PriorityBlockingQueue<>(),
             new CustomThreadFactory("MMCE-TaskExecutor-%s"));
@@ -39,7 +37,7 @@ public class TaskExecutor {
     private final Queue<ActionExecutor> submitted = new MpscLinkedAtomicQueue<>();
 
     private final Queue<ActionExecutor> executors = new MpscLinkedAtomicQueue<>();
-    private final LongObjectMap<ExecuteGroup> executeGroups = new LongObjectHashMap<>();
+    private final Long2ObjectMap<ExecuteGroup> executeGroups = new Long2ObjectOpenHashMap<>();
 
     private final Queue<ForkJoinTask<?>> forkJoinTasks = new MpscLinkedAtomicQueue<>();
 

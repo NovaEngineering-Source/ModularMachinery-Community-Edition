@@ -7,6 +7,7 @@ import crafttweaker.api.block.IBlockState;
 import crafttweaker.api.data.IData;
 import crafttweaker.api.item.IItemStack;
 import crafttweaker.api.minecraft.CraftTweakerMC;
+import crafttweaker.api.util.IAxisAlignedBB;
 import crafttweaker.util.IEventHandler;
 import github.kasuminova.mmce.common.event.client.ControllerGUIRenderEvent;
 import github.kasuminova.mmce.common.event.client.ControllerModelAnimationEvent;
@@ -529,6 +530,12 @@ public class MachineBuilder {
     @ZenMethod
     public MachineBuilder addCoreThread(FactoryRecipeThread thread) {
         this.machine.addCoreThread(thread);
+        return this;
+    }
+
+    @ZenMethod
+    public MachineBuilder setControllerBoundingBox(IAxisAlignedBB aabb) {
+        this.machine.setControllerBoundingBox(CraftTweakerMC.getAxisAlignedBB(aabb));
         return this;
     }
 

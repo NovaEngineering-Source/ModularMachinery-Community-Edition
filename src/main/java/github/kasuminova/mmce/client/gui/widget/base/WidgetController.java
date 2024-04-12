@@ -186,7 +186,7 @@ public class WidgetController {
     }
 
     public boolean onMouseInput(final MousePos mousePos) {
-        final int wheel = Mouse.getDWheel();
+        final int wheel = Mouse.getEventDWheel();
         if (wheel == 0) {
             return false;
         }

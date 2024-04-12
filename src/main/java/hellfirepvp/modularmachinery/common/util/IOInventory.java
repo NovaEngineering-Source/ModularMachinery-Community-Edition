@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 public class IOInventory extends IItemHandlerImpl {
 
     private final TileEntitySynchronized owner;
+    // TODO IntConsumer.
     private Consumer<Integer> listener = null;
 
     private IOInventory(TileEntitySynchronized owner) {

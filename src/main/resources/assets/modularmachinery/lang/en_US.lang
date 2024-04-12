@@ -144,7 +144,8 @@ component.missing.modularmachinery.item.input=No Item Input found!
 component.missing.modularmachinery.interface.number=No Smart Data Interface found!
 
 gui.blueprint.popout.info=Sneak to freeze the current preview to be able to preview it in world.
-gui.blueprint.popout.place=Rightclick to place preview; move away from the placed one or open another structure preview (blueprint) to remove the one in-world.
+gui.blueprint.popout.place=Rightclick to place preview; move away from the placed one or open another structure preview (blueprint) to remove the one in-world; the rotation can be automatically rotated according to its orientation when viewing the controller.
+gui.blueprint.popout.placed.dynamic_pattern=The dynamic structure size of the projection is prioritized when using automatic assembly during projection.
 
 jei.category.preview=Structure Preview
 
@@ -158,6 +159,7 @@ message.machine_projector.project=Projecting the structure of %s
 message.assembly.tip.no_machine=Modular Assembly: No modular machine found!
 message.assembly.tip.already_assembly=Modular Assembly: The machine is in the assembly queue!
 message.assembly.tip.success=Modular Assembly: Assembled successfully!
+message.assembly.tip.cancelled=Modular Assembly: Assembled cancelled!
 message.assembly.tip.cannot_replace=Modular Assembly: Cannot place a block at %s, please check if a block exists at the target position!
 message.assembly.tip.skipped=Modular Assembly: Placement of block that have skipped %s.
 message.assembly.tip.missing=Modular Assembly: %s Needs item assembly, but inventory is missing block or bucket!

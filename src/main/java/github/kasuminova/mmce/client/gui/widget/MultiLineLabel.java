@@ -75,18 +75,19 @@ public class MultiLineLabel extends DynamicWidget {
     // Utils
 
     protected float getLineRenderOffset(final String s, final FontRenderer fr) {
+        if (leftAligned && !rightAligned) {
+            return 0;
+        }
+
         int width = getWidth();
+        float stringWidth = fr.getStringWidth(s) * scale;
 
         if (leftAligned && rightAligned) {
-            int stringWidth = fr.getStringWidth(s);
-            return (float) (width - stringWidth) / 2 / scale;
-        } else if (leftAligned) {
-            return 0;
+            return (width - (stringWidth)) / 2F;
         } else if (rightAligned) {
-            return width - fr.getStringWidth(s) / scale;
+            return (width - (stringWidth));
         } else {
-            int stringWidth = fr.getStringWidth(s);
-            return (float) (width - stringWidth) / 2 / scale;
+            return (width - (stringWidth)) / 2F;
         }
     }
 

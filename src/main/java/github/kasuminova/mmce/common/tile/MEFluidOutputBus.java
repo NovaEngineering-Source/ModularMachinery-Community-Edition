@@ -52,8 +52,8 @@ public class MEFluidOutputBus extends MEFluidBus {
 
         try {
             IMEMonitor<IAEFluidStack> inv = proxy.getStorage().getInventory(channel);
-            for (int i = 0; i < tanks.getSlots(); i++) {
-                IAEFluidStack fluid = tanks.getFluidInSlot(i);
+            for (final int slot : getNeedUpdateSlots()) {
+                IAEFluidStack fluid = tanks.getFluidInSlot(slot);
 
                 if (fluid == null) {
                     continue;
@@ -69,12 +69,14 @@ public class MEFluidOutputBus extends MEFluidBus {
                     successAtLeastOnce = true;
                 }
 
-                tanks.setFluidInSlot(i, left);
+                tanks.setFluidInSlot(slot, left);
             }
         } catch (GridAccessException e) {
+            changedSlots.clear();
             return TickRateModulation.IDLE;
         }
 
+        changedSlots.clear();
         return successAtLeastOnce ? TickRateModulation.FASTER : TickRateModulation.SLOWER;
     }
 

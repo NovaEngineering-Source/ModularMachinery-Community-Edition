@@ -8,6 +8,7 @@
 
 package hellfirepvp.modularmachinery.common;
 
+import appeng.me.helpers.IGridProxyable;
 import github.kasuminova.mmce.common.capability.CapabilityUpgrade;
 import github.kasuminova.mmce.common.concurrent.TaskExecutor;
 import github.kasuminova.mmce.common.container.ContainerMEFluidInputBus;
@@ -22,7 +23,6 @@ import github.kasuminova.mmce.common.tile.MEFluidInputBus;
 import github.kasuminova.mmce.common.tile.MEFluidOutputBus;
 import github.kasuminova.mmce.common.tile.MEItemInputBus;
 import github.kasuminova.mmce.common.tile.MEItemOutputBus;
-import github.kasuminova.mmce.common.tile.base.MEMachineComponent;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import github.kasuminova.mmce.common.world.MMWorldEventListener;
 import hellfirepvp.modularmachinery.ModularMachinery;
@@ -100,11 +100,11 @@ public class CommonProxy implements IGuiHandler {
     }
 
     private static boolean aeSecurityCheck(EntityPlayer player, TileEntity te) {
-        if (!Mods.AE2.isPresent() || !(te instanceof MEMachineComponent)) {
+        if (!Mods.AE2.isPresent() || !(te instanceof IGridProxyable)) {
             return true;
         }
 
-        return ModIntegrationAE2.securityCheck(player, ((MEMachineComponent) te).getProxy());
+        return ModIntegrationAE2.securityCheck(player, ((IGridProxyable) te).getProxy());
     }
 
     public void preInit() {

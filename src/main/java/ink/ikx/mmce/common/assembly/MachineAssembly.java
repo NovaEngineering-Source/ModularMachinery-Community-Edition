@@ -2,6 +2,7 @@ package ink.ikx.mmce.common.assembly;
 
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.network.PktAssemblyReport;
+import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.ItemUtils;
 import ink.ikx.mmce.common.utils.FluidUtils;
 import ink.ikx.mmce.common.utils.StructureIngredient;
@@ -303,6 +304,11 @@ public class MachineAssembly {
 
     public boolean isCompleted() {
         return ingredient.itemIngredient().isEmpty() && ingredient.fluidIngredient().isEmpty();
+    }
+
+    public boolean isControllerInvalid() {
+        TileEntity te = world.getTileEntity(ctrlPos);
+        return !(te instanceof TileMultiblockMachineController);
     }
 
     public void assembly(boolean consumeInventory) {

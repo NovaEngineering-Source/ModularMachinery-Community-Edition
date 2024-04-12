@@ -24,7 +24,7 @@ public abstract class AbstractMachine {
     protected int maxThreads = Config.defaultFactoryMaxThread;
     protected boolean requiresBlueprint = false;
     protected boolean parallelizable = Config.machineParallelizeEnabledByDefault;
-    protected boolean hasFactory = false;
+    protected boolean hasFactory = Config.enableFactoryControllerByDefault;
     protected boolean factoryOnly = false;
     protected RecipeFailureActions failureAction = RecipeFailureActions.getFailureAction("still");
 
