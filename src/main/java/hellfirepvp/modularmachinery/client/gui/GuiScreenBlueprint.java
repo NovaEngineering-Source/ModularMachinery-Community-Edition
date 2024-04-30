@@ -63,8 +63,8 @@ public class GuiScreenBlueprint extends GuiScreenDynamic {
         this.mc.getTextureManager().bindTexture(GUI_TEXTURE);
         this.drawTexturedModalRect(x, z, 0, 0, X_SIZE, Y_SIZE);
 
-        this.widgetController.getContainers().clear();
-        this.widgetController.addWidgetContainer(PreviewPanels.getPanel(machine, widgetController.getGui()));
+        this.widgetController.getWidgets().clear();
+        this.widgetController.addWidget(PreviewPanels.getPanel(machine, widgetController.getGui()));
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 

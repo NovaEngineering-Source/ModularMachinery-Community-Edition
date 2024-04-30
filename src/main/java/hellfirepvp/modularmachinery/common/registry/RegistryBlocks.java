@@ -10,10 +10,7 @@ package hellfirepvp.modularmachinery.common.registry;
 
 import github.kasuminova.mmce.common.block.appeng.*;
 import github.kasuminova.mmce.common.integration.groovyscript.GroovyMachine;
-import github.kasuminova.mmce.common.tile.MEFluidInputBus;
-import github.kasuminova.mmce.common.tile.MEFluidOutputBus;
-import github.kasuminova.mmce.common.tile.MEItemInputBus;
-import github.kasuminova.mmce.common.tile.MEItemOutputBus;
+import github.kasuminova.mmce.common.tile.*;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.base.Mods;
@@ -129,6 +126,8 @@ public class RegistryBlocks {
             ItemsMM.meFluidOutputBus = prepareItemBlockRegister(meFluidOutputBus);
             meFluidInputBus = prepareRegister(new BlockMEFluidInputBus());
             ItemsMM.meFluidinputBus = prepareItemBlockRegister(meFluidInputBus);
+            mePatternProvider = prepareRegister(new BlockMEPatternProvider());
+            ItemsMM.mePatternProvider = prepareItemBlockRegister(mePatternProvider);
         }
 
         if (Mods.BM2.isPresent()) {
@@ -218,6 +217,7 @@ public class RegistryBlocks {
             registerTileWithModID(MEItemInputBus.class);
             registerTileWithModID(MEFluidOutputBus.class);
             registerTileWithModID(MEFluidInputBus.class);
+            registerTileWithModID(MEPatternProvider.class);
         }
         if (Mods.BM2.isPresent()) {
             GameRegistry.registerTileEntity(TileWillProvider.Input.class, new ResourceLocation(ModularMachinery.MODID, "tilewillproviderinput"));

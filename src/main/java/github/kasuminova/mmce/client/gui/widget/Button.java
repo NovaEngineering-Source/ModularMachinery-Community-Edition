@@ -68,11 +68,11 @@ public class Button extends DynamicWidget {
     // Tooltips
 
     @Override
-    public List<String> getHoverTooltips(final MousePos mousePos) {
+    public List<String> getHoverTooltips(final WidgetGui widgetGui, final MousePos mousePos) {
         if (available && tooltipFunction != null) {
             return tooltipFunction.apply(this);
         }
-        return super.getHoverTooltips(mousePos);
+        return super.getHoverTooltips(widgetGui, mousePos);
     }
 
     // Getter Setter

@@ -115,8 +115,8 @@ public class StructurePreviewWrapper implements IRecipeWrapper {
         gui.getWidgetController().getGui().setGuiLeft(guiLeft).setGuiTop(guiTop);
 
         WidgetController controller = gui.getWidgetController();
-        controller.getContainers().clear();
-        controller.addWidgetContainer(PreviewPanels.getPanel(machine, controller.getGui()));
+        controller.getWidgets().clear();
+        controller.addWidget(PreviewPanels.getPanel(machine, controller.getGui()));
 
         gui.updateScreen();
         gui.drawScreen(mouseX + guiLeft, mouseY + guiTop, minecraft.getRenderPartialTicks());

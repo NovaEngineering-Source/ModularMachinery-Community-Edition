@@ -1,18 +1,23 @@
-package github.kasuminova.mmce.client.gui.widget.preview;
+package github.kasuminova.mmce.client.gui.widget.impl.preview;
 
+import github.kasuminova.mmce.client.gui.widget.Scrollbar;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetGui;
 import github.kasuminova.mmce.client.gui.widget.container.Row;
 import github.kasuminova.mmce.client.gui.widget.container.ScrollingColumn;
-import github.kasuminova.mmce.client.gui.widget.slot.SlotVirtual;
+import github.kasuminova.mmce.client.gui.widget.slot.SlotFluidVirtual;
+import github.kasuminova.mmce.client.gui.widget.slot.SlotItemVirtual;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
 
-import static github.kasuminova.mmce.client.gui.widget.preview.MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION;
+import static github.kasuminova.mmce.client.gui.widget.impl.preview.MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION;
 
 public class IngredientList extends ScrollingColumn {
 
     public static final int MAX_STACK_PER_ROW = 9;
+
+    protected int maxStackPerRow = MAX_STACK_PER_ROW;
 
     public IngredientList() {
         setWidthHeight(174, 36);
@@ -38,19 +43,37 @@ public class IngredientList extends ScrollingColumn {
                 .setWidthHeight(8, 13);
     }
 
-    public IngredientList setStackList(final List<ItemStack> list) {
+    public Scrollbar getScrollbar() {
+        return scrollbar;
+    }
+
+    public IngredientList setStackList(final List<ItemStack> list, List<FluidStack> fluidList) {
         getWidgets().clear();
 
         Row row = new Row();
         int stackPerRow = 0;
+        int totalSize = list.size() + fluidList.size();
         for (int i = 0; i < list.size(); i++) {
             final ItemStack stack = list.get(i);
-            row.addWidget(SlotVirtual.ofJEI(stack)
+            row.addWidget(SlotItemVirtual.ofJEI(stack)
                     .setSlotTexLocation(WIDGETS_TEX_LOCATION)
                     .setSlotTexX(184).setSlotTexY(194)
             );
             stackPerRow++;
-            if (stackPerRow >= MAX_STACK_PER_ROW && i + 1 < list.size()) {
+            if (stackPerRow >= maxStackPerRow && i + 1 < totalSize) {
+                addWidget(row.setUseScissor(false));
+                row = new Row();
+                stackPerRow = 0;
+            }
+        }
+        for (int i = 0; i < fluidList.size(); i++) {
+            final FluidStack stack = fluidList.get(i);
+            row.addWidget(SlotFluidVirtual.ofJEI(stack)
+                    .setSlotTexLocation(WIDGETS_TEX_LOCATION)
+                    .setSlotTexX(184).setSlotTexY(194)
+            );
+            stackPerRow++;
+            if (stackPerRow >= maxStackPerRow && i + 1 < totalSize) {
                 addWidget(row.setUseScissor(false));
                 row = new Row();
                 stackPerRow = 0;
@@ -58,6 +81,14 @@ public class IngredientList extends ScrollingColumn {
         }
         addWidget(row.setUseScissor(false));
         return this;
+    }
+
+    public int getMaxStackPerRow() {
+        return maxStackPerRow;
+    }
+
+    public void setMaxStackPerRow(final int maxStackPerRow) {
+        this.maxStackPerRow = maxStackPerRow;
     }
 
 }

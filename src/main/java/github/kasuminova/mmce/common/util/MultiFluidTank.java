@@ -214,6 +214,8 @@ public class MultiFluidTank implements IFluidHandler {
 
     public void readFromNBT(final NBTTagCompound compound, final String name) {
         NBTTagCompound tag = compound.getCompoundTag(name);
+        Arrays.fill(contents, null);
+
         if (tag.isEmpty()) {
             return;
         }

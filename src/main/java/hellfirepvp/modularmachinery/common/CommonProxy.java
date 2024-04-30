@@ -8,22 +8,16 @@
 
 package hellfirepvp.modularmachinery.common;
 
+import appeng.me.helpers.IGridProxyable;
 import github.kasuminova.mmce.common.capability.CapabilityUpgrade;
 import github.kasuminova.mmce.common.concurrent.TaskExecutor;
-import github.kasuminova.mmce.common.container.ContainerMEFluidInputBus;
-import github.kasuminova.mmce.common.container.ContainerMEFluidOutputBus;
-import github.kasuminova.mmce.common.container.ContainerMEItemInputBus;
-import github.kasuminova.mmce.common.container.ContainerMEItemOutputBus;
+import github.kasuminova.mmce.common.container.*;
 import github.kasuminova.mmce.common.handler.EventHandler;
 import github.kasuminova.mmce.common.handler.UpgradeEventHandler;
 import github.kasuminova.mmce.common.integration.ModIntegrationAE2;
 import github.kasuminova.mmce.common.integration.gregtech.ModIntegrationGTCEU;
 import github.kasuminova.mmce.common.integration.groovyscript.GroovyMachine;
-import github.kasuminova.mmce.common.tile.MEFluidInputBus;
-import github.kasuminova.mmce.common.tile.MEFluidOutputBus;
-import github.kasuminova.mmce.common.tile.MEItemInputBus;
-import github.kasuminova.mmce.common.tile.MEItemOutputBus;
-import github.kasuminova.mmce.common.tile.base.MEMachineComponent;
+import github.kasuminova.mmce.common.tile.*;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import github.kasuminova.mmce.common.world.MMWorldEventListener;
 import hellfirepvp.modularmachinery.ModularMachinery;
@@ -101,11 +95,11 @@ public class CommonProxy implements IGuiHandler {
     }
 
     private static boolean aeSecurityCheck(EntityPlayer player, TileEntity te) {
-        if (!Mods.AE2.isPresent() || !(te instanceof MEMachineComponent)) {
+        if (!Mods.AE2.isPresent() || !(te instanceof IGridProxyable)) {
             return true;
         }
 
-        return ModIntegrationAE2.securityCheck(player, ((MEMachineComponent) te).getProxy());
+        return ModIntegrationAE2.securityCheck(player, ((IGridProxyable) te).getProxy());
     }
 
     public void preInit() {
@@ -266,7 +260,12 @@ public class CommonProxy implements IGuiHandler {
                 }
                 return new ContainerMEFluidInputBus((MEFluidInputBus) present, player);
             }
-
+            case ME_PATTERN_PROVIDER -> {
+                if (aeSecurityCheck(player, present)) {
+                    return null;
+                }
+                return new ContainerMEPatternProvider((MEPatternProvider) present, player);
+            }
             case GUI_ESSENCE_PROVIDER -> {
                 if (!Mods.BM2.isPresent()) {
                     return null;
@@ -299,6 +298,7 @@ public class CommonProxy implements IGuiHandler {
         ME_ITEM_INPUT_BUS(Mods.AE2.isPresent() ? MEItemInputBus.class : null),
         ME_FLUID_OUTPUT_BUS(Mods.AE2.isPresent() ? MEFluidOutputBus.class : null),
         ME_FLUID_INPUT_BUS(Mods.AE2.isPresent() ? MEFluidInputBus.class : null),
+        ME_PATTERN_PROVIDER(Mods.AE2.isPresent() ? MEPatternProvider.class : null),
         GUI_ESSENCE_PROVIDER(Mods.BM2.isPresent() ? TileLifeEssenceProvider.class : null),
         ;
 

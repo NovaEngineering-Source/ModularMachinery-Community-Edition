@@ -40,6 +40,8 @@ public class TileMachineController extends TileMultiblockMachineController {
     private MachineRecipeThread recipeThread = new MachineRecipeThread(this);
     private BlockController parentController = null;
 
+    private boolean redstoneEffected = false;
+
     public TileMachineController() {
     }
 
@@ -59,6 +61,7 @@ public class TileMachineController extends TileMultiblockMachineController {
     @Override
     public void doControllerTick() {
         if (getStrongPower() > 0) {
+            redstoneEffected = true;
             return;
         }
 
@@ -220,6 +223,15 @@ public class TileMachineController extends TileMultiblockMachineController {
             return;
         }
         ctx.updateComponents(foundComponents.values());
+    }
+
+    @Override
+    protected boolean canCheckStructure() {
+        if (redstoneEffected) {
+            redstoneEffected = false;
+            return true;
+        }
+        return super.canCheckStructure();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package github.kasuminova.mmce.client.gui.widget.preview;
+package github.kasuminova.mmce.client.gui.widget.impl.preview;
 
 import github.kasuminova.mmce.client.gui.util.MousePos;
 import github.kasuminova.mmce.client.gui.util.RenderPos;
@@ -11,10 +11,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.function.Consumer;
-
-import static github.kasuminova.mmce.client.gui.widget.preview.MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION;
 
 public class LayerRenderScrollbar extends Column {
     protected int scrollBgTexX = 244;
@@ -36,7 +33,7 @@ public class LayerRenderScrollbar extends Column {
                 .setHoveredTextureXY(184 + 11, 121)
                 .setTextureXY(184, 121)
                 .setUnavailableTextureXY(184 + 11 + 11 + 11, 121)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
+                .setTextureLocation(MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION)
                 .setTooltipFunction(btn -> {
                     int minY = renderer.getPattern().getMin().getY();
                     int maxY = renderer.getPattern().getMax().getY();
@@ -52,7 +49,7 @@ public class LayerRenderScrollbar extends Column {
                 .setHoveredTextureXY(184 + 11, 132)
                 .setTextureXY(184, 132)
                 .setUnavailableTextureXY(184 + 11 + 11 + 11, 132)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
+                .setTextureLocation(MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION)
                 .setTooltipFunction(btn -> {
                     int minY = renderer.getPattern().getMin().getY();
                     int maxY = renderer.getPattern().getMax().getY();
@@ -69,7 +66,7 @@ public class LayerRenderScrollbar extends Column {
                 .setHoveredTextureXY(193, 158)
                 .setTextureXY(184, 158)
                 .setUnavailableTextureXY(211, 158)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
+                .setTextureLocation(MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION)
                 .setTooltipFunction(btn -> {
                     int minY = renderer.getPattern().getMin().getY();
                     int maxY = renderer.getPattern().getMax().getY();
@@ -106,7 +103,7 @@ public class LayerRenderScrollbar extends Column {
 
     protected void drawScrollbarBg(final WidgetGui widgetGui, final RenderPos renderPos) {
         GuiScreen gui = widgetGui.getGui();
-        gui.mc.getTextureManager().bindTexture(WIDGETS_TEX_LOCATION);
+        gui.mc.getTextureManager().bindTexture(MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION);
         gui.drawTexturedModalRect(
                 renderPos.posX(), renderPos.posY() + scrollBgTexYOffset,
                 scrollBgTexX, scrollBgTexY,

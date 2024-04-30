@@ -60,10 +60,10 @@ public class SelectionBoxRenderHelper {
              event instanceof PlayerInteractEvent.RightClickEmpty ||
              event instanceof PlayerInteractEvent.RightClickItem)) {
             if (ClientProxy.renderHelper.placePreview()) {
-                event.setCancellationResult(EnumActionResult.FAIL);
                 if (event.isCancelable()) {
                     event.setCanceled(true);
                 }
+                event.setCancellationResult(EnumActionResult.SUCCESS);
             }
         }
     }

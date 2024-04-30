@@ -12,7 +12,7 @@ plugins {
 
 // Project properties
 group = "hellfirepvp.modularmachinery"
-version = "2.0.0-pre3"
+version = "2.0.0-pre4"
 
 // Set the toolchain version to decouple the Java we run Gradle with from the Java used to compile and run the mod
 java {
@@ -197,8 +197,9 @@ dependencies {
     compileOnly(rfg.deobf("curse.maven:tinkers-construct-74072:2902483"))
     compileOnly(rfg.deobf("curse.maven:mantle-74924:2713386"))
     implementation(rfg.deobf("curse.maven:tx-loader-706505:4515357"))
-    implementation(rfg.deobf("curse.maven:applied-energistics-2-223794:2747063"))
-//    implementation(rfg.deobf("curse.maven:ae2-extended-life-570458:4961400"))
+//    implementation(rfg.deobf("curse.maven:applied-energistics-2-223794:2747063"))
+    implementation(rfg.deobf("curse.maven:ae2-extended-life-570458:5147702"))
+    implementation(rfg.deobf("curse.maven:ae2-fluid-crafting-rework-623955:5278333"))
 //    compileOnly(rfg.deobf("curse.maven:gregtech-293327:3266351"))
     compileOnly(rfg.deobf("curse.maven:gregtech-ce-unofficial-557242:4799055"))
 

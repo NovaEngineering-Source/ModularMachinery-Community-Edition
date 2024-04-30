@@ -68,11 +68,11 @@ public class Button4State extends Button {
     }
 
     @Override
-    public List<String> getHoverTooltips(final MousePos mousePos) {
+    public List<String> getHoverTooltips(final WidgetGui widgetGui, final MousePos mousePos) {
         if (mouseDown) {
             return Collections.emptyList();
         }
-        return super.getHoverTooltips(mousePos);
+        return super.getHoverTooltips(widgetGui, mousePos);
     }
 
     public Button4State setMouseDownTextureXY(final int mouseDownTextureX, final int mouseDownTextureY) {

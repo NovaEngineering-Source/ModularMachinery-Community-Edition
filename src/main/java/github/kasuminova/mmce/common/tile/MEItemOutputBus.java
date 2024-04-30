@@ -56,7 +56,7 @@ public class MEItemOutputBus extends MEItemBus {
 
     @Nonnull
     @Override
-    public TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
+    public synchronized TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
         if (!proxy.isActive()) {
             return TickRateModulation.IDLE;
         }
@@ -65,13 +65,13 @@ public class MEItemOutputBus extends MEItemBus {
 
         try {
             IMEMonitor<IAEItemStack> inv = proxy.getStorage().getInventory(channel);
-            for (int i = 0; i < inventory.getSlots(); i++) {
-                ItemStack stack = inventory.getStackInSlot(i);
+            for (final int slot : getNeedUpdateSlots()) {
+                ItemStack stack = inventory.getStackInSlot(slot);
                 if (stack.isEmpty()) {
                     continue;
                 }
 
-                ItemStack extracted = inventory.extractItem(i, stack.getCount(), false);
+                ItemStack extracted = inventory.extractItem(slot, stack.getCount(), false);
 
                 IAEItemStack aeStack = channel.createStack(extracted);
                 if (aeStack == null) {
@@ -81,7 +81,7 @@ public class MEItemOutputBus extends MEItemBus {
                 IAEItemStack left = Platform.poweredInsert(proxy.getEnergy(), inv, aeStack, source);
 
                 if (left != null) {
-                    inventory.setStackInSlot(i, left.createItemStack());
+                    inventory.setStackInSlot(slot, left.createItemStack());
 
                     if (aeStack.getStackSize() != left.getStackSize()) {
                         successAtLeastOnce = true;
@@ -91,15 +91,17 @@ public class MEItemOutputBus extends MEItemBus {
                 }
             }
         } catch (GridAccessException e) {
+            changedSlots.clear();
             return TickRateModulation.IDLE;
         }
 
+        changedSlots.clear();
         return successAtLeastOnce ? TickRateModulation.FASTER : TickRateModulation.SLOWER;
     }
 
     @Override
     public void markNoUpdate() {
-        if (proxy.isActive() && hasItem()) {
+        if (proxy.isActive() && !changedSlots.isEmpty()) {
             try {
                 proxy.getTick().alertDevice(proxy.getNode());
             } catch (GridAccessException e) {

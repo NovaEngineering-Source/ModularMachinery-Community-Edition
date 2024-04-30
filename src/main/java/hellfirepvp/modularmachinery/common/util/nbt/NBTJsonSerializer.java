@@ -58,12 +58,13 @@ public class NBTJsonSerializer {
                 Set<String> collection = cmpTag.getKeySet();
 
                 int i = 0;
-                for (Iterator<String> iterator = collection.iterator(); iterator.hasNext(); ) {
-                    final String s = iterator.next();
-                    if (i != 0 && iterator.hasNext()) {
+                Iterator<String> it = collection.iterator();
+                while (it.hasNext()) {
+                    final String s = it.next();
+                    sb.append(NBTTagString.quoteAndEscape(s)).append(':').append(serializeNBT(cmpTag.getTag(s)));
+                    if (i != 0 && it.hasNext()) {
                         sb.append(',');
                     }
-                    sb.append(NBTTagString.quoteAndEscape(s)).append(':').append(serializeNBT(cmpTag.getTag(s)));
                     i++;
                 }
 

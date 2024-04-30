@@ -5,6 +5,7 @@ import github.kasuminova.mmce.client.gui.widget.base.WidgetController;
 import hellfirepvp.modularmachinery.client.gui.GuiContainerBase;
 import hellfirepvp.modularmachinery.common.container.ContainerBase;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.client.config.GuiUtils;
@@ -15,10 +16,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class GuiContainerDynamic<T extends ContainerBase<?>> extends GuiContainerBase<T> {
+public abstract class GuiContainerDynamic<T extends Container> extends GuiContainerBase<T> {
 
     protected WidgetController widgetController = null;
     protected Slot hoveredSlot = null;
+
+    public GuiContainerDynamic(final ContainerBase<?> container) {
+        super((T) container);
+    }
 
     public GuiContainerDynamic(final T container) {
         super(container);
@@ -37,6 +42,11 @@ public abstract class GuiContainerDynamic<T extends ContainerBase<?>> extends Gu
     @Override
     public void initGui() {
         super.initGui();
+        widgetController.getGui()
+                .setGuiLeft(guiLeft)
+                .setGuiTop(guiTop)
+                .setXSize(width)
+                .setYSize(height);
         widgetController.init();
     }
 
@@ -54,7 +64,7 @@ public abstract class GuiContainerDynamic<T extends ContainerBase<?>> extends Gu
     @Override
     protected void drawGuiContainerForegroundLayer(final int mouseX, final int mouseY) {
         super.drawGuiContainerForegroundLayer(mouseX, mouseY);
-        widgetController.postRender(new MousePos(mouseX, mouseY), false);
+        widgetController.postRender(new MousePos(mouseX, mouseY), true);
     }
 
     @Override

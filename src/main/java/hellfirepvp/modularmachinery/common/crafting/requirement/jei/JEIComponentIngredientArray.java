@@ -92,6 +92,18 @@ public class JEIComponentIngredientArray extends ComponentRequirement.JEICompone
             tooltip.add(tooltipBuilder.toString());
             tooltipBuilder.setLength(0);
         }
+
+        if (input) {
+            float chance = requirement.chance;
+            if (chance < 1F && chance >= 0F) {
+                if (chance <= 0F) {
+                    tooltip.add(I18n.format("tooltip.machinery.chance.in.never"));
+                } else {
+                    String chanceStr = chance < 0.0001F ? "< 0.01%" : MiscUtils.formatFloat(chance * 100F, 2) + "%";
+                    tooltip.add(I18n.format("tooltip.machinery.chance.in", chanceStr));
+                }
+            }
+        }
     }
 
 }

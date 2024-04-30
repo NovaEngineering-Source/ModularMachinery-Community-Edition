@@ -5,7 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetGui;
 import github.kasuminova.mmce.client.gui.widget.event.WorldRendererCacheCleanEvent;
-import github.kasuminova.mmce.client.gui.widget.preview.MachineStructurePreviewPanel;
+import github.kasuminova.mmce.client.gui.widget.impl.preview.MachineStructurePreviewPanel;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 
 import javax.annotation.Nonnull;

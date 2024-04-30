@@ -37,6 +37,9 @@ public class AEFluidInventoryUpgradeable implements IAEFluidTank {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+        for (int slot = 0; slot < getSlots(); slot++) {
+            this.onContentChanged(slot);
+        }
     }
 
     @Override

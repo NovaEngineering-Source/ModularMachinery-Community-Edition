@@ -1,6 +1,7 @@
 package github.kasuminova.mmce.common.tile.base;
 
 import appeng.api.AEApi;
+import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.storage.channels.IItemStorageChannel;
 import hellfirepvp.modularmachinery.common.util.IOInventory;
 import net.minecraft.item.ItemStack;
@@ -12,13 +13,26 @@ import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.BitSet;
+import java.util.stream.IntStream;
 
-public abstract class MEItemBus extends MEMachineComponent {
+public abstract class MEItemBus extends MEMachineComponent implements IGridTickable {
 
     protected final IItemStorageChannel channel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
+    protected final BitSet changedSlots = new BitSet();
     protected IOInventory inventory = buildInventory();
+    protected int fullCheckCounter = 5;
 
     public abstract IOInventory buildInventory();
+
+    protected synchronized int[] getNeedUpdateSlots() {
+        fullCheckCounter++;
+        if (fullCheckCounter >= 5) {
+            fullCheckCounter = 0;
+            return IntStream.range(0, inventory.getSlots()).toArray();
+        }
+        return changedSlots.stream().toArray();
+    }
 
     public IOInventory getInternalInventory() {
         return inventory;
@@ -50,6 +64,11 @@ public abstract class MEItemBus extends MEMachineComponent {
 
     public void readInventoryNBT(final NBTTagCompound tag) {
         this.inventory = IOInventory.deserialize(this, tag);
+        this.inventory.setListener(slot -> {
+            synchronized (this) {
+                changedSlots.set(slot);
+            }
+        });
 
         int[] slotIDs = new int[inventory.getSlots()];
         for (int slotID = 0; slotID < slotIDs.length; slotID++) {

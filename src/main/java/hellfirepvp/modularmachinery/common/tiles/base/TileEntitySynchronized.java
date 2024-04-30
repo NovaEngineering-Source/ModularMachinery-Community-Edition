@@ -113,6 +113,13 @@ public class TileEntitySynchronized extends TileEntity {
         ModularMachinery.EXECUTE_MANAGER.addTEMarkNoUpdateTask(this);
         inMarkTask = true;
     }
+    
+    public void markChunkDirty() {
+        if (world == null) {
+            return;
+        }
+        world.markChunkDirty(pos, this);
+    }
 
     /**
      * <p>markForUpdate 的同步实现，防止意料之外的 CME。</p>

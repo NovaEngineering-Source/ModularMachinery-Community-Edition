@@ -70,6 +70,17 @@ gui.meitembus.nbt_stored=Items have been stored internally.
 
 gui.mefluidoutputbus.title=ME Machinery Fluid Output Bus
 gui.mefluidinputbus.title=ME Machinery Fluid Input Bus
+gui.mepatternprovider.title=ME Machinery Pattern Provider
+gui.mepatternprovider.inventory=Inventory
+gui.mepatternprovider.cached=Cached
+gui.mepatternprovider.single_inv=Single Inv
+gui.mepatternprovider.single_inv.desc=The single inv is also mechanically recognized, but clicking to clear an item does not clear the single inv.
+gui.mepatternprovider.blocking_mode.enable=Enable Blocking Mode
+gui.mepatternprovider.blocking_mode.enabled.desc=Enabled: The supplier will not continue storing items when it contains items.
+gui.mepatternprovider.blocking_mode.disable=Disable Blocking Mode
+gui.mepatternprovider.blocking_mode.disabled.desc=Disabled: The supplier will always accept all item inputs.
+gui.mepatternprovider.return_items=Return items
+gui.mepatternprovider.return_items.desc=Returns all items and fluids in the supplier back to the ME Network.
 
 gui.preview.button.menu.tip=Click to open the Preview Options menu.
 gui.preview.button.machine_info=Extra Info:
@@ -144,7 +155,8 @@ component.missing.modularmachinery.item.input=No Item Input found!
 component.missing.modularmachinery.interface.number=No Smart Data Interface found!
 
 gui.blueprint.popout.info=Sneak to freeze the current preview to be able to preview it in world.
-gui.blueprint.popout.place=Rightclick to place preview; move away from the placed one or open another structure preview (blueprint) to remove the one in-world.
+gui.blueprint.popout.place=Rightclick to place preview; move away from the placed one or open another structure preview (blueprint) to remove the one in-world; the rotation can be automatically rotated according to its orientation when viewing the controller.
+gui.blueprint.popout.placed.dynamic_pattern=The dynamic structure size of the projection is prioritized when using automatic assembly during projection.
 
 jei.category.preview=Structure Preview
 
@@ -158,6 +170,7 @@ message.machine_projector.project=Projecting the structure of %s
 message.assembly.tip.no_machine=Modular Assembly: No modular machine found!
 message.assembly.tip.already_assembly=Modular Assembly: The machine is in the assembly queue!
 message.assembly.tip.success=Modular Assembly: Assembled successfully!
+message.assembly.tip.cancelled=Modular Assembly: Assembled cancelled!
 message.assembly.tip.cannot_replace=Modular Assembly: Cannot place a block at %s, please check if a block exists at the target position!
 message.assembly.tip.skipped=Modular Assembly: Placement of block that have skipped %s.
 message.assembly.tip.missing=Modular Assembly: %s Needs item assembly, but inventory is missing block or bucket!
@@ -363,6 +376,7 @@ tile.modularmachinery.blockmeitemoutputbus.name=ME Machinery Item Output Bus
 tile.modularmachinery.blockmeiteminputbus.name=ME Machinery Item Input Bus
 tile.modularmachinery.blockmefluidoutputbus.name=ME Machinery Fluid Output Bus
 tile.modularmachinery.blockmefluidinputbus.name=ME Machinery Fluid Input Bus
+tile.modularmachinery.blockmepatternprovider.name=ME Machinery Pattern Provider
 
 error.modularmachinery.requirement.lifeessence=Error while checking Life Essence requirement
 error.modularmachinery.requirement.lifeessence.orb=Missing or Unbound Blood Orb

@@ -11,6 +11,7 @@ package hellfirepvp.modularmachinery.common.crafting.requirement;
 import com.google.common.collect.Lists;
 import github.kasuminova.mmce.common.helper.AdvancedItemChecker;
 import github.kasuminova.mmce.common.helper.AdvancedItemModifier;
+import hellfirepvp.modularmachinery.common.crafting.ComponentType;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
 import hellfirepvp.modularmachinery.common.crafting.helper.CraftCheck;
 import hellfirepvp.modularmachinery.common.crafting.helper.ProcessingComponent;
@@ -226,9 +227,9 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
     @Override
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.component();
-        return cmp.getComponentType().equals(ComponentTypesMM.COMPONENT_ITEM) &&
-               cmp instanceof MachineComponent.ItemBus &&
-               cmp.ioType == actionType;
+        ComponentType cmpType = cmp.getComponentType();
+        return (cmpType.equals(ComponentTypesMM.COMPONENT_ITEM) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID))
+               && cmp.ioType == actionType;
     }
 
     @Override

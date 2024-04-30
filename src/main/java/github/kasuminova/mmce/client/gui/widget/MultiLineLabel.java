@@ -21,6 +21,7 @@ public class MultiLineLabel extends DynamicWidget {
     protected boolean rightAligned = false;
     protected boolean verticalCentering = false;
     protected boolean autoRecalculateSize = true;
+    protected boolean autoWrap = true;
 
     protected float scale = 1.0F;
 
@@ -39,7 +40,7 @@ public class MultiLineLabel extends DynamicWidget {
             GlStateManager.scale(scale, scale, scale);
         }
 
-        int maxWidth = renderSize.isWidthLimited() ? Math.round(Math.max((float) renderSize.width() / scale, DEFAULT_FONT_HEIGHT / scale)) : -1;
+        int maxWidth = (renderSize.isWidthLimited() && autoWrap) ? Math.round(Math.max((float) renderSize.width() / scale, DEFAULT_FONT_HEIGHT / scale)) : -1;
         int maxHeight = renderSize.isHeightLimited() ? Math.round((float) renderSize.height() / scale) : Math.round(height / scale);
         float totalHeight = getTotalHeight();
         float posX = renderPos.posX() / scale;
@@ -52,7 +53,9 @@ public class MultiLineLabel extends DynamicWidget {
             toRender = contents;
         } else {
             toRender = new LinkedList<>();
-            contents.stream().map(s -> fr.listFormattedStringToWidth(s, maxWidth)).forEach(toRender::addAll);
+            for (String s : contents) {
+                toRender.addAll(fr.listFormattedStringToWidth(s, maxWidth));
+            }
         }
 
         float offsetY = 0;
@@ -75,18 +78,19 @@ public class MultiLineLabel extends DynamicWidget {
     // Utils
 
     protected float getLineRenderOffset(final String s, final FontRenderer fr) {
+        if (leftAligned && !rightAligned) {
+            return 0;
+        }
+
         int width = getWidth();
+        float stringWidth = fr.getStringWidth(s) * scale;
 
         if (leftAligned && rightAligned) {
-            int stringWidth = fr.getStringWidth(s);
-            return (float) (width - stringWidth) / 2 / scale;
-        } else if (leftAligned) {
-            return 0;
+            return (width - (stringWidth)) / 2F;
         } else if (rightAligned) {
-            return width - fr.getStringWidth(s) / scale;
+            return (width - (stringWidth));
         } else {
-            int stringWidth = fr.getStringWidth(s);
-            return (float) (width - stringWidth) / 2 / scale;
+            return (width - (stringWidth)) / 2F;
         }
     }
 
@@ -207,6 +211,17 @@ public class MultiLineLabel extends DynamicWidget {
 
     public MultiLineLabel setAutoRecalculateSize(final boolean autoRecalculateSize) {
         this.autoRecalculateSize = autoRecalculateSize;
+        return this;
+    }
+
+    // Auto wrap
+
+    public boolean isAutoWrap() {
+        return autoWrap;
+    }
+
+    public MultiLineLabel setAutoWrap(final boolean autoWrap) {
+        this.autoWrap = autoWrap;
         return this;
     }
 }

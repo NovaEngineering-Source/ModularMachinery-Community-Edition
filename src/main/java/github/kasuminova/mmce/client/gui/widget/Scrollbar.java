@@ -114,16 +114,16 @@ public class Scrollbar extends DynamicWidget {
     }
 
     @Override
-    public List<String> getHoverTooltips(final MousePos mousePos) {
+    public List<String> getHoverTooltips(final WidgetGui widgetGui, final MousePos mousePos) {
         int scrollHeight = scroll.getHeight();
         int offsetY = getRange() == 0 ? 0 : (this.currentScroll - this.minScroll) * (height - scrollHeight) / this.getRange();
         RenderPos offset = new RenderPos(0, offsetY);
         MousePos scrollMousePos = mousePos.relativeTo(offset);
         if (scroll.isMouseOver(scrollMousePos)) {
-            return scroll.getHoverTooltips(mousePos);
+            return scroll.getHoverTooltips(widgetGui, mousePos);
         }
 
-        return super.getHoverTooltips(mousePos);
+        return super.getHoverTooltips(widgetGui, mousePos);
     }
 
     // Scroll button

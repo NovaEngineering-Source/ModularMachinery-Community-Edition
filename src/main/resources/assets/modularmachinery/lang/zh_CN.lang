@@ -69,6 +69,18 @@ gui.meitembus.nbt_stored=内部已存储物品。
 
 gui.mefluidoutputbus.title=ME 机械流体输出总线
 gui.mefluidinputbus.title=ME 机械流体输入总线
+gui.mepatternprovider.title=ME 机械样板供应器
+gui.mepatternprovider.inventory=物品栏
+gui.mepatternprovider.cached=已缓存
+gui.mepatternprovider.single_inv=独立存储
+gui.mepatternprovider.single_inv.desc=独立存储同样会被机械识别，但是单击清空物品时不会清空独立存储。
+gui.mepatternprovider.blocking_mode.enable=启用阻挡模式
+gui.mepatternprovider.blocking_mode.enabled.desc=已启用：供应器内含有物品时不继续存储物品。
+gui.mepatternprovider.blocking_mode.disable=禁用阻挡模式
+gui.mepatternprovider.blocking_mode.disabled.desc=已禁用：供应器始终接受所有物品输入。
+gui.mepatternprovider.return_items=清空物品
+gui.mepatternprovider.return_items.desc=将供应器中的所有物品和流体返还给 ME 网络。
+gui.mepatternprovider.nbt_stored=供应器已配置。
 
 gui.preview.button.menu.tip=点击打开预览选项菜单。
 gui.preview.button.machine_info=额外信息：
@@ -106,7 +118,8 @@ gui.preview.vbo_unsupported_warn=§4显卡不兼容顶点缓冲器！预览性�
 gui.preview.vbo_disabled_warn=§4顶点缓冲器未启用！预览性能将大幅下降。
 
 gui.blueprint.popout.info=潜行以将当前预览锁定在当前世界中。
-gui.blueprint.popout.place=右击以显示预览；远离或放置其他结构预览（蓝图）将会清除此前世界中的结构预览。
+gui.blueprint.popout.place=右击以显示预览；远离或放置其他结构预览（蓝图）将会清除此前世界中的结构预览；视角面对控制器时可以根据其朝向自动旋转。
+gui.blueprint.popout.placed.dynamic_pattern=投影期间使用自动组装时会优先使用投影的动态结构大小。
 
 top.recipe.progress=进度
 top.machine.owner=所有者：
@@ -157,12 +170,14 @@ message.machine_projector.project=正在投影%s的结构
 message.assembly.tip.no_machine=模块化组装：没有找到对应的模块化机器！
 message.assembly.tip.already_assembly=模块化组装：机器已在组装队列中！
 message.assembly.tip.success=模块化组装：组装完成！
+message.assembly.tip.cancelled=模块化组装：组装已取消！
 message.assembly.tip.cannot_replace=模块化组装: 无法在 %s 放置方块，请检查目标坐标是否存在方块！
 message.assembly.tip.skipped=模块化组装：已跳过 %s 的方块放置。
 message.assembly.tip.missing=模块化组装：%s 需要物品组装，但是物品栏中缺少方块或桶！
 message.assembly.tip.required=模块化组装：缺失材料，需要以下材料：
 message.assembly.tip.or=或
 message.assembly.tip.partial_assembly=模块化组装：尽管缺失部分材料，组装§c依然会使用现有的材料继续组装！
+message.assembly.tip.too_quickly=模块化组装：你需要等待一段时间才能再次开始组装。
 
 message.reloading=模块化机械：重载中！
 message.reloaded=模块化机械：已完成重载！JEI 中的配方变化需要重启客户端！升级总线中的机械升级需要重新放置才能刷新效果！
@@ -361,6 +376,7 @@ tile.modularmachinery.blockmeitemoutputbus.name=ME机械物品输出总线
 tile.modularmachinery.blockmeiteminputbus.name=ME机械物品输入总线
 tile.modularmachinery.blockmefluidoutputbus.name=ME机械流体输出总线
 tile.modularmachinery.blockmefluidinputbus.name=ME机械流体输入总线
+tile.modularmachinery.blockmepatternprovider.name=ME机械样板供应器
 
 error.modularmachinery.requirement.lifeessence=检查生命源质需求时发生错误！
 error.modularmachinery.requirement.lifeessence.orb=缺失或未绑定气血宝珠！
@@ -415,4 +431,4 @@ tile.modularmachinery.blockmanaprovideroutput.name=魔力输出仓
 tile.modularmachinery.blockimpetusproviderinput.name=元动输入接口
 tile.modularmachinery.blockimpetusprovideroutput.name=元动输出接口
 
-tooltip.modularcontroller.machine_projector=Sneak and right-click the controller to project the structure of the machine
+tooltip.modularcontroller.machine_projector=蹲下时右击控制器以投影其机器的蓝图至世界。

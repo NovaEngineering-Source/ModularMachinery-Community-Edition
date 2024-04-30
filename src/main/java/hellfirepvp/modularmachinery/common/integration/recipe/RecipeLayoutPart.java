@@ -122,6 +122,11 @@ public abstract class RecipeLayoutPart<T> {
         }
 
         @Override
+        public int getMaxHorizontalCount(final int partAmount) {
+            return Math.max((int) Math.ceil((double) partAmount / 4), 1);
+        }
+
+        @Override
         public int getComponentHorizontalSortingOrder() {
             return 100;
         }

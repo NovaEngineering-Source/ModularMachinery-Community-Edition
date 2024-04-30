@@ -127,17 +127,17 @@ public class MiscUtils {
         if (value < 1_000L) {
             return String.valueOf(value);
         } else if (value < 1_000_000L) {
-            return value / 1000 + "K";
+            return value / 1_000 + "K";
         } else if (value < 1_000_000_000L) {
-            return value / 1000 + "M";
+            return value / 1_000_000 + "M";
         } else if (value < 1_000_000_000_000L) {
-            return value / 1000 + "G";
+            return value / 1_000_000_000L + "G";
         } else if (value < 1_000_000_000_000_000L) {
-            return value / 1000 + "T";
+            return value / 1_000_000_000_000L + "T";
         } else if (value < 1_000_000_000_000_000_000L) {
-            return value / 1000 + "P";
+            return value / 1_000_000_000_000_000L + "P";
         } else {
-            return value / 1000 + "E";
+            return value / 1_000_000_000_000_000_000L + "E";
         }
     }
 

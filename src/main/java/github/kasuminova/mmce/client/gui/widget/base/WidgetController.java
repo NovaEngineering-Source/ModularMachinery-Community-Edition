@@ -8,18 +8,20 @@ import github.kasuminova.mmce.client.gui.widget.event.GuiEvent;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.input.Mouse;
 
-import java.awt.*;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class WidgetController {
 
     public static final ThreadLocal<RenderPos> TRANSLATE_STATE = ThreadLocal.withInitial(() -> new RenderPos(0, 0));
 
     protected final WidgetGui gui;
-    protected final List<WidgetContainer> containers = new ArrayList<>();
+    protected final List<DynamicWidget> widgets = new ArrayList<>();
+
+    protected List<String> tooltipCache = new ArrayList<>();
 
     private boolean initialized = false;
 
@@ -27,11 +29,18 @@ public class WidgetController {
         this.gui = gui;
     }
 
+    @Deprecated
     public void addWidgetContainer(final WidgetContainer widgetContainer) {
-        containers.add(widgetContainer);
+        widgets.add(widgetContainer);
+    }
+
+    public void addWidget(final DynamicWidget widget) {
+        widgets.add(widget);
     }
 
     public void render(final MousePos mousePos, final boolean translatePos) {
+        tooltipCache = getHoverTooltipsInternal(mousePos);
+        
         WidgetGui gui = this.gui;
 
         final int guiLeft = gui.getGuiLeft();
@@ -44,14 +53,14 @@ public class WidgetController {
             TRANSLATE_STATE.set(TRANSLATE_STATE.get().add(offset));
         }
 
-        for (final WidgetContainer container : containers) {
+        for (final DynamicWidget container : widgets) {
             RenderPos renderPos = new RenderPos(guiLeft + container.getAbsX(), guiTop + container.getAbsY());
             RenderPos relativeRenderPos = renderPos.subtract(offset);
             MousePos relativeMousePos = mousePos.relativeTo(renderPos);
             RenderSize renderSize = new RenderSize(container.getWidth(), container.getHeight());
             container.preRender(gui, renderSize, relativeRenderPos, relativeMousePos);
         }
-        for (final WidgetContainer container : containers) {
+        for (final DynamicWidget container : widgets) {
             RenderPos renderPos = new RenderPos(guiLeft + container.getAbsX(), guiTop + container.getAbsY());
             RenderPos relativeRenderPos = renderPos.subtract(offset);
             MousePos relativeMousePos = mousePos.relativeTo(renderPos);
@@ -78,7 +87,7 @@ public class WidgetController {
             TRANSLATE_STATE.set(TRANSLATE_STATE.get().add(offset));
         }
 
-        for (final WidgetContainer container : containers) {
+        for (final DynamicWidget container : widgets) {
             RenderPos renderPos = new RenderPos(guiLeft + container.getAbsX(), guiTop + container.getAbsY());
             RenderPos relativeRenderPos = renderPos.subtract(new RenderPos(guiLeft, guiTop));
             MousePos relativeMousePos = mousePos.relativeTo(renderPos);
@@ -106,23 +115,23 @@ public class WidgetController {
     public void init() {
         if (!initialized) {
             WidgetGui gui = this.gui;
-            containers.forEach(container -> container.initWidget(gui));
+            widgets.forEach(container -> container.initWidget(gui));
         }
         this.initialized = true;
     }
 
     public void update() {
         WidgetGui gui = this.gui;
-        containers.forEach(container -> container.update(gui));
+        widgets.forEach(container -> container.update(gui));
     }
 
     public void onGUIClosed() {
         WidgetGui gui = this.gui;
-        containers.forEach(container -> container.onGUIClosed(gui));
+        widgets.forEach(container -> container.onGUIClosed(gui));
     }
 
     public void postGuiEvent(GuiEvent event) {
-        for (final WidgetContainer container : containers) {
+        for (final DynamicWidget container : widgets) {
             if (container.onGuiEvent(event)) {
                 break;
             }
@@ -135,7 +144,7 @@ public class WidgetController {
         final int x = gui.getGuiLeft();
         final int y = gui.getGuiTop();
 
-        for (final WidgetContainer container : containers) {
+        for (final DynamicWidget container : widgets) {
             RenderPos renderPos = new RenderPos(x + container.getAbsX(), y + container.getAbsY());
             RenderPos relativeRenderPos = renderPos.subtract(new RenderPos(x, y));
             MousePos relativeMousePos = mousePos.relativeTo(renderPos);
@@ -155,7 +164,7 @@ public class WidgetController {
         final int x = gui.getGuiLeft();
         final int y = gui.getGuiTop();
 
-        for (final WidgetContainer container : containers) {
+        for (final DynamicWidget container : widgets) {
             RenderPos renderPos = new RenderPos(x + container.getAbsX(), y + container.getAbsY());
             RenderPos relativeRenderPos = renderPos.subtract(new RenderPos(x, y));
             MousePos relativeMousePos = mousePos.relativeTo(renderPos);
@@ -173,7 +182,7 @@ public class WidgetController {
         final int x = gui.getGuiLeft();
         final int y = gui.getGuiTop();
 
-        for (final WidgetContainer container : containers) {
+        for (final DynamicWidget container : widgets) {
             RenderPos renderPos = new RenderPos(x + container.getAbsX(), y + container.getAbsY());
             RenderPos relativeRenderPos = renderPos.subtract(new RenderPos(x, y));
             MousePos relativeMousePos = mousePos.relativeTo(renderPos);
@@ -186,7 +195,7 @@ public class WidgetController {
     }
 
     public boolean onMouseInput(final MousePos mousePos) {
-        final int wheel = Mouse.getDWheel();
+        final int wheel = Mouse.getEventDWheel();
         if (wheel == 0) {
             return false;
         }
@@ -195,7 +204,7 @@ public class WidgetController {
         final int x = gui.getGuiLeft();
         final int y = gui.getGuiTop();
 
-        for (final WidgetContainer container : containers) {
+        for (final DynamicWidget container : widgets) {
             RenderPos renderPos = new RenderPos(x + container.getAbsX(), y + container.getAbsY());
             RenderPos relativeRenderPos = renderPos.subtract(new RenderPos(x, y));
             MousePos relativeMousePos = mousePos.relativeTo(renderPos);
@@ -208,7 +217,7 @@ public class WidgetController {
     }
 
     public boolean onKeyTyped(final char typedChar, final int keyCode) {
-        for (final WidgetContainer container : containers) {
+        for (final DynamicWidget container : widgets) {
             if (container.onKeyTyped(typedChar, keyCode)) {
                 return true;
             }
@@ -217,18 +226,23 @@ public class WidgetController {
     }
 
     public List<String> getHoverTooltips(final MousePos mousePos) {
+        return tooltipCache;
+    }
+
+    @Nonnull
+    private List<String> getHoverTooltipsInternal(final MousePos mousePos) {
         WidgetGui gui = this.gui;
 
         final int x = gui.getGuiLeft();
         final int y = gui.getGuiTop();
 
         List<String> tooltips = null;
-        for (final WidgetContainer container : containers) {
+        for (final DynamicWidget container : widgets) {
             RenderPos renderPos = new RenderPos(x + container.getAbsX(), y + container.getAbsY());
             MousePos relativeMousePos = mousePos.relativeTo(renderPos);
 
             if (container.isMouseOver(relativeMousePos)) {
-                List<String> hoverTooltips = container.getHoverTooltips(relativeMousePos);
+                List<String> hoverTooltips = container.getHoverTooltips(this.gui, relativeMousePos);
                 if (!hoverTooltips.isEmpty()) {
                     tooltips = hoverTooltips;
                     break;
@@ -243,8 +257,16 @@ public class WidgetController {
         return gui;
     }
 
+    public List<DynamicWidget> getWidgets() {
+        return widgets;
+    }
+
+    @Deprecated
     public List<WidgetContainer> getContainers() {
-        return containers;
+        return widgets.stream()
+                .filter(WidgetContainer.class::isInstance)
+                .map(WidgetContainer.class::cast)
+                .collect(Collectors.toList());
     }
 
 }

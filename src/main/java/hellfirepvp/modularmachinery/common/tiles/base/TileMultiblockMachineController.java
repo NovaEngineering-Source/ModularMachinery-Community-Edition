@@ -201,10 +201,14 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
     }
 
     protected int getStrongPower() {
-        if (ticksExisted % 20 == 0 || lastStrongPower == -1) {
+        if (lastStrongPower == -1) {
             lastStrongPower = getWorld().getStrongPower(getPos());
         }
         return lastStrongPower;
+    }
+
+    public void onNeighborChange() {
+        lastStrongPower = getWorld().getStrongPower(getPos());
     }
 
     public long getExecuteGroupId() {

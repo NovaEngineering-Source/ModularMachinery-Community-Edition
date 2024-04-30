@@ -77,7 +77,7 @@ public class MEFluidInputBus extends MEFluidBus {
 
     @Nonnull
     @Override
-    public TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
+    public synchronized TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
         if (!proxy.isActive()) {
             return TickRateModulation.IDLE;
         }
@@ -88,7 +88,7 @@ public class MEFluidInputBus extends MEFluidBus {
             IMEMonitor<IAEFluidStack> inv = proxy.getStorage().getInventory(channel);
             int capacity = tanks.getCapacity();
 
-            for (int slot = 0; slot < config.getSlots(); slot++) {
+            for (final int slot : getNeedUpdateSlots()) {
                 IAEFluidStack cfgStack = config.getFluidInSlot(slot);
                 IAEFluidStack invStack = tanks.getFluidInSlot(slot);
 
@@ -145,8 +145,10 @@ public class MEFluidInputBus extends MEFluidBus {
                 }
             }
 
+            changedSlots.clear();
             return successAtLeastOnce ? TickRateModulation.FASTER : TickRateModulation.SLOWER;
         } catch (GridAccessException e) {
+            changedSlots.clear();
             return TickRateModulation.IDLE;
         }
     }

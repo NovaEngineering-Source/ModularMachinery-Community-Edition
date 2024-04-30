@@ -74,8 +74,13 @@ public abstract class DynamicWidget {
 
     // Tooltips
 
+    @Deprecated
     public List<String> getHoverTooltips(final MousePos mousePos) {
         return Collections.emptyList();
+    }
+
+    public List<String> getHoverTooltips(final WidgetGui widgetGui, final MousePos mousePos) {
+        return getHoverTooltips(mousePos);
     }
 
     // Utils

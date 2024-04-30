@@ -3,6 +3,7 @@ package github.kasuminova.mmce.common.tile.base;
 import appeng.api.AEApi;
 import appeng.api.config.Upgrades;
 import appeng.api.implementations.IUpgradeableHost;
+import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.storage.channels.IFluidStorageChannel;
 import appeng.api.util.IConfigManager;
 import appeng.fluids.util.IAEFluidInventory;
@@ -26,24 +27,38 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.BitSet;
+import java.util.stream.IntStream;
 
 public abstract class MEFluidBus extends MEMachineComponent implements
         IAEFluidInventory,
         IUpgradeableHost,
         IConfigManagerHost,
-        IAEAppEngInventory {
+        IAEAppEngInventory,
+        IGridTickable {
 
     public static final int TANK_SLOT_AMOUNT = 9;
     public static final int TANK_DEFAULT_CAPACITY = 8000;
 
     protected final IFluidStorageChannel channel = AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class);
     protected final ConfigManager cm = new ConfigManager(this);
+    protected final BitSet changedSlots = new BitSet();
     protected final UpgradeInventory upgrades;
     protected final AEFluidInventoryUpgradeable tanks;
+    protected int fullCheckCounter = 5;
 
     public MEFluidBus() {
         this.tanks = new AEFluidInventoryUpgradeable(this, TANK_SLOT_AMOUNT, TANK_DEFAULT_CAPACITY);
         this.upgrades = new StackUpgradeInventory(proxy.getMachineRepresentation(), this, 5);
+    }
+
+    protected synchronized int[] getNeedUpdateSlots() {
+        fullCheckCounter++;
+        if (fullCheckCounter >= 5) {
+            fullCheckCounter = 0;
+            return IntStream.range(0, tanks.getSlots()).toArray();
+        }
+        return changedSlots.stream().toArray();
     }
 
     public IAEFluidTank getTanks() {
@@ -114,7 +129,7 @@ public abstract class MEFluidBus extends MEMachineComponent implements
     @Override
     public void onChangeInventory(final IItemHandler inv, final int slot, final InvOperation mc, final ItemStack removedStack, final ItemStack newStack) {
         updateTankCapacity();
-        markNoUpdateSync();
+        markForUpdateSync();
     }
 
     private void updateTankCapacity() {
@@ -123,7 +138,8 @@ public abstract class MEFluidBus extends MEMachineComponent implements
     }
 
     @Override
-    public void onFluidInventoryChanged(final IAEFluidTank inv, final int slot) {
+    public synchronized void onFluidInventoryChanged(final IAEFluidTank inv, final int slot) {
+        changedSlots.set(slot);
         markNoUpdateSync();
     }
 
