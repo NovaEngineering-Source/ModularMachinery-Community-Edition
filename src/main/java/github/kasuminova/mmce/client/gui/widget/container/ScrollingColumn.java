@@ -119,7 +119,7 @@ public class ScrollingColumn extends Column {
             return false;
         }
         RenderPos scrollbarRenderPos = new RenderPos(
-                width - (scrollbar.getWidth() + scrollbar.getMarginRight()),
+                width - (scrollbar.getMarginLeft() + scrollbar.getWidth() + scrollbar.getMarginRight()),
                 height - (scrollbar.getMarginUp() + scrollbar.getHeight() + scrollbar.getMarginDown()));
         MousePos scrollbarRelativeMousePos = mousePos.relativeTo(scrollbarRenderPos);
         if (scrollbar.isMouseOver(scrollbarRelativeMousePos)) {
@@ -243,7 +243,7 @@ public class ScrollingColumn extends Column {
     // Tooltips
 
     @Override
-    public List<String> getHoverTooltips(final MousePos mousePos) {
+    public List<String> getHoverTooltips(final WidgetGui widgetGui, final MousePos mousePos) {
         int width = this.width;
         int height = this.height;
 
@@ -264,7 +264,7 @@ public class ScrollingColumn extends Column {
 
             MousePos relativeMousePos = mousePos.relativeTo(widgetRenderPos);
             if (widget.isMouseOver(relativeMousePos)) {
-                List<String> hoverTooltips = widget.getHoverTooltips(relativeMousePos);
+                List<String> hoverTooltips = widget.getHoverTooltips(widgetGui, relativeMousePos);
                 if (!hoverTooltips.isEmpty()) {
                     tooltips = hoverTooltips;
                     break;
@@ -287,7 +287,7 @@ public class ScrollingColumn extends Column {
                 height - (scrollbar.getMarginUp() + scrollbar.getHeight() + scrollbar.getMarginDown()));
         MousePos scrollbarMousePos = mousePos.relativeTo(scrollbarRenderPos);
         if (scrollbar.isMouseOver(scrollbarMousePos)) {
-            List<String> hoverTooltips = scrollbar.getHoverTooltips(scrollbarMousePos);
+            List<String> hoverTooltips = scrollbar.getHoverTooltips(widgetGui, scrollbarMousePos);
             if (!hoverTooltips.isEmpty()) {
                 tooltips = hoverTooltips;
             }

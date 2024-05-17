@@ -43,7 +43,7 @@ public class MEFluidOutputBus extends MEFluidBus {
 
     @Nonnull
     @Override
-    public TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
+    public synchronized TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
         if (!proxy.isActive()) {
             return TickRateModulation.IDLE;
         }

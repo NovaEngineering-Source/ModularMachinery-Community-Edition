@@ -70,6 +70,17 @@ gui.meitembus.nbt_stored=Items have been stored internally.
 
 gui.mefluidoutputbus.title=ME Machinery Fluid Output Bus
 gui.mefluidinputbus.title=ME Machinery Fluid Input Bus
+gui.mepatternprovider.title=ME Machinery Pattern Provider
+gui.mepatternprovider.inventory=Inventory
+gui.mepatternprovider.cached=Cached
+gui.mepatternprovider.single_inv=Single Inv
+gui.mepatternprovider.single_inv.desc=The single inv is also mechanically recognized, but clicking to clear an item does not clear the single inv.
+gui.mepatternprovider.blocking_mode.enable=Enable Blocking Mode
+gui.mepatternprovider.blocking_mode.enabled.desc=Enabled: The supplier will not continue storing items when it contains items.
+gui.mepatternprovider.blocking_mode.disable=Disable Blocking Mode
+gui.mepatternprovider.blocking_mode.disabled.desc=Disabled: The supplier will always accept all item inputs.
+gui.mepatternprovider.return_items=Return items
+gui.mepatternprovider.return_items.desc=Returns all items and fluids in the supplier back to the ME Network.
 
 gui.preview.button.menu.tip=Click to open the Preview Options menu.
 gui.preview.button.machine_info=Extra Info:
@@ -365,6 +376,7 @@ tile.modularmachinery.blockmeitemoutputbus.name=ME Machinery Item Output Bus
 tile.modularmachinery.blockmeiteminputbus.name=ME Machinery Item Input Bus
 tile.modularmachinery.blockmefluidoutputbus.name=ME Machinery Fluid Output Bus
 tile.modularmachinery.blockmefluidinputbus.name=ME Machinery Fluid Input Bus
+tile.modularmachinery.blockmepatternprovider.name=ME Machinery Pattern Provider
 
 error.modularmachinery.requirement.lifeessence=Error while checking Life Essence requirement
 error.modularmachinery.requirement.lifeessence.orb=Missing or Unbound Blood Orb

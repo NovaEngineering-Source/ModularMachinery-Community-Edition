@@ -8,6 +8,7 @@
 
 package hellfirepvp.modularmachinery.common.tiles;
 
+import github.kasuminova.mmce.common.tile.MEPatternProvider;
 import github.kasuminova.mmce.common.tile.base.MEItemBus;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.block.prop.ItemBusSize;
@@ -58,7 +59,7 @@ public class TileItemInputBus extends TileItemBus implements MachineComponentTil
                 continue;
             }
 
-            if (Mods.AE2.isPresent() && (te instanceof MEItemBus)) {
+            if (Mods.AE2.isPresent() && ((te instanceof MEItemBus) || (te instanceof MEPatternProvider))) {
                 continue;
             }
 

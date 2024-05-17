@@ -9,7 +9,6 @@
 package hellfirepvp.modularmachinery.client.util;
 
 import hellfirepvp.modularmachinery.client.ClientScheduler;
-import hellfirepvp.modularmachinery.common.data.Config;
 import hellfirepvp.modularmachinery.common.util.BlockArray;
 import hellfirepvp.modularmachinery.common.util.BlockCompatHelper;
 import hellfirepvp.modularmachinery.common.util.IBlockStateDescriptor;
@@ -17,7 +16,9 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -51,8 +52,6 @@ import java.util.*;
  * Date: 09.07.2017 / 20:16
  */
 public class BlockArrayRenderHelper {
-    private static int hash = -1;
-    private static int batchDList = -1;
 
     private final BlockArray blocks;
     private final WorldBlockArrayRenderAccess renderAccess;
@@ -159,26 +158,65 @@ public class BlockArrayRenderHelper {
 
         GL11.glScaled(-size * mul, -size * mul, -size * mul);
 
+        BlockRendererDispatcher brd = Minecraft.getMinecraft().getBlockRendererDispatcher();
+        VertexFormat blockFormat = DefaultVertexFormats.BLOCK;
+
         renderAccess.respectRenderSlice = slice.isPresent();
         renderAccess.currentRenderSlice = slice.orElse(0);
 
-        if (Config.enableStructurePreviewDisplayList) {
-            if (batchDList == -1) {
-                batchBlocks(slice, pTicks);
-                hash = hashBlocks();
-            } else {
-                int currentHash = hashBlocks();
-                if (hash != currentHash) {
-                    GLAllocation.deleteDisplayLists(batchDList);
-                    batchBlocks(slice, pTicks);
-                    hash = currentHash;
+        Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        Tessellator tes = Tessellator.getInstance();
+        BufferBuilder vb = tes.getBuffer();
+
+        vb.begin(GL11.GL_QUADS, blockFormat);
+        for (Map.Entry<BlockPos, BakedBlockData> data : renderAccess.blockRenderData.entrySet()) {
+            BlockPos offset = data.getKey();
+            if (slice.isPresent()) {
+                if (slice.get() != offset.getY()) {
+                    continue;
                 }
             }
-            GlStateManager.disableDepth();
-            GlStateManager.callList(batchDList);
-            GlStateManager.enableDepth();
-        } else {
-            batchBlocks(slice, pTicks);
+            BakedBlockData renderData = data.getValue();
+            SampleRenderState state = renderData.getSampleState();
+            if (state.state.getBlock() != Blocks.AIR) {
+                TileEntityRenderData terd = state.renderData;
+                if (terd != null && terd.tileEntity != null) {
+                    terd.tileEntity.setWorld(Minecraft.getMinecraft().world);
+                    terd.tileEntity.setPos(offset);
+                }
+                try {
+                    IBlockState actRenderState = state.state;
+                    actRenderState = actRenderState.getBlock().getActualState(actRenderState, renderAccess, offset);
+                    brd.renderBlock(actRenderState, offset, renderAccess, vb);
+                } catch (Exception exc) {
+                    brd.getBlockModelRenderer().renderModel(
+                            renderAccess,
+                            brd.getBlockModelShapes().getModelManager().getMissingModel(),
+                            state.state,
+                            offset,
+                            vb, true);
+                }
+            }
+        }
+        tes.draw();
+
+        for (Map.Entry<BlockPos, BakedBlockData> data : renderAccess.blockRenderData.entrySet()) {
+            BlockPos offset = data.getKey();
+            if (slice.isPresent()) {
+                if (slice.get() != offset.getY()) {
+                    continue;
+                }
+            }
+            SampleRenderState state = data.getValue().getSampleState();
+            TileEntityRenderData terd = state.renderData;
+            if (terd != null && terd.tileEntity != null && terd.renderer != null) {
+                terd.tileEntity.setWorld(Minecraft.getMinecraft().world);
+                terd.tileEntity.setPos(offset);
+                try {
+                    terd.renderer.render(terd.tileEntity, offset.getX(), offset.getY(), offset.getZ(), pTicks, 0, 1F);
+                } catch (Exception ignored) {
+                }
+            }
         }
 
         renderAccess.respectRenderSlice = false;
@@ -186,114 +224,6 @@ public class BlockArrayRenderHelper {
 
         GL11.glPopMatrix();
         GL11.glPopAttrib();
-    }
-
-    private void batchBlocks(final Optional<Integer> slice, final float pTicks) {
-        if (batchDList != -1) {
-            GlStateManager.glDeleteLists(batchDList, 1);
-        }
-        if (Config.enableStructurePreviewDisplayList) {
-            batchDList = GLAllocation.generateDisplayLists(1);
-            GlStateManager.glNewList(batchDList, GL11.GL_COMPILE);
-        }
-
-        BlockRendererDispatcher brd = Minecraft.getMinecraft().getBlockRendererDispatcher();
-        VertexFormat blockFormat = DefaultVertexFormats.BLOCK;
-        Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        Tessellator tes = Tessellator.getInstance();
-        BufferBuilder vb = tes.getBuffer();
-
-        vb.begin(GL11.GL_QUADS, blockFormat);
-        //noinspection SimplifyOptionalCallChains
-        renderAccess.blockRenderData.entrySet().stream()
-                .filter(data -> !slice.isPresent() || slice.get() == data.getKey().getY())
-                .sorted(this::comparePos).forEach((data) -> {
-                    BlockPos offset = data.getKey();
-                    BakedBlockData renderData = data.getValue();
-                    SampleRenderState state = renderData.getSampleState();
-                    if (state.state.getBlock() != Blocks.AIR) {
-                        TileEntityRenderData terd = state.renderData;
-                        if (terd != null && terd.tileEntity != null) {
-                            terd.tileEntity.setWorld(Minecraft.getMinecraft().world);
-                            terd.tileEntity.setPos(offset);
-                        }
-                        try {
-                            IBlockState actRenderState = state.state;
-                            actRenderState = actRenderState.getBlock().getActualState(actRenderState, renderAccess, offset);
-                            brd.renderBlock(actRenderState, offset, renderAccess, vb);
-                        } catch (Exception exc) {
-                            brd.getBlockModelRenderer().renderModel(
-                                    renderAccess,
-                                    brd.getBlockModelShapes().getModelManager().getMissingModel(),
-                                    state.state,
-                                    offset,
-                                    vb, true);
-                        }
-                    }
-                });
-
-        tes.draw();
-        //noinspection SimplifyOptionalCallChains
-        renderAccess.blockRenderData.entrySet().stream()
-                .filter(data -> !slice.isPresent() || slice.get() == data.getKey().getY())
-                .sorted(this::comparePos)
-                .forEach(data -> {
-                    BlockPos offset = data.getKey();
-                    SampleRenderState state = data.getValue().getSampleState();
-                    TileEntityRenderData terd = state.renderData;
-                    if (terd != null && terd.tileEntity != null && terd.renderer != null) {
-                        terd.tileEntity.setWorld(Minecraft.getMinecraft().world);
-                        terd.tileEntity.setPos(offset);
-                        try {
-                            terd.renderer.render(terd.tileEntity, offset.getX(), offset.getY(), offset.getZ(), pTicks, 0, 1F);
-                        } catch (Exception ignored) {
-                        }
-                    }
-                });
-
-        if (Config.enableStructurePreviewDisplayList) {
-            GlStateManager.glEndList();
-        }
-    }
-
-    private int hashBlocks() {
-        int hash = 80238287;
-        for (Map.Entry<BlockPos, BlockArray.BlockInformation> entry : blocks.getPattern().entrySet()) {
-            if (Minecraft.getMinecraft().world != null && entry.getValue().matches(Minecraft.getMinecraft().world, entry.getKey(), false)) {
-                continue;
-            }
-            int layer = entry.getKey().getY();
-            if (renderAccess.currentRenderSlice != layer) {
-                continue;
-            }
-            hash = (hash << 4) ^ (hash >> 28) ^ (entry.getKey().getX() * 5449 % 130651);
-            hash = (hash << 4) ^ (hash >> 28) ^ (entry.getKey().getY() * 5449 % 130651);
-            hash = (hash << 4) ^ (hash >> 28) ^ (entry.getKey().getZ() * 5449 % 130651);
-            hash = (hash << 4) ^ (hash >> 28) ^ (entry.getValue().getSampleState(sampleSnap).hashCode() * 5449 % 130651);
-        }
-        return hash % 75327403;
-    }
-
-    private int comparePos(Map.Entry<BlockPos, BakedBlockData> o1, Map.Entry<BlockPos, BakedBlockData> o2) {
-        int yCompare;
-        if (rotY < 0 && rotX >= 0 && rotX <= 90) {
-            yCompare = Integer.compare(o2.getKey().getY(), o1.getKey().getY());
-        } else {
-            yCompare = Integer.compare(o1.getKey().getY(), o2.getKey().getY());
-        }
-        if (yCompare != 0) {
-            return yCompare;
-        }
-        int xCompare;
-        if (rotX < 0 && rotY < 0) {
-            xCompare = Integer.compare(o1.getKey().getX(), o2.getKey().getX());
-        } else {
-            xCompare = Integer.compare(o2.getKey().getX(), o1.getKey().getX());
-        }
-        if (xCompare != 0) {
-            return xCompare;
-        }
-        return Integer.compare(o1.getKey().getZ(), o2.getKey().getZ());
     }
 
     static class BakedBlockData {

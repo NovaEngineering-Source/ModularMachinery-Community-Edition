@@ -2,12 +2,8 @@ package github.kasuminova.mmce.common.tile.base;
 
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
-import appeng.api.networking.events.MENetworkChannelsChanged;
-import appeng.api.networking.events.MENetworkEventSubscribe;
-import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.IActionSource;
-import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.util.AECableType;
 import appeng.api.util.AEPartLocation;
 import appeng.api.util.DimensionalCoord;
@@ -27,7 +23,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class MEMachineComponent extends TileColorableMachineComponent implements SelectiveUpdateTileEntity, MachineComponentTile, IActionHost, IGridProxyable, IGridTickable {
+public abstract class MEMachineComponent extends TileColorableMachineComponent implements SelectiveUpdateTileEntity, MachineComponentTile, IActionHost, IGridProxyable {
 
     protected final AENetworkProxy proxy = new AENetworkProxy(this, "aeProxy", getVisualItemStack(), true);
     protected final IActionSource source;
@@ -44,7 +40,12 @@ public abstract class MEMachineComponent extends TileColorableMachineComponent i
     public void readCustomNBT(final NBTTagCompound compound) {
         super.readCustomNBT(compound);
         if (FMLCommonHandler.instance().getSide().isServer()) {
-            proxy.readFromNBT(compound);
+            try {
+                proxy.readFromNBT(compound);
+            } catch (IllegalStateException e) {
+                // Prevent loading data after part of a grid.
+                ModularMachinery.log.warn(e);
+            }
         }
     }
 
@@ -56,17 +57,7 @@ public abstract class MEMachineComponent extends TileColorableMachineComponent i
 
     // AppEng Compat
 
-    @MENetworkEventSubscribe
-    public void stateChange(final MENetworkChannelsChanged change) {
-        this.notifyNeighbors();
-    }
-
-    @MENetworkEventSubscribe
-    public void stateChange(final MENetworkPowerStatusChange change) {
-        this.notifyNeighbors();
-    }
-
-    private void notifyNeighbors() {
+    protected void notifyNeighbors() {
         if (this.proxy.isActive()) {
             try {
                 this.proxy.getTick().wakeDevice(this.proxy.getNode());
@@ -132,6 +123,9 @@ public abstract class MEMachineComponent extends TileColorableMachineComponent i
     @Override
     public void validate() {
         super.validate();
-        ModularMachinery.EXECUTE_MANAGER.addSyncTask(proxy::onReady);
+        if (!getWorld().isRemote) {
+            ModularMachinery.EXECUTE_MANAGER.addSyncTask(proxy::onReady);
+        }
     }
+
 }

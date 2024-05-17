@@ -1,4 +1,4 @@
-package github.kasuminova.mmce.client.gui.widget.preview;
+package github.kasuminova.mmce.client.gui.widget.impl.preview;
 
 import com.cleanroommc.client.preview.renderer.scene.ISceneRenderHook;
 import com.cleanroommc.client.preview.renderer.scene.ImmediateWorldSceneRenderer;
@@ -21,7 +21,6 @@ import github.kasuminova.mmce.common.util.DynamicPattern;
 import hellfirepvp.modularmachinery.client.ClientScheduler;
 import hellfirepvp.modularmachinery.common.block.BlockController;
 import hellfirepvp.modularmachinery.common.block.BlockFactoryController;
-import hellfirepvp.modularmachinery.common.data.Config;
 import hellfirepvp.modularmachinery.common.lib.BlocksMM;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.tiles.base.ColorableMachineTile;

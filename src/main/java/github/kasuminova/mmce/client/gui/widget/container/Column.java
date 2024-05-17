@@ -193,7 +193,7 @@ public class Column extends WidgetContainer {
     // Tooltips
 
     @Override
-    public List<String> getHoverTooltips(final MousePos mousePos) {
+    public List<String> getHoverTooltips(final WidgetGui widgetGui, final MousePos mousePos) {
         int y = 0;
 
         int width = getWidth();
@@ -213,7 +213,7 @@ public class Column extends WidgetContainer {
 
             MousePos relativeMousePos = mousePos.relativeTo(widgetRenderPos);
             if (widget.isMouseOver(relativeMousePos)) {
-                List<String> hoverTooltips = widget.getHoverTooltips(relativeMousePos);
+                List<String> hoverTooltips = widget.getHoverTooltips(widgetGui, relativeMousePos);
                 if (!hoverTooltips.isEmpty()) {
                     tooltips = hoverTooltips;
                     break;

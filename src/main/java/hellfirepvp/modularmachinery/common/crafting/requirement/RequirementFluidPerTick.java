@@ -1,5 +1,6 @@
 package hellfirepvp.modularmachinery.common.crafting.requirement;
 
+import hellfirepvp.modularmachinery.common.crafting.ComponentType;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
 import hellfirepvp.modularmachinery.common.crafting.helper.CraftCheck;
 import hellfirepvp.modularmachinery.common.crafting.helper.ProcessingComponent;
@@ -40,9 +41,9 @@ public class RequirementFluidPerTick extends ComponentRequirement.PerTickParalle
     @Override
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.component();
-        return cmp.getComponentType().equals(ComponentTypesMM.COMPONENT_FLUID) &&
-                cmp instanceof MachineComponent.FluidHatch &&
-                cmp.ioType == this.actionType;
+        ComponentType cmpType = cmp.getComponentType();
+        return (cmpType.equals(ComponentTypesMM.COMPONENT_FLUID) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID))
+               && cmp.ioType == actionType;
     }
 
     @Override

@@ -69,6 +69,18 @@ gui.meitembus.nbt_stored=内部已存储物品。
 
 gui.mefluidoutputbus.title=ME 机械流体输出总线
 gui.mefluidinputbus.title=ME 机械流体输入总线
+gui.mepatternprovider.title=ME 机械样板供应器
+gui.mepatternprovider.inventory=物品栏
+gui.mepatternprovider.cached=已缓存
+gui.mepatternprovider.single_inv=独立存储
+gui.mepatternprovider.single_inv.desc=独立存储同样会被机械识别，但是单击清空物品时不会清空独立存储。
+gui.mepatternprovider.blocking_mode.enable=启用阻挡模式
+gui.mepatternprovider.blocking_mode.enabled.desc=已启用：供应器内含有物品时不继续存储物品。
+gui.mepatternprovider.blocking_mode.disable=禁用阻挡模式
+gui.mepatternprovider.blocking_mode.disabled.desc=已禁用：供应器始终接受所有物品输入。
+gui.mepatternprovider.return_items=清空物品
+gui.mepatternprovider.return_items.desc=将供应器中的所有物品和流体返还给 ME 网络。
+gui.mepatternprovider.nbt_stored=供应器已配置。
 
 gui.preview.button.menu.tip=点击打开预览选项菜单。
 gui.preview.button.machine_info=额外信息：
@@ -364,6 +376,7 @@ tile.modularmachinery.blockmeitemoutputbus.name=ME机械物品输出总线
 tile.modularmachinery.blockmeiteminputbus.name=ME机械物品输入总线
 tile.modularmachinery.blockmefluidoutputbus.name=ME机械流体输出总线
 tile.modularmachinery.blockmefluidinputbus.name=ME机械流体输入总线
+tile.modularmachinery.blockmepatternprovider.name=ME机械样板供应器
 
 error.modularmachinery.requirement.lifeessence=检查生命源质需求时发生错误！
 error.modularmachinery.requirement.lifeessence.orb=缺失或未绑定气血宝珠！

@@ -9,15 +9,15 @@ import net.minecraft.item.ItemStack;
 import java.awt.*;
 import java.util.function.Consumer;
 
-public class SlotVirtualSelectable extends SlotVirtual {
+public class SlotItemVirtualSelectable extends SlotItemVirtual {
 
-    protected Consumer<SlotVirtualSelectable> onClickedListener = null;
+    protected Consumer<SlotItemVirtualSelectable> onClickedListener = null;
     protected boolean clicked = false;
 
-    public SlotVirtualSelectable() {
+    public SlotItemVirtualSelectable() {
     }
 
-    public SlotVirtualSelectable(final ItemStack stackInSlot) {
+    public SlotItemVirtualSelectable(final ItemStack stackInSlot) {
         super(stackInSlot);
     }
 
@@ -45,11 +45,11 @@ public class SlotVirtualSelectable extends SlotVirtual {
         return true;
     }
 
-    public Consumer<SlotVirtualSelectable> getOnClickedListener() {
+    public Consumer<SlotItemVirtualSelectable> getOnClickedListener() {
         return onClickedListener;
     }
 
-    public SlotVirtualSelectable setOnClickedListener(final Consumer<SlotVirtualSelectable> onClickedListener) {
+    public SlotItemVirtualSelectable setOnClickedListener(final Consumer<SlotItemVirtualSelectable> onClickedListener) {
         this.onClickedListener = onClickedListener;
         return this;
     }
@@ -58,7 +58,7 @@ public class SlotVirtualSelectable extends SlotVirtual {
         return clicked;
     }
 
-    public SlotVirtualSelectable setClicked(final boolean clicked) {
+    public SlotItemVirtualSelectable setClicked(final boolean clicked) {
         if (this.clicked != clicked) {
             this.clicked = clicked;
             if (onClickedListener != null) {

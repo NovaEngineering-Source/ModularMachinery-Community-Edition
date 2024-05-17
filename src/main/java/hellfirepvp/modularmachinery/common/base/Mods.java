@@ -9,6 +9,7 @@
 package hellfirepvp.modularmachinery.common.base;
 
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -72,8 +73,14 @@ public enum Mods {
     /**
      * An add-on mod that provides the ability to hide block rendering similar to Multiblocked.
      */
-    COMPONENT_MODEL_HIDER("component_model_hider")
-    ;
+    COMPONENT_MODEL_HIDER("component_model_hider"),
+    AE2FCR("ae2fc") {
+        @Override
+        public boolean isPresent() {
+            ModContainer ae2fc = Loader.instance().getIndexedModList().get("ae2fc");
+            return ae2fc != null && ae2fc.getVersion().endsWith("-r");
+        }
+    };
 
     public final String modid;
     private final boolean loaded;

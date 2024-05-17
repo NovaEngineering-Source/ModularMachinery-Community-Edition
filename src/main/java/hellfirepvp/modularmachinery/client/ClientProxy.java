@@ -8,17 +8,11 @@
 
 package hellfirepvp.modularmachinery.client;
 
-import github.kasuminova.mmce.client.gui.GuiMEFluidInputBus;
-import github.kasuminova.mmce.client.gui.GuiMEFluidOutputBus;
-import github.kasuminova.mmce.client.gui.GuiMEItemInputBus;
-import github.kasuminova.mmce.client.gui.GuiMEItemOutputBus;
+import github.kasuminova.mmce.client.gui.*;
 import github.kasuminova.mmce.client.renderer.MachineControllerRenderer;
 import github.kasuminova.mmce.client.resource.GeoModelExternalLoader;
 import github.kasuminova.mmce.common.handler.ClientHandler;
-import github.kasuminova.mmce.common.tile.MEFluidInputBus;
-import github.kasuminova.mmce.common.tile.MEFluidOutputBus;
-import github.kasuminova.mmce.common.tile.MEItemInputBus;
-import github.kasuminova.mmce.common.tile.MEItemOutputBus;
+import github.kasuminova.mmce.common.tile.*;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.client.gui.*;
 import hellfirepvp.modularmachinery.client.util.BlockArrayPreviewRenderHelper;
@@ -70,7 +64,6 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -318,6 +311,12 @@ public class ClientProxy extends CommonProxy {
                     return null;
                 }
                 return new GuiMEFluidInputBus((MEFluidInputBus) present, player);
+            }
+            case ME_PATTERN_PROVIDER -> {
+                if (!Mods.AE2.isPresent()) {
+                    return null;
+                }
+                return new GuiMEPatternProvider((MEPatternProvider) present, player);
             }
             case GUI_ESSENCE_PROVIDER -> {
                 if (!Mods.BM2.isPresent()) {

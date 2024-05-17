@@ -14,6 +14,9 @@ import hellfirepvp.modularmachinery.common.base.Mods;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+
+import java.util.List;
 
 public class GuiMEFluidInputBus extends GuiUpgradeable {
     private static final ResourceLocation TEXTURES_INPUT_BUS = new ResourceLocation(ModularMachinery.MODID, "textures/gui/mefluidinputbus.png");
@@ -39,11 +42,13 @@ public class GuiMEFluidInputBus extends GuiUpgradeable {
 
             // AE2 Unofficial Extended Life Check
             if (Mods.AE2EL.isPresent()) {
-                this.guiSlots.add(GuiCustomSlot.class.cast(guiTank));
+                this.guiSlots.add(guiTank);
             } else {
-                guiTank.x += getGuiLeft();
-                guiTank.y += getGuiTop();
-                this.buttonList.add(guiTank);
+                // Default AE2
+                ObfuscationReflectionHelper.setPrivateValue(GuiCustomSlot.class, guiTank, getGuiLeft(), "x");
+                ObfuscationReflectionHelper.setPrivateValue(GuiCustomSlot.class, guiTank, getGuiTop(), "y");
+                List<Object> buttonList = (List) this.buttonList;
+                buttonList.add(guiTank);
             }
 
             this.guiSlots.add(new GuiFluidSlot(configFluids, i, i, 8 + 18 * i, 35));

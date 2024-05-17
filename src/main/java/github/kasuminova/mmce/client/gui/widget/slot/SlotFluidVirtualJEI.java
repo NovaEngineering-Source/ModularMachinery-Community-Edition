@@ -8,30 +8,27 @@ import hellfirepvp.modularmachinery.client.ClientProxy;
 import hellfirepvp.modularmachinery.common.integration.ModIntegrationJEI;
 import mezz.jei.api.recipe.IFocus;
 import mezz.jei.config.KeyBindings;
-import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.Optional;
 
-public class SlotVirtualJEI extends SlotVirtual {
+public class SlotFluidVirtualJEI extends SlotFluidVirtual {
 
-    protected boolean mouseOver = false;
-
-    public SlotVirtualJEI() {
+    public SlotFluidVirtualJEI(final FluidStack fluidStack) {
+        super(fluidStack);
     }
 
-    public SlotVirtualJEI(final ItemStack stackInSlot) {
-        super(stackInSlot);
+    public SlotFluidVirtualJEI() {
     }
 
     @Override
     public void render(final WidgetGui widgetGui, final RenderSize renderSize, final RenderPos renderPos, final MousePos mousePos) {
         super.render(widgetGui, renderSize, renderPos, mousePos);
-        mouseOver = isMouseOver(mousePos);
     }
 
     @Override
     @Optional.Method(modid = "jei")
     public boolean onMouseClick(final MousePos mousePos, final RenderPos renderPos, final int mouseButton) {
-        if (stackInSlot.isEmpty()) {
+        if (fluidStack == null) {
             return false;
         }
         return switch (mouseButton) {
@@ -50,16 +47,12 @@ public class SlotVirtualJEI extends SlotVirtual {
 
         int showRecipeKeyCode = KeyBindings.showRecipe.getKeyCode();
         int showUsesKeyCode = KeyBindings.showUses.getKeyCode();
-        int bookmarkKeyCode = KeyBindings.bookmark.getKeyCode();
 
         if (showRecipeKeyCode > 0 && showRecipeKeyCode <= 255 && showRecipeKeyCode == keyCode) {
             return showStackFocus(IFocus.Mode.OUTPUT);
         }
         if (showUsesKeyCode > 0 && showUsesKeyCode <= 255 && showUsesKeyCode == keyCode) {
             return showStackFocus(IFocus.Mode.INPUT);
-        }
-        if (bookmarkKeyCode > 0 && bookmarkKeyCode <= 255 && bookmarkKeyCode == keyCode) {
-            ModIntegrationJEI.addItemStackToBookmarkList(stackInSlot);
         }
 
         return false;
@@ -68,7 +61,7 @@ public class SlotVirtualJEI extends SlotVirtual {
     @Optional.Method(modid = "jei")
     protected boolean showStackFocus(final IFocus.Mode output) {
         ClientProxy.clientScheduler.addRunnable(() -> {
-            IFocus<ItemStack> focus = ModIntegrationJEI.recipeRegistry.createFocus(output, stackInSlot);
+            IFocus<FluidStack> focus = ModIntegrationJEI.recipeRegistry.createFocus(output, fluidStack);
             ModIntegrationJEI.jeiRuntime.getRecipesGui().show(focus);
         }, 0);
         return true;

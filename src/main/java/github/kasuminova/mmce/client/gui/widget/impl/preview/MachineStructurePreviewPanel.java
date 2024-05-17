@@ -1,11 +1,10 @@
-package github.kasuminova.mmce.client.gui.widget.preview;
+package github.kasuminova.mmce.client.gui.widget.impl.preview;
 
-import com.cleanroommc.client.util.RenderUtils;
 import github.kasuminova.mmce.client.gui.widget.Button;
 import github.kasuminova.mmce.client.gui.widget.Button4State;
 import github.kasuminova.mmce.client.gui.widget.Button5State;
 import github.kasuminova.mmce.client.gui.widget.container.Row;
-import github.kasuminova.mmce.client.gui.widget.slot.SlotVirtual;
+import github.kasuminova.mmce.client.gui.widget.slot.SlotItemVirtual;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.client.ClientProxy;
 import hellfirepvp.modularmachinery.client.util.DynamicMachineRenderContext;
@@ -15,7 +14,6 @@ import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.BlockArray;
 import hellfirepvp.modularmachinery.common.util.ItemUtils;
-import ink.ikx.mmce.common.utils.StackUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -26,7 +24,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -79,7 +80,7 @@ public class MachineStructurePreviewPanel extends Row {
         IngredientList ingredientList = new IngredientList();
 
         // Selected block ingredient main stack, at left...
-        SlotVirtual selectedBlockIngredientMain = SlotVirtual.ofJEI();
+        SlotItemVirtual selectedBlockIngredientMain = SlotItemVirtual.ofJEI();
         // Selected block ingredient list, at left, under the selectedBlockIngredientMain...
         IngredientListVertical selectedBlockIngredientList = new IngredientListVertical();
 
@@ -305,12 +306,12 @@ public class MachineStructurePreviewPanel extends Row {
 
     // Handler methods.
 
-    protected void handlePatternBlockSelected(final BlockPos relativePos, final SlotVirtual selectedBlockIngredientMain, final IngredientListVertical selectedBlockIngredientList) {
+    protected void handlePatternBlockSelected(final BlockPos relativePos, final SlotItemVirtual selectedBlockIngredientMain, final IngredientListVertical selectedBlockIngredientList) {
         BlockPos pos = relativePos == null ? null : relativePos.subtract(renderer.getRenderOffset());
         if (pos == null) {
             selectedBlockIngredientMain.setStackInSlot(ItemStack.EMPTY);
             selectedBlockIngredientMain.setDisabled(true);
-            selectedBlockIngredientList.setStackList(Collections.emptyList());
+            selectedBlockIngredientList.setStackList(Collections.emptyList(), Collections.emptyList());
             selectedBlockIngredientList.setDisabled(true);
             return;
         }
@@ -318,13 +319,16 @@ public class MachineStructurePreviewPanel extends Row {
         World world = renderer.getWorldRenderer().getWorld();
         IBlockState clickedBlock = world.getBlockState(relativePos);
         BlockArray.BlockInformation clicked = renderer.getPattern().getPattern().get(pos);
-        ItemStack clickedBlockStack = StackUtils.getStackFromBlockState(clickedBlock, relativePos, world);
+        ItemStack clickedBlockStack = clickedBlock.getBlock().getPickBlock(
+                clickedBlock, renderer.getWorldRenderer().getLastTraceResult(),
+                world, pos,
+                Minecraft.getMinecraft().player);
         List<ItemStack> replaceable = clicked.getIngredientList(pos, world).stream()
                 .filter(replaceableStack -> !ItemUtils.matchStacks(clickedBlockStack, replaceableStack))
                 .collect(Collectors.toList());
         selectedBlockIngredientMain.setStackInSlot(clickedBlockStack);
         selectedBlockIngredientMain.setEnabled(true);
-        selectedBlockIngredientList.setStackList(replaceable);
+        selectedBlockIngredientList.setStackList(replaceable, Collections.emptyList());
         selectedBlockIngredientList.setEnabled(!replaceable.isEmpty());
     }
 
@@ -340,7 +344,7 @@ public class MachineStructurePreviewPanel extends Row {
                     }
                     return Integer.compare(right.getCount(), left.getCount());
                 })
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList()), Collections.emptyList());
         if (r.isStructureFormed()) {
             TileEntity ctrlTE = r.getWorldRenderer().getWorld().getTileEntity(BlockPos.ORIGIN.add(r.getRenderOffset()));
             if (ctrlTE instanceof TileMultiblockMachineController controller) {

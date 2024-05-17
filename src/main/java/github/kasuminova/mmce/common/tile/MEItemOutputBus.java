@@ -29,6 +29,11 @@ public class MEItemOutputBus extends MEItemBus {
         }
         IOInventory inv = new IOInventory(this, new int[]{}, slotIDs);
         inv.setStackLimit(Integer.MAX_VALUE, slotIDs);
+        inv.setListener(slot -> {
+            synchronized (this) {
+                changedSlots.set(slot);
+            }
+        });
         return inv;
     }
 
@@ -90,13 +95,12 @@ public class MEItemOutputBus extends MEItemBus {
                     successAtLeastOnce = true;
                 }
             }
+            changedSlots.clear();
+            return successAtLeastOnce ? TickRateModulation.FASTER : TickRateModulation.SLOWER;
         } catch (GridAccessException e) {
             changedSlots.clear();
             return TickRateModulation.IDLE;
         }
-
-        changedSlots.clear();
-        return successAtLeastOnce ? TickRateModulation.FASTER : TickRateModulation.SLOWER;
     }
 
     @Override

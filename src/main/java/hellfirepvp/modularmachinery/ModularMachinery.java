@@ -9,9 +9,7 @@
 package hellfirepvp.modularmachinery;
 
 import github.kasuminova.mmce.common.concurrent.TaskExecutor;
-import github.kasuminova.mmce.common.network.PktAutoAssemblyRequest;
-import github.kasuminova.mmce.common.network.PktMEInputBusInvAction;
-import github.kasuminova.mmce.common.network.PktPerformanceReport;
+import github.kasuminova.mmce.common.network.*;
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.command.CommandGetBluePrint;
@@ -92,8 +90,9 @@ public class ModularMachinery {
         NET_CHANNEL.registerMessage(PktSyncSelection.class, PktSyncSelection.class, 1, Side.CLIENT);
         NET_CHANNEL.registerMessage(PktPerformanceReport.class, PktPerformanceReport.class, 2, Side.CLIENT);
         NET_CHANNEL.registerMessage(PktAssemblyReport.class, PktAssemblyReport.class, 3, Side.CLIENT);
+        NET_CHANNEL.registerMessage(PktMEPatternProviderHandlerItems.class, PktMEPatternProviderHandlerItems.class, 4, Side.CLIENT);
         if (Mods.ASTRAL_SORCERY.isPresent()) {
-            NET_CHANNEL.registerMessage(StarlightMessage.StarlightMessageHandler.class, StarlightMessage.class, 4, Side.CLIENT);
+            NET_CHANNEL.registerMessage(StarlightMessage.StarlightMessageHandler.class, StarlightMessage.class, 5, Side.CLIENT);
         }
 
         NET_CHANNEL.registerMessage(PktInteractFluidTankGui.class, PktInteractFluidTankGui.class, 100, Side.SERVER);
@@ -101,8 +100,9 @@ public class ModularMachinery {
         NET_CHANNEL.registerMessage(PktParallelControllerUpdate.class, PktParallelControllerUpdate.class, 102, Side.SERVER);
         NET_CHANNEL.registerMessage(PktMEInputBusInvAction.class, PktMEInputBusInvAction.class, 103, Side.SERVER);
         NET_CHANNEL.registerMessage(PktAutoAssemblyRequest.class, PktAutoAssemblyRequest.class, 104, Side.SERVER);
+        NET_CHANNEL.registerMessage(PktMEPatternProviderAction.class, PktMEPatternProviderAction.class, 105, Side.SERVER);
         if (Mods.ASTRAL_SORCERY.isPresent()) {
-            NET_CHANNEL.registerMessage(StarlightMessage.StarlightMessageHandler.class, StarlightMessage.class, 105, Side.SERVER);
+            NET_CHANNEL.registerMessage(StarlightMessage.StarlightMessageHandler.class, StarlightMessage.class, 106, Side.SERVER);
         }
 
         CommonProxy.loadModData(event.getModConfigurationDirectory());

@@ -192,7 +192,7 @@ public abstract class WidgetContainer extends DynamicWidget {
     // Tooltips
 
     @Override
-    public abstract List<String> getHoverTooltips(final MousePos mousePos);
+    public abstract List<String> getHoverTooltips(final WidgetGui widgetGui, final MousePos mousePos);
 
     // Events
 

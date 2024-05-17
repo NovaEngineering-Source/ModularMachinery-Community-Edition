@@ -34,7 +34,11 @@ public class MEItemInputBus extends MEItemBus {
         }
         IOInventory inv = new IOInventory(this, slotIDs, new int[]{});
         inv.setStackLimit(Integer.MAX_VALUE, slotIDs);
-        inv.setListener(changedSlots::set);
+        inv.setListener(slot -> {
+            synchronized (this) {
+                changedSlots.set(slot);
+            }
+        });
         return inv;
     }
 
@@ -53,7 +57,11 @@ public class MEItemInputBus extends MEItemBus {
         IOInventory inv = new IOInventory(this, new int[]{}, new int[]{});
         inv.setStackLimit(Integer.MAX_VALUE, slotIDs);
         inv.setMiscSlots(slotIDs);
-        inv.setListener(changedSlots::set);
+        inv.setListener(slot -> {
+            synchronized (this) {
+                changedSlots.set(slot);
+            }
+        });
         return inv;
     }
 
@@ -244,7 +252,11 @@ public class MEItemInputBus extends MEItemBus {
 
     public void readConfigInventoryNBT(final NBTTagCompound compound) {
         configInventory = IOInventory.deserialize(this, compound);
-        configInventory.setListener(changedSlots::set);
+        configInventory.setListener(slot -> {
+            synchronized (this) {
+                changedSlots.set(slot);
+            }
+        });
 
         int[] slotIDs = new int[configInventory.getSlots()];
         for (int slotID = 0; slotID < slotIDs.length; slotID++) {

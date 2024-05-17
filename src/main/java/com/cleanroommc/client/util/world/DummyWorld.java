@@ -33,6 +33,11 @@ public class DummyWorld extends World {
     }
 
     @Override
+    protected void initCapabilities() {
+        //NOOP - do not trigger forge events
+    }
+
+    @Override
     public void notifyNeighborsRespectDebug(@Nonnull BlockPos pos, @Nonnull Block blockType, boolean p_175722_3_) {
         //NOOP - do not trigger forge events
     }

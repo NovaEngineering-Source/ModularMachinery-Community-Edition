@@ -158,7 +158,7 @@ public class AssemblyEventHandler {
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
         EntityPlayer player = event.player;
         World world = player.world;
-        if (event.phase == TickEvent.Phase.START || world.isRemote || world.getWorldTime() % AssemblyConfig.tickBlock != 0) {
+        if (event.phase == TickEvent.Phase.START || world.isRemote || world.getTotalWorldTime() % AssemblyConfig.tickBlock != 0) {
             return;
         }
 

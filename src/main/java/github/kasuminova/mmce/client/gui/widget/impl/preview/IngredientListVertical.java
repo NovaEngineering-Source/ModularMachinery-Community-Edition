@@ -1,23 +1,21 @@
-package github.kasuminova.mmce.client.gui.widget.preview;
+package github.kasuminova.mmce.client.gui.widget.impl.preview;
 
 import github.kasuminova.mmce.client.gui.util.MousePos;
 import github.kasuminova.mmce.client.gui.util.RenderPos;
 import github.kasuminova.mmce.client.gui.util.RenderSize;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetGui;
-import github.kasuminova.mmce.client.gui.widget.slot.SlotVirtual;
+import github.kasuminova.mmce.client.gui.widget.slot.SlotItemVirtual;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.util.List;
 
-import static github.kasuminova.mmce.client.gui.widget.preview.MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION;
-
 public class IngredientListVertical extends IngredientList {
-    protected ResourceLocation listBgTexLocation = WIDGETS_TEX_LOCATION;
+    protected ResourceLocation listBgTexLocation = MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION;
     protected int listBgTexX = 229;
     protected int listBgTexY = 125;
     protected int listBgTexWidth = 25;
@@ -38,7 +36,7 @@ public class IngredientListVertical extends IngredientList {
                 .setHoveredTextureXY(192, 175)
                 .setTextureXY(184, 175)
                 .setUnavailableTextureXY(208, 175)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
+                .setTextureLocation(MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION)
                 .setWidthHeight(6, 17);
         checkScrollbarRange();
     }
@@ -86,9 +84,9 @@ public class IngredientListVertical extends IngredientList {
     }
 
     @Override
-    public IngredientListVertical setStackList(final List<ItemStack> list) {
+    public IngredientListVertical setStackList(final List<ItemStack> list, final List<FluidStack> fluidList) {
         getWidgets().clear();
-        list.stream().map(SlotVirtual::ofJEI).forEach(this::addWidget);
+        list.stream().map(SlotItemVirtual::ofJEI).forEach(this::addWidget);
         return this;
     }
 }

@@ -29,6 +29,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -47,9 +48,9 @@ public class RecipeCraftingContext {
 
     private final int reloadCounter;
 
-    private final Map<RequirementType<?, ?>, List<RecipeModifier>> modifiers = new HashMap<>();
-    private final Map<RequirementType<?, ?>, RecipeModifier.ModifierApplier> modifierAppliers = new HashMap<>();
-    private final Map<RequirementType<?, ?>, RecipeModifier.ModifierApplier> chanceModifierAppliers = new HashMap<>();
+    private final Map<RequirementType<?, ?>, List<RecipeModifier>> modifiers = new ConcurrentHashMap<>();
+    private final Map<RequirementType<?, ?>, RecipeModifier.ModifierApplier> modifierAppliers = new ConcurrentHashMap<>();
+    private final Map<RequirementType<?, ?>, RecipeModifier.ModifierApplier> chanceModifierAppliers = new ConcurrentHashMap<>();
 
     private final List<RecipeModifier> permanentModifierList = new ArrayList<>();
 

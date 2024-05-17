@@ -18,8 +18,8 @@ import software.bernie.shadowed.eliotlash.molang.MolangParser;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 public class GeoModelExternalLoader implements ISelectiveResourceReloadListener {
@@ -29,19 +29,19 @@ public class GeoModelExternalLoader implements ISelectiveResourceReloadListener 
     private final AnimationFileLoader animationFileLoader = new AnimationFileLoader();
     private final MolangParser molangParser = new MolangParser();
 
-    private volatile Map<ResourceLocation, GeoModel> geoModels = new HashMap<>();
-    private volatile Map<ResourceLocation, AnimationFile> animations = new HashMap<>();
+    private volatile Map<ResourceLocation, GeoModel> geoModels = new ConcurrentHashMap<>();
+    private volatile Map<ResourceLocation, AnimationFile> animations = new ConcurrentHashMap<>();
 
     private GeoModelExternalLoader() {
     }
 
     public void loadAllModelAndAnimations(final IResourceManager resourceManager) {
-        Map<ResourceLocation, GeoModel> geoModels = new HashMap<>();
-        Map<ResourceLocation, AnimationFile> animations = new HashMap<>();
+        Map<ResourceLocation, GeoModel> geoModels = new ConcurrentHashMap<>();
+        Map<ResourceLocation, AnimationFile> animations = new ConcurrentHashMap<>();
 
         Collection<MachineControllerModel> models = DynamicMachineModelRegistry.INSTANCE.getAllModels();
 
-        for (final MachineControllerModel model : models) {
+        models.parallelStream().forEach(model -> {
             ResourceLocation animationFileLocation = model.getAnimationFileLocation();
             try {
                 resourceManager.getResource(animationFileLocation);
@@ -49,12 +49,11 @@ public class GeoModelExternalLoader implements ISelectiveResourceReloadListener 
                 AnimationFile animationFile = animationFileLoader.loadAllAnimations(molangParser, animationFileLocation, resourceManager);
                 if (animationFile != null) {
                     animations.put(animationFileLocation, animationFile);
-                    ModularMachinery.log.debug("[MM-GeoModelExternalLoader] Loaded animation file: " + animationFileLocation);
+                    ModularMachinery.log.debug("[MM-GeoModelExternalLoader] Loaded animation file: {}", animationFileLocation);
                 }
             } catch (Exception e) {
-                ModularMachinery.log.warn("[MM-GeoModelExternalLoader] Failed to load animation file: " + animationFileLocation, e);
+                ModularMachinery.log.warn("[MM-GeoModelExternalLoader] Failed to load animation file: {}", animationFileLocation, e);
             }
-
             ResourceLocation modelLocation = model.getModelLocation();
             try {
                 resourceManager.getResource(modelLocation);
@@ -62,12 +61,12 @@ public class GeoModelExternalLoader implements ISelectiveResourceReloadListener 
                 GeoModel geoModel = geoModelLoader.loadModel(resourceManager, modelLocation);
                 if (geoModel != null) {
                     geoModels.put(modelLocation, geoModel);
-                    ModularMachinery.log.debug("[MM-GeoModelExternalLoader] Loaded model file: " + modelLocation);
+                    ModularMachinery.log.debug("[MM-GeoModelExternalLoader] Loaded model file: {}", modelLocation);
                 }
             } catch (Exception e) {
-                ModularMachinery.log.warn("[MM-GeoModelExternalLoader] Failed to load model file: " + modelLocation, e);
+                ModularMachinery.log.warn("[MM-GeoModelExternalLoader] Failed to load model file: {}", modelLocation, e);
             }
-        }
+        });
 
         Map<ResourceLocation, GeoModel> oldGeoModels = this.geoModels;
         Map<ResourceLocation, AnimationFile> oldAnimations = this.animations;

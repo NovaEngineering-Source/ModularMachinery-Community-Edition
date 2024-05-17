@@ -4,6 +4,7 @@ import github.kasuminova.mmce.common.helper.AdvancedItemChecker;
 import github.kasuminova.mmce.common.helper.AdvancedItemModifier;
 import github.kasuminova.mmce.common.itemtype.ChancedIngredientStack;
 import hellfirepvp.modularmachinery.ModularMachinery;
+import hellfirepvp.modularmachinery.common.crafting.ComponentType;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
 import hellfirepvp.modularmachinery.common.crafting.helper.CraftCheck;
 import hellfirepvp.modularmachinery.common.crafting.helper.ProcessingComponent;
@@ -16,7 +17,6 @@ import hellfirepvp.modularmachinery.common.lib.RequirementTypesMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
 import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
-import hellfirepvp.modularmachinery.common.util.IItemHandlerImpl;
 import hellfirepvp.modularmachinery.common.util.ItemUtils;
 import hellfirepvp.modularmachinery.common.util.ResultChance;
 import net.minecraft.item.ItemStack;
@@ -58,9 +58,9 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
     @Override
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.component();
-        return cmp.getComponentType().equals(ComponentTypesMM.COMPONENT_ITEM) &&
-                cmp instanceof MachineComponent.ItemBus &&
-                cmp.ioType == actionType;
+        ComponentType cmpType = cmp.getComponentType();
+        return (cmpType.equals(ComponentTypesMM.COMPONENT_ITEM) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID))
+               && cmp.ioType == actionType;
     }
 
     @Override
@@ -204,9 +204,9 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
     }
 
     private int doItemIOInternal(List<ProcessingComponent<?>> components, RecipeCraftingContext context, int maxMultiplier, ResultChance chance) {
-        List<IItemHandlerImpl> handlers = new ArrayList<>();
+        List<IItemHandlerModifiable> handlers = new ArrayList<>();
         for (ProcessingComponent<?> component : components) {
-            IItemHandlerImpl providedComponent = (IItemHandlerImpl) component.getProvidedComponent();
+            IItemHandlerModifiable providedComponent = (IItemHandlerModifiable) component.getProvidedComponent();
             handlers.add(providedComponent);
         }
 
@@ -222,11 +222,10 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
         };
     }
 
-    public int consumeAllItems(final List<IItemHandlerImpl> handlers,
+    public int consumeAllItems(final List<IItemHandlerModifiable> handlers,
                                final RecipeCraftingContext context,
                                final int maxMultiplier,
-                               final ResultChance chance)
-    {
+                               final ResultChance chance) {
         int ingredientConsumed = 0;
 
         for (final ChancedIngredientStack ingredient : ingredients) {
@@ -241,7 +240,7 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
                     checker = ingredient.itemChecker;
                     ItemStack stack = ItemUtils.copyStackWithSize(ingredient.itemStack, toConsume);
 
-                    for (final IItemHandlerImpl handler : handlers) {
+                    for (final IItemHandlerModifiable handler : handlers) {
                         stack.setCount(maxConsume - consumed);
                         if (checker != null) {
                             consumed += ItemUtils.consumeAll(
@@ -258,7 +257,7 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
                 case ORE_DICT -> {
                     checker = ingredient.itemChecker;
 
-                    for (final IItemHandlerImpl handler : handlers) {
+                    for (final IItemHandlerModifiable handler : handlers) {
                         if (checker != null) {
                             consumed += ItemUtils.consumeAll(
                                     handler, ingredient.oreDictName, maxConsume - consumed, checker, context.getMachineController());
@@ -279,11 +278,10 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
         return ingredientConsumed;
     }
 
-    public int insertAllItems(final List<IItemHandlerImpl> handlers,
+    public int insertAllItems(final List<IItemHandlerModifiable> handlers,
                               final RecipeCraftingContext context,
                               final int maxMultiplier,
-                              final ResultChance chance)
-    {
+                              final ResultChance chance) {
         ChancedIngredientStack selected = chance == ResultChance.GUARANTEED ? selectMaxCountStack() : selectRandomStack();
         if (selected == null) {
             return 0;

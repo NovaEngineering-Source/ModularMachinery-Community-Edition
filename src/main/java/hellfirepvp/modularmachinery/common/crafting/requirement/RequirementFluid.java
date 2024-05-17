@@ -9,6 +9,7 @@
 package hellfirepvp.modularmachinery.common.crafting.requirement;
 
 import hellfirepvp.modularmachinery.common.base.Mods;
+import hellfirepvp.modularmachinery.common.crafting.ComponentType;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
 import hellfirepvp.modularmachinery.common.crafting.helper.CraftCheck;
 import hellfirepvp.modularmachinery.common.crafting.helper.ProcessingComponent;
@@ -141,9 +142,9 @@ public class RequirementFluid extends ComponentRequirement.MultiCompParallelizab
                     cmp.ioType == this.actionType &&
                     cmp.getContainerProvider() instanceof HybridGasTank;
         } else {
-            return  cmp instanceof MachineComponent.FluidHatch &&
-                    cmp.ioType == this.actionType &&
-                    cmp.getComponentType().equals(ComponentTypesMM.COMPONENT_FLUID);
+            ComponentType cmpType = cmp.getComponentType();
+            return (cmpType.equals(ComponentTypesMM.COMPONENT_FLUID) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID))
+                   && cmp.ioType == actionType;
         }
     }
 

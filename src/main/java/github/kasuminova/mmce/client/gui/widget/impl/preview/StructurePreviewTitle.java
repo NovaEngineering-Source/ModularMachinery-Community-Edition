@@ -1,4 +1,4 @@
-package github.kasuminova.mmce.client.gui.widget.preview;
+package github.kasuminova.mmce.client.gui.widget.impl.preview;
 
 import github.kasuminova.mmce.client.gui.widget.MultiLineLabel;
 import github.kasuminova.mmce.client.gui.widget.container.Row;

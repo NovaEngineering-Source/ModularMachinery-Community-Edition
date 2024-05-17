@@ -286,9 +286,7 @@ public class IItemHandlerImpl implements IItemHandlerModifiable {
             for (int i = invLength; i < max; i++) {
                 tmp[i] = new SlotStackHolder(i);
             }
-            for (int i = 0; i < invLength; i++) {
-                tmp[i] = inventory[i].copy();
-            }
+            System.arraycopy(inventory, 0, tmp, 0, invLength);
             this.inventory = tmp;
         }
     }

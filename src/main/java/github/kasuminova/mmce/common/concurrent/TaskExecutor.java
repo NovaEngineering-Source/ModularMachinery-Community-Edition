@@ -4,7 +4,6 @@ import github.kasuminova.mmce.common.util.concurrent.*;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.tiles.base.TileEntitySynchronized;
 import io.netty.util.internal.ThrowableUtil;
-import io.netty.util.internal.shaded.org.jctools.queues.atomic.MpscLinkedAtomicQueue;
 import it.unimi.dsi.fastutil.longs.*;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -34,16 +33,16 @@ public class TaskExecutor {
 
     public static long tickExisted = 0;
 
-    private final Queue<ActionExecutor> submitted = new MpscLinkedAtomicQueue<>();
+    private final Queue<ActionExecutor> submitted = Queues.createConcurrentQueue();
 
-    private final Queue<ActionExecutor> executors = new MpscLinkedAtomicQueue<>();
+    private final Queue<ActionExecutor> executors = Queues.createConcurrentQueue();
     private final Long2ObjectMap<ExecuteGroup> executeGroups = new Long2ObjectOpenHashMap<>();
 
-    private final Queue<ForkJoinTask<?>> forkJoinTasks = new MpscLinkedAtomicQueue<>();
+    private final Queue<ForkJoinTask<?>> forkJoinTasks = Queues.createConcurrentQueue();
 
-    private final Queue<Action> mainThreadActions = new MpscLinkedAtomicQueue<>();
-    private final Queue<TileEntitySynchronized> requireUpdateTEQueue = new MpscLinkedAtomicQueue<>();
-    private final Queue<TileEntitySynchronized> requireMarkNoUpdateTEQueue = new MpscLinkedAtomicQueue<>();
+    private final Queue<Action> mainThreadActions = Queues.createConcurrentQueue();
+    private final Queue<TileEntitySynchronized> requireUpdateTEQueue = Queues.createConcurrentQueue();
+    private final Queue<TileEntitySynchronized> requireMarkNoUpdateTEQueue = Queues.createConcurrentQueue();
 
     private final TaskSubmitter submitter = new TaskSubmitter();
 
