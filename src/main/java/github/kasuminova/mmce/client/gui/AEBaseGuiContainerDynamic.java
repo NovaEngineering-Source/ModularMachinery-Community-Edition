@@ -115,8 +115,9 @@ public abstract class AEBaseGuiContainerDynamic extends AEBaseGui {
                 .orElse(null);
     }
 
-    protected boolean isMouseOverSlot(Slot slotIn, int mouseX, int mouseY) {
-        return this.isPointInRegion(slotIn.xPos, slotIn.yPos, 16, 16, mouseX, mouseY);
+    @Override
+    public boolean isMouseOverSlot(Slot slotIn, int mouseX, int mouseY) {
+        return super.isMouseOverSlot(slotIn, mouseX, mouseY);
     }
 
 }

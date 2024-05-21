@@ -1,0 +1,137 @@
+apply from: 'gradle/scripts/helpers.gradle'
+
+repositories {
+    // Other repositories described by default:
+    // CleanroomMC: https://maven.cleanroommc.com
+    exclusiveContent {
+        forRepository {
+            maven {
+                name 'CurseMaven'
+                url 'https://cursemaven.com'
+            }
+        }
+        filter {
+            includeGroup 'curse.maven'
+        }
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name 'Modrinth'
+                url 'https://api.modrinth.com/maven'
+            }
+        }
+        filter {
+            includeGroup 'maven.modrinth'
+        }
+    }
+
+    maven {
+        url = uri("https://maven.aliyun.com/nexus/content/groups/public/")
+    }
+    maven {
+        url = uri("https://maven.aliyun.com/nexus/content/repositories/jcenter")
+    }
+     maven {
+        url = uri("https://maven.cleanroommc.com")
+    }
+    maven {
+        url = uri("https://cfa2.cursemaven.com")
+    }
+    maven {
+        url = uri("https://maven.blamejared.com/")
+    }
+    maven {
+        url = uri("https://repo.spongepowered.org/maven")
+    }
+     maven {
+        name = "OvermindDL1 Maven"
+        url = uri("https://gregtech.overminddl1.com/")
+        mavenContent {
+            excludeGroup("net.minecraftforge") // missing the `universal` artefact
+        }
+    }
+     maven {
+        name = "GeckoLib"
+        url = uri("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")
+    }
+    maven {
+        name = "GTNH Maven"
+        url = uri("https://nexus.gtnewhorizons.com/repository/public/")
+    }
+    
+    mavenLocal() // Must be last for caching to work
+}
+
+dependencies {
+    // Example - Dependency descriptor:
+    // 'com.google.code.gson:gson:2.8.6' << group: com.google.code.gson, name:gson, version:2.8.6
+    // 'group:name:version:classifier' where classifier is optional
+
+    // Example - Deobfuscating dependencies:
+    // rfg.deobf('curse.maven:had-enough-items-557549:4543375')
+    // By wrapping a dependency descriptor in rfg.deobf() method call, the dependency is queued for deobfuscation
+    // When deobfuscating, RFG respects the mapping_channel + mapping_version stated in gradle.properties
+
+    // Example - CurseMaven dependencies:
+    // 'curse.maven:had-enough-items-557549:4543375' << had-enough-items = project slug, 557549 = project id, 4543375 = file id
+    // Full documentation: https://cursemaven.com/
+
+    // Example - Modrinth dependencies:
+    // 'maven.modrinth:jei:4.16.1.1000' << jei = project name, 4.16.1.1000 = file version
+    // Full documentation: https://docs.modrinth.com/docs/tutorials/maven/
+
+    // Common dependency types (configuration):
+    // implementation = dependency available at both compile time and runtime
+    // runtimeOnly = runtime dependency
+    // compileOnly = compile time dependency
+    // annotationProcessor = annotation processing dependencies
+
+    // Transitive dependencies:
+    // (Dependencies that your dependency depends on)
+    // If you wish to exclude transitive dependencies in the described dependencies
+    // Use a closure as such:
+    // implementation ('com.google.code.gson:gson:2.8.6') {
+    //     transitive = false
+    // }
+
+    implementation("curse.maven:crafttweaker-239197:5013567")
+    implementation(rfg.deobf("curse.maven:had-enough-items-557549:4810661"))
+    implementation(rfg.deobf("curse.maven:zenutil-401178:5056679"))
+    implementation(rfg.deobf("curse.maven:RedstoneFlux-270789:2920436"))
+    implementation(rfg.deobf("curse.maven:CodeChickenLib-242818:2779848"))
+    implementation(rfg.deobf("curse.maven:brandonscore-231382:3051539"))
+    implementation(rfg.deobf("curse.maven:draconicevolution-223565:3051542"))
+    implementation(rfg.deobf("curse.maven:the-one-probe-245211:2667280"))
+    implementation(rfg.deobf("curse.maven:Mekanism-268560:2835175"))
+    compileOnly(rfg.deobf("curse.maven:industrialcraft-2-242638:3078604"))
+    compileOnly(rfg.deobf("curse.maven:nuclearcraft-overhauled-336895:3862197"))
+    compileOnly(rfg.deobf("curse.maven:flux-networks-248020:3178199"))
+    compileOnly(rfg.deobf("curse.maven:tinkers-construct-74072:2902483"))
+    compileOnly(rfg.deobf("curse.maven:mantle-74924:2713386"))
+    implementation(rfg.deobf("curse.maven:tx-loader-706505:4515357"))
+//  implementation(rfg.deobf("curse.maven:applied-energistics-2-223794:2747063"))
+    implementation(rfg.deobf("curse.maven:ae2-extended-life-570458:5147702"))
+    implementation(rfg.deobf("curse.maven:ae2-fluid-crafting-rework-623955:5278333"))
+//  compileOnly(rfg.deobf("curse.maven:gregtech-293327:3266351"))
+    compileOnly(rfg.deobf("curse.maven:gregtech-ce-unofficial-557242:4799055"))
+
+    // GeckoLib
+    implementation(rfg.deobf("software.bernie.geckolib:geckolib-forge-1.12.2:3.0.31"))
+
+    // Multiblocked
+    implementation(rfg.deobf("curse.maven:multiblocked-604054:4753960"))
+
+    // Modular Magic compact
+    compileOnly(rfg.deobf("curse.maven:astral-sorcery-241721:3044416"))
+    compileOnly(rfg.deobf("curse.maven:blood-magic-224791:2822288"))
+    compileOnly(rfg.deobf("curse.maven:thaumcraft-223628:2629023"))
+    compileOnly(rfg.deobf("curse.maven:extrautils2-225561:2678374"))
+    compileOnly(rfg.deobf("curse.maven:naturesaura-306626:2882138"))
+    compileOnly(rfg.deobf("curse.maven:botania-225643:3330934"))
+    compileOnly(rfg.deobf("curse.maven:baubles-227083:2518667"))
+    compileOnly(rfg.deobf("curse.maven:guideapi-228832:2645992"))
+    compileOnly(rfg.deobf("curse.maven:patchouli-306770:3162874"))
+    compileOnly(rfg.deobf("curse.maven:thaumic-augmentation-319441:4486505"))
+
+}
