@@ -1,5 +1,6 @@
 package hellfirepvp.modularmachinery.common.integration.crafttweaker;
 
+import com.cleanroommc.groovyscript.api.GroovyBlacklist;
 import com.google.gson.JsonParseException;
 import crafttweaker.CraftTweakerAPI;
 import crafttweaker.annotations.ZenRegister;
@@ -25,6 +26,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+@GroovyBlacklist
 @ZenRegister
 @ZenClass("mods.modularmachinery.BlockArrayBuilder")
 public class BlockArrayBuilder {

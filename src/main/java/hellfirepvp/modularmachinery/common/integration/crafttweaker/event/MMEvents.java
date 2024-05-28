@@ -32,7 +32,7 @@ public class MMEvents {
         WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
-                machine.addMachineEventHandler(MachineStructureFormedEvent.class, function);
+                machine.addMachineEventHandler(MachineStructureFormedEvent.class, function::handle);
             } else {
                 CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
             }
@@ -44,7 +44,7 @@ public class MMEvents {
         WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
-                machine.addMachineEventHandler(MachineStructureUpdateEvent.class, function);
+                machine.addMachineEventHandler(MachineStructureUpdateEvent.class, function::handle);
             } else {
                 CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
             }
@@ -100,7 +100,7 @@ public class MMEvents {
         WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
-                machine.addMachineEventHandler(ControllerGUIRenderEvent.class, function);
+                machine.addMachineEventHandler(ControllerGUIRenderEvent.class, function::handle);
             } else {
                 CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
             }
@@ -116,7 +116,7 @@ public class MMEvents {
         WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
-                machine.addMachineEventHandler(ControllerModelAnimationEvent.class, function);
+                machine.addMachineEventHandler(ControllerModelAnimationEvent.class, function::handle);
             } else {
                 CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
             }
@@ -132,7 +132,7 @@ public class MMEvents {
         WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
-                machine.addMachineEventHandler(ControllerModelGetEvent.class, function);
+                machine.addMachineEventHandler(ControllerModelGetEvent.class, function::handle);
             } else {
                 CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
             }
@@ -144,7 +144,7 @@ public class MMEvents {
         WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
-                machine.addMachineEventHandler(SmartInterfaceUpdateEvent.class, function);
+                machine.addMachineEventHandler(SmartInterfaceUpdateEvent.class, function::handle);
             } else {
                 CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
             }
