@@ -39,14 +39,9 @@ public class PktMEPatternProviderAction implements IMessage, IMessageHandler<Pkt
         ModularMachinery.EXECUTE_MANAGER.addSyncTask(() -> {
             MEPatternProvider provider = patternProvider.getOwner();
             switch (message.action) {
-                case ENABLE_BLOCKING_MODE -> {
-                    provider.setBlockingMode(true);
-                    provider.markChunkDirty();
-                }
-                case DISABLE_BLOCKING_MODE -> {
-                    provider.setBlockingMode(false);
-                    provider.markChunkDirty();
-                }
+                case ENABLE_BLOCKING_MODE -> provider.setWorkMode(MEPatternProvider.WorkModeSetting.BLOCKING_MODE);
+                case ENABLE_DEFAULT_MODE -> provider.setWorkMode(MEPatternProvider.WorkModeSetting.DEFAULT);
+                case ENABLE_CRAFTING_LOCK_MODE -> provider.setWorkMode(MEPatternProvider.WorkModeSetting.CRAFTING_LOCK_MODE);
                 case RETURN_ITEMS -> provider.returnItemsScheduled();
             }
         });
@@ -55,7 +50,8 @@ public class PktMEPatternProviderAction implements IMessage, IMessageHandler<Pkt
 
     public enum Action {
         ENABLE_BLOCKING_MODE,
-        DISABLE_BLOCKING_MODE,
+        ENABLE_DEFAULT_MODE,
+        ENABLE_CRAFTING_LOCK_MODE,
         RETURN_ITEMS,
     }
 

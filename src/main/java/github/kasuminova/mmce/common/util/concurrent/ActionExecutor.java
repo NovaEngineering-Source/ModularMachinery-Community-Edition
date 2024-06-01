@@ -23,7 +23,7 @@ public class ActionExecutor implements Runnable, Comparable<ActionExecutor> {
 
         try {
             action.doAction();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             ModularMachinery.log.warn("An error occurred during asynchronous task execution!");
             ModularMachinery.log.warn(ThrowableUtil.stackTraceToString(e));
         }

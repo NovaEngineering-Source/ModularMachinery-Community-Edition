@@ -134,9 +134,13 @@ public abstract class RecipeThread {
             } else {
                 RecipeCraftingContextPool.returnCtx(context);
             }
-        } else if (ctrl.getTicksExisted() % ctrl.currentRecipeSearchDelay() == 0) {
+        } else if (shouldSearchRecipe()) {
             createRecipeSearchTask();
         }
+    }
+
+    protected boolean shouldSearchRecipe() {
+        return ctrl.isSearchRecipeImmediately() || (ctrl.getTicksExisted() % ctrl.currentRecipeSearchDelay() == 0);
     }
 
     public void invalidate() {

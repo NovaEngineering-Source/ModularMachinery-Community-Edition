@@ -26,6 +26,9 @@ import com.glodblock.github.common.item.fake.FakeFluids;
 import com.glodblock.github.common.item.fake.FakeItemRegister;
 import github.kasuminova.mmce.client.gui.GuiMEPatternProvider;
 import github.kasuminova.mmce.common.container.ContainerMEPatternProvider;
+import github.kasuminova.mmce.common.event.machine.MachineEvent;
+import github.kasuminova.mmce.common.event.recipe.FactoryRecipeFinishEvent;
+import github.kasuminova.mmce.common.event.recipe.RecipeFinishEvent;
 import github.kasuminova.mmce.common.network.PktMEPatternProviderHandlerItems;
 import github.kasuminova.mmce.common.tile.base.MEMachineComponent;
 import github.kasuminova.mmce.common.util.AEFluidInventoryUpgradeable;
@@ -38,6 +41,7 @@ import hellfirepvp.modularmachinery.common.lib.ComponentTypesMM;
 import hellfirepvp.modularmachinery.common.lib.ItemsMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
+import hellfirepvp.modularmachinery.common.tiles.base.MachineComponentTileNotifiable;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -62,7 +66,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-public class MEPatternProvider extends MEMachineComponent implements ICraftingProvider, IAEAppEngInventory, IAEFluidInventory {
+public class MEPatternProvider extends MEMachineComponent implements ICraftingProvider, IAEAppEngInventory, IAEFluidInventory, MachineComponentTileNotifiable {
 
     public static final int PATTERNS = 36;
     public static final int SUB_ITEM_HANDLER_SLOTS = 2;
@@ -74,7 +78,8 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
     protected final AppEngInternalInventory patterns = new AppEngInternalInventory(this, PATTERNS, 1, PatternItemFilter.INSTANCE);
     protected final List<ICraftingPatternDetails> details = new ObjectArrayList<>(PATTERNS);
 
-    protected boolean blockingMode = false;
+    protected WorkModeSetting workMode = WorkModeSetting.DEFAULT;
+    protected volatile boolean machineCompleted = true;
     protected boolean shouldReturnItems = false;
     protected boolean handlerDirty = false;
 
@@ -157,6 +162,7 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
             handler.appendItem(stackInSlot);
         }
 
+        machineCompleted = workMode != WorkModeSetting.CRAFTING_LOCK_MODE;
         return true;
     }
 
@@ -174,7 +180,8 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
 
     @Override
     public boolean isBusy() {
-        return blockingMode && !handler.isEmpty();
+        return (workMode == WorkModeSetting.CRAFTING_LOCK_MODE && !machineCompleted) ||
+               (workMode == WorkModeSetting.BLOCKING_MODE && !handler.isEmpty());
     }
 
     protected void refreshPatterns() {
@@ -214,6 +221,7 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
             return;
         }
         shouldReturnItems = false;
+        machineCompleted = true;
 
         try {
             synchronized (handler) {
@@ -281,12 +289,12 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
         return patterns;
     }
 
-    public boolean isBlockingMode() {
-        return blockingMode;
+    public WorkModeSetting getWorkMode() {
+        return workMode;
     }
 
-    public void setBlockingMode(final boolean blockingMode) {
-        this.blockingMode = blockingMode;
+    public void setWorkMode(final WorkModeSetting workMode) {
+        this.workMode = workMode;
     }
 
     @Override
@@ -308,6 +316,12 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
     public void readCustomNBT(final NBTTagCompound compound) {
         super.readCustomNBT(compound);
         readProviderNBT(compound);
+        if (compound.hasKey("machineCompleted")) {
+            machineCompleted = compound.getBoolean("machineCompleted");
+        }
+        if (FMLCommonHandler.instance().getSide().isClient()) {
+            processClientGUIUpdate();
+        }
     }
 
     public void readProviderNBT(final NBTTagCompound compound) {
@@ -315,10 +329,9 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
         subFluidHandler.readFromNBT(compound, "subFluidHandler");
         handler.readFromNBT(compound, "handler");
         patterns.readFromNBT(compound, "patterns");
-        blockingMode = compound.getBoolean("blockingMode");
-
-        if (FMLCommonHandler.instance().getSide().isClient()) {
-            processClientGUIUpdate();
+        workMode = WorkModeSetting.values()[compound.getByte("workMode")];
+        if (compound.hasKey("blockingMode") && compound.getBoolean("blockingMode")) {
+            workMode = WorkModeSetting.BLOCKING_MODE;
         }
     }
 
@@ -326,6 +339,7 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
     public void writeCustomNBT(final NBTTagCompound compound) {
         super.writeCustomNBT(compound);
         writeProviderNBT(compound);
+        compound.setBoolean("machineCompleted", machineCompleted);
     }
 
     public NBTTagCompound writeProviderNBT(final NBTTagCompound compound) {
@@ -333,7 +347,9 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
         patterns.writeToNBT(compound, "patterns");
         subItemHandler.writeToNBT(compound, "subItemHandler");
         subFluidHandler.writeToNBT(compound, "subFluidHandler");
-        compound.setBoolean("blockingMode", blockingMode);
+        if (workMode != WorkModeSetting.DEFAULT) {
+            compound.setByte("workMode", (byte) workMode.ordinal());
+        }
         return compound;
     }
 
@@ -347,7 +363,7 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
         if (IntStream.range(0, patterns.getSlots()).mapToObj(patterns::getStackInSlot).anyMatch(stackInSlot -> !stackInSlot.isEmpty())) {
             return false;
         }
-        return !blockingMode && handler.isEmpty();
+        return workMode == WorkModeSetting.DEFAULT && handler.isEmpty();
     }
 
     public void sendHandlerItemsToClient() {
@@ -413,6 +429,23 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
     @Override
     public void onFluidInventoryChanged(final IAEFluidTank inv, final int slot) {
         markChunkDirty();
+    }
+
+    @Override
+    public void onMachineEvent(final MachineEvent event) {
+        if (event instanceof RecipeFinishEvent || event instanceof FactoryRecipeFinishEvent) {
+            if (!machineCompleted) {
+                machineCompleted = true;
+                ModularMachinery.EXECUTE_MANAGER.addSyncTask(() ->
+                        event.getController().setSearchRecipeImmediately(true));
+            }
+        }
+    }
+
+    public enum WorkModeSetting {
+        DEFAULT,
+        BLOCKING_MODE,
+        CRAFTING_LOCK_MODE,
     }
 
 }

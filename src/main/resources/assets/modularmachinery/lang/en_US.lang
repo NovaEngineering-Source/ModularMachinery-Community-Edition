@@ -67,6 +67,7 @@ gui.meiteminputbus.inv_action.decrease=Press the %s key combination to decrease 
 gui.meiteminputbus.items_marked=Items marked: %s
 gui.meitembus.item_cached=Items Cached: %s
 gui.meitembus.nbt_stored=Items have been stored internally.
+gui.mepatternprovider.nbt_stored=Provider Configured.
 
 gui.mefluidoutputbus.title=ME Machinery Fluid Output Bus
 gui.mefluidinputbus.title=ME Machinery Fluid Input Bus
@@ -75,12 +76,13 @@ gui.mepatternprovider.inventory=Inventory
 gui.mepatternprovider.cached=Cached
 gui.mepatternprovider.single_inv=Single Inv
 gui.mepatternprovider.single_inv.desc=The single inv is also mechanically recognized, but clicking to clear an item does not clear the single inv.
-gui.mepatternprovider.blocking_mode.enable=Enable Blocking Mode
-gui.mepatternprovider.blocking_mode.enabled.desc=Enabled: The supplier will not continue storing items when it contains items.
-gui.mepatternprovider.blocking_mode.disable=Disable Blocking Mode
-gui.mepatternprovider.blocking_mode.disabled.desc=Disabled: The supplier will always accept all item inputs.
-gui.mepatternprovider.return_items=Return items
-gui.mepatternprovider.return_items.desc=Returns all items and fluids in the supplier back to the ME Network.
+gui.mepatternprovider.current=§a[Currently Enabled]
+gui.mepatternprovider.default.desc=Default: The provider works normally.
+gui.mepatternprovider.crafting_lock_mode.desc=Crafting Lock Mode: Items will only continue to be stored when the machine completes the recipe.
+gui.mepatternprovider.blocking_mode.desc=Blocking Mode: Items will not continue to be stored when there are items in the provider.
+gui.mepatternprovider.work_mode.desc=Provider work mode (Click to switch between the 3 modes):
+gui.mepatternprovider.return_items=Return Items
+gui.mepatternprovider.return_items.desc=Return all items and fluids in the provider to the ME network. This will reset the state of the Crafting Lock Mode.
 
 gui.preview.button.menu.tip=Click to open the Preview Options menu.
 gui.preview.button.machine_info=Extra Info:

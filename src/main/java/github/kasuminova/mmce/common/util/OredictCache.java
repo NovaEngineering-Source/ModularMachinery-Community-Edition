@@ -1,7 +1,5 @@
 package github.kasuminova.mmce.common.util;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLLog;
@@ -9,9 +7,11 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.registries.IRegistryDelegate;
 
 import javax.annotation.Nonnull;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class OredictCache {
-    private static final Int2ObjectMap<Int2ObjectMap<int[]>> ORE_ID_CACHE_MAP = new Int2ObjectOpenHashMap<>();
+    private static final Map<Integer, Map<Integer, int[]>> ORE_ID_CACHE_MAP = new ConcurrentHashMap<>();
 
     public static int[] getOreIDsFast(@Nonnull ItemStack stack) {
         if (stack.isEmpty()) {
@@ -27,13 +27,10 @@ public class OredictCache {
         int id = Item.REGISTRY.getIDForObject(delegate.get());
         int damageOffset = id | ((stack.getItemDamage() + 1) << 16);
 
-        Int2ObjectMap<int[]> map = ORE_ID_CACHE_MAP.get(id);
+        Map<Integer, int[]> map = ORE_ID_CACHE_MAP.get(id);
         if (map == null) {
             synchronized (ORE_ID_CACHE_MAP) {
-                map = ORE_ID_CACHE_MAP.get(id);
-                if (map == null) {
-                    ORE_ID_CACHE_MAP.put(id, map = new Int2ObjectOpenHashMap<>());
-                }
+                map = ORE_ID_CACHE_MAP.computeIfAbsent(id, k -> new ConcurrentHashMap<>());
             }
         }
 

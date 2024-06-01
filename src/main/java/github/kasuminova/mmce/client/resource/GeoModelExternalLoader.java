@@ -32,10 +32,14 @@ public class GeoModelExternalLoader implements ISelectiveResourceReloadListener 
     private volatile Map<ResourceLocation, GeoModel> geoModels = new ConcurrentHashMap<>();
     private volatile Map<ResourceLocation, AnimationFile> animations = new ConcurrentHashMap<>();
 
+    private volatile IResourceManager modelSource = null;
+
     private GeoModelExternalLoader() {
     }
 
     public void loadAllModelAndAnimations(final IResourceManager resourceManager) {
+        modelSource = resourceManager;
+
         Map<ResourceLocation, GeoModel> geoModels = new ConcurrentHashMap<>();
         Map<ResourceLocation, AnimationFile> animations = new ConcurrentHashMap<>();
 
@@ -84,6 +88,19 @@ public class GeoModelExternalLoader implements ISelectiveResourceReloadListener 
     public synchronized GeoModel getModel(ResourceLocation location) {
         GeoModel geoModel = geoModels.get(location);
         return Preconditions.checkNotNull(geoModel, "Model file not found: " + location.toString());
+    }
+
+    public synchronized GeoModel load(ResourceLocation location) {
+        GeoModel model = geoModels.get(location);
+        if (model == null) {
+            throw new NullPointerException("Model file not found: " + location.toString());
+        }
+        try {
+            return geoModelLoader.loadModel(modelSource, location);
+        } catch (Throwable e) {
+            ModularMachinery.log.warn("[MM-GeoModelExternalLoader] Failed to load model file: {}", location, e);
+        }
+        return null;
     }
 
     public synchronized AnimationFile getAnimation(ResourceLocation location) {

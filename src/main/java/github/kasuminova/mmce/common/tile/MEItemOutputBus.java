@@ -61,7 +61,7 @@ public class MEItemOutputBus extends MEItemBus {
 
     @Nonnull
     @Override
-    public synchronized TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
+    public TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
         if (!proxy.isActive()) {
             return TickRateModulation.IDLE;
         }
@@ -70,29 +70,31 @@ public class MEItemOutputBus extends MEItemBus {
 
         try {
             IMEMonitor<IAEItemStack> inv = proxy.getStorage().getInventory(channel);
-            for (final int slot : getNeedUpdateSlots()) {
-                ItemStack stack = inventory.getStackInSlot(slot);
-                if (stack.isEmpty()) {
-                    continue;
-                }
+            synchronized (inventory) {
+                for (final int slot : getNeedUpdateSlots()) {
+                    ItemStack stack = inventory.getStackInSlot(slot);
+                    if (stack.isEmpty()) {
+                        continue;
+                    }
 
-                ItemStack extracted = inventory.extractItem(slot, stack.getCount(), false);
+                    ItemStack extracted = inventory.extractItem(slot, stack.getCount(), false);
 
-                IAEItemStack aeStack = channel.createStack(extracted);
-                if (aeStack == null) {
-                    continue;
-                }
+                    IAEItemStack aeStack = channel.createStack(extracted);
+                    if (aeStack == null) {
+                        continue;
+                    }
 
-                IAEItemStack left = Platform.poweredInsert(proxy.getEnergy(), inv, aeStack, source);
+                    IAEItemStack left = Platform.poweredInsert(proxy.getEnergy(), inv, aeStack, source);
 
-                if (left != null) {
-                    inventory.setStackInSlot(slot, left.createItemStack());
+                    if (left != null) {
+                        inventory.setStackInSlot(slot, left.createItemStack());
 
-                    if (aeStack.getStackSize() != left.getStackSize()) {
+                        if (aeStack.getStackSize() != left.getStackSize()) {
+                            successAtLeastOnce = true;
+                        }
+                    } else {
                         successAtLeastOnce = true;
                     }
-                } else {
-                    successAtLeastOnce = true;
                 }
             }
             changedSlots.clear();

@@ -256,6 +256,9 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
             } else if (stackInSlot.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(stackInSlot, stack)) {
                 int maxToAppend = Math.min(stack.getCount(), Integer.MAX_VALUE - stackInSlot.getCount());
                 stackInSlot.grow(maxToAppend);
+                if (onItemChanged != null) {
+                    onItemChanged.accept(i);
+                }
                 toAppend -= maxToAppend;
                 if (toAppend <= 0) {
                     return;

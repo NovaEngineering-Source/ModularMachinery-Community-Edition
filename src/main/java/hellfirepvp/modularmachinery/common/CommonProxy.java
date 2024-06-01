@@ -151,7 +151,7 @@ public class CommonProxy implements IGuiHandler {
             ModIntegrationTOP.registerProvider();
             ModularMachinery.log.info("[ModularMachinery-CE] TheOneProbe integration is enabled! Stop looking at the dark controller gui!");
         }
-        if (Mods.GREGTECH.isPresent()) {
+        if (Mods.GREGTECHCEU.isPresent()) {
             ModIntegrationGTCEU.initialize();
             ModularMachinery.log.info("[ModularMachinery-CE] GregTech CEu component proxy integration is enabled! Why not use multiblock tweaker?");
         }

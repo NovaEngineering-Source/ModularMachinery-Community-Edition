@@ -7,11 +7,11 @@ import software.bernie.geckolib3.geo.render.built.GeoCube;
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 
 public class MatrixStack {
-    private final LinkedList<Matrix4f> model = new LinkedList<>();
-    private final LinkedList<Matrix3f> normal = new LinkedList<>();
+    private final ArrayDeque<Matrix4f> model = new ArrayDeque<>();
+    private final ArrayDeque<Matrix3f> normal = new ArrayDeque<>();
 
     private final Matrix4f tempModelMatrix = new Matrix4f();
     private final Matrix3f tempNormalMatrix = new Matrix3f();

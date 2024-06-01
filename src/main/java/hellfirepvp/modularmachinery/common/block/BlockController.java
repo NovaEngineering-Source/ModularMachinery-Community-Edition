@@ -19,6 +19,7 @@ import hellfirepvp.modularmachinery.common.tiles.TileMachineController;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.IOInventory;
 import hellfirepvp.modularmachinery.common.util.MiscUtils;
+import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -171,7 +172,7 @@ public class BlockController extends BlockMachineComponent implements ItemDynami
     }
 
     @Override
-    public void onNeighborChange(@Nonnull final IBlockAccess world, @Nonnull final BlockPos pos, @Nonnull final BlockPos neighbor) {
+    public void neighborChanged(@Nonnull final IBlockState state, final World world, @Nonnull final BlockPos pos, @Nonnull final Block blockIn, @Nonnull final BlockPos fromPos) {
         if (world.getTileEntity(pos) instanceof TileMultiblockMachineController ctrl) {
             ctrl.onNeighborChange();
         }

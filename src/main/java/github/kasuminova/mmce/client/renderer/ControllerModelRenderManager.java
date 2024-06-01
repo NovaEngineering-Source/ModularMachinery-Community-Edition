@@ -1,0 +1,60 @@
+package github.kasuminova.mmce.client.renderer;
+
+import github.kasuminova.mmce.client.util.ReusableVBOUploader;
+import github.kasuminova.mmce.common.util.concurrent.Action;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+
+public class ControllerModelRenderManager {
+
+    public static final ControllerModelRenderManager INSTANCE = new ControllerModelRenderManager();
+
+    private static final ReusableVBOUploader VBO_UPLOADER = new ReusableVBOUploader();
+
+    private final Map<RenderType, Map<ResourceLocation, List<BufferBuilder>>> buffers = new EnumMap<>(RenderType.class);
+    private final Map<Object, Action> reinitializeCallback = new Reference2ObjectOpenHashMap<>();
+
+    public void addBuffer(RenderType type, ResourceLocation textureGroup, BufferBuilder buffer) {
+        buffers.computeIfAbsent(type, t -> new Object2ObjectOpenHashMap<>()).computeIfAbsent(textureGroup, t -> new ObjectArrayList<>()).add(buffer);
+    }
+
+    public void addReinitializeCallback(Object key, Action action) {
+        reinitializeCallback.put(key, action);
+    }
+
+    public void reinitialize() {
+        reinitializeCallback.values().forEach(Action::doAction);
+        reinitializeCallback.clear();
+    }
+
+    public void draw() {
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(-TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ);
+
+        buffers.forEach((type, textureGroups) -> {
+            type.preDraw();
+            textureGroups.forEach((textureLoc, buffers) -> {
+                Minecraft.getMinecraft().renderEngine.bindTexture(textureLoc);
+                VBO_UPLOADER.drawMultiple(buffers);
+            });
+            type.postDraw();
+        });
+        buffers.clear();
+
+        Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        GlStateManager.popMatrix();
+        reinitialize();
+    }
+
+}

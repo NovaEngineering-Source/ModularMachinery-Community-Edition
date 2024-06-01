@@ -86,16 +86,18 @@ public class BlockInfo {
         if (tileEntity == null) {
             return;
         }
-        world.setTileEntity(pos, tileEntity);
+        try {
+            world.setTileEntity(pos, tileEntity);
+        } catch (Throwable e) {
+            return;
+        }
         if (teTag == null) {
             return;
         }
         try {
             tileEntity.readFromNBT(teTag);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             ModularMachinery.log.warn("Failed to apply NBT to TileEntity!", e);
-            world.removeTileEntity(pos);
-            world.setTileEntity(pos, blockState.getBlock().createTileEntity(world, blockState));
         }
     }
 }

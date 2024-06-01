@@ -435,7 +435,7 @@ public abstract class WorldSceneRenderer {
         synchronized (layerBufferBuilders) {
             builder = layerBufferBuilders.get(layer);
             if (builder == null) {
-                layerBufferBuilders.put(layer, builder = BufferBuilderPool.borrowBuffer(256 * 1024));
+                layerBufferBuilders.put(layer, builder = BufferBuilderPool.borrowBuffer(16 * 1024));
             }
         }
         return builder;

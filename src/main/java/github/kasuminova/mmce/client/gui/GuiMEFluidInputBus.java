@@ -45,8 +45,10 @@ public class GuiMEFluidInputBus extends GuiUpgradeable {
                 this.guiSlots.add(guiTank);
             } else {
                 // Default AE2
-                ObfuscationReflectionHelper.setPrivateValue(GuiCustomSlot.class, guiTank, getGuiLeft(), "x");
-                ObfuscationReflectionHelper.setPrivateValue(GuiCustomSlot.class, guiTank, getGuiTop(), "y");
+                int x = ObfuscationReflectionHelper.getPrivateValue(GuiCustomSlot.class, guiTank, "x");
+                int y = ObfuscationReflectionHelper.getPrivateValue(GuiCustomSlot.class, guiTank, "y");
+                ObfuscationReflectionHelper.setPrivateValue(GuiCustomSlot.class, guiTank, getGuiLeft() + x, "x");
+                ObfuscationReflectionHelper.setPrivateValue(GuiCustomSlot.class, guiTank, getGuiTop() + y, "y");
                 List<Object> buttonList = (List) this.buttonList;
                 buttonList.add(guiTank);
             }

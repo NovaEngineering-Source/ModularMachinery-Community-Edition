@@ -143,6 +143,7 @@ public class TileFactoryController extends TileMultiblockMachineController {
             doRecipeTick();
             markNoUpdateSync();
         }
+        searchRecipeImmediately = false;
 
         final boolean workingStatus = isWorking();
         if (prevWorkingStatus != workingStatus) {
@@ -349,7 +350,7 @@ public class TileFactoryController extends TileMultiblockMachineController {
                 }
             }
             searchTask = null;
-        } else if (this.ticksExisted % currentRecipeSearchDelay() == 0) {
+        } else if (searchRecipeImmediately || (this.ticksExisted % currentRecipeSearchDelay() == 0)) {
             createRecipeSearchTask();
         }
     }

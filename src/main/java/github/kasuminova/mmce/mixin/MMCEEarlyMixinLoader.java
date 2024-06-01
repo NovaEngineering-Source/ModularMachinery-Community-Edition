@@ -4,7 +4,7 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import zone.rong.mixinbooter.IEarlyMixinLoader;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +13,9 @@ public class MMCEEarlyMixinLoader implements IEarlyMixinLoader, IFMLLoadingPlugi
 
     @Override
     public List<String> getMixinConfigs() {
-        return Collections.emptyList();
+        return Arrays.asList(
+                "mixins.mmce_minecraft.json"
+        );
     }
 
     @Override
