@@ -15,10 +15,12 @@ import hellfirepvp.modularmachinery.common.util.SmartInterfaceType;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Optional;
 
-public class GroovyMachineBuilder extends BlockArrayBuilder {
+public class GroovyMachineBuilder {
+
+    protected final DynamicMachine machine;
 
     public GroovyMachineBuilder(DynamicMachine machine) {
-        super(machine);
+        this.machine = machine;
         color(0xFFFFFF); // config is read after grs preInit
     }
 
@@ -190,9 +192,9 @@ public class GroovyMachineBuilder extends BlockArrayBuilder {
     }
 
     /**
-     * 设置此机械的工厂最大线程数。
+     * 设置此机械的工厂最大线程数。 / Sets the maximum number of threads for this machine.
      *
-     * @param maxThreads 最大线程数
+     * @param maxThreads 最大线程数 / Maximum number of threads
      */
     public GroovyMachineBuilder maxThreads(int maxThreads) {
         this.machine.setMaxThreads(maxThreads);
@@ -202,15 +204,6 @@ public class GroovyMachineBuilder extends BlockArrayBuilder {
     public GroovyMachineBuilder coreThread(FactoryRecipeThread thread) {
         this.machine.addCoreThread(thread);
         return this;
-    }
-
-    /**
-     * 注册此机械。
-     */
-    @GroovyBlacklist
-    public void build() {
-        super.build();
-        hellfirepvp.modularmachinery.common.integration.crafttweaker.MachineBuilder.WAIT_FOR_LOAD.add(this.machine);
     }
 
     public DynamicMachine getMachine() {

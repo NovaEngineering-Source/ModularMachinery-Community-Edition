@@ -1,12 +1,17 @@
 package github.kasuminova.mmce.common.integration.groovyscript;
 
+import com.cleanroommc.groovyscript.GroovyScript;
+import com.cleanroommc.groovyscript.api.GroovyBlacklist;
 import com.cleanroommc.groovyscript.api.GroovyLog;
 import com.cleanroommc.groovyscript.api.GroovyPlugin;
 import com.cleanroommc.groovyscript.api.INamed;
 import com.cleanroommc.groovyscript.compat.mods.GroovyContainer;
-import com.cleanroommc.groovyscript.compat.mods.ModPropertyContainer;
+import com.cleanroommc.groovyscript.compat.mods.GroovyPropertyContainer;
 import com.cleanroommc.groovyscript.event.EventBusType;
 import com.cleanroommc.groovyscript.event.GroovyEventManager;
+import com.cleanroommc.groovyscript.event.GroovyReloadEvent;
+import com.cleanroommc.groovyscript.event.ScriptRunEvent;
+import com.cleanroommc.groovyscript.sandbox.LoadStage;
 import github.kasuminova.mmce.client.model.DynamicMachineModelRegistry;
 import github.kasuminova.mmce.client.resource.GeoModelExternalLoader;
 import github.kasuminova.mmce.common.concurrent.RecipeCraftingContextPool;
@@ -31,20 +36,21 @@ import hellfirepvp.modularmachinery.common.util.BlockArrayCache;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class GroovyScriptPlugin implements GroovyPlugin {
 
-    private static GroovyContainer<?> container;
+    private static GroovyContainer<Container> container;
 
     public static GroovyContainer<?> getContainer() {
         return container;
@@ -61,13 +67,15 @@ public class GroovyScriptPlugin implements GroovyPlugin {
     }
 
     @Override
-    public @Nullable ModPropertyContainer createModPropertyContainer() {
+    public @Nullable GroovyPropertyContainer createGroovyPropertyContainer() {
         return new Container();
     }
 
     @Override
     public void onCompatLoaded(GroovyContainer<?> container) {
-        GroovyScriptPlugin.container = container;
+        //MinecraftForge.EVENT_BUS.register(container.get());
+        MinecraftForge.EVENT_BUS.register(GroovyScriptPlugin.class);
+        GroovyScriptPlugin.container = (GroovyContainer<Container>) container;
     }
 
     @Override
@@ -75,7 +83,12 @@ public class GroovyScriptPlugin implements GroovyPlugin {
         return Arrays.asList("modmach", "modular_machinery");
     }
 
-    private static void onReload() {
+    public static void initMachines() {
+        container.get().onScriptRun(null); // TODO GrS 1.1.1
+    }
+
+    @SubscribeEvent
+    public static void onReload(GroovyReloadEvent event) {
         MachineBuilder.WAIT_FOR_LOAD.clear();
 
         RegistryUpgrade.clearAll();
@@ -98,9 +111,12 @@ public class GroovyScriptPlugin implements GroovyPlugin {
         MachineRegistry.preloadMachines();
         // Reload All Machine
         MachineRegistry.reloadMachine(MachineRegistry.loadMachines(null));
+        initMachines();
     }
 
-    private static void afterScriptRun() {
+    @SubscribeEvent
+    public static void afterScriptRun(ScriptRunEvent.Post event) {
+        if (GroovyScript.getSandbox().getCurrentLoader() != LoadStage.POST_INIT) return;
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         boolean isServer = server != null && server.isDedicatedServer();
 
@@ -135,21 +151,50 @@ public class GroovyScriptPlugin implements GroovyPlugin {
         }
     }
 
-    private static class Container extends ModPropertyContainer {
+    private static class Container extends GroovyPropertyContainer {
 
-        private final GroovyMachineRecipes dummy = new DummyMachineRecipes();
         private final Map<ResourceLocation, GroovyMachineRecipes> machines = new Object2ObjectOpenHashMap<>();
-        private final Map<String, GroovyMachineRecipes> properties = new Object2ObjectOpenHashMap<>();
+
+        @GroovyBlacklist
+        //@SubscribeEvent TODO GrS 1.1.1
+        public void onScriptRun(ScriptRunEvent.Pre event) {
+            for (DynamicMachine machine : MachineRegistry.getRegistry()) {
+                if (machine.getRegistryName().getNamespace().equals(ModularMachinery.MODID)) {
+                    if (!getProperties().containsKey(machine.getRegistryName().getPath())) {
+                        addProperty(new GroovyMachineRecipes(machine.getRegistryName()));
+                    }
+                }
+            }
+        }
+
+        private GroovyMachineRecipes findMachine(String name) {
+            INamed named = getProperties().get(name);
+            if (named instanceof GroovyMachineRecipes machine) {
+                return machine;
+            }
+            GroovyLog.get().error("Could not find modular machine with name '{}'!", name);
+            return null;
+        }
 
         public GroovyMachineRecipes machine(ResourceLocation rl) {
+            if (rl.getNamespace().equals(ModularMachinery.MODID)) {
+                return findMachine(rl.getPath());
+            }
+
             GroovyMachineRecipes machine = this.machines.get(rl);
             if (machine == null) {
                 DynamicMachine dynamicMachine = MachineRegistry.getRegistry().getMachine(rl);
                 if (dynamicMachine != null) {
                     machine = new GroovyMachineRecipes(rl);
                     this.machines.put(rl, machine);
-                    this.properties.put(rl.getPath(), machine);
                 }
+            } else if (MachineRegistry.getRegistry().getMachine(rl) == null) {
+                this.machines.remove(rl);
+                machine = null;
+            }
+            if (machine == null) {
+                GroovyLog.get().error("Could not find modular machine with name '{}'!", rl);
+                return null;
             }
             return machine;
         }
@@ -164,39 +209,16 @@ public class GroovyScriptPlugin implements GroovyPlugin {
             if (i > 0) {
                 mod = name.substring(0, i);
                 name = name.substring(i + 1);
-            } else if (i == 0) {
-                mod = ModularMachinery.MODID;
-                name = name.substring(1);
-            } else {
-                mod = ModularMachinery.MODID;
+                return machine(new ResourceLocation(mod, name));
             }
-            return machine(new ResourceLocation(mod, name));
-        }
-
-        @Override
-        public @Nullable Object getProperty(String name) {
-            return machine(new ResourceLocation(ModularMachinery.MODID, name));
-        }
-
-        @Override
-        public Map<String, Object> getProperties() {
-            for (DynamicMachine machine : MachineRegistry.getLoadedMachines()) {
-                if (!this.machines.containsKey(machine.getRegistryName())) {
-                    GroovyMachineRecipes groovyMachine = new GroovyMachineRecipes(machine.getRegistryName());
-                    this.machines.put(machine.getRegistryName(), groovyMachine);
-                    this.properties.put(machine.getRegistryName().getPath(), groovyMachine);
-                }
+            if (i == 0) {
+                return findMachine(name.substring(1));
             }
-            return Collections.unmodifiableMap(this.properties);
+            return findMachine(name);
         }
 
-        public Object getAt(String name) {
+        public GroovyMachineRecipes getAt(String name) {
             return machine(name);
-        }
-
-        @Override
-        public Collection<INamed> getRegistries() {
-            return Collections.singleton(this.dummy);
         }
 
         /*public void registerMachine(String registryName) {
@@ -220,28 +242,6 @@ public class GroovyScriptPlugin implements GroovyPlugin {
                     GroovyLog.get().error("Could not find machine `" + machineRegistryName + "`!");
                 }
             });
-        }
-    }
-
-    private static class DummyMachineRecipes extends GroovyMachineRecipes {
-
-        public DummyMachineRecipes() {
-            super(new ResourceLocation(ModularMachinery.MODID, "machine_name"));
-        }
-
-        @Override
-        public void onReload() {
-            GroovyScriptPlugin.onReload();
-        }
-
-        @Override
-        public void afterScriptLoad() {
-            GroovyScriptPlugin.afterScriptRun();
-        }
-
-        @Override
-        public GroovyRecipe recipeBuilder(String name) {
-            throw new UnsupportedOperationException();
         }
     }
 }

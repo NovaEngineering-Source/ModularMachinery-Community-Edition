@@ -184,7 +184,7 @@ dependencies {
     compileOnlyApi("org.jetbrains:annotations:24.1.0")
     annotationProcessor("org.jetbrains:annotations:24.1.0")
 
-    api("com.cleanroommc:groovyscript:1.0.1") { isTransitive = false }
+    api("com.cleanroommc:groovyscript:1.1.0-hotfix1") { isTransitive = false }
     compileOnly("CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.+")
     implementation(rfg.deobf("curse.maven:had-enough-items-557549:4810661"))
     compileOnly(rfg.deobf("curse.maven:zenutil-401178:5056679"))

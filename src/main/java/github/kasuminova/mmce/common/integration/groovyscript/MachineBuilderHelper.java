@@ -12,17 +12,27 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class MachineBuilderHelper {
 
-    private final GroovyMachineBuilder builder;
+    private final BlockArrayBuilder pattern;
+    private final GroovyMachineBuilder settings;
 
-    public MachineBuilderHelper(GroovyMachineBuilder builder) {
-        this.builder = builder;
+    public MachineBuilderHelper(BlockArrayBuilder pattern, GroovyMachineBuilder settings) {
+        this.pattern = pattern;
+        this.settings = settings;
     }
 
-    public GroovyMachineBuilder getBuilder() {
-        return builder;
+    public BlockArrayBuilder getPattern() {
+        return pattern;
+    }
+
+    public GroovyMachineBuilder getSettings() {
+        return settings;
     }
 
     private IBlockState[] getBlockStates(Block block, int min, int max, @Nullable Block additional) {
@@ -34,6 +44,16 @@ public class MachineBuilderHelper {
         }
         if (additional != null) states[s - 1] = additional.getDefaultState();
         return states;
+    }
+
+    public List<IBlockState> allOf(IBlockState[]... blockStates) {
+        if (blockStates.length == 0) return Collections.emptyList();
+        if (blockStates.length == 1) return Arrays.asList(blockStates[0]);
+        List<IBlockState> newBlockStates = new ArrayList<>();
+        for (IBlockState[] states : blockStates) {
+            Collections.addAll(newBlockStates, states);
+        }
+        return newBlockStates;
     }
 
     public IBlockState[] itemInputs(int min, int max, boolean allowME) {

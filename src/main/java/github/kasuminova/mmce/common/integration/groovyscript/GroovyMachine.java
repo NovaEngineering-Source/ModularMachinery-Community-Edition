@@ -4,6 +4,7 @@ import com.cleanroommc.groovyscript.api.GroovyBlacklist;
 import com.cleanroommc.groovyscript.api.GroovyLog;
 import com.cleanroommc.groovyscript.sandbox.ClosureHelper;
 import groovy.lang.Closure;
+import hellfirepvp.modularmachinery.common.integration.crafttweaker.MachineBuilder;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.util.ResourceLocation;
@@ -49,9 +50,11 @@ public class GroovyMachine {
             PRE_LOAD_MACHINES.remove(this.dynamicMachine.getRegistryName());
             return;
         }
-        GroovyMachineBuilder builder = new GroovyMachineBuilder(this.dynamicMachine);
-        ClosureHelper.withEnvironment(this.buildFunction, new MachineBuilderHelper(builder), true);
+        BlockArrayBuilder pattern = new BlockArrayBuilder(this.dynamicMachine);
+        GroovyMachineBuilder settings = new GroovyMachineBuilder(this.dynamicMachine);
+        ClosureHelper.withEnvironment(this.buildFunction, new MachineBuilderHelper(pattern, settings), true);
         ClosureHelper.call(this.buildFunction);
-        builder.build();
+        pattern.build();
+        MachineBuilder.WAIT_FOR_LOAD.add(this.dynamicMachine);
     }
 }
