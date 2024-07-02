@@ -308,7 +308,7 @@ public class BlockArrayBuilder {
                 for (int z = 0; z < yRow.length(); z++) {
                     char zChar = yRow.charAt(z);
                     BlockArray.BlockInformation info = this.charMap.get(zChar);
-                    if (info == null) continue; // null -> any allowed -> don't need to check
+                    if (info == null || info == CONTROLLER) continue; // null -> any allowed -> don't need to check; CONTROLLER -> don't need to check
                     ComponentSelectorTag tag = this.selectorTagMap.get(zChar);
                     BlockPos pos = new BlockPos(x - controller.getX(), y - controller.getY(), z - controller.getZ());
                     blockArray.addBlock(pos, info);
