@@ -48,7 +48,7 @@ public class Button4State extends Button {
 
     @Override
     public boolean onMouseClick(final MousePos mousePos, final RenderPos renderPos, final int mouseButton) {
-        if (isVisible() && isAvailable()) {
+        if (isVisible() && isAvailable() && mouseButton == 0) {
             return mouseDown = true;
         }
         return super.onMouseClick(mousePos, renderPos, mouseButton);

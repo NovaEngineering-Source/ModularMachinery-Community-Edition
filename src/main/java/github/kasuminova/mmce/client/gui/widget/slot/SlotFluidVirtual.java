@@ -3,8 +3,6 @@ package github.kasuminova.mmce.client.gui.widget.slot;
 import appeng.api.AEApi;
 import appeng.api.storage.channels.IFluidStorageChannel;
 import appeng.fluids.client.render.FluidStackSizeRenderer;
-import appeng.util.IWideReadableNumberConverter;
-import appeng.util.ReadableNumberConverter;
 import github.kasuminova.mmce.client.gui.util.MousePos;
 import github.kasuminova.mmce.client.gui.util.RenderPos;
 import github.kasuminova.mmce.client.gui.util.RenderSize;
@@ -14,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import org.lwjgl.opengl.GL11;
@@ -24,9 +23,6 @@ import java.util.List;
 
 public class SlotFluidVirtual extends SlotVirtual {
     protected static final FluidStackSizeRenderer SIZE_RENDERER = new FluidStackSizeRenderer();
-
-    protected static final String[] NUMBER_FORMATS = {"#.000", "#.00", "#.0", "#"};
-    protected static final IWideReadableNumberConverter WIDE_CONVERTER = ReadableNumberConverter.INSTANCE;
 
     protected FluidStack fluidStack = null;
 
@@ -115,7 +111,8 @@ public class SlotFluidVirtual extends SlotVirtual {
 
         List<String> toolTips = new ArrayList<>();
         toolTips.add(fluidStack.getLocalizedName());
-        toolTips.add(fluidStack.amount + "mB" );
+        toolTips.add(fluidStack.amount + "mB");
+        toolTips.add(I18n.format("tooltip.fluidhatch.fluid"));
 
         return toolTips;
     }

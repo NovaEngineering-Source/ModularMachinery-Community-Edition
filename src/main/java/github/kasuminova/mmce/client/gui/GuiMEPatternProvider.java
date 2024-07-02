@@ -5,7 +5,7 @@ import appeng.fluids.client.gui.widgets.GuiFluidTank;
 import github.kasuminova.mmce.client.gui.slot.GuiFullCapFluidTank;
 import github.kasuminova.mmce.client.gui.widget.Button;
 import github.kasuminova.mmce.client.gui.widget.Button4State;
-import github.kasuminova.mmce.client.gui.widget.Button5State;
+import github.kasuminova.mmce.client.gui.widget.ButtonElements;
 import github.kasuminova.mmce.client.gui.widget.MultiLineLabel;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetController;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetGui;
@@ -38,7 +38,7 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
     protected final MEPatternProvider owner;
 
     protected final PatternProviderIngredientList stackList = new PatternProviderIngredientList();
-    protected final Button5State toggleBlockingMode = new Button5State();
+    protected final ButtonElements<MEPatternProvider.WorkModeSetting> workModeSetting = new ButtonElements<>();
 
     public GuiMEPatternProvider(final MEPatternProvider owner, final EntityPlayer player) {
         super(new ContainerMEPatternProvider(owner, player));
@@ -97,29 +97,42 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
                 .setOnClickedListener((btn) -> ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.RETURN_ITEMS)))
                 .setWidthHeight(16, 16);
 
-        // Init ToggleBlockingMode...
-        toggleBlockingMode
-                .setClickedTextureXY(176 + 18 + 18 + 18, 196)
-                .setMouseDownTextureXY(176 + 18 + 18, 196)
-                .setHoveredTextureXY(176 + 18, 196)
-                .setTextureXY(176, 196)
+        // Init WorkModeSetting...
+        workModeSetting
+                // ButtonTexture 1
+                .addElement(MEPatternProvider.WorkModeSetting.DEFAULT, 140, 196, GuiMEPatternProvider.GUI_TEXTURE)
+                // ButtonTexture 2
+                .addElement(MEPatternProvider.WorkModeSetting.BLOCKING_MODE, 140 + 18, 196, GuiMEPatternProvider.GUI_TEXTURE)
+                // ButtonTexture 3
+                .addElement(MEPatternProvider.WorkModeSetting.CRAFTING_LOCK_MODE, 140 + 18 + 18, 196, GuiMEPatternProvider.GUI_TEXTURE)
+                // ButtonTexture 5
+                .setMouseDownTextureXY(140 + 18 + 18 + 18 + 18 + 18, 196)
+                // ButtonTexture 5
+                .setHoveredTextureXY(140 + 18 + 18 + 18 + 18, 196)
+                // ButtonTexture 4
+                .setTextureXY(140 + 18 + 18 + 18, 196)
                 .setTextureLocation(GuiMEPatternProvider.GUI_TEXTURE)
                 .setTooltipFunction((btn) -> {
+                    MEPatternProvider.WorkModeSetting current = workModeSetting.getCurrentSelection();
                     List<String> tooltips = new ArrayList<>();
-                    if (toggleBlockingMode.isClicked()) {
-                        tooltips.add(I18n.format("gui.mepatternprovider.blocking_mode.disable"));
-                        tooltips.add(I18n.format("gui.mepatternprovider.blocking_mode.enabled.desc"));
-                    } else {
-                        tooltips.add(I18n.format("gui.mepatternprovider.blocking_mode.enable"));
-                        tooltips.add(I18n.format("gui.mepatternprovider.blocking_mode.disabled.desc"));
-                    }
+                    tooltips.add(I18n.format("gui.mepatternprovider.work_mode.desc"));
+                    tooltips.add((current == MEPatternProvider.WorkModeSetting.DEFAULT ? I18n.format("gui.mepatternprovider.current") : "") 
+                                 + I18n.format("gui.mepatternprovider.default.desc"));
+                    tooltips.add((current == MEPatternProvider.WorkModeSetting.BLOCKING_MODE ? I18n.format("gui.mepatternprovider.current") : "")
+                                 + I18n.format("gui.mepatternprovider.blocking_mode.desc"));
+                    tooltips.add((current == MEPatternProvider.WorkModeSetting.CRAFTING_LOCK_MODE ? I18n.format("gui.mepatternprovider.current") : "") 
+                                 + I18n.format("gui.mepatternprovider.crafting_lock_mode.desc"));
                     return tooltips;
                 })
                 .setOnClickedListener((btn) -> {
-                    if (toggleBlockingMode.isClicked()) {
-                        ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_BLOCKING_MODE));
-                    } else {
-                        ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.DISABLE_BLOCKING_MODE));
+                    MEPatternProvider.WorkModeSetting current = workModeSetting.getCurrentSelection();
+                    if (current == null) {
+                        return;
+                    }
+                    switch (current) {
+                        case DEFAULT -> ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_DEFAULT_MODE));
+                        case BLOCKING_MODE ->ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_BLOCKING_MODE));
+                        case CRAFTING_LOCK_MODE -> ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_CRAFTING_LOCK_MODE));
                     }
                 })
                 .setWidthHeight(16, 16);
@@ -140,7 +153,7 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
 
         // Init Widget Containers...
         Row stackListButtons = new Row();
-        stackListButtons.addWidgets(returnItems.setMarginRight(2), toggleBlockingMode).setAbsXY(215, 7);
+        stackListButtons.addWidgets(returnItems.setMarginRight(2), workModeSetting).setAbsXY(215, 7);
 
         this.widgetController.addWidget(stackList);
         this.widgetController.addWidget(stackListButtons);
@@ -199,12 +212,12 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
 
     public void updateGUIState() {
         InfItemFluidHandler infHandler = owner.getInfHandler();
-        stackList.setStackList(infHandler.getItemStackList(), infHandler.getFluidStackList());
-        toggleBlockingMode.setClicked(owner.isBlockingMode());
+        stackList.setStackList(infHandler.getItemStackList(), infHandler.getFluidStackList(), infHandler.getGasStackList());
+        workModeSetting.setCurrentSelection(owner.getWorkMode());
     }
 
-    public void setStackList(final List<ItemStack> itemStackList, final List<FluidStack> fluidStackList) {
-        stackList.setStackList(itemStackList, fluidStackList);
+    public void setStackList(final List<ItemStack> itemStackList, final List<FluidStack> fluidStackList, final List<?> gasStackList) {
+        stackList.setStackList(itemStackList, fluidStackList, gasStackList);
     }
 
 }

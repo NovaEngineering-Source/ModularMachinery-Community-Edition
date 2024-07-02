@@ -7,6 +7,7 @@ import crafttweaker.api.world.IFacing;
 import crafttweaker.api.world.IWorld;
 import github.kasuminova.mmce.client.model.DynamicMachineModelRegistry;
 import github.kasuminova.mmce.client.model.MachineControllerModel;
+import github.kasuminova.mmce.client.renderer.BloomGeoModelRenderer;
 import github.kasuminova.mmce.client.world.BlockModelHider;
 import github.kasuminova.mmce.common.event.Phase;
 import github.kasuminova.mmce.common.event.client.ControllerModelAnimationEvent;
@@ -27,6 +28,7 @@ import github.kasuminova.mmce.common.world.MMWorldEventListener;
 import github.kasuminova.mmce.common.world.MachineComponentManager;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.client.ClientProxy;
+import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.block.BlockController;
 import hellfirepvp.modularmachinery.common.block.BlockStatedMachineComponent;
 import hellfirepvp.modularmachinery.common.block.prop.WorkingState;
@@ -64,6 +66,8 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
@@ -107,6 +111,8 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
     protected final Map<TileEntity, ProcessingComponent<?>> foundComponents = new ConcurrentHashMap<>();
 
     protected final TimeRecorder timeRecorder = new TimeRecorder();
+
+    protected boolean searchRecipeImmediately = false;
 
     protected EnumFacing controllerRotation = null;
     protected DynamicMachine.ModifierReplacementMap foundReplacements = null;
@@ -233,6 +239,14 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
 
     public TimeRecorder getTimeRecorder() {
         return timeRecorder;
+    }
+
+    public boolean isSearchRecipeImmediately() {
+        return searchRecipeImmediately;
+    }
+
+    public void setSearchRecipeImmediately(final boolean searchRecipeImmediately) {
+        this.searchRecipeImmediately = searchRecipeImmediately;
     }
 
     public int getMaxParallelism() {
@@ -671,6 +685,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
 
     protected void updateComponents() {
         if (this.foundMachine == null || this.foundPattern == null || this.controllerRotation == null || this.foundReplacements == null) {
+            this.foundComponents.forEach((te, component) -> MachineComponentManager.INSTANCE.removeOwner(te, this));
             this.foundComponents.clear();
             this.foundModifiers.clear();
             this.foundSmartInterfaces.clear();
@@ -684,6 +699,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
 
         this.foundUpgrades.clear();
         this.foundUpgradeBuses.clear();
+        this.foundComponents.forEach((te, component) -> MachineComponentManager.INSTANCE.removeOwner(te, this));
         this.foundComponents.clear();
         this.foundSmartInterfaces.clear();
         this.foundParallelControllers.clear();
@@ -1069,6 +1085,23 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
     @Override
     public void validate() {
         super.validate();
+        if (!FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+            return;
+        }
+
+        ClientProxy.clientScheduler.addRunnable(() -> {
+            BlockModelHider.hideOrShowBlocks(this);
+            notifyStructureFormedState(isStructureFormed());
+        }, 0);
+        loaded = true;
+
+        if (world.isRemote) {
+            if (Mods.GREGTECHCEU.isPresent()) {
+                registerBloomRenderer();
+            } else if (Mods.LUMENIZED.isPresent()) {
+                registerBloomRendererLumenized();
+            }
+        }
     }
 
     @Override
@@ -1084,12 +1117,18 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
 
     @Override
     public void onLoad() {
-        if (FMLCommonHandler.instance().getSide().isClient()) {
-            ClientProxy.clientScheduler.addRunnable(() -> {
-                BlockModelHider.hideOrShowBlocks(this);
-                notifyStructureFormedState(isStructureFormed());
-            }, 0);
-            loaded = true;
+        super.onLoad();
+    }
+
+    @Override
+    public void onChunkUnload() {
+        super.onChunkUnload();
+        if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
+            if (Mods.GREGTECHCEU.isPresent()) {
+                unregisterBloomRenderer();
+            } else if (Mods.LUMENIZED.isPresent()) {
+                unregisterBloomRendererLumenized();
+            }
         }
     }
 
@@ -1110,7 +1149,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
 
         readMachineNBT(compound);
 
-        if (loaded && FMLCommonHandler.instance().getSide().isClient()) {
+        if (loaded && FMLCommonHandler.instance().getEffectiveSide().isClient()) {
             ClientProxy.clientScheduler.addRunnable(() -> {
                 BlockModelHider.hideOrShowBlocks(this);
                 notifyStructureFormedState(isStructureFormed());
@@ -1268,11 +1307,12 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
     @Nonnull
     @Override
     public AxisAlignedBB getRenderBoundingBox() {
-        if (!isStructureFormed()) {
-            return super.getRenderBoundingBox();
-        }
-        BlockPos pos = getPos();
-        return new AxisAlignedBB(pos.add(foundPattern.getMin()), pos.add(foundPattern.getMax()));
+        return INFINITE_EXTENT_AABB;
+    }
+
+    @Override
+    public double getMaxRenderDistanceSquared() {
+        return 65536D;
     }
 
     @Override
@@ -1315,7 +1355,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
     @net.minecraftforge.fml.common.Optional.Method(modid = "geckolib3")
     public MachineControllerModel getCurrentModel() {
         String modelName = getCurrentModelName();
-        if (modelName == null || modelName.isEmpty()) {
+        if (modelName != null && !modelName.isEmpty()) { // (╯°□°）╯︵ ┻━┻
             MachineControllerModel model = DynamicMachineModelRegistry.INSTANCE.getMachineModel(modelName);
             if (model != null) {
                 return model;
@@ -1330,6 +1370,34 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         ControllerModelGetEvent event = new ControllerModelGetEvent(this);
         event.postEvent();
         return event.getModelName();
+    }
+
+    @SideOnly(Side.CLIENT)
+    @net.minecraftforge.fml.common.Optional.Method(modid = "gregtech")
+    public void registerBloomRenderer() {
+        if (Mods.GREGTECHCEU.isPresent()) {
+            BloomGeoModelRenderer.INSTANCE.registerGlobal(this);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @net.minecraftforge.fml.common.Optional.Method(modid = "lumenized")
+    public void registerBloomRendererLumenized() {
+        BloomGeoModelRenderer.INSTANCE.registerGlobal(this);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @net.minecraftforge.fml.common.Optional.Method(modid = "gregtech")
+    public void unregisterBloomRenderer() {
+        if (Mods.GREGTECHCEU.isPresent()) {
+            BloomGeoModelRenderer.INSTANCE.unregisterGlobal(this);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
+    @net.minecraftforge.fml.common.Optional.Method(modid = "lumenized")
+    public void unregisterBloomRendererLumenized() {
+        BloomGeoModelRenderer.INSTANCE.unregisterGlobal(this);
     }
 
     public enum StructureCheckMode {

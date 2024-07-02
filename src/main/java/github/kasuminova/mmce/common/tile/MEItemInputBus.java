@@ -127,7 +127,7 @@ public class MEItemInputBus extends MEItemBus {
 
     @Nonnull
     @Override
-    public synchronized TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
+    public TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
         if (!proxy.isActive()) {
             return TickRateModulation.IDLE;
         }
@@ -137,55 +137,57 @@ public class MEItemInputBus extends MEItemBus {
 
             IMEMonitor<IAEItemStack> inv = proxy.getStorage().getInventory(channel);
 
-            for (final int slot : getNeedUpdateSlots()) {
-                ItemStack cfgStack = configInventory.getStackInSlot(slot);
-                ItemStack invStack = inventory.getStackInSlot(slot);
+            synchronized (inventory) {
+                for (final int slot : getNeedUpdateSlots()) {
+                    ItemStack cfgStack = configInventory.getStackInSlot(slot);
+                    ItemStack invStack = inventory.getStackInSlot(slot);
 
-                if (cfgStack.isEmpty()) {
-                    if (invStack.isEmpty()) {
+                    if (cfgStack.isEmpty()) {
+                        if (invStack.isEmpty()) {
+                            continue;
+                        }
+                        inventory.setStackInSlot(slot, insertStackToAE(inv, invStack));
                         continue;
                     }
-                    inventory.setStackInSlot(slot, insertStackToAE(inv, invStack));
-                    continue;
-                }
 
-                if (!ItemUtils.matchStacks(cfgStack, invStack)) {
-                    if (invStack.isEmpty() || insertStackToAE(inv, invStack).isEmpty()) {
-                        ItemStack stack = extractStackFromAE(inv, cfgStack);
-                        inventory.setStackInSlot(slot, stack);
+                    if (!ItemUtils.matchStacks(cfgStack, invStack)) {
+                        if (invStack.isEmpty() || insertStackToAE(inv, invStack).isEmpty()) {
+                            ItemStack stack = extractStackFromAE(inv, cfgStack);
+                            inventory.setStackInSlot(slot, stack);
+                            if (!stack.isEmpty()) {
+                                successAtLeastOnce = true;
+                            }
+                        }
+                        continue;
+                    }
+
+                    if (cfgStack.getCount() == invStack.getCount()) {
+                        continue;
+                    }
+
+                    if (cfgStack.getCount() > invStack.getCount()) {
+                        int countToReceive = cfgStack.getCount() - invStack.getCount();
+                        ItemStack stack = extractStackFromAE(inv, ItemUtils.copyStackWithSize(invStack, countToReceive));
                         if (!stack.isEmpty()) {
+                            inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(
+                                    invStack, invStack.getCount() + stack.getCount())
+                            );
                             successAtLeastOnce = true;
                         }
-                    }
-                    continue;
-                }
-
-                if (cfgStack.getCount() == invStack.getCount()) {
-                    continue;
-                }
-
-                if (cfgStack.getCount() > invStack.getCount()) {
-                    int countToReceive = cfgStack.getCount() - invStack.getCount();
-                    ItemStack stack = extractStackFromAE(inv, ItemUtils.copyStackWithSize(invStack, countToReceive));
-                    if (!stack.isEmpty()) {
-                        inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(
-                                invStack, invStack.getCount() + stack.getCount())
-                        );
+                    } else {
+                        int countToExtract = invStack.getCount() - cfgStack.getCount();
+                        ItemStack stack = insertStackToAE(inv, ItemUtils.copyStackWithSize(invStack, countToExtract));
+                        if (stack.isEmpty()) {
+                            inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(
+                                    invStack, invStack.getCount() - countToExtract)
+                            );
+                        } else {
+                            inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(
+                                    invStack, invStack.getCount() - countToExtract + stack.getCount())
+                            );
+                        }
                         successAtLeastOnce = true;
                     }
-                } else {
-                    int countToExtract = invStack.getCount() - cfgStack.getCount();
-                    ItemStack stack = insertStackToAE(inv, ItemUtils.copyStackWithSize(invStack, countToExtract));
-                    if (stack.isEmpty()) {
-                        inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(
-                                invStack, invStack.getCount() - countToExtract)
-                        );
-                    } else {
-                        inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(
-                                invStack, invStack.getCount() - countToExtract + stack.getCount())
-                        );
-                    }
-                    successAtLeastOnce = true;
                 }
             }
 

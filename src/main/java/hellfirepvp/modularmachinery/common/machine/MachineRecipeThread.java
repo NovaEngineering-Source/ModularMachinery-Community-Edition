@@ -55,6 +55,15 @@ public class MachineRecipeThread extends RecipeThread {
         }
     }
 
+    @Override
+    protected boolean shouldSearchRecipe() {
+        if (super.shouldSearchRecipe()) {
+            ctrl.setSearchRecipeImmediately(false);
+            return true;
+        }
+        return false;
+    }
+
     protected void createRecipeSearchTask() {
         TileMachineController controller = this.controller;
         assert controller.getFoundMachine() != null;

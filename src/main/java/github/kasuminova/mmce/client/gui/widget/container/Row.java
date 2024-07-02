@@ -106,6 +106,30 @@ public class Row extends WidgetContainer {
     }
 
     @Override
+    public void onMouseClickGlobal(final MousePos mousePos, final RenderPos renderPos, final int mouseButton) {
+        int x = 0;
+
+        int height = getHeight();
+
+        for (final DynamicWidget widget : widgets) {
+            if (widget.isDisabled()) {
+                continue;
+            }
+            RenderPos widgetRenderPos = getWidgetRenderOffset(widget, height, x);
+            if (widgetRenderPos == null) {
+                continue;
+            }
+            int offsetX = widgetRenderPos.posX();
+            int offsetY = widgetRenderPos.posY();
+
+            MousePos relativeMousePos = mousePos.relativeTo(widgetRenderPos);
+            RenderPos absRenderPos = widgetRenderPos.add(renderPos);
+            widget.onMouseClickGlobal(mousePos.relativeTo(widgetRenderPos), absRenderPos, mouseButton);
+            x += widget.getMarginLeft() + widget.getWidth() + widget.getMarginRight();
+        }
+    }
+
+    @Override
     public boolean onMouseClickMove(final MousePos mousePos, final RenderPos renderPos, final int mouseButton) {
         int x = 0;
 

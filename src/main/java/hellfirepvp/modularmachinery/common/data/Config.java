@@ -39,7 +39,7 @@ public class Config {
     public static boolean enableFluxNetworksIntegration = true;
     public static boolean enableFactoryControllerByDefault = false;
     public static boolean controllerOutputComparatorSignal = true;
-    public static boolean enableStructurePreviewDisplayList = false;
+    public static boolean asyncControllerModelRender = true;
     public static boolean enableDurationMultiplier = true;
     public static int machineColor;
     public static int maxMachineParallelism = 2048;
@@ -89,8 +89,8 @@ public class Config {
                 "If enabled, and the RecipeModifier modifies the recipe duration, certain requirements (e.g., energy) will change over time.");
 
         // Client
-        enableStructurePreviewDisplayList = lastReadConfig.getBoolean("enable-structure-preview-display-list", "client", false,
-                "(Experimental) When enabled, Machinery Preview attempts to use optimized rendering to dramatically improve smoothness in the case of large machinery, note that this can cause potential issues such as rendering misalignment.");
+        asyncControllerModelRender = lastReadConfig.getBoolean("async-controller-model-render", "client", false,
+                "(Experimental) Customizing the model with a multi-threaded rendering controller helps improve rendering performance, but puts more strain on the CPU and memory, and performs poorly on low-configuration devices.");
 
         // Modular Controller Merge Support
         mocCompatibleMode = lastReadConfig.getBoolean(

@@ -14,6 +14,12 @@ import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * 一个轻量化的组件库核心类，用于存储一系列 {@link DynamicWidget} 并使用它自己的方式来渲染这些组件。
+ * <br/>
+ * <br/>
+ * A lightweight component library core class, used to store a series of {@link DynamicWidget} and render them using its own way.
+ */
 public abstract class WidgetContainer extends DynamicWidget {
     protected static final ThreadLocal<LinkedList<Rectangle>> SCISSOR_STACK = ThreadLocal.withInitial(LinkedList::new);
 
@@ -181,6 +187,9 @@ public abstract class WidgetContainer extends DynamicWidget {
     public abstract boolean onMouseClick(final MousePos mousePos, final RenderPos renderPos, final int mouseButton);
 
     @Override
+    public abstract void onMouseClickGlobal(final MousePos mousePos, final RenderPos renderPos, final int mouseButton);
+
+    @Override
     public abstract boolean onMouseReleased(final MousePos mousePos, final RenderPos renderPos);
 
     @Override
@@ -198,6 +207,7 @@ public abstract class WidgetContainer extends DynamicWidget {
 
     /**
      * GUI events will only be passed down, not up.
+     *
      * @return Returns true to terminate the passing of events to the widgets.
      */
     @Override

@@ -23,6 +23,27 @@ public enum Mods {
     CRAFTTWEAKER("crafttweaker"),
     JEI("jei"),
     GREGTECH("gregtech"),
+    GREGTECHCEU("gregtech") {
+        private boolean initialized = false;
+        private boolean detected = false;
+
+        @Override
+        public boolean isPresent() {
+            if (initialized) {
+                return detected;
+            }
+            initialized = true;
+            if (!super.isPresent()) {
+                return detected = false;
+            }
+            try {
+                Class.forName("gregtech.client.utils.BloomEffectUtil");
+                return detected = true;
+            } catch (Exception e) {
+                return detected = false;
+            }
+        }
+    },
     DRACONICEVOLUTION("draconicevolution"),
     REDSTONEFLUXAPI("redstoneflux"),
     MEKANISM("mekanism"),
@@ -81,7 +102,13 @@ public enum Mods {
             ModContainer ae2fc = Loader.instance().getIndexedModList().get("ae2fc");
             return ae2fc != null && ae2fc.getVersion().endsWith("-r");
         }
-    };
+    },
+    MEKENG("mekeng"),
+    /**
+     * A addon mod provides bloom effect, extracted from GregTechCEu.
+     */
+    LUMENIZED("lumenized"),
+    ;
 
     public final String modid;
     private final boolean loaded;

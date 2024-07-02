@@ -2,9 +2,6 @@ package github.kasuminova.mmce.common.tile.base;
 
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
-import appeng.api.networking.events.MENetworkChannelsChanged;
-import appeng.api.networking.events.MENetworkEventSubscribe;
-import appeng.api.networking.events.MENetworkPowerStatusChange;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.util.AECableType;
@@ -42,7 +39,7 @@ public abstract class MEMachineComponent extends TileColorableMachineComponent i
     @Override
     public void readCustomNBT(final NBTTagCompound compound) {
         super.readCustomNBT(compound);
-        if (FMLCommonHandler.instance().getSide().isServer()) {
+        if (FMLCommonHandler.instance().getEffectiveSide().isServer()) {
             try {
                 proxy.readFromNBT(compound);
             } catch (IllegalStateException e) {
@@ -59,16 +56,6 @@ public abstract class MEMachineComponent extends TileColorableMachineComponent i
     }
 
     // AppEng Compat
-
-    @MENetworkEventSubscribe
-    public void stateChange(final MENetworkChannelsChanged change) {
-        this.notifyNeighbors();
-    }
-
-    @MENetworkEventSubscribe
-    public void stateChange(final MENetworkPowerStatusChange change) {
-        this.notifyNeighbors();
-    }
 
     protected void notifyNeighbors() {
         if (this.proxy.isActive()) {
@@ -136,6 +123,9 @@ public abstract class MEMachineComponent extends TileColorableMachineComponent i
     @Override
     public void validate() {
         super.validate();
-        ModularMachinery.EXECUTE_MANAGER.addSyncTask(proxy::onReady);
+        if (!getWorld().isRemote) {
+            ModularMachinery.EXECUTE_MANAGER.addSyncTask(proxy::onReady);
+        }
     }
+
 }

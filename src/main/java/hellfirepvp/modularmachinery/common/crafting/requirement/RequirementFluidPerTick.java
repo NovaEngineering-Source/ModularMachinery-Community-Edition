@@ -42,7 +42,7 @@ public class RequirementFluidPerTick extends ComponentRequirement.PerTickParalle
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.component();
         ComponentType cmpType = cmp.getComponentType();
-        return (cmpType.equals(ComponentTypesMM.COMPONENT_FLUID) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID))
+        return (cmpType.equals(ComponentTypesMM.COMPONENT_FLUID) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS))
                && cmp.ioType == actionType;
     }
 

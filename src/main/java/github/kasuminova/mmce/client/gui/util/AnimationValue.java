@@ -9,19 +9,19 @@ public class AnimationValue {
 
     private long startTime;
     private boolean finished = false;
+    private float solveCache = 0;
 
     private double prevValue;
     private double targetValue;
 
     public static AnimationValue ofFinished(double value, int animationTime, double a, double b, double c, double d) {
-        AnimationValue of = of(value, value, animationTime, a, b, c, d);
-        of.finished = true;
-        return of;
+        return ofFinished(value, value, animationTime, a, b, c, d);
     }
 
     public static AnimationValue ofFinished(double value, double targetValue, int animationTime, double a, double b, double c, double d) {
         AnimationValue of = of(value, targetValue, animationTime, a, b, c, d);
         of.finished = true;
+        of.solveCache = (float) of.solve(1F);
         return of;
     }
 
@@ -61,6 +61,7 @@ public class AnimationValue {
         this.prevValue = targetValue;
         this.targetValue = targetValue;
         this.finished = true;
+        this.solveCache = (float) solve(1F);
         return this;
     }
 
@@ -101,15 +102,16 @@ public class AnimationValue {
 
     public float getAnimationPercent() {
         if (finished) {
-            return 1F;
+            return solveCache;
         }
         long currentTime = System.currentTimeMillis();
         long elapsedTime = currentTime - startTime;
-        float percent = Math.max(Math.min((float) elapsedTime / animationTime, 1F), 0);
+        float timePercent = Math.max(Math.min((float) elapsedTime / animationTime, 1F), 0);
 
-        double result = solve(percent);
-        if (result >= 1F) {
+        double result = solve(timePercent);
+        if (timePercent >= 1F) {
             finished = true;
+            this.solveCache = (float) result;
         }
         return (float) result;
     }

@@ -8,6 +8,7 @@
 
 package hellfirepvp.modularmachinery.common.crafting.requirement;
 
+import github.kasuminova.mmce.common.util.IExtendedGasHandler;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.crafting.ComponentType;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
@@ -25,7 +26,6 @@ import hellfirepvp.modularmachinery.common.machine.MachineComponent;
 import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
 import hellfirepvp.modularmachinery.common.util.Asyncable;
 import hellfirepvp.modularmachinery.common.util.HybridFluidUtils;
-import hellfirepvp.modularmachinery.common.util.HybridGasTank;
 import hellfirepvp.modularmachinery.common.util.ResultChance;
 import mekanism.api.gas.GasStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -137,13 +137,12 @@ public class RequirementFluid extends ComponentRequirement.MultiCompParallelizab
     @Override
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.component();
+        ComponentType cmpType = cmp.getComponentType();
         if (Mods.MEKANISM.isPresent() && required instanceof HybridFluidGas) {
-            return  cmp instanceof MachineComponent.FluidHatch &&
-                    cmp.ioType == this.actionType &&
-                    cmp.getContainerProvider() instanceof HybridGasTank;
+            return (cmpType.equals(ComponentTypesMM.COMPONENT_GAS) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS))
+                    && cmp.ioType == this.actionType;
         } else {
-            ComponentType cmpType = cmp.getComponentType();
-            return (cmpType.equals(ComponentTypesMM.COMPONENT_FLUID) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID))
+            return (cmpType.equals(ComponentTypesMM.COMPONENT_FLUID) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS))
                    && cmp.ioType == actionType;
         }
     }
@@ -217,7 +216,7 @@ public class RequirementFluid extends ComponentRequirement.MultiCompParallelizab
 
     @Optional.Method(modid = "mekanism")
     private int doGasIOInternal(final List<ProcessingComponent<?>> components, final RecipeCraftingContext context, final int maxMultiplier) {
-        List<HybridGasTank> fluidHandlers = HybridFluidUtils.castGasHandlerComponents(components);
+        List<IExtendedGasHandler> fluidHandlers = HybridFluidUtils.castGasHandlerComponents(components);
 
         long required = Math.round(RecipeModifier.applyModifiers(context, this, (double) this.required.getAmount(), false));
         long maxRequired = required * maxMultiplier;

@@ -2,11 +2,12 @@ package github.kasuminova.mmce.common.util;
 
 import github.kasuminova.mmce.common.util.concurrent.ActionExecutor;
 
-import java.util.LinkedList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class TimeRecorder {
-    private final LinkedList<Integer> usedTimeList = new LinkedList<>();
-    private final LinkedList<Integer> searchUsedTimeList = new LinkedList<>();
+    private final Deque<Integer> usedTimeList = new ArrayDeque<>(100 + 2);
+    private final Deque<Integer> searchUsedTimeList = new ArrayDeque<>(20 + 2);
     private int usedTimeCache = 0;
     private int searchUsedTimeCache = 0;
 
@@ -18,7 +19,8 @@ public class TimeRecorder {
         usedTimeCache += add;
         Integer first = usedTimeList.getFirst();
         if (first != null) {
-            usedTimeList.set(0, first + add);
+            usedTimeList.removeFirst();
+            usedTimeList.addFirst(first + add);
         } else {
             usedTimeList.addFirst(add);
         }
@@ -44,7 +46,8 @@ public class TimeRecorder {
         searchUsedTimeCache += add;
         Integer first = searchUsedTimeList.getFirst();
         if (first != null) {
-            searchUsedTimeList.set(0, first + add);
+            searchUsedTimeList.removeFirst();
+            searchUsedTimeList.addFirst(first + add);
         } else {
             searchUsedTimeList.addFirst(add);
         }

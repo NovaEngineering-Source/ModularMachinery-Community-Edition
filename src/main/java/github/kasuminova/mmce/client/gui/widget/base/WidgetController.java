@@ -14,6 +14,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 一个轻量化的组件库核心类，用来控制所有的组件，可以被附加到任意 GUI 上（只要你能调用它的所有方法）。
+ * <br/>
+ * <br/>
+ * A lightweight component library core class, used to control all the components,
+ * can be attached to any GUI (as long as you can call it's all methods).
+ */
 public class WidgetController {
 
     public static final ThreadLocal<RenderPos> TRANSLATE_STATE = ThreadLocal.withInitial(() -> new RenderPos(0, 0));
@@ -40,7 +47,7 @@ public class WidgetController {
 
     public void render(final MousePos mousePos, final boolean translatePos) {
         tooltipCache = getHoverTooltipsInternal(mousePos);
-        
+
         WidgetGui gui = this.gui;
 
         final int guiLeft = gui.getGuiLeft();
@@ -144,18 +151,22 @@ public class WidgetController {
         final int x = gui.getGuiLeft();
         final int y = gui.getGuiTop();
 
+        boolean mouseClickEventCancelled = false;
+
         for (final DynamicWidget container : widgets) {
             RenderPos renderPos = new RenderPos(x + container.getAbsX(), y + container.getAbsY());
             RenderPos relativeRenderPos = renderPos.subtract(new RenderPos(x, y));
             MousePos relativeMousePos = mousePos.relativeTo(renderPos);
 
-            if (container.isMouseOver(relativeMousePos)) {
+            container.onMouseClickGlobal(relativeMousePos, relativeRenderPos, mouseButton);
+            if (!mouseClickEventCancelled && container.isMouseOver(relativeMousePos)) {
                 if (container.onMouseClick(relativeMousePos, relativeRenderPos, mouseButton)) {
-                    return true;
+                    mouseClickEventCancelled = true;
                 }
             }
         }
-        return false;
+
+        return mouseClickEventCancelled;
     }
 
     public boolean onMouseClickMove(final MousePos mousePos, final int mouseButton) {

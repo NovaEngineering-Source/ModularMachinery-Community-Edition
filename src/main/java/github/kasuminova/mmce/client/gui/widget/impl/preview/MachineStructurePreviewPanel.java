@@ -14,7 +14,6 @@ import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.BlockArray;
 import hellfirepvp.modularmachinery.common.util.ItemUtils;
-import ink.ikx.mmce.common.utils.StackUtils;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
@@ -320,7 +319,10 @@ public class MachineStructurePreviewPanel extends Row {
         World world = renderer.getWorldRenderer().getWorld();
         IBlockState clickedBlock = world.getBlockState(relativePos);
         BlockArray.BlockInformation clicked = renderer.getPattern().getPattern().get(pos);
-        ItemStack clickedBlockStack = StackUtils.getStackFromBlockState(clickedBlock, relativePos, world);
+        ItemStack clickedBlockStack = clickedBlock.getBlock().getPickBlock(
+                clickedBlock, renderer.getWorldRenderer().getLastTraceResult(),
+                world, pos,
+                Minecraft.getMinecraft().player);
         List<ItemStack> replaceable = clicked.getIngredientList(pos, world).stream()
                 .filter(replaceableStack -> !ItemUtils.matchStacks(clickedBlockStack, replaceableStack))
                 .collect(Collectors.toList());

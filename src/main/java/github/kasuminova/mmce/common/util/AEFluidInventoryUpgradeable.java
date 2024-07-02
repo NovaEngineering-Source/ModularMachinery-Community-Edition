@@ -20,6 +20,7 @@ public class AEFluidInventoryUpgradeable implements IAEFluidTank {
     private final IAEFluidInventory handler;
     private int capacity;
     private IFluidTankProperties[] props = null;
+    private boolean oneFluidOneSlot = false;
 
     public AEFluidInventoryUpgradeable(final IAEFluidInventory handler, final int slots, final int capacity) {
         this.fluids = new IAEFluidStack[slots];
@@ -40,6 +41,14 @@ public class AEFluidInventoryUpgradeable implements IAEFluidTank {
         for (int slot = 0; slot < getSlots(); slot++) {
             this.onContentChanged(slot);
         }
+    }
+
+    public boolean isOneFluidOneSlot() {
+        return oneFluidOneSlot;
+    }
+
+    public void setOneFluidOneSlot(final boolean oneFluidOneSlot) {
+        this.oneFluidOneSlot = oneFluidOneSlot;
     }
 
     @Override
@@ -162,6 +171,20 @@ public class AEFluidInventoryUpgradeable implements IAEFluidTank {
         }
 
         final FluidStack insert = fluid.copy();
+
+        if (oneFluidOneSlot) {
+            int found = -1;
+            for (int i = 0; i < fluids.length; i++) {
+                final IAEFluidStack fluidInSlot = this.fluids[i];
+                if (fluidInSlot != null && fluidInSlot.getFluid() == insert.getFluid()) {
+                    found = i;
+                    break;
+                }
+            }
+            if (found != -1) {
+                return this.fill(found, insert, doFill);
+            }
+        }
 
         int totalFillAmount = 0;
         for (int slot = 0; slot < this.getSlots(); ++slot) {

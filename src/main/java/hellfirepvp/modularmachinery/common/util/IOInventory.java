@@ -8,6 +8,7 @@
 
 package hellfirepvp.modularmachinery.common.util;
 
+import github.kasuminova.mmce.client.util.ItemStackUtils;
 import hellfirepvp.modularmachinery.common.tiles.base.SelectiveUpdateTileEntity;
 import hellfirepvp.modularmachinery.common.tiles.base.TileEntitySynchronized;
 import net.minecraft.item.ItemStack;
@@ -121,10 +122,7 @@ public class IOInventory extends IItemHandlerImpl {
             if (stack.isEmpty()) {
                 holderTag.setBoolean("holderEmpty", true);
             } else {
-                stack.writeToNBT(holderTag);
-                if (stack.getCount() >= 127) {
-                    holderTag.setInteger("Count", stack.getCount());
-                }
+                ItemStackUtils.writeNBTOversize(stack, holderTag);
             }
 
             inv.appendTag(holderTag);
@@ -156,8 +154,7 @@ public class IOInventory extends IItemHandlerImpl {
 
             ItemStack stack = ItemStack.EMPTY;
             if (!holderTag.hasKey("holderEmpty")) {
-                stack = new ItemStack(holderTag);
-                stack.setCount(holderTag.getInteger("Count"));
+                stack = ItemStackUtils.readNBTOversize(holderTag);
             }
 
             SlotStackHolder holder = new SlotStackHolder(slot);

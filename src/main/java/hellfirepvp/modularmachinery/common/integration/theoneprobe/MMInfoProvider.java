@@ -107,7 +107,13 @@ public class MMInfoProvider implements IProbeInfoProvider {
         perfBox.text(String.format("%sCPU Avg Usage: %sμs%s, Recipe Search: %sms",
                 TextFormatting.AQUA, formatCPUUsage(machine.getTimeRecorder().usedTimeAvg()),
                 TextFormatting.AQUA, formatRecipeSearchUsage(machine.getTimeRecorder().recipeSearchUsedTimeAvg())));
-        perfBox.text(String.format("%sWorkMode: %s", TextFormatting.AQUA, machine.getWorkMode().getDisplayName()));
+        TileMultiblockMachineController.WorkMode workMode = machine.getWorkMode();
+        long groupId = machine.getExecuteGroupId();
+        if (workMode == TileMultiblockMachineController.WorkMode.ASYNC && groupId != -1) {
+            perfBox.text(String.format("%sWorkMode: %s (GroupID: %s)", TextFormatting.AQUA, workMode.getDisplayName(), groupId));
+        } else {
+            perfBox.text(String.format("%sWorkMode: %s", TextFormatting.AQUA, workMode.getDisplayName()));
+        }
     }
 
     // TODO: Really long...
@@ -333,7 +339,11 @@ public class MMInfoProvider implements IProbeInfoProvider {
     }
 
     private static RequirementEnergy getRequirementEnergy(RecipeThread thread, IOType ioType) {
-        List<ComponentRequirement<?, ?>> energyRequirements = thread.getContext().getRequirementBy(RequirementTypesMM.REQUIREMENT_ENERGY, ioType);
+        RecipeCraftingContext context = thread.getContext();
+        if (context == null) {
+            return null;
+        }
+        List<ComponentRequirement<?, ?>> energyRequirements = context.getRequirementBy(RequirementTypesMM.REQUIREMENT_ENERGY, ioType);
         if (energyRequirements.isEmpty()) {
             return null;
         }

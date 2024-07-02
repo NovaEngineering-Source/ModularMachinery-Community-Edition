@@ -15,13 +15,41 @@ public class MachineControllerModel extends AnimatedGeoModel<TileMultiblockMachi
     protected final ResourceLocation textureLocation;
     protected final ResourceLocation animationFileLocation;
 
-    protected GeoModel currentModel;
+    protected ModelPool pool = null;
+
+    protected GeoModel currentModel = null;
 
     public MachineControllerModel(final String modelName, final ResourceLocation modelLocation, final ResourceLocation textureLocation, final ResourceLocation animationFileLocation) {
         this.modelName = modelName;
         this.modelLocation = modelLocation;
         this.textureLocation = textureLocation;
         this.animationFileLocation = animationFileLocation;
+    }
+
+    /**
+     * 获取渲染实例，使用完成后必须调用 {@link #returnRenderInst()} 以归还实例。
+     * <br/>
+     * Gets the render instance and must call {@link #returnRenderInst()} to return the instance when use is complete.
+     */
+    public MachineControllerModel getRenderInstance() {
+        if (pool.getOriginal() != this) {
+            throw new IllegalStateException("Cannot return render instance of a model that is not the render instance!");
+        }
+        return pool.borrowRenderInst();
+    }
+
+    public void returnRenderInst() {
+        pool.returnRenderInst(this);
+    }
+
+    public void initializePool() {
+        pool = new ModelPool(this);
+    }
+
+    public MachineControllerModel createRenderInstance() {
+        MachineControllerModel model = new MachineControllerModel(modelName, modelLocation, textureLocation, animationFileLocation);
+        model.pool = pool;
+        return model;
     }
 
     public GeoModel getModel() {
@@ -35,7 +63,7 @@ public class MachineControllerModel extends AnimatedGeoModel<TileMultiblockMachi
 
     @Override
     public GeoModel getModel(final ResourceLocation location) {
-        GeoModel model = GeoModelExternalLoader.INSTANCE.getModel(modelLocation);
+        GeoModel model = pool.getModel(this);
 
         if (model != currentModel) {
             this.getAnimationProcessor().clearModelRendererList();

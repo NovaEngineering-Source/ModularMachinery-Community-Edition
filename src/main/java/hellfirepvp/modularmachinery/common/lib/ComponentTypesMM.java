@@ -32,7 +32,7 @@ public class ComponentTypesMM {
 
     public static ComponentType COMPONENT_ITEM;
     public static ComponentType COMPONENT_FLUID;
-    public static ComponentType COMPONENT_ITEM_FLUID;
+    public static ComponentType COMPONENT_ITEM_FLUID_GAS;
     public static ComponentType COMPONENT_ENERGY;
     public static ComponentType COMPONENT_GAS;
     public static ComponentType COMPONENT_SMART_INTERFACE;

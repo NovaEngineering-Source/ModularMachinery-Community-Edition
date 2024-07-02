@@ -1,12 +1,14 @@
 package hellfirepvp.modularmachinery.common.util;
 
 import com.google.common.collect.Lists;
+import github.kasuminova.mmce.common.util.IExtendedGasHandler;
 import github.kasuminova.mmce.common.util.MultiFluidTank;
+import github.kasuminova.mmce.common.util.MultiGasTank;
 import hellfirepvp.modularmachinery.common.crafting.helper.ProcessingComponent;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
 import mekanism.api.gas.GasStack;
-import net.minecraft.util.EnumFacing;
+import mekanism.api.gas.IGasHandler;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fml.common.Optional;
@@ -18,6 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class HybridFluidUtils {
+
     public static long doSimulateDrainOrFill(final FluidStack drainOrFill, final List<IFluidHandler> fluidHandlers, final long maxDrainOrFill, final IOType actionType) {
         long totalIO = 0;
 
@@ -67,29 +70,25 @@ public class HybridFluidUtils {
     }
 
     @Optional.Method(modid = "mekanism")
-    public static long doSimulateDrainOrFill(final GasStack drainOrFill, final List<HybridGasTank> gasHandlers, final long maxDrainOrFill, final IOType actionType) {
+    public static long doSimulateDrainOrFill(final GasStack drainOrFill, final List<IExtendedGasHandler> gasHandlers, final long maxDrainOrFill, final IOType actionType) {
         long totalIO = 0;
 
         GasStack stack = drainOrFill.copy();
-        for (final HybridGasTank handler : gasHandlers) {
+        for (final IExtendedGasHandler handler : gasHandlers) {
             stack.amount = maxDrainOrFill - totalIO >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) (maxDrainOrFill - totalIO);
 
-            GasStack gas = handler.getGas();
             switch (actionType) {
                 case INPUT -> {
-                    if (!stack.isGasEqual(gas)) {
-                        continue;
-                    }
-                    GasStack drained = handler.drawGas(EnumFacing.UP, stack.amount, false);
-                    if (drained != null) {
-                        totalIO += drained.amount;
+                    GasStack drawn = handler.drawGas(stack, false);
+                    if (drawn != null) {
+                        totalIO += drawn.amount;
                     }
                 }
                 case OUTPUT -> {
-                    if (gas != null && !stack.isGasEqual(gas)) {
+                    if (!handler.canReceiveGas(null, stack.getGas())) {
                         continue;
                     }
-                    totalIO += handler.receiveGas(EnumFacing.UP, stack, false);
+                    totalIO += handler.receiveGas(null, stack, false);
                 }
             }
 
@@ -102,31 +101,26 @@ public class HybridFluidUtils {
     }
 
     @Optional.Method(modid = "mekanism")
-    public static void doDrainOrFill(final GasStack drainOrFill, final long maxDrainOrFill, final List<HybridGasTank> gasHandlers, final IOType actionType) {
+    public static void doDrainOrFill(final GasStack drainOrFill, final long maxDrainOrFill, final List<IExtendedGasHandler> gasHandlers, final IOType actionType) {
         long totalIO = maxDrainOrFill;
 
         GasStack stack = drainOrFill.copy();
 
-        for (final HybridGasTank handler : gasHandlers) {
+        for (final IExtendedGasHandler handler : gasHandlers) {
             stack.amount = totalIO >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) totalIO;
-
-            GasStack gas = handler.getGas();
 
             switch (actionType) {
                 case INPUT -> {
-                    if (!stack.isGasEqual(gas)) {
-                        continue;
-                    }
-                    GasStack drained = handler.drawGas(EnumFacing.UP, stack.amount, true);
-                    if (drained != null) {
-                        totalIO -= drained.amount;
+                    GasStack drawn = handler.drawGas(stack, true);
+                    if (drawn != null) {
+                        totalIO += drawn.amount;
                     }
                 }
                 case OUTPUT -> {
-                    if (gas != null && !stack.isGasEqual(gas)) {
+                    if (!handler.canReceiveGas(null, stack.getGas())) {
                         continue;
                     }
-                    totalIO -= handler.receiveGas(EnumFacing.UP, stack, true);
+                    totalIO += handler.receiveGas(null, stack, true);
                 }
             }
 
@@ -147,12 +141,12 @@ public class HybridFluidUtils {
 
     @Nonnull
     @Optional.Method(modid = "mekanism")
-    public static List<HybridGasTank> castGasHandlerComponents(final List<ProcessingComponent<?>> components) {
-        List<HybridGasTank> list = new LinkedList<>();
+    public static List<IExtendedGasHandler> castGasHandlerComponents(final List<ProcessingComponent<?>> components) {
+        List<IExtendedGasHandler> list = new LinkedList<>();
         for (ProcessingComponent<?> component : components) {
             Object providedComponent = component.getProvidedComponent();
-            if (providedComponent instanceof final HybridGasTank hybridGasTank) {
-                list.add(hybridGasTank);
+            if (providedComponent instanceof final IExtendedGasHandler gasHandler) {
+                list.add(gasHandler);
             }
         }
         return list;
@@ -178,15 +172,16 @@ public class HybridFluidUtils {
     public static List<ProcessingComponent<?>> copyGasHandlerComponents(final List<ProcessingComponent<?>> components) {
         List<ProcessingComponent<?>> list = new ArrayList<>();
         for (ProcessingComponent<?> component : components) {
-            if (!(component.getProvidedComponent() instanceof HybridGasTank)) {
+            if (!(component.getProvidedComponent() instanceof IGasHandler)) {
                 continue;
             }
             ProcessingComponent<Object> objectProcessingComponent = new ProcessingComponent<>(
                     (MachineComponent<Object>) component.component(),
-                    CopyHandlerHelper.copyGasTank((HybridGasTank) component.getProvidedComponent()),
+                    new MultiGasTank((IGasHandler) component.getProvidedComponent()),
                     component.getTag());
             list.add(objectProcessingComponent);
         }
         return list;
     }
+
 }

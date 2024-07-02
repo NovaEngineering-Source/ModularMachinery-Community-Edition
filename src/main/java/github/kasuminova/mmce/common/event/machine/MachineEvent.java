@@ -5,7 +5,9 @@ import github.kasuminova.mmce.common.handler.UpgradeMachineEventHandler;
 import github.kasuminova.mmce.common.helper.IMachineController;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
+import hellfirepvp.modularmachinery.common.tiles.base.MachineComponentTileNotifiable;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenGetter;
@@ -34,12 +36,24 @@ public class MachineEvent extends Event {
     public void postEvent() {
         try {
 //            ModularMachinery.EVENT_BUS.post(this);
+            postEventToComponents();
             UpgradeMachineEventHandler.onMachineEvent(this);
             if (!isCanceled()) {
                 postCrTEvent();
             }
         } catch (Exception e) {
             ModularMachinery.log.warn("Caught an exception when post event!", e);
+        }
+    }
+
+    public void postEventToComponents() {
+        for (TileEntity tileEntity : controller.getFoundComponents().keySet()) {
+            if (tileEntity instanceof final MachineComponentTileNotifiable componentTile) {
+                componentTile.onMachineEvent(this);
+                if (isCanceled()) {
+                    break;
+                }
+            }
         }
     }
 

@@ -1,11 +1,10 @@
 package hellfirepvp.modularmachinery.common.crafting.adapter.ic2;
 
-import crafttweaker.util.IEventHandler;
-import github.kasuminova.mmce.common.event.recipe.RecipeEvent;
+import github.kasuminova.mmce.common.itemtype.ChancedIngredientStack;
 import hellfirepvp.modularmachinery.common.crafting.MachineRecipe;
 import hellfirepvp.modularmachinery.common.crafting.adapter.RecipeAdapter;
-import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
 import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementEnergy;
+import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementIngredientArray;
 import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementItem;
 import hellfirepvp.modularmachinery.common.lib.RequirementTypesMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
@@ -16,9 +15,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public abstract class AdapterIC2Machine extends RecipeAdapter {
     public AdapterIC2Machine(@Nonnull final ResourceLocation registryName) {
@@ -35,12 +34,23 @@ public abstract class AdapterIC2Machine extends RecipeAdapter {
             MachineRecipe recipe = createRecipeShell(
                     new ResourceLocation("ic2", recipeRegistryNamePrefix + incId),
                     owningMachineName,
-                    workTime, incId, false);
+                    Math.max(1, Math.round(
+                            RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_DURATION, null, workTime, false))
+                    ),
+                    incId, false);
 
             int inAmount = Math.round(RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_ITEM, IOType.INPUT, machineRecipe.getInput().getAmount(), false));
 
             if (inAmount > 0) {
-                for (ItemStack input : machineRecipe.getInput().getInputs()) {
+                List<ItemStack> inputs = machineRecipe.getInput().getInputs();
+                if (inputs.size() > 1) {
+                    List<ChancedIngredientStack> ingredients = new ArrayList<>();
+                    for (ItemStack input : inputs) {
+                        ingredients.add(new ChancedIngredientStack(ItemUtils.copyStackWithSize(input, inAmount)));
+                    }
+                    recipe.addRequirement(new RequirementIngredientArray(ingredients));
+                } else {
+                    ItemStack input = inputs.get(0);
                     recipe.addRequirement(new RequirementItem(IOType.INPUT, ItemUtils.copyStackWithSize(input, inAmount)));
                 }
             }

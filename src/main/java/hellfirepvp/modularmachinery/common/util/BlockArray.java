@@ -271,14 +271,14 @@ public class BlockArray {
         List<ItemStack> stackList = new ArrayList<>();
 
         pattern.forEach((pos, info) -> {
-            ItemStack descriptiveStack = info.getDescriptiveStack(snapTick);
-            if (descriptiveStack.isEmpty()) {
-                return;
-            }
+            BlockPos realPos = pos.add(offset);
+            ItemStack descriptiveStack = info.getDescriptiveStack(snapTick, realPos, world);
             SpecialItemBlockProxy specialItemBlockProxy = SpecialItemBlockProxyRegistry.INSTANCE.getValidProxy(descriptiveStack);
             if (specialItemBlockProxy != null) {
-                BlockPos realPos = pos.add(offset);
                 descriptiveStack = specialItemBlockProxy.getTrueStack(world.getBlockState(realPos), world.getTileEntity(realPos));
+            }
+            if (descriptiveStack.isEmpty()) {
+                return;
             }
 
             for (final ItemStack stack : stackList) {
@@ -576,6 +576,10 @@ public class BlockArray {
 
         public ItemStack getDescriptiveStack(long snapTick) {
             return StackUtils.getStackFromBlockState(getSampleState(snapTick));
+        }
+
+        public ItemStack getDescriptiveStack(long snapTick, final BlockPos pos, final World world) {
+            return StackUtils.getStackFromBlockState(getSampleState(snapTick), pos, world);
         }
 
         public List<ItemStack> getIngredientList() {

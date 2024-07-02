@@ -33,7 +33,11 @@ public class GeoMachineModel {
             animationFileLocationRL = new ResourceLocation(ModularMachinery.MODID, animationFileLocationRL.getPath());
         }
 
-        DynamicMachineModelRegistry.INSTANCE.registerMachineModel(modelName, new MachineControllerModel(modelName, modelLocationRL, textureLocationRL, animationFileLocationRL));
+        MachineControllerModel model = new MachineControllerModel(modelName, modelLocationRL, textureLocationRL, animationFileLocationRL);
+        if (FMLCommonHandler.instance().getSide().isClient()) {
+            model.initializePool();
+        }
+        DynamicMachineModelRegistry.INSTANCE.registerMachineModel(modelName, model);
     }
 
 }

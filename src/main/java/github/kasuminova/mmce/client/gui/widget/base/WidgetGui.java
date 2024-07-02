@@ -3,6 +3,12 @@ package github.kasuminova.mmce.client.gui.widget.base;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 
+/**
+ * 一个轻量化的组件库核心类，用来存储 GUI 的属性数据，被所有 {@link DynamicWidget} 使用。
+ * <br/>
+ * <br/>
+ * A lightweight component library core class, used to store GUI properties and used by all {@link DynamicWidget}.
+ */
 public class WidgetGui {
     private final GuiScreen gui;
     private int xSize;

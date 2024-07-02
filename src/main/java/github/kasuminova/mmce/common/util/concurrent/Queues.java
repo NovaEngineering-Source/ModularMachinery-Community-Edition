@@ -11,7 +11,7 @@ public class Queues {
         try {
             // May be incompatible with cleanroom.
             return new MpscLinkedAtomicQueue<>();
-        } catch (Exception | Error e) {
+        } catch (Throwable e) {
             return new ConcurrentLinkedQueue<>();
         }
     }

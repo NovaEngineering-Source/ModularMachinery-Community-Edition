@@ -5,6 +5,7 @@ import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.tiles.base.TileEntitySynchronized;
 import io.netty.util.internal.ThrowableUtil;
 import it.unimi.dsi.fastutil.longs.*;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -17,12 +18,15 @@ import java.util.concurrent.locks.LockSupport;
 public class TaskExecutor {
     public static final int THREAD_COUNT = Math.min(Math.max(Runtime.getRuntime().availableProcessors() / 4, 4), 8);
 
+    // For render.
+    public static final int CLIENT_THREAD_COUNT = Math.min(Math.max(Runtime.getRuntime().availableProcessors() / 2, 4), 16);
+
     public static final ThreadPoolExecutor THREAD_POOL = new ThreadPoolExecutor(THREAD_COUNT, THREAD_COUNT,
             5000, TimeUnit.MILLISECONDS,
             new PriorityBlockingQueue<>(),
             new CustomThreadFactory("MMCE-TaskExecutor-%s"));
 
-    public static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool(THREAD_COUNT,
+    public static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool(FMLCommonHandler.instance().getSide().isClient() ? CLIENT_THREAD_COUNT : THREAD_COUNT,
             new CustomForkJoinWorkerThreadFactory("MMCE-ForkJoinPool-worker-%s"),
             null, true);
 
@@ -143,7 +147,7 @@ public class TaskExecutor {
         while ((action = mainThreadActions.poll()) != null) {
             try {
                 action.doAction();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 ModularMachinery.log.warn("An error occurred during synchronous task execution!");
                 ModularMachinery.log.warn(ThrowableUtil.stackTraceToString(e));
             }

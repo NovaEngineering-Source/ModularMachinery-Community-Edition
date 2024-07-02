@@ -19,6 +19,10 @@ import javax.annotation.Nullable;
 
 public class MEFluidOutputBus extends MEFluidBus {
 
+    public MEFluidOutputBus() {
+        this.tanks.setOneFluidOneSlot(true);
+    }
+
     @Override
     public ItemStack getVisualItemStack() {
         return new ItemStack(ItemsMM.meFluidOutputBus);
@@ -43,7 +47,7 @@ public class MEFluidOutputBus extends MEFluidBus {
 
     @Nonnull
     @Override
-    public synchronized TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
+    public TickRateModulation tickingRequest(@Nonnull final IGridNode node, final int ticksSinceLastCall) {
         if (!proxy.isActive()) {
             return TickRateModulation.IDLE;
         }
@@ -52,24 +56,26 @@ public class MEFluidOutputBus extends MEFluidBus {
 
         try {
             IMEMonitor<IAEFluidStack> inv = proxy.getStorage().getInventory(channel);
-            for (final int slot : getNeedUpdateSlots()) {
-                IAEFluidStack fluid = tanks.getFluidInSlot(slot);
+            synchronized (tanks) {
+                for (final int slot : getNeedUpdateSlots()) {
+                    IAEFluidStack fluid = tanks.getFluidInSlot(slot);
 
-                if (fluid == null) {
-                    continue;
-                }
+                    if (fluid == null) {
+                        continue;
+                    }
 
-                IAEFluidStack left = Platform.poweredInsert(proxy.getEnergy(), inv, fluid.copy(), source);
+                    IAEFluidStack left = Platform.poweredInsert(proxy.getEnergy(), inv, fluid.copy(), source);
 
-                if (left != null) {
-                    if (fluid.getStackSize() != left.getStackSize()) {
+                    if (left != null) {
+                        if (fluid.getStackSize() != left.getStackSize()) {
+                            successAtLeastOnce = true;
+                        }
+                    } else {
                         successAtLeastOnce = true;
                     }
-                } else {
-                    successAtLeastOnce = true;
-                }
 
-                tanks.setFluidInSlot(slot, left);
+                    tanks.setFluidInSlot(slot, left);
+                }
             }
         } catch (GridAccessException e) {
             changedSlots.clear();

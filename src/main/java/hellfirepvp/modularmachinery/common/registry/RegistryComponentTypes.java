@@ -30,7 +30,7 @@ public class RegistryComponentTypes {
     public static void initialize() {
         COMPONENT_ITEM = register(new ComponentItem(), KEY_COMPONENT_ITEM);
         COMPONENT_FLUID = register(new ComponentFluid(), KEY_COMPONENT_FLUID);
-        COMPONENT_ITEM_FLUID = register(new ComponentItemFluid(), KEY_COMPONENT_ITEM_FLUID);
+        COMPONENT_ITEM_FLUID_GAS = register(new ComponentItemFluid(), KEY_COMPONENT_ITEM_FLUID);
         COMPONENT_ENERGY = register(new ComponentEnergy(), KEY_COMPONENT_ENERGY);
         COMPONENT_GAS = register(new ComponentGas(), KEY_COMPONENT_GAS);
         COMPONENT_SMART_INTERFACE = register(new ComponentSmartInterface(), KEY_COMPONENT_SMART_INTERFACE);

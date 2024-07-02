@@ -58,7 +58,7 @@ public class Button extends DynamicWidget {
 
     @Override
     public boolean onMouseClick(final MousePos mousePos, final RenderPos renderPos, final int mouseButton) {
-        if (isVisible() && onClickedListener != null) {
+        if (isVisible() && onClickedListener != null && mouseButton == 0) {
             onClickedListener.accept(this);
             return true;
         }

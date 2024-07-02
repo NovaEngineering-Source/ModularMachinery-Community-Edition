@@ -17,6 +17,9 @@ import github.kasuminova.mmce.client.gui.widget.base.WidgetController;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetGui;
 import github.kasuminova.mmce.client.gui.widget.event.GuiEvent;
 import github.kasuminova.mmce.client.gui.widget.event.WorldRendererCacheCleanEvent;
+import github.kasuminova.mmce.client.model.DynamicMachineModelRegistry;
+import github.kasuminova.mmce.client.model.MachineControllerModel;
+import github.kasuminova.mmce.client.renderer.MachineControllerRenderer;
 import github.kasuminova.mmce.common.util.DynamicPattern;
 import hellfirepvp.modularmachinery.client.ClientScheduler;
 import hellfirepvp.modularmachinery.common.block.BlockController;
@@ -24,10 +27,12 @@ import hellfirepvp.modularmachinery.common.block.BlockFactoryController;
 import hellfirepvp.modularmachinery.common.lib.BlocksMM;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.tiles.base.ColorableMachineTile;
+import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.BlockArray;
 import hellfirepvp.modularmachinery.common.util.IBlockStateDescriptor;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -129,6 +134,10 @@ public class WorldSceneRendererWidget extends DynamicWidget {
             if (useLayerRender && pos.getY() != renderLayer) {
                 return;
             }
+            if (machine.isHideComponentsWhenFormed() && structureFormed && !pos.equals(BlockPos.ORIGIN)) {
+                // Hide another blocks when structureFormed.
+                return;
+            }
             IBlockState sampleState = info.getSampleState(tickSnap);
             TileEntity te = null;
             Block block = sampleState.getBlock();
@@ -142,6 +151,10 @@ public class WorldSceneRendererWidget extends DynamicWidget {
         });
 
         world.addBlocks(converted);
+        if (machine.isHideComponentsWhenFormed() && structureFormed) {
+            // Hide controller.
+            converted.remove(BlockPos.ORIGIN.add(offset));
+        }
         preInitNextRenderedCore(min.add(offset), max.add(offset), converted.keySet(), (_1, _2, _3) -> {}, this.resetZoom || resetZoom);
         this.resetZoom = false;
         if (onPatternUpdate != null) {
@@ -151,9 +164,12 @@ public class WorldSceneRendererWidget extends DynamicWidget {
 
     private void initializePattern(final DynamicMachine machine) {
         pattern = new BlockArray(machine.getPattern());
+        addControllerToPattern(machine);
+        if (machine.isHideComponentsWhenFormed() && structureFormed) {
+            return;
+        }
         addUpgradeIngredientToPattern(machine);
         addDynamicPatternToPattern(machine);
-        addControllerToPattern(machine);
     }
 
     protected void addUpgradeIngredientToPattern(final DynamicMachine machine) {
@@ -213,7 +229,7 @@ public class WorldSceneRendererWidget extends DynamicWidget {
         renderer.setOnLookingAt(ray -> {});
         renderer.setAfterWorldRender(worldRenderer -> {
             if (selected != null) {
-                RenderUtils.renderBlockOverLay(selected, .6f, 0f, 0f, 1f, 1.01f);
+                RenderUtils.renderBlockOverLay(selected, .6f, 0f, 0f, .5f, 1.01f);
             }
             blockOverlayMap.forEach((pos, color) ->
                     RenderUtils.renderBlockOverLay(pos.add(offset),
@@ -223,6 +239,19 @@ public class WorldSceneRendererWidget extends DynamicWidget {
                             color.getAlpha() / 255f,
                             1.01f)
             );
+            if (!structureFormed) {
+                return;
+            }
+            TileEntity te = renderer.getWorld().getTileEntity(BlockPos.ORIGIN.add(offset));
+            if (te instanceof TileMultiblockMachineController ctrl) {
+                MachineControllerModel model = DynamicMachineModelRegistry.INSTANCE.getMachineDefaultModel(machine);
+                if (model != null) {
+                    GlStateManager.pushMatrix();
+                    GlStateManager.translate(0, offset.getY(), 0);
+                    MachineControllerRenderer.INSTANCE.renderDummy(ctrl, model);
+                    GlStateManager.popMatrix();
+                }
+            }
         });
         renderer.setCameraLookAt(center, zoom.get(), Math.toRadians(rotationPitch), Math.toRadians(rotationYaw));
         checkCacheRenderer();

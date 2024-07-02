@@ -1,15 +1,23 @@
 package github.kasuminova.mmce.common.util;
 
+import com.github.bsideup.jabel.Desugar;
+import github.kasuminova.mmce.client.util.ItemStackUtils;
+import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.util.ItemUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mekanism.api.gas.Gas;
+import mekanism.api.gas.GasStack;
+import mekanism.api.gas.GasTankInfo;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.FluidTankProperties;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
+import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;
@@ -21,16 +29,19 @@ import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandler {
+@Optional.Interface(iface = "github.kasuminova.mmce.common.util.IExtendedGasHandler", modid = "mekanism")
+public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandler, IExtendedGasHandler {
 
     protected final List<ItemStack> itemStackList = new ObjectArrayList<>();
     protected final List<FluidStack> fluidStackList = new ObjectArrayList<>();
+    protected final List<?> gasStackList = new ObjectArrayList<>();
 
     protected volatile IItemHandlerModifiable subItemHandler = null;
     protected volatile IFluidHandler subFluidHandler = null;
 
     protected volatile IntConsumer onItemChanged = null;
     protected volatile IntConsumer onFluidChanged = null;
+    protected volatile IntConsumer onGasChanged = null;
 
     public InfItemFluidHandler() {
     }
@@ -47,6 +58,8 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
         this.subItemHandler = subItemHandler;
         this.subFluidHandler = subFluidHandler;
     }
+
+    // FluidStack
 
     @Override
     public IFluidTankProperties[] getTankProperties() {
@@ -66,6 +79,9 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
         if (resource == null) {
             return 0;
         }
+        if (!doFill) {
+            return resource.amount;
+        }
 
         int toFill = resource.amount;
 
@@ -73,11 +89,9 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
             final FluidStack stackInSlot = fluidStackList.get(i);
             if (stackInSlot != null && stackInSlot.isFluidEqual(resource)) {
                 int maxCanFill = Math.min(toFill, Integer.MAX_VALUE - stackInSlot.amount);
-                if (doFill) {
-                    stackInSlot.amount += maxCanFill;
-                    if (onFluidChanged != null) {
-                        onFluidChanged.accept(i);
-                    }
+                stackInSlot.amount += maxCanFill;
+                if (onFluidChanged != null) {
+                    onFluidChanged.accept(i);
                 }
                 toFill -= maxCanFill;
 
@@ -87,7 +101,7 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
             }
         }
 
-        if (toFill > 0 && doFill) {
+        if (toFill > 0) {
             fluidStackList.add(new FluidStack(resource, toFill));
             if (onFluidChanged != null) {
                 onFluidChanged.accept(fluidStackList.size() - 1);
@@ -164,6 +178,8 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
         return null;
     }
 
+    // ItemStack
+
     @Override
     public synchronized void setStackInSlot(final int slot, @Nonnull final ItemStack stack) {
         int trueSlot = slot;
@@ -177,14 +193,11 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
 
         if (trueSlot >= itemStackList.size()) {
             itemStackList.add(stack);
-            if (onItemChanged != null) {
-                onItemChanged.accept(itemStackList.size() - 1);
-            }
         } else {
             itemStackList.set(trueSlot, stack);
-            if (onItemChanged != null) {
-                onItemChanged.accept(trueSlot);
-            }
+        }
+        if (onItemChanged != null) {
+            onItemChanged.accept(trueSlot);
         }
     }
 
@@ -248,16 +261,20 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
     public synchronized void appendItem(@Nonnull final ItemStack stack) {
         int toAppend = stack.getCount();
 
-        for (final ItemStack stackInSlot : itemStackList) {
+        for (int i = 0; i < itemStackList.size(); i++) {
+            final ItemStack stackInSlot = itemStackList.get(i);
             if (stackInSlot.isEmpty()) {
-                itemStackList.set(itemStackList.indexOf(stackInSlot), stack.copy());
+                itemStackList.set(i, stack.copy());
                 if (onItemChanged != null) {
-                    onItemChanged.accept(itemStackList.indexOf(stackInSlot));
+                    onItemChanged.accept(i);
                 }
                 return;
             } else if (stackInSlot.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(stackInSlot, stack)) {
                 int maxToAppend = Math.min(stack.getCount(), Integer.MAX_VALUE - stackInSlot.getCount());
                 stackInSlot.grow(maxToAppend);
+                if (onItemChanged != null) {
+                    onItemChanged.accept(i);
+                }
                 toAppend -= maxToAppend;
                 if (toAppend <= 0) {
                     return;
@@ -333,12 +350,20 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
         return fluidStackList;
     }
 
+    public List<?> getGasStackList() {
+        return gasStackList;
+    }
+
     public void setOnItemChanged(final IntConsumer onItemChanged) {
         this.onItemChanged = onItemChanged;
     }
 
     public void setOnFluidChanged(final IntConsumer onFluidChanged) {
         this.onFluidChanged = onFluidChanged;
+    }
+
+    public void setOnGasChanged(final IntConsumer onGasChanged) {
+        this.onGasChanged = onGasChanged;
     }
 
     public IItemHandlerModifiable getSubItemHandler() {
@@ -369,12 +394,17 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
         final NBTTagList itemList = new NBTTagList();
         itemStackList.stream()
                 .filter(itemStack -> !itemStack.isEmpty())
-                .map(itemStack -> itemStack.writeToNBT(new NBTTagCompound()))
+                .map(ItemStackUtils::writeNBTOversize)
                 .forEach(itemList::appendTag);
         subTag.setTag("Items", itemList);
 
+        if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
+            writeNBTMekGas(subTag);
+        }
+
         tag.setTag(subTagName, subTag);
     }
+
 
     public void readFromNBT(final NBTTagCompound tag, final String subTagName) {
         NBTTagCompound subTag = tag.getCompoundTag(subTagName);
@@ -390,9 +420,184 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
         final NBTTagList itemList = subTag.getTagList("Items", Constants.NBT.TAG_COMPOUND);
         IntStream.range(0, itemList.tagCount())
                 .mapToObj(itemList::getCompoundTagAt)
-                .map(ItemStack::new)
+                .map(ItemStackUtils::readNBTOversize)
                 .filter(itemStack -> !itemStack.isEmpty())
                 .forEach(itemStackList::add);
+
+        if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
+            readFromNBTMekGas(subTag);
+        }
+    }
+
+    // MekEng Support
+
+    @SuppressWarnings("unchecked")
+    @Optional.Method(modid = "mekanism")
+    public void writeNBTMekGas(final NBTTagCompound subTag) {
+        List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;
+        final NBTTagList gasList = new NBTTagList();
+        gasStackList.stream()
+                .filter(Objects::nonNull)
+                .map(gasStack -> gasStack.write(new NBTTagCompound()))
+                .forEach(gasList::appendTag);
+        subTag.setTag("Gases", gasList);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Optional.Method(modid = "mekanism")
+    public void readFromNBTMekGas(final NBTTagCompound subTag) {
+        List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;
+        gasStackList.clear();
+        final NBTTagList gasList = subTag.getTagList("Gases", Constants.NBT.TAG_COMPOUND);
+        IntStream.range(0, gasList.tagCount())
+                .mapToObj(gasList::getCompoundTagAt)
+                .map(GasStack::readFromNBT)
+                .filter(Objects::nonNull)
+                .forEach(gasStackList::add);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    @Optional.Method(modid = "mekanism")
+    public GasStack drawGas(final GasStack toDraw, final boolean doTransfer) {
+        List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;
+
+        int toDrawAmount = toDraw.amount;
+        for (int i = 0; i < gasStackList.size(); i++) {
+            final GasStack stackInSlot = gasStackList.get(i);
+            if (stackInSlot == null || !stackInSlot.isGasEqual(toDraw)) {
+                continue;
+            }
+            int maxCanDraw = Math.min(toDrawAmount, Integer.MAX_VALUE - stackInSlot.amount);
+            if (doTransfer) {
+                if (maxCanDraw >= stackInSlot.amount) {
+                    gasStackList.set(i, null);
+                } else {
+                    stackInSlot.amount -= maxCanDraw;
+                }
+                if (onGasChanged != null) {
+                    onGasChanged.accept(i);
+                }
+            }
+            toDrawAmount -= maxCanDraw;
+            if (toDrawAmount <= 0) {
+                break;
+            }
+        }
+
+        if (toDrawAmount == toDraw.amount) {
+            return null;
+        }
+        return new GasStack(toDraw.getGas(), toDraw.amount - toDrawAmount);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    @Optional.Method(modid = "mekanism")
+    public int receiveGas(final EnumFacing ignored, final GasStack toReceive, final boolean doTransfer) {
+        if (!doTransfer) {
+            return toReceive.amount;
+        }
+
+        List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;
+        int toReceiveAmount = toReceive.amount;
+        for (int i = 0; i < gasStackList.size(); i++) {
+            final GasStack stackInSlot = gasStackList.get(i);
+            if (stackInSlot == null || !stackInSlot.isGasEqual(toReceive)) {
+                continue;
+            }
+
+            int maxCanFill = Math.min(toReceiveAmount, Integer.MAX_VALUE - stackInSlot.amount);
+            stackInSlot.amount += maxCanFill;
+            if (onGasChanged != null) {
+                onGasChanged.accept(i);
+            }
+            toReceiveAmount -= maxCanFill;
+
+            if (toReceiveAmount <= 0) {
+                break;
+            }
+        }
+
+        if (toReceiveAmount > 0) {
+            gasStackList.add(new GasStack(toReceive.getGas(), toReceiveAmount));
+            if (onGasChanged != null) {
+                onGasChanged.accept(gasStackList.size() - 1);
+            }
+        }
+
+        return toReceive.amount;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    @Optional.Method(modid = "mekanism")
+    public GasStack drawGas(final EnumFacing ignored, final int drawAmount, final boolean doTransfer) {
+        List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;
+
+        for (int i = 0; i < gasStackList.size(); i++) {
+            final GasStack stackInSlot = gasStackList.get(i);
+            if (stackInSlot == null) {
+                continue;
+            }
+            int maxCanDraw = Math.min(drawAmount, Integer.MAX_VALUE - stackInSlot.amount);
+            if (doTransfer) {
+                if (maxCanDraw >= stackInSlot.amount) {
+                    gasStackList.set(i, null);
+                } else {
+                    stackInSlot.amount -= maxCanDraw;
+                }
+                if (onGasChanged != null) {
+                    onGasChanged.accept(i);
+                }
+            }
+            return new GasStack(stackInSlot.getGas(), maxCanDraw);
+        }
+
+        return null;
+    }
+
+    @Override
+    @Optional.Method(modid = "mekanism")
+    public boolean canReceiveGas(final EnumFacing ignored, final Gas gas) {
+        return true;
+    }
+
+    @Override
+    @Optional.Method(modid = "mekanism")
+    public boolean canDrawGas(final EnumFacing ignored, final Gas gas) {
+        return true;
+    }
+
+    @Nonnull
+    @Override
+    @SuppressWarnings("unchecked")
+    @Optional.Method(modid = "mekanism")
+    public GasTankInfo[] getTankInfo() {
+        List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;
+        return gasStackList.stream()
+                .map(InfGasTankInfo::new)
+                .toArray(GasTankInfo[]::new);
+    }
+
+    @Desugar
+    private record InfGasTankInfo(GasStack gasStack) implements GasTankInfo {
+
+        @Nullable
+        @Override
+        public GasStack getGas() {
+            return gasStack;
+        }
+
+        @Override
+        public int getStored() {
+            return gasStack.amount;
+        }
+
+        @Override
+        public int getMaxGas() {
+            return Integer.MAX_VALUE;
+        }
     }
 
 }
