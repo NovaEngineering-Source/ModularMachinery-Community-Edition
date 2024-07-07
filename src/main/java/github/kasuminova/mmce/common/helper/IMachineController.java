@@ -12,6 +12,11 @@ import hellfirepvp.modularmachinery.common.machine.RecipeThread;
 import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.SmartInterfaceData;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Optional;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenGetter;
 import stanhebben.zenscript.annotations.ZenMethod;
@@ -28,32 +33,44 @@ public interface IMachineController {
      *
      * @return 世界
      */
+    @Optional.Method(modid = "crafttweaker")
     @ZenGetter("world")
     IWorld getIWorld();
+
+    World getWorld();
 
     /**
      * 获取控制器方块。
      *
      * @return IBlockState
      */
+    @Optional.Method(modid = "crafttweaker")
     @ZenGetter("blockState")
     IBlockState getIBlockState();
+
+    net.minecraft.block.state.IBlockState getBlockState();
 
     /**
      * 获取控制器处于世界中的朝向。
      *
      * @return IFacing
      */
+    @Optional.Method(modid = "crafttweaker")
     @ZenGetter("facing")
     IFacing getFacing();
+
+    EnumFacing getEnumFacing();
 
     /**
      * 获取控制器所在的坐标
      *
      * @return 坐标
      */
+    @Optional.Method(modid = "crafttweaker")
     @ZenGetter("pos")
     IBlockPos getIPos();
+
+    BlockPos getPos();
 
     /**
      * 获取机械在当前世界运行的时间（非世界时间，进入退出世界会被重置）
@@ -124,6 +141,7 @@ public interface IMachineController {
      *
      * @return IData
      */
+    @Optional.Method(modid = "crafttweaker")
     @ZenGetter("customData")
     IData getCustomData();
 
@@ -132,8 +150,13 @@ public interface IMachineController {
      *
      * @param data IData
      */
+    @Optional.Method(modid = "crafttweaker")
     @ZenSetter("customData")
     void setCustomData(IData data);
+
+    NBTTagCompound getCustomNbt();
+
+    void setCustomNbt(NBTTagCompound nbt);
 
     /**
      * 添加一个半永久 RecipeModifier，会在配方完成的时候自动删除。

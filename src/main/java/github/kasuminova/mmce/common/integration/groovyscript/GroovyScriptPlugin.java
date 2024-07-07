@@ -1,6 +1,5 @@
 package github.kasuminova.mmce.common.integration.groovyscript;
 
-import com.cleanroommc.groovyscript.GroovyScript;
 import com.cleanroommc.groovyscript.api.GroovyBlacklist;
 import com.cleanroommc.groovyscript.api.GroovyLog;
 import com.cleanroommc.groovyscript.api.GroovyPlugin;
@@ -73,7 +72,7 @@ public class GroovyScriptPlugin implements GroovyPlugin {
 
     @Override
     public void onCompatLoaded(GroovyContainer<?> container) {
-        //MinecraftForge.EVENT_BUS.register(container.get());
+        MinecraftForge.EVENT_BUS.register(container.get());
         MinecraftForge.EVENT_BUS.register(GroovyScriptPlugin.class);
         GroovyScriptPlugin.container = (GroovyContainer<Container>) container;
     }
@@ -149,6 +148,7 @@ public class GroovyScriptPlugin implements GroovyPlugin {
     private static class Container extends GroovyPropertyContainer {
 
         private final Map<ResourceLocation, GroovyMachineRecipes> machines = new Object2ObjectOpenHashMap<>();
+        public final MachineUpgrades machineUpgrades = new MachineUpgrades();
 
         @GroovyBlacklist
         @SubscribeEvent

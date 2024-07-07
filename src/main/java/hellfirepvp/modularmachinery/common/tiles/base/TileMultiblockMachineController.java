@@ -843,12 +843,21 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         }
     }
 
+    @net.minecraftforge.fml.common.Optional.Method(modid = "crafttweaker")
+    @Override
     public IWorld getIWorld() {
         return CraftTweakerMC.getIWorld(getWorld());
     }
 
+    @Override
+    public IBlockState getBlockState() {
+        return getWorld().getBlockState(getPos());
+    }
+
+    @net.minecraftforge.fml.common.Optional.Method(modid = "crafttweaker")
+    @Override
     public crafttweaker.api.block.IBlockState getIBlockState() {
-        return CraftTweakerMC.getBlockState(getWorld().getBlockState(getPos()));
+        return CraftTweakerMC.getBlockState(getBlockState());
     }
 
     @Override
@@ -856,20 +865,43 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         return CraftTweakerMC.getIFacing(controllerRotation);
     }
 
+    @Override
+    public EnumFacing getEnumFacing() {
+        return controllerRotation;
+    }
+
+    @net.minecraftforge.fml.common.Optional.Method(modid = "crafttweaker")
+    @Override
     public IBlockPos getIPos() {
         return CraftTweakerMC.getIBlockPos(getPos());
     }
 
+    @Override
     public String getFormedMachineName() {
         return isStructureFormed() ? foundMachine.getRegistryName().toString() : null;
     }
 
+    @net.minecraftforge.fml.common.Optional.Method(modid = "crafttweaker")
+    @Override
     public IData getCustomData() {
         return CraftTweakerMC.getIDataModifyable(customData);
     }
 
+    @net.minecraftforge.fml.common.Optional.Method(modid = "crafttweaker")
+    @Override
     public void setCustomData(IData data) {
         customData = CraftTweakerMC.getNBTCompound(data);
+        markNoUpdateSync();
+    }
+
+    @Override
+    public NBTTagCompound getCustomNbt() {
+        return customData;
+    }
+
+    @Override
+    public void setCustomNbt(NBTTagCompound nbt) {
+        this.customData = nbt;
         markNoUpdateSync();
     }
 
@@ -881,6 +913,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         this.customData = customData;
     }
 
+    @Override
     public boolean hasModifier(String key) {
         return customModifiers.containsKey(key);
     }

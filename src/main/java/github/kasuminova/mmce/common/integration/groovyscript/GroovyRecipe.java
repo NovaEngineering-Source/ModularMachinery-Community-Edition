@@ -376,8 +376,7 @@ public class GroovyRecipe implements PreparedRecipe {
 
     @SuppressWarnings("unchecked")
     private <H extends RecipeEvent> void addRecipeEventHandler(Class<H> hClass, IEventHandler<H> handler) {
-        recipeEventHandlers.putIfAbsent(hClass, new ArrayList<>());
-        recipeEventHandlers.get(hClass).add((IEventHandler<RecipeEvent>) handler);
+        recipeEventHandlers.computeIfAbsent(hClass, k -> new ArrayList<>()).add((IEventHandler<RecipeEvent>) handler);
     }
 
     //----------------------------------------------------------------------------------------------
@@ -392,7 +391,7 @@ public class GroovyRecipe implements PreparedRecipe {
         } else if (Mods.MEKANISM.isPresent() && input instanceof GasStack gasStack) {
             gasInput(gasStack);
         } else {
-            GroovyLog.get().error(String.format("Invalid input type %s(%s)! Ignored.", input, input.getClass()));
+            GroovyLog.get().error("Invalid input type {}({})! Ignored.", input, input.getClass());
         }
         return this;
     }
@@ -419,7 +418,7 @@ public class GroovyRecipe implements PreparedRecipe {
         } else if (Mods.MEKANISM.isPresent() && output instanceof GasStack gasStack) {
             gasOutput(gasStack);
         } else {
-            GroovyLog.get().error(String.format("Invalid output type %s(%s)! Ignored.", output, output.getClass()));
+            GroovyLog.get().error("Invalid output type {}({})! Ignored.", output, output.getClass());
         }
         return this;
     }
@@ -573,7 +572,7 @@ public class GroovyRecipe implements PreparedRecipe {
         } else if (input instanceof OreDictIngredient oreDictIngredient) {
             requireFuel(IOType.INPUT, oreDictIngredient.getOreDict(), oreDictIngredient.getAmount());
         } else {
-            GroovyLog.get().error(String.format("Invalid input type %s(%s)! Ignored.", input, input.getClass()));
+            GroovyLog.get().error("Invalid input type {}({})! Ignored.", input, input.getClass());
         }
 
         return this;
@@ -626,7 +625,7 @@ public class GroovyRecipe implements PreparedRecipe {
         } else if (output instanceof OreDictIngredient oreDictIngredient) {
             requireFuel(IOType.OUTPUT, oreDictIngredient.getOreDict(), oreDictIngredient.getAmount());
         } else {
-            GroovyLog.get().error(String.format("Invalid output type %s(%s)! Ignored.", output, output.getClass()));
+            GroovyLog.get().error("Invalid output type {}({})! Ignored.", output, output.getClass());
         }
 
         return this;
@@ -649,7 +648,7 @@ public class GroovyRecipe implements PreparedRecipe {
         } else if (input instanceof OreDictIngredient oreDictIngredient) {
             requireCatalyst(oreDictIngredient.getOreDict(), oreDictIngredient.getAmount(), tooltips, modifiers);
         } else {
-            GroovyLog.get().error(String.format("Invalid input type %s(%s)! Ignored.", input, input.getClass()));
+            GroovyLog.get().error("Invalid input type {}({})! Ignored.", input, input.getClass());
         }
 
         return this;
