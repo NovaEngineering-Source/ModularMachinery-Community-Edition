@@ -1,10 +1,10 @@
 package hellfirepvp.modularmachinery.common.integration.crafttweaker.upgrade;
 
-import crafttweaker.CraftTweakerAPI;
 import crafttweaker.annotations.ZenRegister;
 import crafttweaker.api.item.IItemStack;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import github.kasuminova.mmce.common.capability.CapabilityUpgrade;
+import github.kasuminova.mmce.common.integration.Logger;
 import github.kasuminova.mmce.common.upgrade.MachineUpgrade;
 import github.kasuminova.mmce.common.upgrade.SimpleDynamicMachineUpgrade;
 import github.kasuminova.mmce.common.upgrade.SimpleMachineUpgrade;
@@ -46,7 +46,7 @@ public class MachineUpgradeHelper {
         }
         MachineUpgrade upgrade = RegistryUpgrade.getUpgrade(upgradeName);
         if (upgrade == null) {
-            CraftTweakerAPI.logError("[ModularMachinery] Cloud not find MachineUpgrade " + upgradeName + '!');
+            Logger.error("Cloud not find MachineUpgrade " + upgradeName + '!');
             return;
         }
         RegistryUpgrade.addFixedUpgrade(stack, upgrade);
@@ -63,7 +63,7 @@ public class MachineUpgradeHelper {
     public static IItemStack addUpgradeToIItemStack(IItemStack stackCT, String upgradeName) {
         ItemStack stack = CraftTweakerMC.getItemStack(stackCT);
         if (!RegistryUpgrade.supportsUpgrade(stack)) {
-            CraftTweakerAPI.logWarning("[ModularMachinery] " + stackCT.getDefinition().getId() + " does not support upgrade!");
+            Logger.warn(stackCT.getDefinition().getId() + " does not support upgrade!");
             return stackCT;
         }
         CapabilityUpgrade capability = stack.getCapability(CapabilityUpgrade.MACHINE_UPGRADE_CAPABILITY, null);
@@ -72,7 +72,7 @@ public class MachineUpgradeHelper {
         }
         MachineUpgrade upgrade = RegistryUpgrade.getUpgrade(upgradeName);
         if (upgrade == null) {
-            CraftTweakerAPI.logWarning("[ModularMachinery] Cloud not found MachineUpgrade " + upgradeName + '!');
+            Logger.warn("Cloud not found MachineUpgrade " + upgradeName + '!');
             return stackCT;
         }
         capability.getUpgrades().add(upgrade);

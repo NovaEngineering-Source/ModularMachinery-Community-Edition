@@ -1,7 +1,7 @@
 package hellfirepvp.modularmachinery.common.integration.crafttweaker;
 
-import crafttweaker.CraftTweakerAPI;
 import crafttweaker.annotations.ZenRegister;
+import github.kasuminova.mmce.common.integration.Logger;
 import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementType;
 import hellfirepvp.modularmachinery.common.lib.RegistriesMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
@@ -69,7 +69,7 @@ public class RecipeModifierBuilder {
     public RecipeModifier build() {
         RequirementType<?, ?> target = RegistriesMM.REQUIREMENT_TYPE_REGISTRY.getValue(new ResourceLocation(type));
         if (target == null) {
-            CraftTweakerAPI.logError("Could not find requirementType " + type + "!");
+            Logger.error("Could not find requirementType " + type + "!");
             return null;
         }
         IOType ioType;
@@ -77,12 +77,12 @@ public class RecipeModifierBuilder {
             case "input" -> ioType = IOType.INPUT;
             case "output" -> ioType = IOType.OUTPUT;
             default -> {
-                CraftTweakerAPI.logError("Invalid ioType " + ioTypeStr + "!");
+                Logger.error("Invalid ioType " + ioTypeStr + "!");
                 return null;
             }
         }
         if (operation > 1 || operation < 0) {
-            CraftTweakerAPI.logError("Invalid operation " + operation + "!");
+            Logger.error("Invalid operation " + operation + "!");
             return null;
         }
 

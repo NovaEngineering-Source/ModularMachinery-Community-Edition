@@ -9,8 +9,8 @@
 package hellfirepvp.modularmachinery.common.integration.crafttweaker;
 
 import com.cleanroommc.groovyscript.api.GroovyBlacklist;
-import crafttweaker.CraftTweakerAPI;
 import crafttweaker.annotations.ZenRegister;
+import github.kasuminova.mmce.common.integration.Logger;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import net.minecraft.util.ResourceLocation;
 import stanhebben.zenscript.annotations.ZenClass;
@@ -51,10 +51,10 @@ public class RecipeBuilder {
         }
 
         if (!path.matches("[._\\-a-zA-Z][._\\-a-zA-Z0-9]*")) {
-            CraftTweakerAPI.logWarning("[ModularMachinery] Dangerous recipe registry name: " + path);
+            Logger.warn("Dangerous recipe registry name: " + path);
         }
         if (processingTickTime <= 0) {
-            CraftTweakerAPI.logWarning("[ModularMachinery] Recipe processing tick time has to be at least 1 tick!");
+            Logger.warn("Recipe processing tick time has to be at least 1 tick!");
             processingTickTime = 1;
         }
 

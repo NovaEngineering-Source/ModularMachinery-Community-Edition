@@ -1,6 +1,5 @@
 package hellfirepvp.modularmachinery.common.integration.crafttweaker.event;
 
-import crafttweaker.CraftTweakerAPI;
 import crafttweaker.annotations.ZenRegister;
 import crafttweaker.util.IEventHandler;
 import github.kasuminova.mmce.common.event.Phase;
@@ -9,6 +8,7 @@ import github.kasuminova.mmce.common.event.client.ControllerModelAnimationEvent;
 import github.kasuminova.mmce.common.event.client.ControllerModelGetEvent;
 import github.kasuminova.mmce.common.event.machine.*;
 import github.kasuminova.mmce.common.event.recipe.*;
+import github.kasuminova.mmce.common.integration.Logger;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
@@ -34,7 +34,7 @@ public class MMEvents {
             if (machine != null) {
                 machine.addMachineEventHandler(MachineStructureFormedEvent.class, function::handle);
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -46,7 +46,7 @@ public class MMEvents {
             if (machine != null) {
                 machine.addMachineEventHandler(MachineStructureUpdateEvent.class, function::handle);
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -63,7 +63,7 @@ public class MMEvents {
                     function.handle(event);
                 });
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -80,7 +80,7 @@ public class MMEvents {
                     function.handle(event);
                 });
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -88,7 +88,7 @@ public class MMEvents {
     @ZenMethod
     @Deprecated
     public static void onMachineTick(String machineRegistryName, IEventHandler<MachineTickEvent> function) {
-        CraftTweakerAPI.logWarning("[ModularMachinery] Deprecated method onMachineTick()! Consider using onMachinePostTick()");
+        Logger.warn("Deprecated method onMachineTick()! Consider using onMachinePostTick()");
         onMachinePostTick(machineRegistryName, function);
     }
 
@@ -102,7 +102,7 @@ public class MMEvents {
             if (machine != null) {
                 machine.addMachineEventHandler(ControllerGUIRenderEvent.class, function::handle);
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -118,7 +118,7 @@ public class MMEvents {
             if (machine != null) {
                 machine.addMachineEventHandler(ControllerModelAnimationEvent.class, function::handle);
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -134,7 +134,7 @@ public class MMEvents {
             if (machine != null) {
                 machine.addMachineEventHandler(ControllerModelGetEvent.class, function::handle);
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -146,7 +146,7 @@ public class MMEvents {
             if (machine != null) {
                 machine.addMachineEventHandler(SmartInterfaceUpdateEvent.class, function::handle);
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }

@@ -9,7 +9,6 @@
 package hellfirepvp.modularmachinery.common.integration.crafttweaker;
 
 import com.cleanroommc.groovyscript.api.GroovyBlacklist;
-import crafttweaker.CraftTweakerAPI;
 import crafttweaker.annotations.ZenRegister;
 import crafttweaker.api.data.IData;
 import crafttweaker.api.item.IIngredient;
@@ -21,6 +20,7 @@ import crafttweaker.api.oredict.IOreDictEntry;
 import github.kasuminova.mmce.common.event.Phase;
 import github.kasuminova.mmce.common.event.machine.IEventHandler;
 import github.kasuminova.mmce.common.event.recipe.*;
+import github.kasuminova.mmce.common.integration.Logger;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.crafting.PreparedRecipe;
@@ -89,7 +89,7 @@ public class RecipePrimer implements PreparedRecipe {
         if (lastComponent instanceof ComponentRequirement.Parallelizable parallelizable) {
             parallelizable.setParallelizeUnaffected(unaffected);
         } else {
-            CraftTweakerAPI.logWarning("[ModularMachinery] Target " + lastComponent.getClass() + " cannot be parallelized!");
+            Logger.warn("Target " + lastComponent.getClass() + " cannot be parallelized!");
         }
         return this;
     }
@@ -106,7 +106,7 @@ public class RecipePrimer implements PreparedRecipe {
             if (lastComponent instanceof ComponentRequirement.ChancedRequirement chancedReq) {
                 chancedReq.setChance(chance);
             } else {
-                CraftTweakerAPI.logWarning("[ModularMachinery] Cannot set chance for not-chance-based Component: " + lastComponent.getClass());
+                Logger.warn("Cannot set chance for not-chance-based Component: " + lastComponent.getClass());
             }
         }
         return this;
@@ -126,10 +126,10 @@ public class RecipePrimer implements PreparedRecipe {
             if (lastComponent instanceof RequirementItem reqItem) {
                 reqItem.previewDisplayTag = CraftTweakerMC.getNBTCompound(nbt);
             } else {
-                CraftTweakerAPI.logWarning("[ModularMachinery] setPreViewNBT(IData nbt) only can be applied to `Item`!");
+                Logger.warn("setPreViewNBT(IData nbt) only can be applied to `Item`!");
             }
         } else {
-            CraftTweakerAPI.logWarning("[ModularMachinery] setPreViewNBT(IData nbt) only can be applied to `Item`!");
+            Logger.warn("setPreViewNBT(IData nbt) only can be applied to `Item`!");
         }
         return this;
     }
@@ -140,10 +140,10 @@ public class RecipePrimer implements PreparedRecipe {
             if (lastComponent instanceof RequirementItem reqItem) {
                 reqItem.setItemChecker((controller, stack) -> checker.isMatch(controller, CraftTweakerMC.getIItemStack(stack)));
             } else {
-                CraftTweakerAPI.logWarning("[ModularMachinery] setNBTChecker(AdvancedItemNBTChecker checker) only can be applied to `Item`!");
+                Logger.warn("setNBTChecker(AdvancedItemNBTChecker checker) only can be applied to `Item`!");
             }
         } else {
-            CraftTweakerAPI.logWarning("[ModularMachinery] setNBTChecker(AdvancedItemNBTChecker checker) only can be applied to `Item`!");
+            Logger.warn("setNBTChecker(AdvancedItemNBTChecker checker) only can be applied to `Item`!");
         }
         return this;
     }
@@ -154,10 +154,10 @@ public class RecipePrimer implements PreparedRecipe {
             if (lastComponent instanceof RequirementItem reqItem) {
                 reqItem.addItemModifier((controller, stack) -> CraftTweakerMC.getItemStack(modifier.apply(controller, CraftTweakerMC.getIItemStackMutable(stack))));
             } else {
-                CraftTweakerAPI.logWarning("[ModularMachinery] addItemModifier(AdvancedItemModifier checker) only can be applied to `Item`!");
+                Logger.warn("addItemModifier(AdvancedItemModifier checker) only can be applied to `Item`!");
             }
         } else {
-            CraftTweakerAPI.logWarning("[ModularMachinery] addItemModifier(AdvancedItemModifier checker) only can be applied to `Item`!");
+            Logger.warn("addItemModifier(AdvancedItemModifier checker) only can be applied to `Item`!");
         }
         return this;
     }
@@ -170,13 +170,13 @@ public class RecipePrimer implements PreparedRecipe {
                     reqItem.minAmount = min;
                     reqItem.maxAmount = max;
                 } else {
-                    CraftTweakerAPI.logWarning("[ModularMachinery] `min` cannot larger than `max`!");
+                    Logger.warn("`min` cannot larger than `max`!");
                 }
             } else {
-                CraftTweakerAPI.logWarning("[ModularMachinery] setMinMaxOutputAmount(int min, int max) only can be applied to `Item`!");
+                Logger.warn("setMinMaxOutputAmount(int min, int max) only can be applied to `Item`!");
             }
         } else {
-            CraftTweakerAPI.logWarning("[ModularMachinery] setMinMaxOutputAmount(int min, int max) only can be applied to `Item`!");
+            Logger.warn("setMinMaxOutputAmount(int min, int max) only can be applied to `Item`!");
         }
         return this;
     }
@@ -233,12 +233,12 @@ public class RecipePrimer implements PreparedRecipe {
         needAfterInitActions.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(machineName);
             if (machine == null) {
-                CraftTweakerAPI.logError("Could not find machine `" + machineName.toString() + "`!");
+                Logger.error("Could not find machine `" + machineName.toString() + "`!");
                 return;
             }
             SmartInterfaceType type = machine.getSmartInterfaceType(typeStr);
             if (type == null) {
-                CraftTweakerAPI.logError("SmartInterfaceType " + typeStr + " Not Found!");
+                Logger.error("SmartInterfaceType " + typeStr + " Not Found!");
                 return;
             }
             appendComponent(new RequirementInterfaceNumInput(type, minValue, maxValue));
@@ -295,7 +295,7 @@ public class RecipePrimer implements PreparedRecipe {
     @ZenMethod
     @Deprecated
     public RecipePrimer addCheckHandler(crafttweaker.util.IEventHandler<RecipeCheckEvent> handler) {
-        CraftTweakerAPI.logWarning("[ModularMachinery] Deprecated method addCheckHandler()! Consider using addPostCheckHandler()");
+        Logger.warn("Deprecated method addCheckHandler()! Consider using addPostCheckHandler()");
         addRecipeEventHandler(RecipeCheckEvent.class, handler::handle);
         return this;
     }
@@ -395,7 +395,7 @@ public class RecipePrimer implements PreparedRecipe {
             addFluidInput(liquidStack);
         } else if (Mods.MEKANISM.isPresent() && checkIGasStackAndAdd(IOType.INPUT, input)) {
         } else {
-            CraftTweakerAPI.logError(String.format("[ModularMachinery] Invalid input type %s(%s)! Ignored.", input, input.getClass()));
+            Logger.error(String.format("[ModularMachinery] Invalid input type %s(%s)! Ignored.", input, input.getClass()));
         }
         return this;
     }
@@ -418,7 +418,7 @@ public class RecipePrimer implements PreparedRecipe {
             addFluidOutput((ILiquidStack) output);
         } else if (Mods.MEKANISM.isPresent() && checkIGasStackAndAdd(IOType.OUTPUT, output)) {
         } else {
-            CraftTweakerAPI.logError(String.format("[ModularMachinery] Invalid output type %s(%s)! Ignored.", output, output.getClass()));
+            Logger.error(String.format("[ModularMachinery] Invalid output type %s(%s)! Ignored.", output, output.getClass()));
         }
         return this;
     }
@@ -580,7 +580,7 @@ public class RecipePrimer implements PreparedRecipe {
         } else if (input instanceof IngredientStack && input.getInternal() instanceof IOreDictEntry) {
             requireFuel(IOType.INPUT, ((IOreDictEntry) input.getInternal()).getName(), input.getAmount());
         } else {
-            CraftTweakerAPI.logError(String.format("[ModularMachinery] Invalid input type %s(%s)! Ignored.", input, input.getClass()));
+            Logger.error(String.format("[ModularMachinery] Invalid input type %s(%s)! Ignored.", input, input.getClass()));
         }
 
         return this;
@@ -590,7 +590,7 @@ public class RecipePrimer implements PreparedRecipe {
     @ZenMethod
     public RecipePrimer addItemInput(IOreDictEntry oreDict, int amount) {
         requireFuel(IOType.INPUT, oreDict.getName(), amount);
-        CraftTweakerAPI.logWarning(String.format("[ModularMachinery] Deprecated method " +
+        Logger.warn(String.format("[ModularMachinery] Deprecated method " +
                         "`addItemInput(<ore:%s>, %s)`! Consider using `addItemInput(<ore:%s> * %s)`",
                 oreDict.getName(), amount, oreDict.getName(), amount)
         );
@@ -641,7 +641,7 @@ public class RecipePrimer implements PreparedRecipe {
         } else if (output instanceof IngredientStack && output.getInternal() instanceof IOreDictEntry) {
             requireFuel(IOType.OUTPUT, ((IOreDictEntry) output.getInternal()).getName(), output.getAmount());
         } else {
-            CraftTweakerAPI.logError(String.format("[ModularMachinery] Invalid output type %s(%s)! Ignored.", output, output.getClass()));
+            Logger.error(String.format("[ModularMachinery] Invalid output type %s(%s)! Ignored.", output, output.getClass()));
         }
 
         return this;
@@ -651,7 +651,7 @@ public class RecipePrimer implements PreparedRecipe {
     @ZenMethod
     public RecipePrimer addItemOutput(IOreDictEntry oreDict, int amount) {
         requireFuel(IOType.OUTPUT, oreDict.getName(), amount);
-        CraftTweakerAPI.logWarning(String.format("[ModularMachinery] Deprecated method " +
+        Logger.warn(String.format("[ModularMachinery] Deprecated method " +
                         "`addItemOutput(<ore:%s>, %s)`! Consider using `addItemOutput(<ore:%s> * %s)`",
                 oreDict.getName(), amount, oreDict.getName(), amount)
         );
@@ -679,7 +679,7 @@ public class RecipePrimer implements PreparedRecipe {
         } else if (input instanceof IngredientStack && input.getInternal() instanceof IOreDictEntry) {
             requireCatalyst(((IOreDictEntry) input.getInternal()).getName(), input.getAmount(), tooltips, modifiers);
         } else {
-            CraftTweakerAPI.logError(String.format("[ModularMachinery] Invalid input type %s(%s)! Ignored.", input, input.getClass()));
+            Logger.error(String.format("[ModularMachinery] Invalid input type %s(%s)! Ignored.", input, input.getClass()));
         }
 
         return this;
@@ -701,7 +701,7 @@ public class RecipePrimer implements PreparedRecipe {
     private void requireFluid(IOType ioType, ILiquidStack stack, boolean isPerTick) {
         FluidStack mcFluid = CraftTweakerMC.getLiquidStack(stack);
         if (mcFluid == null) {
-            CraftTweakerAPI.logError("[ModularMachinery] FluidStack not found/unknown fluid: " + stack.toString());
+            Logger.error("[ModularMachinery] FluidStack not found/unknown fluid: " + stack.toString());
             return;
         }
         if (stack.getTag() != null) {
@@ -720,17 +720,17 @@ public class RecipePrimer implements PreparedRecipe {
     private void requireGas(IOType ioType, String gasName, int amount) {
         Gas gas = GasRegistry.getGas(gasName);
         if (gas == null) {
-            CraftTweakerAPI.logError("[ModularMachinery] GasStack not found/unknown gas: " + gasName);
+            Logger.error("[ModularMachinery] GasStack not found/unknown gas: " + gasName);
             return;
         }
         int max = Math.max(0, amount);
         GasStack gasStack = new GasStack(gas, max);
         switch (ioType) {
-            case INPUT -> CraftTweakerAPI.logWarning(String.format(
+            case INPUT -> Logger.warn(String.format(
                     "[ModularMachinery] `addGasInput(%s, %d)` is deprecated, consider using `<gas:%s> * %d`!",
                     gasName, amount, gasName, amount
             ));
-            case OUTPUT -> CraftTweakerAPI.logWarning(String.format(
+            case OUTPUT -> Logger.warn(String.format(
                     "[ModularMachinery] `addGasOutput(%s, %d)` is deprecated, consider using `<gas:%s> * %d`!",
                     gasName, amount, gasName, amount
             ));
@@ -752,7 +752,7 @@ public class RecipePrimer implements PreparedRecipe {
     private void requireFuel(IOType ioType, IItemStack stack) {
         ItemStack mcStack = CraftTweakerMC.getItemStack(stack);
         if (mcStack.isEmpty()) {
-            CraftTweakerAPI.logError("[ModularMachinery] ItemStack not found/unknown item: " + stack.toString());
+            Logger.error("[ModularMachinery] ItemStack not found/unknown item: " + stack.toString());
             return;
         }
         RequirementItem ri = new RequirementItem(ioType, mcStack);
@@ -783,7 +783,7 @@ public class RecipePrimer implements PreparedRecipe {
     private void requireCatalyst(IItemStack stack, String[] tooltips, RecipeModifier[] modifiers) {
         ItemStack mcStack = CraftTweakerMC.getItemStack(stack);
         if (mcStack.isEmpty()) {
-            CraftTweakerAPI.logError("[ModularMachinery] ItemStack not found/unknown item: " + stack.toString());
+            Logger.error("[ModularMachinery] ItemStack not found/unknown item: " + stack.toString());
             return;
         }
         RequirementCatalyst catalyst = new RequirementCatalyst(mcStack);

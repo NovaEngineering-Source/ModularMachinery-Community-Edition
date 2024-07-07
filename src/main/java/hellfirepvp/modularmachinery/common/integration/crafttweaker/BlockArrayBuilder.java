@@ -2,12 +2,12 @@ package hellfirepvp.modularmachinery.common.integration.crafttweaker;
 
 import com.cleanroommc.groovyscript.api.GroovyBlacklist;
 import com.google.gson.JsonParseException;
-import crafttweaker.CraftTweakerAPI;
 import crafttweaker.annotations.ZenRegister;
 import crafttweaker.api.block.IBlockState;
 import crafttweaker.api.data.IData;
 import crafttweaker.api.item.IItemStack;
 import crafttweaker.api.minecraft.CraftTweakerMC;
+import github.kasuminova.mmce.common.integration.Logger;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentSelectorTag;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.helper.AdvancedBlockCheckerCT;
 import hellfirepvp.modularmachinery.common.machine.TaggedPositionBlockArray;
@@ -139,12 +139,12 @@ public class BlockArrayBuilder {
                     net.minecraft.block.state.IBlockState state = block.getStateFromMeta(meta);
                     stateDescriptorList.add(new IBlockStateDescriptor(state));
                 } catch (Exception e) {
-                    CraftTweakerAPI.logError(String.format("[ModularMachinery] Failed to get BlockState from <%s>!",
-                            stack.getItem().getRegistryName() + ":" + meta
+                    Logger.error(String.format("[ModularMachinery] Failed to get BlockState from <%s>!",
+                                               stack.getItem().getRegistryName() + ":" + meta
                     ));
                 }
             } else {
-                CraftTweakerAPI.logError("[ModularMachinery] " + stack.getDisplayName() + " cannot convert to Block!");
+                Logger.error("[ModularMachinery] " + stack.getDisplayName() + " cannot convert to Block!");
             }
         }
 
@@ -208,7 +208,7 @@ public class BlockArrayBuilder {
             try {
                 stateDescriptorList.add(BlockArray.BlockInformation.getDescriptor(blockName));
             } catch (JsonParseException e) {
-                CraftTweakerAPI.logError("[ModularMachinery] " + blockName + " is invalid block!", e);
+                Logger.error("[ModularMachinery] " + blockName + " is invalid block!", e);
             }
         }
 
