@@ -83,10 +83,6 @@ public class GroovyScriptPlugin implements GroovyPlugin {
         return Arrays.asList("modmach", "modular_machinery");
     }
 
-    public static void initMachines() {
-        container.get().onScriptRun(null); // TODO GrS 1.1.1
-    }
-
     @SubscribeEvent
     public static void onReload(GroovyReloadEvent event) {
         MachineBuilder.WAIT_FOR_LOAD.clear();
@@ -111,12 +107,11 @@ public class GroovyScriptPlugin implements GroovyPlugin {
         MachineRegistry.preloadMachines();
         // Reload All Machine
         MachineRegistry.reloadMachine(MachineRegistry.loadMachines(null));
-        initMachines();
     }
 
     @SubscribeEvent
     public static void afterScriptRun(ScriptRunEvent.Post event) {
-        if (GroovyScript.getSandbox().getCurrentLoader() != LoadStage.POST_INIT) return;
+        if (event.getLoadStage() != LoadStage.POST_INIT) return;
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         boolean isServer = server != null && server.isDedicatedServer();
 
@@ -156,7 +151,7 @@ public class GroovyScriptPlugin implements GroovyPlugin {
         private final Map<ResourceLocation, GroovyMachineRecipes> machines = new Object2ObjectOpenHashMap<>();
 
         @GroovyBlacklist
-        //@SubscribeEvent TODO GrS 1.1.1
+        @SubscribeEvent
         public void onScriptRun(ScriptRunEvent.Pre event) {
             for (DynamicMachine machine : MachineRegistry.getRegistry()) {
                 if (machine.getRegistryName().getNamespace().equals(ModularMachinery.MODID)) {

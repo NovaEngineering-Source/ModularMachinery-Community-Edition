@@ -17,7 +17,6 @@ import github.kasuminova.mmce.common.handler.UpgradeEventHandler;
 import github.kasuminova.mmce.common.integration.ModIntegrationAE2;
 import github.kasuminova.mmce.common.integration.gregtech.ModIntegrationGTCEU;
 import github.kasuminova.mmce.common.integration.groovyscript.GroovyMachine;
-import github.kasuminova.mmce.common.integration.groovyscript.GroovyScriptPlugin;
 import github.kasuminova.mmce.common.tile.*;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import github.kasuminova.mmce.common.world.MMWorldEventListener;
@@ -180,9 +179,6 @@ public class CommonProxy implements IGuiHandler {
             action.doAction();
         }
         FactoryRecipeThread.WAIT_FOR_ADD.clear();
-        if (Mods.GROOVYSCRIPT.isPresent()) {
-            GroovyScriptPlugin.initMachines();
-        }
     }
 
     public void loadComplete() {
