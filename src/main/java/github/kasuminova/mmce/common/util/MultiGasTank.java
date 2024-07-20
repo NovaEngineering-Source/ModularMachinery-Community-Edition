@@ -11,12 +11,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.IntConsumer;
 
 @SuppressWarnings("unused")
 public class MultiGasTank implements IExtendedGasHandler {
     private final GasStack[] contents;
     private final GasTankInfo[] props;
     private int capacity;
+    private IntConsumer onSlotChanged = null;
 
     public MultiGasTank(int capacity, int tankCount) {
         this.capacity = capacity;
@@ -102,6 +104,7 @@ public class MultiGasTank implements IExtendedGasHandler {
             if (capacity > insert.amount) {
                 if (doFill) {
                     contents[slot] = insert;
+                    onSlotChanged(slot);
                 }
                 return insert.amount;
             }
@@ -109,6 +112,7 @@ public class MultiGasTank implements IExtendedGasHandler {
                 GasStack copied = insert.copy();
                 copied.amount = capacity;
                 contents[slot] = copied;
+                onSlotChanged(slot);
             }
             return capacity;
         }
@@ -122,11 +126,13 @@ public class MultiGasTank implements IExtendedGasHandler {
         if (maxCanFill > insert.amount) {
             if (doFill) {
                 content.amount += insert.amount;
+                onSlotChanged(slot);
             }
             return insert.amount;
         }
         if (doFill) {
             content.amount = capacity;
+            onSlotChanged(slot);
         }
         return maxCanFill;
     }
@@ -180,6 +186,7 @@ public class MultiGasTank implements IExtendedGasHandler {
         if (content.amount < maxDrain) {
             if (doDrain) {
                 contents[slot] = null;
+                onSlotChanged(slot);
                 return content;
             }
             return content.copy();
@@ -187,6 +194,7 @@ public class MultiGasTank implements IExtendedGasHandler {
 
         if (doDrain) {
             content.amount -= maxDrain;
+            onSlotChanged(slot);
         }
 
         GasStack copied = content.copy();
@@ -216,6 +224,17 @@ public class MultiGasTank implements IExtendedGasHandler {
         return drawGas(toDrain, doDrain);
     }
 
+    public GasStack getGasInSlot(final int slot) {
+        return slot >= 0 && slot < contents.length ? contents[slot] : null;
+    }
+
+    public void setGasInSlot(final int slot, final GasStack stack) {
+        if (slot >= 0 && slot < contents.length) {
+            contents[slot] = stack;
+            onSlotChanged(slot);
+        }
+    }
+
     @Override
     public boolean canReceiveGas(final EnumFacing side, final Gas type) {
         return receiveGas(null, new GasStack(type, 1), false) > 0;
@@ -224,6 +243,20 @@ public class MultiGasTank implements IExtendedGasHandler {
     @Override
     public boolean canDrawGas(final EnumFacing side, final Gas type) {
         return drawGas(new GasStack(type, 1), false) != null;
+    }
+
+    public int getSlots() {
+        return contents.length;
+    }
+
+    public void setOnSlotChanged(final IntConsumer onSlotChanged) {
+        this.onSlotChanged = onSlotChanged;
+    }
+
+    private void onSlotChanged(final int slot) {
+        if (onSlotChanged != null) {
+            onSlotChanged.accept(slot);
+        }
     }
 
     public void readFromNBT(final NBTTagCompound compound, final String name) {

@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.minecraftforge.fml.relauncher.Side;
 
 import java.util.Queue;
@@ -24,7 +25,7 @@ public class TaskExecutor {
     public static final ThreadPoolExecutor THREAD_POOL = new ThreadPoolExecutor(THREAD_COUNT, THREAD_COUNT,
             5000, TimeUnit.MILLISECONDS,
             new PriorityBlockingQueue<>(),
-            new CustomThreadFactory("MMCE-TaskExecutor-%s"));
+            new CustomThreadFactory("MMCE-TaskExecutor-%s", SidedThreadGroups.SERVER));
 
     public static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool(FMLCommonHandler.instance().getSide().isClient() ? CLIENT_THREAD_COUNT : THREAD_COUNT,
             new CustomForkJoinWorkerThreadFactory("MMCE-ForkJoinPool-worker-%s"),
@@ -40,7 +41,8 @@ public class TaskExecutor {
     private final Queue<ActionExecutor> submitted = Queues.createConcurrentQueue();
 
     private final Queue<ActionExecutor> executors = Queues.createConcurrentQueue();
-    private final Long2ObjectMap<ExecuteGroup> executeGroups = new Long2ObjectOpenHashMap<>();
+    // TODO: may cause performance issues.
+    private final Long2ObjectMap<ExecuteGroup> executeGroups = Long2ObjectMaps.synchronize(new Long2ObjectOpenHashMap<>());
 
     private final Queue<ForkJoinTask<?>> forkJoinTasks = Queues.createConcurrentQueue();
 

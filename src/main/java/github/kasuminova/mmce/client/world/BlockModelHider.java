@@ -61,6 +61,7 @@ public class BlockModelHider {
             TaggedPositionBlockArray foundPattern = ctrl.getFoundPattern();
             if (foundPattern != null) {
                 List<BlockPos> transformed = new LinkedList<>();
+                transformed.add(pos);
                 for (BlockPos compPos : foundPattern.getPattern().keySet()) {
                     BlockPos add = compPos.add(pos);
                     transformed.add(add);
@@ -84,6 +85,7 @@ public class BlockModelHider {
             TaggedPositionBlockArray foundPattern = ctrl.getFoundPattern();
             if (foundPattern != null) {
                 List<BlockPos> transformed = new LinkedList<>();
+                transformed.add(pos);
                 for (BlockPos compPos : foundPattern.getPattern().keySet()) {
                     BlockPos add = compPos.add(pos);
                     transformed.add(add);

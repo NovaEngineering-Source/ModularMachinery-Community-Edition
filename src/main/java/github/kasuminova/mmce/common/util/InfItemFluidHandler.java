@@ -494,7 +494,7 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
     @Override
     @SuppressWarnings("unchecked")
     @Optional.Method(modid = "mekanism")
-    public int receiveGas(final EnumFacing ignored, final GasStack toReceive, final boolean doTransfer) {
+    public int receiveGas(@Nullable final EnumFacing ignored, final GasStack toReceive, final boolean doTransfer) {
         if (!doTransfer) {
             return toReceive.amount;
         }
@@ -532,7 +532,7 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
     @Override
     @SuppressWarnings("unchecked")
     @Optional.Method(modid = "mekanism")
-    public GasStack drawGas(final EnumFacing ignored, final int drawAmount, final boolean doTransfer) {
+    public GasStack drawGas(@Nullable final EnumFacing ignored, final int drawAmount, final boolean doTransfer) {
         List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;
 
         for (int i = 0; i < gasStackList.size(); i++) {
@@ -559,13 +559,13 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
 
     @Override
     @Optional.Method(modid = "mekanism")
-    public boolean canReceiveGas(final EnumFacing ignored, final Gas gas) {
+    public boolean canReceiveGas(@Nullable final EnumFacing ignored, final Gas gas) {
         return true;
     }
 
     @Override
     @Optional.Method(modid = "mekanism")
-    public boolean canDrawGas(final EnumFacing ignored, final Gas gas) {
+    public boolean canDrawGas(@Nullable final EnumFacing ignored, final Gas gas) {
         return true;
     }
 

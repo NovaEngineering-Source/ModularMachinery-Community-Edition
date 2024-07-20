@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
  * Created by HellFirePvP
  * Date: 26.08.2017 / 23:16
  */
+@Deprecated
 public class HybridFluid {
 
     @Nullable

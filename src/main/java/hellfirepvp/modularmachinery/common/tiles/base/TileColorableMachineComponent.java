@@ -10,6 +10,7 @@ package hellfirepvp.modularmachinery.common.tiles.base;
 
 import hellfirepvp.modularmachinery.common.data.Config;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -43,8 +44,17 @@ public class TileColorableMachineComponent extends TileEntitySynchronized implem
 
         if (!compound.hasKey("casingColor")) {
             definedColor = Config.machineColor;
-        } else {
-            definedColor = compound.getInteger("casingColor");
+            return;
+        }
+
+        int newColor = compound.getInteger("casingColor");
+        if (definedColor != newColor) {
+            definedColor = newColor;
+            World world = getWorld();
+            //noinspection ConstantValue
+            if (world != null) {
+                world.addBlockEvent(pos, world.getBlockState(pos).getBlock(), 1, 1);
+            }
         }
     }
 

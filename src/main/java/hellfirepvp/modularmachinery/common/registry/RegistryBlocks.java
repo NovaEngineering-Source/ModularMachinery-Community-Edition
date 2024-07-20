@@ -122,10 +122,19 @@ public class RegistryBlocks {
             ItemsMM.meItemOutputBus = prepareItemBlockRegister(meItemOutputBus);
             meItemInputBus = prepareRegister(new BlockMEItemInputBus());
             ItemsMM.meItemInputBus = prepareItemBlockRegister(meItemInputBus);
+            
             meFluidOutputBus = prepareRegister(new BlockMEFluidOutputBus());
             ItemsMM.meFluidOutputBus = prepareItemBlockRegister(meFluidOutputBus);
             meFluidInputBus = prepareRegister(new BlockMEFluidInputBus());
-            ItemsMM.meFluidinputBus = prepareItemBlockRegister(meFluidInputBus);
+            ItemsMM.meFluidInputBus = prepareItemBlockRegister(meFluidInputBus);
+
+            if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
+                meGasOutputBus = prepareRegister(new BlockMEGasOutputBus());
+                ItemsMM.meGasOutputBus = prepareItemBlockRegister(meGasOutputBus);
+                meGasInputBus = prepareRegister(new BlockMEGasInputBus());
+                ItemsMM.meGasInputBus = prepareItemBlockRegister(meGasInputBus);
+            }
+
             mePatternProvider = prepareRegister(new BlockMEPatternProvider());
             ItemsMM.mePatternProvider = prepareItemBlockRegister(mePatternProvider);
         }
@@ -217,6 +226,10 @@ public class RegistryBlocks {
             registerTileWithModID(MEItemInputBus.class);
             registerTileWithModID(MEFluidOutputBus.class);
             registerTileWithModID(MEFluidInputBus.class);
+            if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
+                registerTileWithModID(MEGasOutputBus.class);
+                registerTileWithModID(MEGasInputBus.class);
+            }
             registerTileWithModID(MEPatternProvider.class);
         }
         if (Mods.BM2.isPresent()) {

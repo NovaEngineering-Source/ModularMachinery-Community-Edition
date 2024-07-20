@@ -51,7 +51,7 @@ public class PktMEPatternProviderHandlerItems implements IMessage, IMessageHandl
     @Optional.Method(modid = "mekanism")
     private void addGasToList(final InfItemFluidHandler infHandler) {
         List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;
-        infHandler.getFluidStackList().stream()
+        infHandler.getGasStackList().stream()
                 .filter(Objects::nonNull)
                 .map(GasStack.class::cast)
                 .forEach(gasStackList::add);
@@ -95,6 +95,10 @@ public class PktMEPatternProviderHandlerItems implements IMessage, IMessageHandl
 
         buf.writeInt(fluidStackList.size());
         fluidStackList.forEach(stack -> ByteBufUtils.writeTag(buf, stack.writeToNBT(new NBTTagCompound())));
+        
+        if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
+            toBytesMekGas(buf);
+        }
     }
 
     @SuppressWarnings("unchecked")

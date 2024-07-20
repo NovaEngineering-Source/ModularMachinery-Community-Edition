@@ -2,11 +2,13 @@ package github.kasuminova.mmce.client.renderer;
 
 import github.kasuminova.mmce.client.util.ReusableVBOUploader;
 import github.kasuminova.mmce.common.util.concurrent.Action;
+import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -18,6 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ControllerModelRenderManager {
 
@@ -28,6 +31,9 @@ public class ControllerModelRenderManager {
     // RenderType -> TextureLocation -> Light -> Buffers.
     private final Map<RenderType, Map<ResourceLocation, Int2ObjectMap<List<BufferBuilder>>>> buffers = new EnumMap<>(RenderType.class);
     private final Map<Object, Action> reinitializeCallback = new Reference2ObjectOpenHashMap<>();
+
+    private final Set<TileMultiblockMachineController> toRender = new ReferenceOpenHashSet<>();
+    private final Set<TileMultiblockMachineController> alive = new ReferenceOpenHashSet<>();
 
     public void addBuffer(int light, RenderType type, ResourceLocation textureGroup, BufferBuilder buffer) {
         buffers.computeIfAbsent(type, t -> new Object2ObjectOpenHashMap<>())
@@ -45,6 +51,38 @@ public class ControllerModelRenderManager {
         reinitializeCallback.clear();
     }
 
+    public void addToRender(TileMultiblockMachineController ctrl) {
+        toRender.add(ctrl);
+        notifyAlive(ctrl);
+    }
+
+    public void notifyAlive(TileMultiblockMachineController ctrl) {
+        alive.add(ctrl);
+    }
+
+    public void checkControllerState() {
+        Set<TileMultiblockMachineController> toRemove = new ReferenceOpenHashSet<>(toRender);
+        toRemove.removeAll(alive);
+        for (final TileMultiblockMachineController ctrl : toRemove) {
+            GeoModelRenderTask removed = MachineControllerRenderer.INSTANCE.tasks.remove(ctrl);
+            if (removed != null) {
+                try {
+                    //noinspection FinalizeCalledExplicitly
+                    removed.finalize();
+                } catch (Throwable ignored) {
+                }
+            }
+            toRender.remove(ctrl);
+            if (MachineControllerRenderer.shouldUseBloom()) {
+                BloomGeoModelRenderer.INSTANCE.unregisterGlobal(ctrl);
+            }
+        }
+        alive.clear();
+    }
+
+    /**
+     * TODO: Prevents precision overflow due to oversize coordinates.
+     */
     public void draw() {
         GlStateManager.pushMatrix();
         GlStateManager.translate(-TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ);

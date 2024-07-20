@@ -157,12 +157,19 @@ public class GuiMachineController extends GuiContainerBase<ContainerController> 
         int usedTimeCache = TileMultiblockMachineController.usedTimeCache;
         float searchUsedTimeCache = TileMultiblockMachineController.searchUsedTimeCache;
         String workMode = TileMultiblockMachineController.workModeCache.getDisplayName();
-        fr.drawStringWithShadow(String.format("Avg: %sμs/t (Search: %sms), WorkMode: %s",
-                        usedTimeCache,
-                        MiscUtils.formatFloat(searchUsedTimeCache / 1000F, 2),
-                        workMode),
-                offsetX, offsetY, 0xFFFFFF
+        out = fr.listFormattedStringToWidth(
+                String.format(
+                        "Avg: %sμs/t (Search: %sms), WorkMode: %s", 
+                        usedTimeCache, 
+                        MiscUtils.formatFloat(searchUsedTimeCache / 1000F, 2), 
+                        workMode
+                ),
+                MathHelper.floor(135 * (1 / scale))
         );
+        for (String draw : out) {
+            offsetY += 10;
+            fr.drawStringWithShadow(draw, offsetX, offsetY, 0xFFFFFF);
+        }
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.popMatrix();

@@ -35,9 +35,9 @@ public class RedstoneHelper {
             float cur = tank.getFluidAmount();
             return MathHelper.clamp(Math.round(15F * (cur / cap)), 0, 15);
         } else if (sync instanceof TileEnergyHatch) {
-            float cap = ((IEnergyHandler) sync).getMaxEnergy();
-            float cur = ((IEnergyHandler) sync).getCurrentEnergy();
-            return MathHelper.clamp(Math.round(15F * (cur / cap)), 0, 15);
+            double cap = ((IEnergyHandler) sync).getMaxEnergy();
+            double cur = ((IEnergyHandler) sync).getCurrentEnergy();
+            return MathHelper.clamp(Math.round(15F * (float) (cur / cap)), 0, 15);
         }
         return 0;
     }

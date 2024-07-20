@@ -12,7 +12,7 @@ plugins {
 
 // Project properties
 group = "hellfirepvp.modularmachinery"
-version = "2.0.0-pre7"
+version = "2.0.0-pre8"
 
 // Set the toolchain version to decouple the Java we run Gradle with from the Java used to compile and run the mod
 java {
@@ -200,16 +200,19 @@ dependencies {
     compileOnly(rfg.deobf("curse.maven:tinkers-construct-74072:2902483"))
     compileOnly(rfg.deobf("curse.maven:mantle-74924:2713386"))
     implementation(rfg.deobf("curse.maven:tx-loader-706505:4515357"))
+
+    // AE2 Compat
 //    implementation(rfg.deobf("curse.maven:applied-energistics-2-223794:2747063"))
     implementation(rfg.deobf("curse.maven:ae2-extended-life-570458:5378163"))
-    implementation(rfg.deobf("curse.maven:ae2-fluid-crafting-rework-623955:5397328"))
-    implementation(rfg.deobf("curse.maven:mekanism-energistics-1027681:5397280"))
-//    compileOnly(rfg.deobf("curse.maven:gregtech-293327:3266351"))
-    compileOnly(rfg.deobf("curse.maven:gregtech-ce-unofficial-557242:5322654"))
-    implementation(rfg.deobf("kasuminova:lumenized:1.0.3:dev"))
+    implementation(rfg.deobf("curse.maven:ae2-fluid-crafting-rework-623955:5504001"))
+    implementation(rfg.deobf("curse.maven:mekanism-energistics-1027681:5408319"))
 
     // GeckoLib
     implementation(rfg.deobf("software.bernie.geckolib:geckolib-forge-1.12.2:3.0.31"))
+    // GTCEu / Bloom Effect Support
+    compileOnly(rfg.deobf("curse.maven:gregtech-ce-unofficial-557242:5322654"))
+    // Bloom Effect Support
+    implementation(rfg.deobf("kasuminova:lumenized:1.0.3:dev"))
 
     // Multiblocked
     implementation(rfg.deobf("curse.maven:multiblocked-604054:4753960"))

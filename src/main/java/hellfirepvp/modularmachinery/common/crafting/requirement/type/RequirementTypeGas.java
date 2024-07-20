@@ -11,6 +11,7 @@ package hellfirepvp.modularmachinery.common.crafting.requirement.type;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementFluid;
+import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementGas;
 import hellfirepvp.modularmachinery.common.lib.RequirementTypesMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import mekanism.api.gas.Gas;
@@ -28,7 +29,7 @@ import javax.annotation.Nullable;
  * Created by HellFirePvP
  * Date: 13.07.2019 / 11:11
  */
-public class RequirementTypeGas extends RequirementTypeFluid {
+public class RequirementTypeGas extends RequirementType<Object, RequirementGas> {
 
     @Nullable
     @Override
@@ -37,13 +38,13 @@ public class RequirementTypeGas extends RequirementTypeFluid {
     }
 
     @Override
-    public RequirementFluid createRequirement(IOType type, JsonObject requirement) {
+    public RequirementGas createRequirement(IOType type, JsonObject requirement) {
         return this.provideMekGasComponent(type, requirement);
     }
 
     @Nonnull
     @Optional.Method(modid = "mekanism")
-    private RequirementFluid provideMekGasComponent(IOType machineIoType, JsonObject requirement) {
+    private RequirementGas provideMekGasComponent(IOType machineIoType, JsonObject requirement) {
         if (!requirement.has("gas") || !requirement.get("gas").isJsonPrimitive() ||
                 !requirement.get("gas").getAsJsonPrimitive().isString()) {
             throw new JsonParseException("The ComponentType 'gas' expects an 'gas'-entry that defines the type of gas!");
@@ -60,7 +61,7 @@ public class RequirementTypeGas extends RequirementTypeFluid {
         }
         mbAmount = Math.max(0, mbAmount);
         GasStack gasStack = new GasStack(gas, mbAmount);
-        RequirementFluid req = RequirementFluid.createMekanismGasRequirement(RequirementTypesMM.REQUIREMENT_GAS, machineIoType, gasStack);
+        RequirementGas req = new RequirementGas(machineIoType, gasStack);
 
         if (requirement.has("chance")) {
             if (!requirement.get("chance").isJsonPrimitive() || !requirement.getAsJsonPrimitive("chance").isNumber()) {

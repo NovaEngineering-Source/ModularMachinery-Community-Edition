@@ -8,16 +8,12 @@ import gregtech.client.utils.EffectRenderContext;
 import gregtech.client.utils.IBloomEffect;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,37 +41,24 @@ public class BloomGeoModelRenderer implements IRenderSetup, IBloomEffect {
 
     @Override
     public void preDraw(@Nonnull final BufferBuilder bufferBuilder) {
-//        this.lastBrightnessX = OpenGlHelper.lastBrightnessX;
-//        this.lastBrightnessY = OpenGlHelper.lastBrightnessY;
-//        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
     }
 
     @Override
     public void postDraw(@Nonnull final BufferBuilder bufferBuilder) {
-//        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, this.lastBrightnessX, this.lastBrightnessY);
     }
 
     @Override
     public void renderBloomEffect(@Nonnull final BufferBuilder bufferBuilder, @Nonnull final EffectRenderContext ctx) {
         GlStateManager.pushMatrix();
 
-        List<TileMultiblockMachineController> toRemove = new ArrayList<>();
-        WorldClient mcWorld = Minecraft.getMinecraft().world;
-        controllers.forEach(ctrl -> {
-            World world = ctrl.getWorld();
-            //noinspection ConstantValue
-            if (ctrl.isInvalid() || world == null || world != mcWorld || mcWorld.getTileEntity(ctrl.getPos()) != ctrl) {
-                toRemove.add(ctrl);
-                return;
-            }
-            renderModel(ctrl, ctx);
-        });
+        controllers.forEach(ctrl -> renderModel(ctrl, ctx));
         ControllerModelRenderManager.INSTANCE.draw();
-        toRemove.forEach(controllers::remove);
 
         Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-
         GlStateManager.popMatrix();
+        if (postProcessing) {
+            ControllerModelRenderManager.INSTANCE.checkControllerState();
+        }
         postProcessing = !postProcessing;
     }
 

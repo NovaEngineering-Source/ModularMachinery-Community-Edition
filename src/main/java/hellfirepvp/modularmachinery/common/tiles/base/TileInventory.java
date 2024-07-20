@@ -29,6 +29,7 @@ public abstract class TileInventory extends TileEntityRestrictedTick {
     protected IOInventory inventory;
 
     public TileInventory() {
+        this.requireUpdateComparatorLevel = true;
     }
 
     public TileInventory(int size) {

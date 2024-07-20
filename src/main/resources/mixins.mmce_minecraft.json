@@ -1,10 +1,12 @@
 {
-  "package": "github.kasuminova.mmce.mixin.minecraft",
-  "refmap": "mixins.mmce.refmap.json",
-  "target": "@env(DEFAULT)",
-  "minVersion": "0.8",
-  "compatibilityLevel": "JAVA_8",
-  "client": [
-    "MixinRenderGlobal"
-  ]
+    "package": "github.kasuminova.mmce.mixin.minecraft",
+    "refmap": "mixins.mmce.refmap.json",
+    "target": "@env(DEFAULT)",
+    "minVersion": "0.8",
+    "compatibilityLevel": "JAVA_8",
+    "priority": 999,
+    "client": [
+        "MixinRenderGlobal",
+        "MixinTileEntityRendererDispatcher"
+    ]
 }

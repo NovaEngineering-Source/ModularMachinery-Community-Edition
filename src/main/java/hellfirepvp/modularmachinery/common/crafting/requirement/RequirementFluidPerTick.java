@@ -5,9 +5,8 @@ import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
 import hellfirepvp.modularmachinery.common.crafting.helper.CraftCheck;
 import hellfirepvp.modularmachinery.common.crafting.helper.ProcessingComponent;
 import hellfirepvp.modularmachinery.common.crafting.helper.RecipeCraftingContext;
-import hellfirepvp.modularmachinery.common.crafting.requirement.jei.JEIComponentHybridFluidPerTick;
+import hellfirepvp.modularmachinery.common.crafting.requirement.jei.JEIComponentFluidPerTick;
 import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementTypeFluidPerTick;
-import hellfirepvp.modularmachinery.common.integration.ingredient.HybridFluid;
 import hellfirepvp.modularmachinery.common.lib.ComponentTypesMM;
 import hellfirepvp.modularmachinery.common.lib.RequirementTypesMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
@@ -23,19 +22,17 @@ import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 
-public class RequirementFluidPerTick extends ComponentRequirement.PerTickParallelizable<HybridFluid, RequirementTypeFluidPerTick>
+public class RequirementFluidPerTick extends ComponentRequirement.PerTickParallelizable<FluidStack, RequirementTypeFluidPerTick>
         implements ComponentRequirement.Parallelizable {
 
     public final FluidStack required;
 
-    protected final HybridFluid requirementCheck;
     protected NBTTagCompound tagMatch = null, tagDisplay = null;
     protected boolean isSuccess = false;
 
     public RequirementFluidPerTick(IOType actionType, FluidStack required) {
         super(RequirementTypesMM.REQUIREMENT_FLUID_PERTICK, actionType);
-        this.required = required;
-        this.requirementCheck = new HybridFluid(required);
+        this.required = required.copy();
     }
 
     @Override
@@ -43,7 +40,7 @@ public class RequirementFluidPerTick extends ComponentRequirement.PerTickParalle
         MachineComponent<?> cmp = component.component();
         ComponentType cmpType = cmp.getComponentType();
         return (cmpType.equals(ComponentTypesMM.COMPONENT_FLUID) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS))
-               && cmp.ioType == actionType;
+                && cmp.ioType == actionType;
     }
 
     @Override
@@ -70,8 +67,8 @@ public class RequirementFluidPerTick extends ComponentRequirement.PerTickParalle
     }
 
     @Override
-    public JEIComponent<HybridFluid> provideJEIComponent() {
-        return new JEIComponentHybridFluidPerTick(this);
+    public JEIComponent<FluidStack> provideJEIComponent() {
+        return new JEIComponentFluidPerTick(this);
     }
 
     @Nonnull

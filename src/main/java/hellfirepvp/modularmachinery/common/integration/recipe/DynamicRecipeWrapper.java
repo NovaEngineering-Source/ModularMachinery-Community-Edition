@@ -72,7 +72,7 @@ public class DynamicRecipeWrapper implements IRecipeWrapper {
             if (recipeCategory.rectangleProcessArrow.contains(mouseX, mouseY)) {
                 tooltips.add(
                         I18n.format("tooltip.machinery.duration.seconds", (float) recipe.getRecipeTotalTickTime() / 20) +
-                        I18n.format("tooltip.machinery.duration.tick", recipe.getRecipeTotalTickTime()));
+                                I18n.format("tooltip.machinery.duration.tick", recipe.getRecipeTotalTickTime()));
             }
         }
 

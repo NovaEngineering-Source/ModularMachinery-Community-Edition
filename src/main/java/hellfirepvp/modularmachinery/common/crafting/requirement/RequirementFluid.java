@@ -8,17 +8,13 @@
 
 package hellfirepvp.modularmachinery.common.crafting.requirement;
 
-import github.kasuminova.mmce.common.util.IExtendedGasHandler;
-import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.crafting.ComponentType;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
 import hellfirepvp.modularmachinery.common.crafting.helper.CraftCheck;
 import hellfirepvp.modularmachinery.common.crafting.helper.ProcessingComponent;
 import hellfirepvp.modularmachinery.common.crafting.helper.RecipeCraftingContext;
-import hellfirepvp.modularmachinery.common.crafting.requirement.jei.JEIComponentHybridFluid;
+import hellfirepvp.modularmachinery.common.crafting.requirement.jei.JEIComponentFluid;
 import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementTypeFluid;
-import hellfirepvp.modularmachinery.common.integration.ingredient.HybridFluid;
-import hellfirepvp.modularmachinery.common.integration.ingredient.HybridFluidGas;
 import hellfirepvp.modularmachinery.common.lib.ComponentTypesMM;
 import hellfirepvp.modularmachinery.common.lib.RequirementTypesMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
@@ -27,12 +23,10 @@ import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
 import hellfirepvp.modularmachinery.common.util.Asyncable;
 import hellfirepvp.modularmachinery.common.util.HybridFluidUtils;
 import hellfirepvp.modularmachinery.common.util.ResultChance;
-import mekanism.api.gas.GasStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fml.common.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,24 +45,19 @@ import java.util.List;
 public class RequirementFluid extends ComponentRequirement.MultiCompParallelizable<Object, RequirementTypeFluid>
         implements ComponentRequirement.ChancedRequirement, Asyncable {
 
-    public final HybridFluid required;
+    public final FluidStack required;
 
     public float chance = 1F;
 
     private NBTTagCompound tagMatch = null, tagDisplay = null;
 
-    public RequirementFluid(IOType ioType, FluidStack fluid) {
-        this(RequirementTypesMM.REQUIREMENT_FLUID, ioType, new HybridFluid(fluid));
+    public RequirementFluid(IOType ioType, @Nonnull FluidStack fluid) {
+        this(RequirementTypesMM.REQUIREMENT_FLUID, ioType, fluid.copy());
     }
 
-    private RequirementFluid(RequirementTypeFluid type, IOType ioType, HybridFluid required) {
+    private RequirementFluid(RequirementTypeFluid type, IOType ioType, FluidStack required) {
         super(type, ioType);
         this.required = required.copy();
-    }
-
-    @Optional.Method(modid = "mekanism")
-    public static RequirementFluid createMekanismGasRequirement(RequirementTypeFluid type, IOType ioType, GasStack gasStack) {
-        return new RequirementFluid(type, ioType, new HybridFluidGas(gasStack));
     }
 
     @Override
@@ -83,9 +72,9 @@ public class RequirementFluid extends ComponentRequirement.MultiCompParallelizab
 
     @Override
     public RequirementFluid deepCopyModified(List<RecipeModifier> modifiers) {
-        HybridFluid hybrid = this.required.copy();
-        hybrid.setAmount((int) Math.round(RecipeModifier.applyModifiers(modifiers, this, (double) hybrid.getAmount(), false)));
-        RequirementFluid fluid = new RequirementFluid(this.requirementType, this.actionType, hybrid);
+        FluidStack copied = this.required.copy();
+        copied.amount = Math.round(RecipeModifier.applyModifiers(modifiers, this, copied.amount, false));
+        RequirementFluid fluid = new RequirementFluid(this.requirementType, this.actionType, copied);
         fluid.chance = RecipeModifier.applyModifiers(modifiers, this, this.chance, true);
         fluid.tagMatch = getTagMatch();
         fluid.tagDisplay = getTagDisplay();
@@ -94,7 +83,7 @@ public class RequirementFluid extends ComponentRequirement.MultiCompParallelizab
 
     @Override
     public JEIComponent provideJEIComponent() {
-        return new JEIComponentHybridFluid(this);
+        return new JEIComponentFluid(this);
     }
 
     public void setMatchNBTTag(@Nullable NBTTagCompound tag) {
@@ -138,13 +127,8 @@ public class RequirementFluid extends ComponentRequirement.MultiCompParallelizab
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.component();
         ComponentType cmpType = cmp.getComponentType();
-        if (Mods.MEKANISM.isPresent() && required instanceof HybridFluidGas) {
-            return (cmpType.equals(ComponentTypesMM.COMPONENT_GAS) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS))
-                    && cmp.ioType == this.actionType;
-        } else {
-            return (cmpType.equals(ComponentTypesMM.COMPONENT_FLUID) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS))
-                   && cmp.ioType == actionType;
-        }
+        return (cmpType.equals(ComponentTypesMM.COMPONENT_FLUID) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS))
+                && cmp.ioType == actionType;
     }
 
     @Override
@@ -170,9 +154,6 @@ public class RequirementFluid extends ComponentRequirement.MultiCompParallelizab
     @Nonnull
     @Override
     public List<ProcessingComponent<?>> copyComponents(final List<ProcessingComponent<?>> components) {
-        if (Mods.MEKANISM.isPresent() && this.required instanceof HybridFluidGas) {
-            return HybridFluidUtils.copyGasHandlerComponents(components);
-        }
         return HybridFluidUtils.copyFluidHandlerComponents(components);
     }
 
@@ -207,39 +188,35 @@ public class RequirementFluid extends ComponentRequirement.MultiCompParallelizab
     }
 
     private int doFluidGasIOInternal(final List<ProcessingComponent<?>> components, final RecipeCraftingContext context, final int maxMultiplier) {
-        if (Mods.MEKANISM.isPresent() && this.required instanceof HybridFluidGas) {
-            return doGasIOInternal(components, context, maxMultiplier);
-        } else {
-            return doFluidIOInternal(components, context, maxMultiplier);
-        }
+        return doFluidIOInternal(components, context, maxMultiplier);
     }
 
-    @Optional.Method(modid = "mekanism")
-    private int doGasIOInternal(final List<ProcessingComponent<?>> components, final RecipeCraftingContext context, final int maxMultiplier) {
-        List<IExtendedGasHandler> fluidHandlers = HybridFluidUtils.castGasHandlerComponents(components);
-
-        long required = Math.round(RecipeModifier.applyModifiers(context, this, (double) this.required.getAmount(), false));
-        long maxRequired = required * maxMultiplier;
-
-        GasStack stack = ((HybridFluidGas) this.required).asGasStack().copy();
-        long totalIO = HybridFluidUtils.doSimulateDrainOrFill(stack, fluidHandlers, maxRequired, actionType);
-
-        if (totalIO < required) {
-            return 0;
-        }
-
-        HybridFluidUtils.doDrainOrFill(stack, totalIO, fluidHandlers, actionType);
-
-        return (int) (totalIO / required);
-    }
+//    @Optional.Method(modid = "mekanism")
+//    private int doGasIOInternal(final List<ProcessingComponent<?>> components, final RecipeCraftingContext context, final int maxMultiplier) {
+//        List<IExtendedGasHandler> fluidHandlers = HybridFluidUtils.castGasHandlerComponents(components);
+//
+//        long required = Math.round(RecipeModifier.applyModifiers(context, this, (double) this.required.amount, false));
+//        long maxRequired = required * maxMultiplier;
+//
+//        GasStack stack = ((HybridFluidGas) this.required).asGasStack().copy();
+//        long totalIO = HybridFluidUtils.doSimulateDrainOrFill(stack, fluidHandlers, maxRequired, actionType);
+//
+//        if (totalIO < required) {
+//            return 0;
+//        }
+//
+//        HybridFluidUtils.doDrainOrFill(stack, totalIO, fluidHandlers, actionType);
+//
+//        return (int) (totalIO / required);
+//    }
 
     private int doFluidIOInternal(final List<ProcessingComponent<?>> components, final RecipeCraftingContext context, final int maxMultiplier) {
         List<IFluidHandler> fluidHandlers = HybridFluidUtils.castFluidHandlerComponents(components);
 
-        long required = Math.round(RecipeModifier.applyModifiers(context, this, (double) this.required.getAmount(), false));
+        long required = Math.round(RecipeModifier.applyModifiers(context, this, (double) this.required.amount, false));
         long maxRequired = required * maxMultiplier;
 
-        FluidStack stack = this.required.asFluidStack().copy();
+        FluidStack stack = this.required.copy();
         long totalIO = HybridFluidUtils.doSimulateDrainOrFill(stack, fluidHandlers, maxRequired, actionType);
 
         if (totalIO < required) {

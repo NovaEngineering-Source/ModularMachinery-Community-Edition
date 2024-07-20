@@ -46,6 +46,14 @@ public class MachineControllerModel extends AnimatedGeoModel<TileMultiblockMachi
         pool = new ModelPool(this);
     }
 
+    public StaticModelBones getStaticModelBones() {
+        return pool.getStaticModelBones();
+    }
+
+    public ModelBufferSize getBufferSize() {
+        return pool.getModelBufferSize();
+    }
+
     public MachineControllerModel createRenderInstance() {
         MachineControllerModel model = new MachineControllerModel(modelName, modelLocation, textureLocation, animationFileLocation);
         model.pool = pool;

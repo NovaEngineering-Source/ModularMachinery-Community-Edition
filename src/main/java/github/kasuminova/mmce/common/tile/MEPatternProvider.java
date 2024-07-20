@@ -24,6 +24,7 @@ import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.InvOperation;
 import com.glodblock.github.common.item.fake.FakeFluids;
 import com.glodblock.github.common.item.fake.FakeItemRegister;
+import com.glodblock.github.integration.mek.FakeGases;
 import com.mekeng.github.common.me.data.IAEGasStack;
 import com.mekeng.github.common.me.storage.IGasStorageChannel;
 import github.kasuminova.mmce.client.gui.GuiMEPatternProvider;
@@ -99,6 +100,12 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
             handlerDirty = true;
             markChunkDirty();
         });
+        if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
+            handler.setOnGasChanged(slot -> {
+                handlerDirty = true;
+                markChunkDirty();
+            });
+        }
     }
 
     @Override
@@ -159,6 +166,13 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
                 FluidStack fluidStack = FakeItemRegister.getStack(stackInSlot);
                 if (fluidStack != null) {
                     handler.fill(fluidStack, true);
+                    continue;
+                }
+            }
+            if (Mods.MEKENG.isPresent() && FakeGases.isGasFakeItem(stackInSlot)) {
+                GasStack gasStack = FakeItemRegister.getStack(stackInSlot);
+                if (gasStack != null) {
+                    handler.receiveGas(null, gasStack, true);
                     continue;
                 }
             }

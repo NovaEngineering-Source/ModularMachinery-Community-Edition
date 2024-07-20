@@ -6,10 +6,10 @@ public interface BufferProvider {
 
     BufferBuilder getBuffer();
 
-    BufferBuilder getBuffer(final boolean bloom, final boolean transparent);
+    BufferBuilder getBuffer(final boolean bloom, final boolean transparent, final boolean isStatic);
 
-    void begin();
+    void begin(final boolean isStatic);
 
-    void finishDrawing();
+    void finishDrawing(final boolean isStatic);
 
 }

@@ -1,6 +1,7 @@
 package github.kasuminova.mmce.client.renderer;
 
 import github.kasuminova.mmce.client.model.MachineControllerModel;
+import github.kasuminova.mmce.client.model.StaticModelBones;
 import github.kasuminova.mmce.client.util.BufferProvider;
 import github.kasuminova.mmce.client.util.MatrixStack;
 import github.kasuminova.mmce.common.concurrent.TaskExecutor;
@@ -37,6 +38,7 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
     public static final VertexFormat VERTEX_FORMAT = DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL;
 
     protected static final ThreadLocal<MatrixStack> MATRIX_STACK = ThreadLocal.withInitial(MatrixStack::new);
+    protected static final ThreadLocal<StaticModelBones> STATIC_MODEL_BONES = new ThreadLocal<>();
     protected final Map<TileMultiblockMachineController, GeoModelRenderTask> tasks = new WeakHashMap<>();
 
     static {
@@ -105,15 +107,6 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
             return;
         }
 
-//        int light = tile.getWorld().getCombinedLight(tile.getPos(), 0);
-//        int lx = light % 65536;
-//        int ly = light / 65536;
-//        TODO: shall we use world light?
-//        GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-//        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lx, ly);
-//        GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
-//
-//        Minecraft.getMinecraft().renderEngine.bindTexture(modelProvider.getTextureLocation());
         render(modelProvider, tile, x, y, z, partialTicks);
     }
 
@@ -123,34 +116,21 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
                        double x, double y, double z,
                        final float partialTicks)
     {
-//        GlStateManager.disableCull();
-//        GlStateManager.enableRescaleNormal();
-//        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-//        GlStateManager.alphaFunc(516, 0.1F);
-//        GlStateManager.enableBlend();
-//        GlStateManager.depthMask(true);
-//        GlStateManager.shadeModel(7425);
-//
-//        GlStateManager.pushMatrix();
-//        GlStateManager.translate(-TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ);
-
         renderWithBuffer(tile);
-
-//        GlStateManager.popMatrix();
-//        GlStateManager.resetColor();
-//        GlStateManager.disableRescaleNormal();
-//        GlStateManager.enableCull();
     }
 
     @Optional.Method(modid = "geckolib3")
     private void renderWithBuffer(final TileMultiblockMachineController animatable) {
         GeoModelRenderTask task = getTask(animatable);
 
-        if (Mods.GREGTECHCEU.isPresent() || Mods.LUMENIZED.isPresent()) {
+        if (MachineControllerRenderer.shouldUseBloom()) {
             task.renderDefault();
             task.setAvailable(true);
         } else {
             task.renderAll();
+        }
+        if (task.shouldReRenderStatic()) {
+            render(animatable, task, true);
         }
     }
 
@@ -173,8 +153,9 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
     }
 
     @Optional.Method(modid = "geckolib3")
-    public void renderAsync(TileMultiblockMachineController tile,
-                            BufferProvider bufferProvider)
+    public void render(TileMultiblockMachineController tile,
+                       BufferProvider bufferProvider,
+                       boolean renderStatic)
     {
         MachineControllerModel modelProvider = tile.getCurrentModel();
         if (modelProvider == null) {
@@ -182,9 +163,10 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
         }
         MachineControllerModel renderInst = modelProvider.getRenderInstance();
         GeoModel model = renderInst.getModel();
+        STATIC_MODEL_BONES.set(renderInst.getStaticModelBones());
         synchronized (model) {
             renderInst.setLivingAnimations(tile, tile.hashCode());
-            bufferProvider.begin();
+            bufferProvider.begin(renderStatic);
 
             MatrixStack matrixStack = MATRIX_STACK.get();
             BlockPos pos = tile.getPos();
@@ -199,12 +181,12 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
                 if (group.isHidden() && group.childBonesAreHiddenToo()) {
                     continue;
                 }
-                renderRecursively(bufferProvider, group, 1F, 1F, 1F, 1F, false, false);
+                renderRecursively(bufferProvider, group, 1F, 1F, 1F, 1F, false, false, renderStatic);
             }
 
             matrixStack.pop();
 
-            bufferProvider.finishDrawing();
+            bufferProvider.finishDrawing(renderStatic);
             renderInst.returnRenderInst();
         }
     }
@@ -269,7 +251,7 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
     public void renderRecursively(BufferProvider bufferProvider,
                                   GeoBone bone,
                                   float red, float green, float blue, float alpha,
-                                  boolean bloom, boolean transparent)
+                                  boolean bloom, boolean transparent, boolean isStatic)
     {
         bloom |= bone.name.startsWith("emissive") || bone.name.startsWith("bloom");
         transparent |= bone.name.startsWith("transparent") || bone.name.startsWith("emissive_transparent") || bone.name.startsWith("bloom_transparent");
@@ -283,16 +265,16 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
         matrixStack.scale(bone);
         matrixStack.moveBackFromPivot(bone);
 
-        if (!bone.isHidden()) {
+        if (!bone.isHidden() && ((isStatic && STATIC_MODEL_BONES.get().isStaticBone(bone.name)) || (!isStatic && !STATIC_MODEL_BONES.get().isStaticBone(bone.name)))) {
             for (GeoCube cube : bone.childCubes) {
                 matrixStack.push();
-                renderCube(bufferProvider.getBuffer(bloom, transparent), cube, red, green, blue, alpha);
+                renderCube(bufferProvider.getBuffer(bloom, transparent, isStatic), cube, red, green, blue, alpha);
                 matrixStack.pop();
             }
         }
         if (!bone.childBonesAreHiddenToo()) {
             for (GeoBone childBone : bone.childBones) {
-                renderRecursively(bufferProvider, childBone, red, green, blue, alpha, bloom, transparent);
+                renderRecursively(bufferProvider, childBone, red, green, blue, alpha, bloom, transparent, isStatic);
             }
         }
 
@@ -364,6 +346,10 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
     @Override
     public boolean isGlobalRenderer(final TileMultiblockMachineController te) {
         return true;
+    }
+    
+    public static boolean shouldUseBloom() {
+        return Mods.GREGTECHCEU.isPresent() || Mods.LUMENIZED.isPresent();
     }
 
 }
