@@ -16,6 +16,7 @@ import hellfirepvp.modularmachinery.common.machine.RecipeThread;
 import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.SmartInterfaceData;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -27,6 +28,7 @@ import stanhebben.zenscript.annotations.ZenMethod;
 import stanhebben.zenscript.annotations.ZenSetter;
 
 import javax.annotation.Nullable;
+import java.util.function.Predicate;
 
 @ZenRegister
 @ZenClass("mods.modularmachinery.IMachineController")
@@ -295,8 +297,11 @@ public interface IMachineController {
      * @param blockStack 要判断的方块对应的物品，会被自动转换成对应的 IBlockState，如果转换出现问题会输出错误日志。
      * @return 存在数量。
      */
+    @net.minecraftforge.fml.common.Optional.Method(modid = "crafttweaker")
     @ZenMethod
     int getBlocksInPattern(final IItemStack blockStack);
+
+    int getBlocksInPattern(ItemStack itemStack);
 
     /**
      * 获取控制器的结构中指定方块的存在数量，只能在控制器成型时使用。<br/>
@@ -306,6 +311,7 @@ public interface IMachineController {
      * @param blockStateMatcher 要判断的方块对应的 IBlockStateMatcher
      * @return 存在数量。
      */
+    @net.minecraftforge.fml.common.Optional.Method(modid = "crafttweaker")
     @ZenMethod
     int getBlocksInPattern(final IBlockStateMatcher blockStateMatcher);
 
@@ -328,8 +334,11 @@ public interface IMachineController {
      * @param predicate 自定义判断逻辑。
      * @return 存在数量。
      */
+    @net.minecraftforge.fml.common.Optional.Method(modid = "crafttweaker")
     @ZenMethod
     int getBlocksInPattern(final IBlockStatePredicate predicate);
+
+    int getBlocksInPattern(Predicate<net.minecraft.block.state.IBlockState> predicate);
 
     /**
      * 获取控制器的拥有者，如果玩家不在线则返回 null。

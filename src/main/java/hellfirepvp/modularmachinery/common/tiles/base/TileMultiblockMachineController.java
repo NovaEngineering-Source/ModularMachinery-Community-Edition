@@ -889,10 +889,15 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         return CraftTweakerMC.getIBlockPos(getPos());
     }
 
+    @net.minecraftforge.fml.common.Optional.Method(modid = "crafttweaker")
     @Override
     public IBlockPos rotateWithControllerFacing(final IBlockPos posCT) {
         BlockPos pos = CraftTweakerMC.getBlockPos(posCT);
-        return CraftTweakerMC.getIBlockPos(MiscUtils.rotateYCCWNorthUntil(pos, controllerRotation == null ? EnumFacing.NORTH : controllerRotation));
+        return CraftTweakerMC.getIBlockPos(rotateWithControllerFacing(pos));
+    }
+
+    public BlockPos rotateWithControllerFacing(final BlockPos pos) {
+        return MiscUtils.rotateYCCWNorthUntil(pos, controllerRotation == null ? EnumFacing.NORTH : controllerRotation);
     }
 
     public String getFormedMachineName() {
@@ -1121,6 +1126,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         return foundDynamicPatterns.get(patternName);
     }
 
+    @net.minecraftforge.fml.common.Optional.Method(modid = "crafttweaker")
     @Override
     public int getBlocksInPattern(final IItemStack blockStack) {
         if (foundPattern == null || blockStack == null) {
@@ -1134,6 +1140,21 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         }
     }
 
+    @Override
+    public int getBlocksInPattern(ItemStack blockStack) {
+        if (foundPattern == null || blockStack == null || blockStack.isEmpty()) {
+            return 0;
+        }
+        Block block = Block.getBlockFromItem(blockStack.getItem());
+        if (blockStack.getMetadata() == OreDictionary.WILDCARD_VALUE) {
+            return getBlocksInPattern((Predicate<IBlockState>) state -> state.getBlock() == block);
+        } else {
+            IBlockState blockState = block.getStateFromMeta(blockStack.getMetadata());
+            return getBlocksInPattern((Predicate<IBlockState>) state -> state.equals(blockState));
+        }
+    }
+
+    @net.minecraftforge.fml.common.Optional.Method(modid = "crafttweaker")
     @Override
     public int getBlocksInPattern(final IBlockStateMatcher blockStateMatcher) {
         if (foundPattern == null) {
@@ -1151,12 +1172,18 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         return getBlocksInPatternInternal(applicable::contains);
     }
 
+    @net.minecraftforge.fml.common.Optional.Method(modid = "crafttweaker")
     @Override
     public int getBlocksInPattern(final IBlockStatePredicate predicate) {
         if (foundPattern == null) {
             return 0;
         }
         return getBlocksInPatternInternal(state -> predicate.test(CraftTweakerMC.getBlockState(state)));
+    }
+
+    @Override
+    public int getBlocksInPattern(Predicate<IBlockState> predicate) {
+        return getBlocksInPatternInternal(predicate);
     }
 
     public int getBlocksInPatternInternal(final Predicate<IBlockState> predicate) {
