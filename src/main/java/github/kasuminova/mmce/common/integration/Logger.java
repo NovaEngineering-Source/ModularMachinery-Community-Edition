@@ -7,6 +7,9 @@ import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import org.apache.logging.log4j.message.ParameterizedMessage;
 
+/**
+ * A logger which logs to CraftTweaker, GroovyScript and this mods log, depending on if the mods are loaded.
+ */
 public class Logger {
 
     private static final String CT_PREFIX = "[ModularMachinery] ";
