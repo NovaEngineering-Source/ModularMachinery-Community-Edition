@@ -1,5 +1,6 @@
 package hellfirepvp.modularmachinery.common.integration.crafttweaker.upgrade;
 
+import com.cleanroommc.groovyscript.api.GroovyBlacklist;
 import crafttweaker.annotations.ZenRegister;
 import github.kasuminova.mmce.common.event.Phase;
 import github.kasuminova.mmce.common.event.client.ControllerGUIRenderEvent;
@@ -295,6 +296,7 @@ public class MachineUpgradeBuilder {
         return this;
     }
 
+    @GroovyBlacklist
     @ZenMethod
     public void buildAndRegister() {
         RegistryUpgrade.registerUpgrade(machineUpgrade.getType().getName(), machineUpgrade);

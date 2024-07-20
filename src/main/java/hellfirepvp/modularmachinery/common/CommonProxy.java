@@ -149,7 +149,7 @@ public class CommonProxy implements IGuiHandler {
         IntegrationTypeHelper.filterModIdRequirementTypes();
 
         if (Mods.GROOVYSCRIPT.isPresent()) {
-            // the patter requires all mod block to be loaded
+            // the pattern requires all mod block to be loaded
             GroovyMachine.init();
         }
         if (Mods.TOP.isPresent()) {

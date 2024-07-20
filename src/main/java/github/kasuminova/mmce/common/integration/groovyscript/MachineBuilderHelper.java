@@ -6,7 +6,9 @@ import hellfirepvp.modularmachinery.common.block.BlockCasing;
 import hellfirepvp.modularmachinery.common.block.prop.EnergyHatchData;
 import hellfirepvp.modularmachinery.common.block.prop.FluidHatchSize;
 import hellfirepvp.modularmachinery.common.block.prop.ItemBusSize;
+import hellfirepvp.modularmachinery.common.integration.crafttweaker.RecipeModifierBuilder;
 import hellfirepvp.modularmachinery.common.lib.BlocksMM;
+import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -33,6 +35,18 @@ public class MachineBuilderHelper {
 
     public GroovyMachineBuilder getSettings() {
         return settings;
+    }
+
+    public RecipeModifierBuilder recipeModifierBuilder() {
+        return new RecipeModifierBuilder();
+    }
+
+    public RecipeModifierBuilder recipeModifierBuilder(String type, String ioTypeStr, float value, int operation, boolean affectChance) {
+        return RecipeModifierBuilder.create(type, ioTypeStr, value, operation, affectChance);
+    }
+
+    public RecipeModifier recipeModifier(String type, String ioTypeStr, float value, int operation, boolean affectChance) {
+        return recipeModifierBuilder(type, ioTypeStr, value, operation, affectChance).build();
     }
 
     private IBlockState[] getBlockStates(Block block, int min, int max, @Nullable Block additional) {

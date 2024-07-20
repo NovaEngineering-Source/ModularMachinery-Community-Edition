@@ -10,6 +10,7 @@ import com.cleanroommc.groovyscript.event.EventBusType;
 import com.cleanroommc.groovyscript.event.GroovyEventManager;
 import com.cleanroommc.groovyscript.event.GroovyReloadEvent;
 import com.cleanroommc.groovyscript.event.ScriptRunEvent;
+import com.cleanroommc.groovyscript.sandbox.ClosureHelper;
 import com.cleanroommc.groovyscript.sandbox.LoadStage;
 import github.kasuminova.mmce.client.model.DynamicMachineModelRegistry;
 import github.kasuminova.mmce.client.resource.GeoModelExternalLoader;
@@ -27,10 +28,13 @@ import hellfirepvp.modularmachinery.common.crafting.adapter.RecipeAdapter;
 import hellfirepvp.modularmachinery.common.integration.ModIntegrationJEI;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.MachineBuilder;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.MachineModifier;
+import hellfirepvp.modularmachinery.common.integration.crafttweaker.RecipeModifierBuilder;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.event.MMEvents;
+import hellfirepvp.modularmachinery.common.integration.crafttweaker.upgrade.MachineUpgradeBuilder;
 import hellfirepvp.modularmachinery.common.lib.RegistriesMM;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.machine.MachineRegistry;
+import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
 import hellfirepvp.modularmachinery.common.util.BlockArrayCache;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.server.MinecraftServer;
@@ -230,13 +234,35 @@ public class GroovyScriptPlugin implements GroovyPlugin {
 
         public void machineEvent(String machineRegistryName, Class<? extends MachineEvent> clazz, Closure<?> listener) {
             GroovyEventManager.INSTANCE.listen(EventPriority.NORMAL, EventBusType.MAIN, clazz, event -> {
-                DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
+                DynamicMachine machine = MachineRegistry.getRegistry()
+                                                        .getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
                 if (machine != null) {
                     machine.addMachineEventHandler(clazz, IEventHandler.of(listener));
                 } else {
                     GroovyLog.get().error("Could not find machine `" + machineRegistryName + "`!");
                 }
             });
+        }
+
+        public void machineUpgrade(String name, String localizedName, float level, int maxStack, Closure<?> builder) {
+            MachineUpgradeBuilder machineUpgradeBuilder = MachineUpgradeBuilder.newBuilder(name, localizedName, level, maxStack);
+            if (machineUpgradeBuilder == null) return;
+            ClosureHelper.withEnvironment(builder, machineUpgradeBuilder, true);
+            builder.call();
+            machineUpgradeBuilder.buildAndRegister();
+        }
+
+        public RecipeModifierBuilder recipeModifierBuilder() {
+            return new RecipeModifierBuilder();
+        }
+
+        public RecipeModifierBuilder recipeModifierBuilder(String type, String ioTypeStr, float value, int operation,
+                                                           boolean affectChance) {
+            return RecipeModifierBuilder.create(type, ioTypeStr, value, operation, affectChance);
+        }
+
+        public RecipeModifier recipeModifier(String type, String ioTypeStr, float value, int operation, boolean affectChance) {
+            return recipeModifierBuilder(type, ioTypeStr, value, operation, affectChance).build();
         }
     }
 }
