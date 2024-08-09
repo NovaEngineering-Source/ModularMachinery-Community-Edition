@@ -163,4 +163,8 @@ public class HybridGasTank extends HybridTank implements IExtendedGasHandler {
         nbt.setTag("gasTag", subGas);
     }
 
+    public GasTank getTank(){
+        return gasTank;
+    }
+
 }
