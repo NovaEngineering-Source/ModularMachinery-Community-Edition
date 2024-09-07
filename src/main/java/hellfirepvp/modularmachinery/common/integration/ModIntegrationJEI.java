@@ -40,7 +40,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Optional;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -136,7 +139,11 @@ public class ModIntegrationJEI implements IModPlugin {
         });
     }
 
+    /**
+     * AE2FCR need this.
+     */
     @Override
+    @Deprecated
     public void registerIngredients(IModIngredientRegistration registry) {
         try {
             registry.register(() -> HybridFluid.class, Lists.newArrayList(), new HybridStackHelper<>(), new HybridFluidRenderer<>());
@@ -148,8 +155,8 @@ public class ModIntegrationJEI implements IModPlugin {
             exc.printStackTrace();
             throw exc;
         }
-//        registry.register(() -> IngredientItemStack.class, new ArrayList<>(), new IngredientItemStackHelper(), new IngredientItemStackRenderer(Collections));
     }
+
 
     @Optional.Method(modid = "mekanism")
     private void registerHybridGas(IModIngredientRegistration registry) {

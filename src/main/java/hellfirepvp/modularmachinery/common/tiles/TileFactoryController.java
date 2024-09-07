@@ -405,7 +405,7 @@ public class TileFactoryController extends TileMultiblockMachineController {
             maxParallelism -= (activeRecipe.getParallelism() - 1);
         }
 
-        return maxParallelism;
+        return Math.max(1, maxParallelism);
     }
 
     /**
@@ -716,12 +716,12 @@ public class TileFactoryController extends TileMultiblockMachineController {
             return false;
         }
         for (FactoryRecipeThread thread : coreRecipeThreads.values()) {
-            if (thread.getActiveRecipe() != null) {
+            if (thread.getActiveRecipe() != null && thread.getStatus().isCrafting()) {
                 return true;
             }
         }
         for (FactoryRecipeThread thread : recipeThreadList) {
-            if (thread.getActiveRecipe() != null) {
+            if (thread.getActiveRecipe() != null && thread.getStatus().isCrafting()) {
                 return true;
             }
         }

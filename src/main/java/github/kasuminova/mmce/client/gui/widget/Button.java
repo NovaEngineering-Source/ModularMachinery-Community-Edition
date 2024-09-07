@@ -3,11 +3,13 @@ package github.kasuminova.mmce.client.gui.widget;
 import github.kasuminova.mmce.client.gui.util.MousePos;
 import github.kasuminova.mmce.client.gui.util.RenderPos;
 import github.kasuminova.mmce.client.gui.util.RenderSize;
+import github.kasuminova.mmce.client.gui.util.TextureProperties;
 import github.kasuminova.mmce.client.gui.widget.base.DynamicWidget;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetGui;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -18,15 +20,9 @@ import java.util.function.Function;
 public class Button extends DynamicWidget {
 
     protected ResourceLocation textureLocation = null;
-
-    protected int textureX = 0;
-    protected int textureY = 0;
-
-    protected int hoveredTextureX = 0;
-    protected int hoveredTextureY = 0;
-
-    protected int unavailableTextureX = 0;
-    protected int unavailableTextureY = 0;
+    protected TextureProperties texture = TextureProperties.EMPTY;
+    protected TextureProperties hoveredTexture = TextureProperties.EMPTY;
+    protected TextureProperties unavailableTexture= TextureProperties.EMPTY;
 
     protected boolean available = true;
 
@@ -35,30 +31,23 @@ public class Button extends DynamicWidget {
 
     @Override
     public void render(final WidgetGui gui, final RenderSize renderSize, final RenderPos renderPos, final MousePos mousePos) {
-        if (isVisible() && textureLocation != null) {
-            int texX;
-            int texY;
-
-            if (isUnavailable()) {
-                texX = unavailableTextureX;
-                texY = unavailableTextureY;
-            } else if (isMouseOver(mousePos)) {
-                texX = hoveredTextureX;
-                texY = hoveredTextureY;
-            } else {
-                texX = textureX;
-                texY = textureY;
-            }
-
-            gui.getGui().mc.getTextureManager().bindTexture(textureLocation);
-
-            gui.getGui().drawTexturedModalRect(renderPos.posX(), renderPos.posY(), texX, texY, width, height);
+        if (!isVisible()) {
+            return;
         }
+        if (isUnavailable()) {
+            unavailableTexture.render(textureLocation, renderPos, renderSize, gui);
+            return;
+        }
+        if (isMouseOver(mousePos)) {
+            hoveredTexture.render(textureLocation, renderPos, renderSize, gui);
+            return;
+        }
+        texture.render(textureLocation, renderPos, renderSize, gui);
     }
 
     @Override
     public boolean onMouseClick(final MousePos mousePos, final RenderPos renderPos, final int mouseButton) {
-        if (isVisible() && onClickedListener != null) {
+        if (isVisible() && onClickedListener != null && mouseButton == 0) {
             onClickedListener.accept(this);
             return true;
         }
@@ -86,75 +75,42 @@ public class Button extends DynamicWidget {
         return this;
     }
 
-    public int getTextureX() {
-        return textureX;
+    public Button setTexture(final int textureX, final int textureY) {
+        return setTexture(TextureProperties.of(textureX, textureY));
     }
 
-    public Button setTextureX(final int textureX) {
-        this.textureX = textureX;
+    public Button setHoveredTexture(final int hoveredTextureX, final int hoveredTextureY) {
+        return setHoveredTexture(TextureProperties.of(hoveredTextureX, hoveredTextureY));
+    }
+
+    public Button setUnavailableTexture(final int unavailableTextureX, final int unavailableTextureY) {
+        return setUnavailableTexture(TextureProperties.of(unavailableTextureX, unavailableTextureY));
+    }
+
+    public TextureProperties getTexture() {
+        return texture;
+    }
+
+    public Button setTexture(final TextureProperties texture) {
+        this.texture = Optional.ofNullable(texture).orElse(TextureProperties.EMPTY);
         return this;
     }
 
-    public int getTextureY() {
-        return textureY;
+    public TextureProperties getHoveredTexture() {
+        return hoveredTexture;
     }
 
-    public Button setTextureY(final int textureY) {
-        this.textureY = textureY;
+    public Button setHoveredTexture(final TextureProperties hoveredTexture) {
+        this.hoveredTexture = Optional.ofNullable(hoveredTexture).orElse(TextureProperties.EMPTY);
         return this;
     }
 
-    public Button setTextureXY(final int textureX, final int textureY) {
-        this.textureX = textureX;
-        this.textureY = textureY;
-        return this;
+    public TextureProperties getUnavailableTexture() {
+        return unavailableTexture;
     }
 
-    public int getHoveredTextureX() {
-        return hoveredTextureX;
-    }
-
-    public Button setHoveredTextureX(final int hoveredTextureX) {
-        this.hoveredTextureX = hoveredTextureX;
-        return this;
-    }
-
-    public int getHoveredTextureY() {
-        return hoveredTextureY;
-    }
-
-    public Button setHoveredTextureY(final int hoveredTextureY) {
-        this.hoveredTextureY = hoveredTextureY;
-        return this;
-    }
-
-    public Button setHoveredTextureXY(final int hoveredTextureX, final int hoveredTextureY) {
-        this.hoveredTextureX = hoveredTextureX;
-        this.hoveredTextureY = hoveredTextureY;
-        return this;
-    }
-
-    public int getUnavailableTextureX() {
-        return unavailableTextureX;
-    }
-
-    public Button setUnavailableTextureX(final int unavailableTextureX) {
-        this.unavailableTextureX = unavailableTextureX;
-        return this;
-    }
-
-    public int getUnavailableTextureY() {
-        return unavailableTextureY;
-    }
-
-    public Button setUnavailableTextureY(final int unavailableTextureY) {
-        this.unavailableTextureY = unavailableTextureY;
-        return this;
-    }
-
-    public Button setUnavailableTextureXY(final int unavailableTextureX, final int unavailableTextureY) {
-        this.unavailableTextureX = unavailableTextureX;
-        this.unavailableTextureY = unavailableTextureY;
+    public Button setUnavailableTexture(final TextureProperties unavailableTexture) {
+        this.unavailableTexture = Optional.ofNullable(unavailableTexture).orElse(TextureProperties.EMPTY);
         return this;
     }
 

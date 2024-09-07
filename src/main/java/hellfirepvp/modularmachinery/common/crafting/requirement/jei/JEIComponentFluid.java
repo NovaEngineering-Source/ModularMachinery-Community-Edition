@@ -8,13 +8,9 @@
 
 package hellfirepvp.modularmachinery.common.crafting.requirement.jei;
 
-import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
 import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementFluid;
-import hellfirepvp.modularmachinery.common.integration.ingredient.HybridFluid;
-import hellfirepvp.modularmachinery.common.integration.ingredient.HybridFluidGas;
 import hellfirepvp.modularmachinery.common.integration.recipe.RecipeLayoutPart;
-import mekanism.api.gas.GasStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -26,37 +22,37 @@ import java.util.List;
 /**
  * This class is part of the Fracture Mod
  * The complete source code for this mod can be found on github.
- * Class: JEIComponentHybridFluid
+ * Class: JEIComponentFluid
  * Created by HellFirePvP
  * Date: 08.04.2018 / 12:49
  */
-public class JEIComponentHybridFluid extends ComponentRequirement.JEIComponent<HybridFluid> {
+public class JEIComponentFluid extends ComponentRequirement.JEIComponent<FluidStack> {
 
     private final RequirementFluid requirement;
 
-    public JEIComponentHybridFluid(RequirementFluid requirement) {
+    public JEIComponentFluid(RequirementFluid requirement) {
         this.requirement = requirement;
     }
 
     @Override
-    public Class<HybridFluid> getJEIRequirementClass() {
-        return HybridFluid.class;
+    public Class<FluidStack> getJEIRequirementClass() {
+        return FluidStack.class;
     }
 
     @Override
-    public List<HybridFluid> getJEIIORequirements() {
+    public List<FluidStack> getJEIIORequirements() {
         return Collections.singletonList(requirement.required);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public RecipeLayoutPart<HybridFluid> getLayoutPart(Point offset) {
-        return new RecipeLayoutPart.Tank(offset);
+    public RecipeLayoutPart<FluidStack> getLayoutPart(Point offset) {
+        return new RecipeLayoutPart.FluidTank(offset);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void onJEIHoverTooltip(int slotIndex, boolean input, HybridFluid ingredient, List<String> tooltip) {
+    public void onJEIHoverTooltip(int slotIndex, boolean input, FluidStack ingredient, List<String> tooltip) {
         JEIComponentItem.addChanceTooltip(input, tooltip, requirement.chance);
     }
 }

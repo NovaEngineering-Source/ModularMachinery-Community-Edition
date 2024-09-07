@@ -13,6 +13,7 @@ import github.kasuminova.mmce.client.model.DynamicMachineModelRegistry;
 import github.kasuminova.mmce.client.resource.GeoModelExternalLoader;
 import github.kasuminova.mmce.common.concurrent.RecipeCraftingContextPool;
 import github.kasuminova.mmce.common.upgrade.registry.RegistryUpgrade;
+import github.kasuminova.mmce.common.util.Sides;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import hellfirepvp.modularmachinery.client.ClientProxy;
 import hellfirepvp.modularmachinery.common.base.Mods;
@@ -72,7 +73,7 @@ public class ModIntegrationCrafttweaker {
         // Reset RecipeAdapterIncId
         RegistriesMM.ADAPTER_REGISTRY.getValuesCollection().forEach(RecipeAdapter::resetIncId);
 
-        if (FMLCommonHandler.instance().getSide().isClient() && Mods.GECKOLIB.isPresent()) {
+        if (Sides.isClient() && Mods.GECKOLIB.isPresent()) {
             DynamicMachineModelRegistry.INSTANCE.onReload();
         }
 
@@ -100,7 +101,7 @@ public class ModIntegrationCrafttweaker {
 
         MachineRegistry.reloadMachine(MachineBuilder.WAIT_FOR_LOAD);
 
-        if (FMLCommonHandler.instance().getSide().isClient() && Mods.GECKOLIB.isPresent()) {
+        if (Sides.isClient() && Mods.GECKOLIB.isPresent()) {
             ClientProxy.clientScheduler.addRunnable(GeoModelExternalLoader.INSTANCE::onReload, 0);
         }
 

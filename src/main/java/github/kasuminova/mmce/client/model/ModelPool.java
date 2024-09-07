@@ -18,6 +18,8 @@ public class ModelPool {
 
     private final Map<MachineControllerModel, GeoModel> renderInstMap = new ConcurrentHashMap<>();
     private final Queue<MachineControllerModel> renderInstPool = new ArrayBlockingQueue<>(POOL_LIMIT);
+    private StaticModelBones staticModelBones = null;
+    private ModelBufferSize modelBufferSize = null;
 
     public ModelPool(final MachineControllerModel original) {
         this.original = original;
@@ -26,6 +28,20 @@ public class ModelPool {
 
     public MachineControllerModel getOriginal() {
         return original;
+    }
+
+    public StaticModelBones getStaticModelBones() {
+        if (staticModelBones == null) {
+            staticModelBones = StaticModelBones.compile(original.getModel(), GeoModelExternalLoader.INSTANCE.getAnimation(original.animationFileLocation));
+        }
+        return staticModelBones;
+    }
+
+    public ModelBufferSize getModelBufferSize() {
+        if (modelBufferSize == null) {
+            modelBufferSize = ModelBufferSize.calculate(original.getModel(), getStaticModelBones());
+        }
+        return modelBufferSize;
     }
 
     public GeoModel getModel(final MachineControllerModel model) {

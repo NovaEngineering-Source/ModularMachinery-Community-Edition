@@ -32,10 +32,10 @@ public class IngredientListVertical extends IngredientList {
         scrollbar.setMargin(1, 1, 1, 1);
         scrollbar.setWidthHeight(6, 124);
         scrollbar.getScroll()
-                .setMouseDownTextureXY(200, 175)
-                .setHoveredTextureXY(192, 175)
-                .setTextureXY(184, 175)
-                .setUnavailableTextureXY(208, 175)
+                .setMouseDownTexture(200, 175)
+                .setHoveredTexture(192, 175)
+                .setTexture(184, 175)
+                .setUnavailableTexture(208, 175)
                 .setTextureLocation(MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION)
                 .setWidthHeight(6, 17);
         checkScrollbarRange();

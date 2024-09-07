@@ -102,10 +102,12 @@ public enum Mods {
             return ae2fc != null && ae2fc.getVersion().endsWith("-r");
         }
     },
+    MEKENG("mekeng"),
     /**
      * A addon mod provides bloom effect, extracted from GregTechCEu.
      */
     LUMENIZED("lumenized"),
+    ALFHEIM("alfheim")
     ;
 
     public final String modid;

@@ -157,7 +157,7 @@ public class IItemHandlerImpl implements IItemHandlerModifiable {
     @Override
     @Nonnull
     public ItemStack getStackInSlot(int slot) {
-        if (slot < 0 || slot > inventory.length) {
+        if (slot < 0 || slot >= inventory.length) {
             return ItemStack.EMPTY;
         }
         SlotStackHolder holder = inventory[slot];

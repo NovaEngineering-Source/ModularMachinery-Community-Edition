@@ -30,7 +30,6 @@ import hellfirepvp.modularmachinery.common.crafting.requirement.*;
 import hellfirepvp.modularmachinery.common.data.Config;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.helper.AdvancedItemCheckerCT;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.helper.AdvancedItemModifierCT;
-import hellfirepvp.modularmachinery.common.lib.RequirementTypesMM;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineRegistry;
@@ -260,6 +259,7 @@ public class RecipePrimer implements PreparedRecipe {
 
     /**
      * 设置此配方只能被指定的核心线程执行。
+     *
      * @param name 线程名
      */
     @ZenMethod
@@ -386,8 +386,8 @@ public class RecipePrimer implements PreparedRecipe {
     @ZenMethod
     public RecipePrimer addInput(IIngredient input) {
         if (input instanceof IItemStack ||
-            input instanceof IOreDictEntry ||
-            input instanceof IngredientStack && input.getInternal() instanceof IOreDictEntry) {
+                input instanceof IOreDictEntry ||
+                input instanceof IngredientStack && input.getInternal() instanceof IOreDictEntry) {
             addItemInput(input);
         } else if (input instanceof ILiquidStack liquidStack) {
             addFluidInput(liquidStack);
@@ -409,8 +409,8 @@ public class RecipePrimer implements PreparedRecipe {
     @ZenMethod
     public RecipePrimer addOutput(IIngredient output) {
         if (output instanceof IItemStack ||
-            output instanceof IOreDictEntry ||
-            output instanceof IngredientStack && output.getInternal() instanceof IOreDictEntry) {
+                output instanceof IOreDictEntry ||
+                output instanceof IngredientStack && output.getInternal() instanceof IOreDictEntry) {
             addItemOutput(output);
         } else if (output instanceof ILiquidStack) {
             addFluidOutput((ILiquidStack) output);
@@ -537,14 +537,14 @@ public class RecipePrimer implements PreparedRecipe {
     @ZenMethod
     @Optional.Method(modid = "mekanism")
     public RecipePrimer addGasInput(IGasStack gasStack) {
-        requireGas(IOType.INPUT, gasStack);
+        requireGas(IOType.INPUT, gasStack, false);
         return this;
     }
 
     @ZenMethod
     @Optional.Method(modid = "mekanism")
     public RecipePrimer addGasOutput(IGasStack gasStack) {
-        requireGas(IOType.OUTPUT, gasStack);
+        requireGas(IOType.OUTPUT, gasStack, false);
         return this;
     }
 
@@ -552,7 +552,7 @@ public class RecipePrimer implements PreparedRecipe {
     @Optional.Method(modid = "mekanism")
     public RecipePrimer addGasInputs(IGasStack... gasStacks) {
         for (final IGasStack gasStack : gasStacks) {
-            requireGas(IOType.INPUT, gasStack);
+            requireGas(IOType.INPUT, gasStack, false);
         }
         return this;
     }
@@ -561,7 +561,41 @@ public class RecipePrimer implements PreparedRecipe {
     @Optional.Method(modid = "mekanism")
     public RecipePrimer addGasOutputs(IGasStack... gasStacks) {
         for (final IGasStack gasStack : gasStacks) {
-            requireGas(IOType.OUTPUT, gasStack);
+            requireGas(IOType.OUTPUT, gasStack, false);
+        }
+        return this;
+    }
+
+    // Gas Per Tick Input / Output
+
+    @ZenMethod
+    @Optional.Method(modid = "mekanism")
+    public RecipePrimer addGasPerTickInput(IGasStack gasStack) {
+        requireGas(IOType.INPUT, gasStack, true);
+        return this;
+    }
+
+    @ZenMethod
+    @Optional.Method(modid = "mekanism")
+    public RecipePrimer addGasPerTickOutput(IGasStack gasStack) {
+        requireGas(IOType.OUTPUT, gasStack, true);
+        return this;
+    }
+
+    @ZenMethod
+    @Optional.Method(modid = "mekanism")
+    public RecipePrimer addGasPerTickInputs(IGasStack... gasStacks) {
+        for (final IGasStack gasStack : gasStacks) {
+            requireGas(IOType.INPUT, gasStack, true);
+        }
+        return this;
+    }
+
+    @ZenMethod
+    @Optional.Method(modid = "mekanism")
+    public RecipePrimer addGasPerTickOutputs(IGasStack... gasStacks) {
+        for (final IGasStack gasStack : gasStacks) {
+            requireGas(IOType.OUTPUT, gasStack, true);
         }
         return this;
     }
@@ -733,13 +767,18 @@ public class RecipePrimer implements PreparedRecipe {
                     gasName, amount, gasName, amount
             ));
         }
-        RequirementFluid req = RequirementFluid.createMekanismGasRequirement(RequirementTypesMM.REQUIREMENT_GAS, ioType, gasStack);
+        RequirementGas req = new RequirementGas(ioType, gasStack);
         appendComponent(req);
     }
 
     @Optional.Method(modid = "mekanism")
-    private void requireGas(IOType ioType, IGasStack gasStack) {
-        RequirementFluid req = RequirementFluid.createMekanismGasRequirement(RequirementTypesMM.REQUIREMENT_GAS, ioType, (GasStack) gasStack.getInternal());
+    private void requireGas(IOType ioType, IGasStack gasStack, boolean perTick) {
+        if (perTick) {
+            RequirementGasPerTick req = new RequirementGasPerTick(ioType, (GasStack) gasStack.getInternal());
+            appendComponent(req);
+            return;
+        }
+        RequirementGas req = new RequirementGas(ioType, (GasStack) gasStack.getInternal());
         appendComponent(req);
     }
 

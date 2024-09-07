@@ -3,6 +3,7 @@ package github.kasuminova.mmce.client.gui;
 import appeng.client.gui.widgets.GuiCustomSlot;
 import appeng.fluids.client.gui.widgets.GuiFluidTank;
 import github.kasuminova.mmce.client.gui.slot.GuiFullCapFluidTank;
+import github.kasuminova.mmce.client.gui.util.TextureProperties;
 import github.kasuminova.mmce.client.gui.widget.Button;
 import github.kasuminova.mmce.client.gui.widget.Button4State;
 import github.kasuminova.mmce.client.gui.widget.ButtonElements;
@@ -84,9 +85,9 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
         // Init ReturnItems...
         Button4State returnItems = new Button4State();
         returnItems
-                .setMouseDownTextureXY(176 + 18 + 18, 214)
-                .setHoveredTextureXY(176 + 18, 214)
-                .setTextureXY(176, 214)
+                .setMouseDownTexture(176 + 18 + 18, 214)
+                .setHoveredTexture(176 + 18, 214)
+                .setTexture(176, 214)
                 .setTextureLocation(GuiMEPatternProvider.GUI_TEXTURE)
                 .setTooltipFunction((btn) -> {
                     List<String> tooltips = new ArrayList<>();
@@ -100,17 +101,17 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
         // Init WorkModeSetting...
         workModeSetting
                 // ButtonTexture 1
-                .addElement(MEPatternProvider.WorkModeSetting.DEFAULT, 140, 196, GuiMEPatternProvider.GUI_TEXTURE)
+                .addElement(MEPatternProvider.WorkModeSetting.DEFAULT, TextureProperties.of(140, 196, 16, 16))
                 // ButtonTexture 2
-                .addElement(MEPatternProvider.WorkModeSetting.BLOCKING_MODE, 140 + 18, 196, GuiMEPatternProvider.GUI_TEXTURE)
+                .addElement(MEPatternProvider.WorkModeSetting.BLOCKING_MODE, TextureProperties.of(140 + 18, 196, 16, 16))
                 // ButtonTexture 3
-                .addElement(MEPatternProvider.WorkModeSetting.CRAFTING_LOCK_MODE, 140 + 18 + 18, 196, GuiMEPatternProvider.GUI_TEXTURE)
+                .addElement(MEPatternProvider.WorkModeSetting.CRAFTING_LOCK_MODE, TextureProperties.of(140 + 18 + 18, 196, 16, 16))
                 // ButtonTexture 5
-                .setMouseDownTextureXY(140 + 18 + 18 + 18 + 18 + 18, 196)
+                .setMouseDownTexture(140 + 18 + 18 + 18 + 18 + 18, 196)
                 // ButtonTexture 5
-                .setHoveredTextureXY(140 + 18 + 18 + 18 + 18, 196)
+                .setHoveredTexture(140 + 18 + 18 + 18 + 18, 196)
                 // ButtonTexture 4
-                .setTextureXY(140 + 18 + 18 + 18, 196)
+                .setTexture(140 + 18 + 18 + 18, 196)
                 .setTextureLocation(GuiMEPatternProvider.GUI_TEXTURE)
                 .setTooltipFunction((btn) -> {
                     MEPatternProvider.WorkModeSetting current = workModeSetting.getCurrentSelection();
@@ -141,8 +142,8 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
         Button singleInvTip = new Button();
         singleInvTip
                 .setTextureLocation(GuiMEPatternProvider.GUI_TEXTURE)
-                .setTextureXY(230, 214)
-                .setHoveredTextureXY(230 + 11, 214)
+                .setTexture(230, 214)
+                .setHoveredTexture(230 + 11, 214)
                 .setTooltipFunction((btn) -> {
                     List<String> tooltips = new ArrayList<>();
                     tooltips.add(I18n.format("gui.mepatternprovider.single_inv.desc"));
@@ -212,12 +213,12 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
 
     public void updateGUIState() {
         InfItemFluidHandler infHandler = owner.getInfHandler();
-        stackList.setStackList(infHandler.getItemStackList(), infHandler.getFluidStackList());
+        stackList.setStackList(infHandler.getItemStackList(), infHandler.getFluidStackList(), infHandler.getGasStackList());
         workModeSetting.setCurrentSelection(owner.getWorkMode());
     }
 
-    public void setStackList(final List<ItemStack> itemStackList, final List<FluidStack> fluidStackList) {
-        stackList.setStackList(itemStackList, fluidStackList);
+    public void setStackList(final List<ItemStack> itemStackList, final List<FluidStack> fluidStackList, final List<?> gasStackList) {
+        stackList.setStackList(itemStackList, fluidStackList, gasStackList);
     }
 
 }

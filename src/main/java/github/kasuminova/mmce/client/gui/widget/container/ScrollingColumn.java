@@ -130,6 +130,33 @@ public class ScrollingColumn extends Column {
     }
 
     @Override
+    public void onMouseClickGlobal(final MousePos mousePos, final RenderPos renderPos, final int mouseButton) {
+        int width = this.width;
+        int height = this.height;
+
+        int y = getTotalHeight() > height ? -scrollbar.getCurrentScroll() : 0;
+
+        for (final DynamicWidget widget : widgets) {
+            if (widget.isDisabled()) {
+                continue;
+            }
+            RenderPos widgetRenderPos = getWidgetRenderOffset(widget, width, y);
+            if (widgetRenderPos == null) {
+                continue;
+            }
+            int offsetX = widgetRenderPos.posX();
+            int offsetY = widgetRenderPos.posY();
+
+            if (offsetY + widget.getHeight() >= 0) {
+                MousePos relativeMousePos = mousePos.relativeTo(widgetRenderPos);
+                RenderPos absRenderPos = widgetRenderPos.add(renderPos);
+                widget.onMouseClickGlobal(relativeMousePos, absRenderPos, mouseButton);
+            }
+            y += widget.getMarginUp() + widget.getHeight() + widget.getMarginDown();
+        }
+    }
+
+    @Override
     public boolean onMouseClickMove(final MousePos mousePos, final RenderPos renderPos, final int mouseButton) {
         int width = this.width;
         int height = this.height;

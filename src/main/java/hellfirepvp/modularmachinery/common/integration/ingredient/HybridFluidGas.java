@@ -19,6 +19,7 @@ import javax.annotation.Nonnull;
  * Created by HellFirePvP
  * Date: 26.08.2017 / 23:16
  */
+@Deprecated
 public class HybridFluidGas extends HybridFluid {
 
     @Nonnull

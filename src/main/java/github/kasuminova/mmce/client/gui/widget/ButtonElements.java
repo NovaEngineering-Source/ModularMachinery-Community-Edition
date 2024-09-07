@@ -3,9 +3,9 @@ package github.kasuminova.mmce.client.gui.widget;
 import github.kasuminova.mmce.client.gui.util.MousePos;
 import github.kasuminova.mmce.client.gui.util.RenderPos;
 import github.kasuminova.mmce.client.gui.util.RenderSize;
+import github.kasuminova.mmce.client.gui.util.TextureProperties;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetGui;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.util.ResourceLocation;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -19,7 +19,7 @@ public class ButtonElements<E> extends Button4State {
     @Override
     public void render(final WidgetGui gui, final RenderSize renderSize, final RenderPos renderPos, final MousePos mousePos) {
         super.render(gui, renderSize, renderPos, mousePos);
-        if (!isVisible() || textureLocation == null) {
+        if (!isVisible()) {
             return;
         }
 
@@ -28,8 +28,7 @@ public class ButtonElements<E> extends Button4State {
             return;
         }
 
-        gui.getGui().mc.getTextureManager().bindTexture(current.textureLocation());
-        gui.getGui().drawTexturedModalRect(renderPos.posX(), renderPos.posY(), current.texX(), current.texY(), width, height);
+        current.texture().render(textureLocation, renderPos, renderSize, gui);
     }
 
     @Override
@@ -69,8 +68,8 @@ public class ButtonElements<E> extends Button4State {
         return current == null ? null : current.element();
     }
 
-    public ButtonElements<E> addElement(final E element, final int textureX, final int textureY, final ResourceLocation textureLocation) {
-        elements.add(new ElementInfo(element, textureX, textureY, textureLocation));
+    public ButtonElements<E> addElement(final E element, final TextureProperties texture) {
+        elements.add(new ElementInfo(element, texture));
         return this;
     }
 
@@ -83,32 +82,23 @@ public class ButtonElements<E> extends Button4State {
     }
 
     public final class ElementInfo {
-        private final E element;
-        private final int texX;
-        private final int texY;
-        private final ResourceLocation textureLocation;
 
-        public ElementInfo(E element, int texX, int texY, ResourceLocation textureLocation) {
+        private final E element;
+        private final TextureProperties texture;
+
+        public ElementInfo(E element, final TextureProperties texture) {
             this.element = element;
-            this.texX = texX;
-            this.texY = texY;
-            this.textureLocation = textureLocation;
+            this.texture = texture;
         }
 
         public E element() {
             return element;
         }
 
-        public int texX() {
-            return texX;
+        public TextureProperties texture() {
+            return texture;
         }
 
-        public int texY() {
-            return texY;
-        }
-
-        public ResourceLocation textureLocation() {
-            return textureLocation;
-        }
     }
+
 }

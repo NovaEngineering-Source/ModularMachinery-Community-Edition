@@ -1,13 +1,17 @@
 package hellfirepvp.modularmachinery.common.tiles.base;
 
+import com.mojang.authlib.GameProfile;
+import crafttweaker.api.block.IBlockDefinition;
+import crafttweaker.api.block.IBlockStateMatcher;
 import crafttweaker.api.data.IData;
+import crafttweaker.api.item.IItemStack;
 import crafttweaker.api.minecraft.CraftTweakerMC;
+import crafttweaker.api.player.IPlayer;
 import crafttweaker.api.world.IBlockPos;
 import crafttweaker.api.world.IFacing;
 import crafttweaker.api.world.IWorld;
 import github.kasuminova.mmce.client.model.DynamicMachineModelRegistry;
 import github.kasuminova.mmce.client.model.MachineControllerModel;
-import github.kasuminova.mmce.client.renderer.BloomGeoModelRenderer;
 import github.kasuminova.mmce.client.world.BlockModelHider;
 import github.kasuminova.mmce.common.event.Phase;
 import github.kasuminova.mmce.common.event.client.ControllerModelAnimationEvent;
@@ -16,6 +20,7 @@ import github.kasuminova.mmce.common.event.machine.MachineStructureFormedEvent;
 import github.kasuminova.mmce.common.event.machine.MachineStructureUpdateEvent;
 import github.kasuminova.mmce.common.event.machine.MachineTickEvent;
 import github.kasuminova.mmce.common.event.recipe.RecipeCheckEvent;
+import github.kasuminova.mmce.common.helper.IBlockStatePredicate;
 import github.kasuminova.mmce.common.helper.IDynamicPatternInfo;
 import github.kasuminova.mmce.common.helper.IMachineController;
 import github.kasuminova.mmce.common.machine.component.MachineComponentProxyRegistry;
@@ -28,7 +33,6 @@ import github.kasuminova.mmce.common.world.MMWorldEventListener;
 import github.kasuminova.mmce.common.world.MachineComponentManager;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.client.ClientProxy;
-import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.block.BlockController;
 import hellfirepvp.modularmachinery.common.block.BlockStatedMachineComponent;
 import hellfirepvp.modularmachinery.common.block.prop.WorkingState;
@@ -51,9 +55,12 @@ import hellfirepvp.modularmachinery.common.tiles.TileUpgradeBus;
 import hellfirepvp.modularmachinery.common.util.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -65,10 +72,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.oredict.OreDictionary;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -85,6 +90,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("unused")
@@ -435,13 +441,14 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
     }
 
     protected void distributeCasingColor() {
-        if (this.foundMachine != null && this.foundPattern != null) {
-            int color = this.foundMachine.getMachineColor();
-            tryColorize(getPos(), color);
-            for (BlockPos pos : this.foundPattern.getPattern().keySet()) {
-                tryColorize(this.getPos().add(pos), color);
-            }
+        if (this.foundMachine == null || this.foundPattern == null) {
+            return;
         }
+        int color = this.foundMachine.getMachineColor();
+        // Colorize Controller.
+        setMachineColor(color);
+        // Colorize Components.
+        this.foundPattern.getTileBlocksArray().keySet().forEach(pos -> tryColorize(this.getPos().add(pos), color));
     }
 
     /**
@@ -455,7 +462,6 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         if (te instanceof final ColorableMachineTile colorable) {
             if (colorable.getMachineColor() != color) {
                 colorable.setMachineColor(color);
-                getWorld().addBlockEvent(pos, getWorld().getBlockState(pos).getBlock(), 1, 1);
             }
         }
     }
@@ -505,6 +511,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         } else {
             ModularMachinery.EXECUTE_MANAGER.addSyncTask(() -> updateStatedMachineComponent(working));
         }
+        requireUpdateComparatorLevel = true;
         markForUpdateSync();
     }
 
@@ -550,15 +557,12 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         }
 
         if (workMode == WorkMode.SYNC) {
-            distributeCasingColor();
             notifyStructureFormedState(true);
         } else {
-            ModularMachinery.EXECUTE_MANAGER.addSyncTask(() -> {
-                distributeCasingColor();
-                notifyStructureFormedState(true);
-            });
+            ModularMachinery.EXECUTE_MANAGER.addSyncTask(() -> notifyStructureFormedState(true));
         }
 
+        requireUpdateComparatorLevel = true;
         resetStructureCheckCounter();
         markNoUpdateSync();
     }
@@ -574,13 +578,16 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
             // Where is the controller?
             return;
         }
+        if (state.getValue(BlockController.FORMED) == formed) {
+            return;
+        }
 
         IBlockState newState = state.getBlock().getDefaultState()
                 .withProperty(BlockController.FACING, controllerRotation)
                 .withProperty(BlockController.FORMED, formed);
 
         if (world.isRemote) {
-            world.setBlockState(getPos(), newState, 2);
+            world.setBlockState(getPos(), newState, 8);
         } else {
             world.setBlockState(getPos(), newState, 3);
         }
@@ -618,7 +625,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
                 resetMachine(true);
             } else if (
                     !foundPattern.matches(getWorld(), ctrlPos, true, this.foundReplacements) ||
-                            !matchesDynamicPattern(foundMachine)) {
+                    !matchesDynamicPattern(foundMachine)) {
                 resetMachine(true);
             }
         }
@@ -710,6 +717,11 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         this.foundModifiers.clear();
         updateModifiers();
         updateMultiBlockModifiers();
+        if (workMode == WorkMode.SYNC) {
+            distributeCasingColor();
+        } else {
+            ModularMachinery.EXECUTE_MANAGER.addSyncTask(this::distributeCasingColor);
+        }
     }
 
     private void checkAndAddComponents(final BlockPos pos, final BlockPos ctrlPos, final Map<TileEntity, ProcessingComponent<?>> found) {
@@ -858,6 +870,12 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
 
     public IBlockPos getIPos() {
         return CraftTweakerMC.getIBlockPos(getPos());
+    }
+
+    @Override
+    public IBlockPos rotateWithControllerFacing(final IBlockPos posCT) {
+        BlockPos pos = CraftTweakerMC.getBlockPos(posCT);
+        return CraftTweakerMC.getIBlockPos(MiscUtils.rotateYCCWNorthUntil(pos, controllerRotation == null ? EnumFacing.NORTH : controllerRotation));
     }
 
     public String getFormedMachineName() {
@@ -1070,6 +1088,97 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         return foundDynamicPatterns.get(patternName);
     }
 
+    @Override
+    public int getBlocksInPattern(final IItemStack blockStack) {
+        if (foundPattern == null || blockStack == null) {
+            return 0;
+        }
+        IBlockDefinition blockDef = blockStack.asBlock().getDefinition();
+        if (blockStack.getMetadata() == OreDictionary.WILDCARD_VALUE) {
+            return getBlocksInPattern(blockDef.getDefaultState().matchBlock());
+        } else {
+            return getBlocksInPattern(blockDef.getStateFromMeta(blockStack.getMetadata()));
+        }
+    }
+
+    @Override
+    public int getBlocksInPattern(final IBlockStateMatcher blockStateMatcher) {
+        if (foundPattern == null) {
+            return 0;
+        }
+        return getBlocksInPatternInternal(state -> blockStateMatcher.matches(CraftTweakerMC.getBlockState(state)));
+    }
+
+    @Override
+    public int getBlocksInPattern(final String blockName) {
+        if (foundPattern == null) {
+            return 0;
+        }
+        List<IBlockState> applicable = BlockArray.BlockInformation.getDescriptor(blockName).applicable;
+        return getBlocksInPatternInternal(applicable::contains);
+    }
+
+    @Override
+    public int getBlocksInPattern(final IBlockStatePredicate predicate) {
+        if (foundPattern == null) {
+            return 0;
+        }
+        return getBlocksInPatternInternal(state -> predicate.test(CraftTweakerMC.getBlockState(state)));
+    }
+
+    public int getBlocksInPatternInternal(final Predicate<IBlockState> predicate) {
+        if (foundPattern == null) {
+            return 0;
+        }
+        int count = 0;
+        for (final BlockPos pos : foundPattern.getPattern().keySet()) {
+            BlockPos realPos = getPos().add(pos.getX(), pos.getY(), pos.getZ());
+            IBlockState state = getWorld().getBlockState(realPos);
+            if (state.getBlock() == Blocks.AIR) {
+                continue;
+            }
+            if (predicate.test(state)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    @Nullable
+    @Override
+    @SuppressWarnings("ConstantValue")
+    public IPlayer getOwnerIPlayer() {
+        if (owner == null) {
+            return null;
+        }
+        MinecraftServer server = getWorld().getMinecraftServer();
+        if (server == null) {
+            return null;
+        }
+        EntityPlayerMP player = server.getPlayerList().getPlayerByUUID(owner);
+        return player != null ? CraftTweakerMC.getIPlayer(player) : null;
+    }
+
+    @Nullable
+    @Override
+    public String getOwnerName() {
+        if (owner == null) {
+            return null;
+        }
+        MinecraftServer server = getWorld().getMinecraftServer();
+        if (server == null) {
+            return null;
+        }
+        GameProfile profile = server.getPlayerProfileCache().getProfileByUUID(owner);
+        return profile != null ? profile.getName() : null;
+    }
+
+    @Nullable
+    @Override
+    public String getOwnerUUIDString() {
+        return owner == null ? null : owner.toString();
+    }
+
     public Map<String, DynamicPattern.Status> getDynamicPatterns() {
         return foundDynamicPatterns;
     }
@@ -1083,9 +1192,15 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
     }
 
     @Override
+    public void markNoUpdate() {
+        super.markNoUpdate();
+        requireUpdateComparatorLevel = false;
+    }
+
+    @Override
     public void validate() {
         super.validate();
-        if (!FMLCommonHandler.instance().getSide().isClient()) {
+        if (!world.isRemote) {
             return;
         }
 
@@ -1094,14 +1209,6 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
             notifyStructureFormedState(isStructureFormed());
         }, 0);
         loaded = true;
-
-        if (world.isRemote) {
-            if (Mods.GREGTECHCEU.isPresent()) {
-                registerBloomRenderer();
-            } else if (Mods.LUMENIZED.isPresent()) {
-                registerBloomRendererLumenized();
-            }
-        }
     }
 
     @Override
@@ -1123,13 +1230,6 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
     @Override
     public void onChunkUnload() {
         super.onChunkUnload();
-        if (FMLCommonHandler.instance().getSide().isClient()) {
-            if (Mods.GREGTECHCEU.isPresent()) {
-                unregisterBloomRenderer();
-            } else if (Mods.LUMENIZED.isPresent()) {
-                unregisterBloomRendererLumenized();
-            }
-        }
     }
 
     @Override
@@ -1149,7 +1249,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
 
         readMachineNBT(compound);
 
-        if (loaded && FMLCommonHandler.instance().getSide().isClient()) {
+        if (loaded && world.isRemote) {
             ClientProxy.clientScheduler.addRunnable(() -> {
                 BlockModelHider.hideOrShowBlocks(this);
                 notifyStructureFormedState(isStructureFormed());
@@ -1355,7 +1455,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
     @net.minecraftforge.fml.common.Optional.Method(modid = "geckolib3")
     public MachineControllerModel getCurrentModel() {
         String modelName = getCurrentModelName();
-        if (modelName != null && !modelName.isEmpty()) { // (╯°□°）╯︵ ┻━┻
+        if (modelName != null && !modelName.isEmpty()) {
             MachineControllerModel model = DynamicMachineModelRegistry.INSTANCE.getMachineModel(modelName);
             if (model != null) {
                 return model;
@@ -1370,34 +1470,6 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         ControllerModelGetEvent event = new ControllerModelGetEvent(this);
         event.postEvent();
         return event.getModelName();
-    }
-
-    @SideOnly(Side.CLIENT)
-    @net.minecraftforge.fml.common.Optional.Method(modid = "gregtech")
-    public void registerBloomRenderer() {
-        if (Mods.GREGTECHCEU.isPresent()) {
-            BloomGeoModelRenderer.INSTANCE.registerGlobal(this);
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @net.minecraftforge.fml.common.Optional.Method(modid = "lumenized")
-    public void registerBloomRendererLumenized() {
-        BloomGeoModelRenderer.INSTANCE.registerGlobal(this);
-    }
-
-    @SideOnly(Side.CLIENT)
-    @net.minecraftforge.fml.common.Optional.Method(modid = "gregtech")
-    public void unregisterBloomRenderer() {
-        if (Mods.GREGTECHCEU.isPresent()) {
-            BloomGeoModelRenderer.INSTANCE.unregisterGlobal(this);
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @net.minecraftforge.fml.common.Optional.Method(modid = "lumenized")
-    public void unregisterBloomRendererLumenized() {
-        BloomGeoModelRenderer.INSTANCE.unregisterGlobal(this);
     }
 
     public enum StructureCheckMode {

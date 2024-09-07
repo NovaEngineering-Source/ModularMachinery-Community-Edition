@@ -24,6 +24,9 @@ import appeng.util.inv.IAEAppEngInventory;
 import appeng.util.inv.InvOperation;
 import com.glodblock.github.common.item.fake.FakeFluids;
 import com.glodblock.github.common.item.fake.FakeItemRegister;
+import com.glodblock.github.integration.mek.FakeGases;
+import com.mekeng.github.common.me.data.IAEGasStack;
+import com.mekeng.github.common.me.storage.IGasStorageChannel;
 import github.kasuminova.mmce.client.gui.GuiMEPatternProvider;
 import github.kasuminova.mmce.common.container.ContainerMEPatternProvider;
 import github.kasuminova.mmce.common.event.machine.MachineEvent;
@@ -34,6 +37,7 @@ import github.kasuminova.mmce.common.tile.base.MEMachineComponent;
 import github.kasuminova.mmce.common.util.AEFluidInventoryUpgradeable;
 import github.kasuminova.mmce.common.util.InfItemFluidHandler;
 import github.kasuminova.mmce.common.util.PatternItemFilter;
+import github.kasuminova.mmce.common.util.Sides;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.crafting.ComponentType;
@@ -43,6 +47,7 @@ import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
 import hellfirepvp.modularmachinery.common.tiles.base.MachineComponentTileNotifiable;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import mekanism.api.gas.GasStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -53,7 +58,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -95,6 +100,12 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
             handlerDirty = true;
             markChunkDirty();
         });
+        if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
+            handler.setOnGasChanged(slot -> {
+                handlerDirty = true;
+                markChunkDirty();
+            });
+        }
     }
 
     @Override
@@ -108,7 +119,7 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
         return new MachineComponent<>(IOType.INPUT) {
             @Override
             public ComponentType getComponentType() {
-                return ComponentTypesMM.COMPONENT_ITEM_FLUID;
+                return ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS;
             }
 
             @Override
@@ -158,6 +169,13 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
                     continue;
                 }
             }
+            if (Mods.MEKENG.isPresent() && FakeGases.isGasFakeItem(stackInSlot)) {
+                GasStack gasStack = FakeItemRegister.getStack(stackInSlot);
+                if (gasStack != null) {
+                    handler.receiveGas(null, gasStack, true);
+                    continue;
+                }
+            }
 
             handler.appendItem(stackInSlot);
         }
@@ -204,7 +222,7 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
         }
 
         ICraftingPatternDetails detail = patternItem.getPatternForItem(pattern, getWorld());
-        if (detail != null) {
+        if (detail != null && !detail.isCraftable()) {
             details.set(slot, detail);
         }
     }
@@ -258,12 +276,36 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
                         fluidStackList.set(i, null);
                     }
                 }
+                
+                if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
+                    returnGases();
+                }
             }
         } catch (GridAccessException ignored) {
         }
 
         handlerDirty = true;
         markChunkDirty();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Optional.Method(modid = "mekeng")
+    private void returnGases() throws GridAccessException {
+        List<GasStack> gasStackList = (List<GasStack>) handler.getGasStackList();
+        IGasStorageChannel gasChannel = AEApi.instance().storage().getStorageChannel(IGasStorageChannel.class);
+        IMEMonitor<IAEGasStack> gasInv = proxy.getStorage().getInventory(gasChannel);
+        for (int i = 0; i < gasStackList.size(); i++) {
+            final GasStack stack = gasStackList.get(i);
+            if (stack == null) {
+                continue;
+            }
+            IAEGasStack notInserted = insertStackToAE(gasInv, gasChannel.createStack(stack));
+            if (notInserted != null) {
+                gasStackList.set(i, notInserted.getGasStack());
+            } else {
+                gasStackList.set(i, null);
+            }
+        }
     }
 
     private <T extends IAEStack<T>> T insertStackToAE(final IMEMonitor<T> inv, final T stack) throws GridAccessException {
@@ -295,6 +337,9 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
 
     public void setWorkMode(final WorkModeSetting workMode) {
         this.workMode = workMode;
+        if (workMode != WorkModeSetting.CRAFTING_LOCK_MODE) {
+            this.machineCompleted = true;
+        }
     }
 
     @Override
@@ -319,7 +364,7 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
         if (compound.hasKey("machineCompleted")) {
             machineCompleted = compound.getBoolean("machineCompleted");
         }
-        if (FMLCommonHandler.instance().getSide().isClient()) {
+        if (Sides.isRunningOnClient()) {
             processClientGUIUpdate();
         }
     }
@@ -367,7 +412,7 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
     }
 
     public void sendHandlerItemsToClient() {
-        if (world.isRemote) {
+        if (world.isRemote || !handlerDirty) {
             return;
         }
         List<EntityPlayerMP> players = new ArrayList<>();
@@ -385,6 +430,7 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
             PktMEPatternProviderHandlerItems message = new PktMEPatternProviderHandlerItems(this);
             players.forEach(player -> ModularMachinery.NET_CHANNEL.sendTo(message, player));
         }
+        handlerDirty = false;
     }
 
     @SideOnly(Side.CLIENT)
@@ -400,7 +446,9 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
     @Override
     public void validate() {
         super.validate();
-        ModularMachinery.EXECUTE_MANAGER.addSyncTask(this::refreshPatterns);
+        if (!world.isRemote) {
+            ModularMachinery.EXECUTE_MANAGER.addSyncTask(this::refreshPatterns);
+        }
     }
 
     @Override
@@ -411,9 +459,8 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
     @Override
     public void markChunkDirty() {
         super.markChunkDirty();
-        if (handlerDirty) {
-            sendHandlerItemsToClient();
-            handlerDirty = false;
+        if (handlerDirty && !world.isRemote) {
+            ModularMachinery.EXECUTE_MANAGER.addSyncTask(this::sendHandlerItemsToClient);
         }
     }
 

@@ -33,12 +33,12 @@ public class CapabilityUpgrade {
             @Nullable
             @Override
             public NBTBase writeNBT(final Capability<CapabilityUpgrade> capability, final CapabilityUpgrade instance, final EnumFacing side) {
-                return instance.writeNBT();
+                throw new UnsupportedOperationException("Deprecated");
             }
 
             @Override
             public void readNBT(final Capability<CapabilityUpgrade> capability, final CapabilityUpgrade instance, final EnumFacing side, final NBTBase nbt) {
-                instance.readNBT((NBTTagCompound) nbt);
+                throw new UnsupportedOperationException("Deprecated");
             }
         }, CapabilityUpgrade::new);
     }

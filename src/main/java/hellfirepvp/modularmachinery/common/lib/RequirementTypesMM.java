@@ -22,6 +22,7 @@ import net.minecraft.util.ResourceLocation;
 public class RequirementTypesMM {
 
     public static final ResourceLocation KEY_REQUIREMENT_ITEM = new ResourceLocation(ModularMachinery.MODID, "item");
+    public static final ResourceLocation KEY_REQUIREMENT_ITEM_DURABILITY = new ResourceLocation(ModularMachinery.MODID, "item_durability");
     public static final ResourceLocation KEY_REQUIREMENT_INGREDIENT_ARRAY = new ResourceLocation(ModularMachinery.MODID, "ingredient_array_input");
     public static final ResourceLocation KEY_REQUIREMENT_FLUID = new ResourceLocation(ModularMachinery.MODID, "fluid");
     public static final ResourceLocation KEY_REQUIREMENT_FLUID_PERTICK = new ResourceLocation(ModularMachinery.MODID, "fluid_pertick");
@@ -32,9 +33,11 @@ public class RequirementTypesMM {
     public static final ResourceLocation KEY_REQUIREMENT_DURATION = new ResourceLocation(ModularMachinery.MODID, "duration");
     public static final ResourceLocation KEY_INTERFACE_NUMBER_INPUT = new ResourceLocation(ModularMachinery.MODID, "interface_number_input");
     public static RequirementTypeItem REQUIREMENT_ITEM;
+    public static RequirementTypeItemDurability REQUIREMENT_ITEM_DURABILITY;
     public static RequirementTypeIngredientArray REQUIREMENT_INGREDIENT_ARRAY;
     public static RequirementTypeFluid REQUIREMENT_FLUID;
     public static RequirementTypeFluidPerTick REQUIREMENT_FLUID_PERTICK;
+    public static RequirementTypeGasPerTick REQUIREMENT_GAS_PERTICK;
     public static RequirementTypeEnergy REQUIREMENT_ENERGY;
     public static RequirementTypeGas REQUIREMENT_GAS;
     public static RequirementDuration REQUIREMENT_DURATION;

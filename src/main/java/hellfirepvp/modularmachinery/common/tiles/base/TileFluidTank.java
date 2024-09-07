@@ -14,6 +14,7 @@ import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
 import hellfirepvp.modularmachinery.common.util.HybridGasTank;
 import hellfirepvp.modularmachinery.common.util.HybridTank;
+import hellfirepvp.modularmachinery.common.util.RedstoneHelper;
 import mekanism.api.gas.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -42,6 +43,7 @@ public abstract class TileFluidTank extends TileEntityRestrictedTick implements 
     private HybridTank tank;
     private IOType ioType;
     private FluidHatchSize hatchSize;
+    private int prevRedstoneLevel = 0;
 
     protected int successCounter = 0;
     protected boolean inventoryChanged = false;
@@ -156,6 +158,17 @@ public abstract class TileFluidTank extends TileEntityRestrictedTick implements 
             this.writeMekGasData(tankTag);
         }
         compound.setTag("tank", tankTag);
+    }
+
+    @Override
+    public void markNoUpdate() {
+        int redstoneLevel = RedstoneHelper.getRedstoneLevel(this);
+        if (prevRedstoneLevel != redstoneLevel) {
+            prevRedstoneLevel = redstoneLevel;
+            this.requireUpdateComparatorLevel = true;
+        }
+        super.markNoUpdate();
+        this.requireUpdateComparatorLevel = false;
     }
 
     @Nullable

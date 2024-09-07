@@ -8,7 +8,11 @@
 
 package hellfirepvp.modularmachinery.common.util;
 
-import mekanism.api.gas.*;
+import github.kasuminova.mmce.common.util.IExtendedGasHandler;
+import mekanism.api.gas.Gas;
+import mekanism.api.gas.GasStack;
+import mekanism.api.gas.GasTank;
+import mekanism.api.gas.GasTankInfo;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fluids.FluidStack;
@@ -23,7 +27,7 @@ import javax.annotation.Nullable;
  * Created by HellFirePvP
  * Date: 26.08.2017 / 19:03
  */
-public class HybridGasTank extends HybridTank implements IGasHandler {
+public class HybridGasTank extends HybridTank implements IExtendedGasHandler {
     protected final GasTank gasTank;
 
     public HybridGasTank(int capacity) {
@@ -113,6 +117,11 @@ public class HybridGasTank extends HybridTank implements IGasHandler {
             onContentsChanged();
         }
         return drawn;
+    }
+
+    @Override
+    public GasStack drawGas(final GasStack toDraw, final boolean doTransfer) {
+        return canDrawGas(null, toDraw.getGas()) ? drawGas(null, toDraw.amount, doTransfer) : null;
     }
 
     @Override

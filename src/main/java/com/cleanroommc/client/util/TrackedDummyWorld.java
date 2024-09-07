@@ -67,6 +67,10 @@ public class TrackedDummyWorld extends DummyWorld {
         blockInfo.apply(this, pos);
     }
 
+    public void removeBlock(BlockPos pos) {
+        this.renderedBlocks.remove(pos);
+    }
+
     @Override
     public TileEntity getTileEntity(@Nonnull BlockPos pos) {
         if (renderFilter != null && !renderFilter.test(pos))

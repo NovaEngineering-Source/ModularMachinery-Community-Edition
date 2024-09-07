@@ -41,6 +41,8 @@ public class BlocksMM {
     public static BlockMEItemInputBus meItemInputBus;
     public static BlockMEFluidOutputBus meFluidOutputBus;
     public static BlockMEFluidInputBus meFluidInputBus;
+    public static BlockMEGasOutputBus meGasOutputBus;
+    public static BlockMEGasInputBus meGasInputBus;
     public static BlockMEPatternProvider mePatternProvider;
 
     public static BlockWillProviderInput blockWillProviderInput;

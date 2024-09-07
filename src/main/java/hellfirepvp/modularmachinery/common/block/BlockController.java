@@ -8,7 +8,6 @@
 
 package hellfirepvp.modularmachinery.common.block;
 
-import github.kasuminova.mmce.client.model.DynamicMachineModelRegistry;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.data.Config;
@@ -186,30 +185,7 @@ public class BlockController extends BlockMachineComponent implements ItemDynami
     @Nonnull
     @Override
     public EnumBlockRenderType getRenderType(@Nonnull IBlockState state) {
-        if (parentMachine != null && DynamicMachineModelRegistry.INSTANCE.getMachineDefaultModel(parentMachine) != null) {
-            if (state.getValue(FORMED)) {
-                return EnumBlockRenderType.INVISIBLE;
-            }
-        }
         return EnumBlockRenderType.MODEL;
-    }
-
-    @Override
-    public boolean doesSideBlockRendering(@Nonnull final IBlockState state, @Nonnull final IBlockAccess blockAccess, @Nonnull final BlockPos pos, @Nonnull final EnumFacing face) {
-        if (parentMachine != null && DynamicMachineModelRegistry.INSTANCE.getMachineDefaultModel(parentMachine) != null) {
-            return !state.getValue(FORMED);
-        }
-        return super.doesSideBlockRendering(state, blockAccess, pos, face);
-    }
-
-    @Override
-    public boolean shouldSideBeRendered(@Nonnull final IBlockState state, @Nonnull final IBlockAccess blockAccess, @Nonnull final BlockPos pos, @Nonnull final EnumFacing side) {
-        if (parentMachine != null && DynamicMachineModelRegistry.INSTANCE.getMachineDefaultModel(parentMachine) != null) {
-            if (state.getValue(FORMED)) {
-                return false;
-            }
-        }
-        return super.shouldSideBeRendered(state, blockAccess, pos, side);
     }
 
     @Override
@@ -242,9 +218,14 @@ public class BlockController extends BlockMachineComponent implements ItemDynami
 
     @Nonnull
     @Override
-    @SuppressWarnings("deprecation")
     public IBlockState getStateFromMeta(int meta) {
         return this.getDefaultState().withProperty(FACING, EnumFacing.byHorizontalIndex(meta));
+    }
+
+    @Nonnull
+    @Override
+    public IBlockState getActualState(@Nonnull final IBlockState state, @Nonnull final IBlockAccess worldIn, @Nonnull final BlockPos pos) {
+        return worldIn.getTileEntity(pos) instanceof TileMultiblockMachineController ctrl ? state.withProperty(FORMED, ctrl.isStructureFormed()) : state;
     }
 
     @Nonnull

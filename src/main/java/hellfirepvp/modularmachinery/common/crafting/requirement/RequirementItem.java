@@ -228,7 +228,7 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.component();
         ComponentType cmpType = cmp.getComponentType();
-        return (cmpType.equals(ComponentTypesMM.COMPONENT_ITEM) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID))
+        return (cmpType.equals(ComponentTypesMM.COMPONENT_ITEM) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS))
                && cmp.ioType == actionType;
     }
 

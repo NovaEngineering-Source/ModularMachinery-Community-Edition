@@ -11,7 +11,6 @@ package hellfirepvp.modularmachinery.common.crafting.requirement.type;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementFluid;
-import hellfirepvp.modularmachinery.common.integration.ingredient.HybridFluid;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.util.nbt.NBTJsonDeserializer;
 import net.minecraft.nbt.NBTException;

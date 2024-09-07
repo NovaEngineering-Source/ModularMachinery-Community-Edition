@@ -25,7 +25,7 @@ public class MEFluidInputBus extends MEFluidBus {
 
     @Override
     public ItemStack getVisualItemStack() {
-        return new ItemStack(ItemsMM.meFluidinputBus);
+        return new ItemStack(ItemsMM.meFluidInputBus);
     }
 
     @Override
@@ -82,6 +82,8 @@ public class MEFluidInputBus extends MEFluidBus {
             return TickRateModulation.IDLE;
         }
 
+        inTick = true;
+
         try {
             boolean successAtLeastOnce = false;
 
@@ -90,6 +92,7 @@ public class MEFluidInputBus extends MEFluidBus {
 
             synchronized (tanks) {
                 for (final int slot : getNeedUpdateSlots()) {
+                    changedSlots[slot] = false;
                     IAEFluidStack cfgStack = config.getFluidInSlot(slot);
                     IAEFluidStack invStack = tanks.getFluidInSlot(slot);
 
@@ -147,10 +150,11 @@ public class MEFluidInputBus extends MEFluidBus {
                 }
             }
 
-            changedSlots.clear();
+            inTick = false;
             return successAtLeastOnce ? TickRateModulation.FASTER : TickRateModulation.SLOWER;
         } catch (GridAccessException e) {
-            changedSlots.clear();
+            inTick = false;
+            changedSlots = new boolean[TANK_SLOT_AMOUNT];
             return TickRateModulation.IDLE;
         }
     }

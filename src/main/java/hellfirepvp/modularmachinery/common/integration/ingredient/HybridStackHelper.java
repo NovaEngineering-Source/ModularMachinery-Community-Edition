@@ -30,6 +30,7 @@ import java.util.List;
  * Created by HellFirePvP
  * Date: 27.08.2017 / 10:17
  */
+@Deprecated
 public class HybridStackHelper<T extends HybridFluid> implements IIngredientHelper<T> {
 
     @Override

@@ -109,6 +109,30 @@ public class Column extends WidgetContainer {
     }
 
     @Override
+    public void onMouseClickGlobal(final MousePos mousePos, final RenderPos renderPos, final int mouseButton) {
+        int y = 0;
+
+        int width = getWidth();
+
+        for (final DynamicWidget widget : widgets) {
+            if (widget.isDisabled()) {
+                continue;
+            }
+            RenderPos widgetRenderPos = getWidgetRenderOffset(widget, width, y);
+            if (widgetRenderPos == null) {
+                continue;
+            }
+            int offsetX = widgetRenderPos.posX();
+            int offsetY = widgetRenderPos.posY();
+
+            MousePos relativeMousePos = mousePos.relativeTo(widgetRenderPos);
+            RenderPos absRenderPos = widgetRenderPos.add(renderPos);
+            widget.onMouseClickGlobal(mousePos.relativeTo(widgetRenderPos), absRenderPos, mouseButton);
+            y += widget.getMarginUp() + widget.getHeight() + widget.getMarginDown();
+        }
+    }
+
+    @Override
     public boolean onMouseClickMove(final MousePos mousePos, final RenderPos renderPos, final int mouseButton) {
         int y = 0;
 

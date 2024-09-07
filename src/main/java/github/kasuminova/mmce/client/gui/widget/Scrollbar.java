@@ -60,7 +60,7 @@ public class Scrollbar extends DynamicWidget {
 
     @Override
     public boolean onMouseClick(final MousePos mousePos, final RenderPos renderPos, final int mouseButton) {
-        if (this.getRange() == 0) {
+        if (this.getRange() == 0 || mouseButton != 0) {
             return false;
         }
 

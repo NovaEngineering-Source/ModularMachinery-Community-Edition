@@ -1,5 +1,6 @@
 package github.kasuminova.mmce.client.gui.widget.impl.preview;
 
+import github.kasuminova.mmce.client.gui.util.TextureProperties;
 import github.kasuminova.mmce.client.gui.widget.Button;
 import github.kasuminova.mmce.client.gui.widget.Button4State;
 import github.kasuminova.mmce.client.gui.widget.Button5State;
@@ -98,35 +99,35 @@ public class MachineStructurePreviewPanel extends Row {
         previewStatusBar.setMaxWidth(172)
                 .setAbsXY(6, 26);
 
-        menuBtn.setClickedTextureXY(184 + 15 + 15, 15)
-                .setMouseDownTextureXY(184 + 15 + 15, 15)
-                .setHoveredTextureXY(184 + 15, 15)
-                .setTextureXY(184, 15)
+        menuBtn.setClickedTexture(184 + 15 + 15, 15)
+                .setMouseDownTexture(184 + 15 + 15, 15)
+                .setHoveredTexture(184 + 15, 15)
+                .setTexture(184, 15)
                 .setTextureLocation(WIDGETS_TEX_LOCATION)
                 .setTooltipFunction(btn -> Collections.singletonList(I18n.format(
                         "gui.preview.button.menu.tip")))
                 .setWidthHeight(13, 13);
-        toggleLayerRender.setClickedTextureXY(184 + 15 + 15 + 15, 30)
-                .setMouseDownTextureXY(184 + 15 + 15, 30)
-                .setHoveredTextureXY(184 + 15, 30)
-                .setTextureXY(184, 30)
+        toggleLayerRender.setClickedTexture(184 + 15 + 15 + 15, 30)
+                .setMouseDownTexture(184 + 15 + 15, 30)
+                .setHoveredTexture(184 + 15, 30)
+                .setTexture(184, 30)
                 .setTextureLocation(WIDGETS_TEX_LOCATION)
                 .setTooltipFunction(btn -> toggleLayerRender.isClicked()
                         ? Collections.singletonList(I18n.format("gui.preview.button.toggle_3d_render.tip"))
                         : Collections.singletonList(I18n.format("gui.preview.button.toggle_layer_render.tip")))
                 .setWidthHeight(13, 13);
         placeWorldPreview
-                .setMouseDownTextureXY(184 + 15 + 15, 45)
-                .setHoveredTextureXY(184 + 15, 45)
-                .setTextureXY(184, 45)
+                .setMouseDownTexture(184 + 15 + 15, 45)
+                .setHoveredTexture(184 + 15, 45)
+                .setTexture(184, 45)
                 .setTextureLocation(WIDGETS_TEX_LOCATION)
                 .setTooltipFunction(btn -> Collections.singletonList(I18n.format(
                         "gui.preview.button.place_world_preview.tip")))
                 .setWidthHeight(13, 13);
-        enableCycleReplaceableBlocks.setClickedTextureXY(184 + 15 + 15, 105)
-                .setMouseDownTextureXY(184 + 15 + 15, 105)
-                .setHoveredTextureXY(184 + 15, 105)
-                .setTextureXY(184,  105)
+        enableCycleReplaceableBlocks.setClickedTexture(184 + 15 + 15, 105)
+                .setMouseDownTexture(184 + 15 + 15, 105)
+                .setHoveredTexture(184 + 15, 105)
+                .setTexture(184,  105)
                 .setTextureLocation(WIDGETS_TEX_LOCATION)
                 .setTooltipFunction(btn -> enableCycleReplaceableBlocks.isClicked()
                         ? Collections.singletonList(I18n.format("gui.preview.button.disable_cycle_replaceable_blocks.tip"))
@@ -135,56 +136,56 @@ public class MachineStructurePreviewPanel extends Row {
                                 I18n.format("gui.preview.button.enable_cycle_replaceable_blocks.tip.1")))
                 .setWidthHeight(13, 13);
         dynamicPatternPlus
-                .setMouseDownTextureXY(184 + 15 + 15, 60)
-                .setHoveredTextureXY(184 + 15, 60)
-                .setTextureXY(184, 60)
+                .setMouseDownTexture(184 + 15 + 15, 60)
+                .setHoveredTexture(184 + 15, 60)
+                .setTexture(184, 60)
                 .setTextureLocation(WIDGETS_TEX_LOCATION)
                 .setTooltipFunction(btn -> Collections.singletonList(I18n.format(
                         "gui.preview.button.dynamic_pattern_plus.tip", renderer.getDynamicPatternSize())))
                 .setWidthHeight(13, 13);
         dynamicPatternSubtract
-                .setMouseDownTextureXY(184 + 15 + 15, 75)
-                .setHoveredTextureXY(184 + 15, 75)
-                .setTextureXY(184, 75)
+                .setMouseDownTexture(184 + 15 + 15, 75)
+                .setHoveredTexture(184 + 15, 75)
+                .setTexture(184, 75)
                 .setTextureLocation(WIDGETS_TEX_LOCATION)
                 .setTooltipFunction(btn -> Collections.singletonList(I18n.format(
                         "gui.preview.button.dynamic_pattern_subtract.tip", renderer.getDynamicPatternSize())))
                 .setWidthHeight(13, 13);
 
-        machineExtraInfo.setHoveredTextureXY(184 + 15, 214)
-                .setTextureXY(184, 214)
+        machineExtraInfo.setHoveredTexture(184 + 15, 214)
+                .setTexture(184, 214)
                 .setTextureLocation(WIDGETS_TEX_LOCATION)
                 .setTooltipFunction(btn -> getMachineExtraInfo(machine))
                 .setWidthHeight(13, 13);
-        toggleFormed.setClickedTextureXY(184 + 15 + 15 + 15, 0)
-                .setMouseDownTextureXY(184 + 15 + 15, 0)
-                .setHoveredTextureXY(184 + 15, 0)
-                .setTextureXY(184, 0)
+        toggleFormed.setClickedTexture(184 + 15 + 15 + 15, 0)
+                .setMouseDownTexture(184 + 15 + 15, 0)
+                .setHoveredTexture(184 + 15, 0)
+                .setTexture(184, 0)
                 .setTextureLocation(WIDGETS_TEX_LOCATION)
                 .setTooltipFunction(btn -> toggleFormed.isClicked()
                         ? Collections.singletonList(I18n.format("gui.preview.button.toggle_unformed.tip"))
                         : Collections.singletonList(I18n.format("gui.preview.button.toggle_formed.tip")))
                 .setWidthHeight(13, 13);
-        showUpgrades.setClickedTextureXY(184 + 15 + 15, 90)
-                .setMouseDownTextureXY(184 + 15 + 15, 90)
-                .setHoveredTextureXY(184 + 15, 90)
-                .setTextureXY(184, 90)
+        showUpgrades.setClickedTexture(184 + 15 + 15, 90)
+                .setMouseDownTexture(184 + 15 + 15, 90)
+                .setHoveredTexture(184 + 15, 90)
+                .setTexture(184, 90)
                 .setTextureLocation(WIDGETS_TEX_LOCATION)
                 .setTooltipFunction(btn -> showUpgrades.isClicked()
                         ? Collections.singletonList(I18n.format("gui.preview.button.toggle_upgrade_display.disable.tip"))
                         : Collections.singletonList(I18n.format("gui.preview.button.toggle_upgrade_display.enable.tip")))
                 .setWidthHeight(13, 13);
-        resetCenter.setMouseDownTextureXY(184 + 15 + 15, 229)
-                .setHoveredTextureXY(184 + 15, 229)
-                .setTextureXY(184, 229)
+        resetCenter.setMouseDownTexture(184 + 15 + 15, 229)
+                .setHoveredTexture(184 + 15, 229)
+                .setTexture(184, 229)
                 .setTextureLocation(WIDGETS_TEX_LOCATION)
                 .setTooltipFunction(btn -> Collections.singletonList(I18n.format("gui.preview.button.reset_center.tip")))
                 .setWidthHeight(13, 13);
 
         ingredientList.setAbsXY(5, 179);
 
-        selectedBlockIngredientMain.setSlotTexX(229).setSlotTexY(105)
-                .setSlotTexLocation(WIDGETS_TEX_LOCATION)
+        selectedBlockIngredientMain
+                .setSlotTex(TextureProperties.of(WIDGETS_TEX_LOCATION, 229, 105))
                 .setAbsXY(8, 28);
         selectedBlockIngredientList.setAbsXY(8, 48);
 

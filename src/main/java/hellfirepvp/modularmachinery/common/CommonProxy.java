@@ -255,6 +255,18 @@ public class CommonProxy implements IGuiHandler {
                 }
                 return new ContainerMEFluidInputBus((MEFluidInputBus) present, player);
             }
+            case ME_GAS_OUTPUT_BUS -> {
+                if (aeSecurityCheck(player, present)) {
+                    return null;
+                }
+                return new ContainerMEGasOutputBus((MEGasOutputBus) present, player);
+            }
+            case ME_GAS_INPUT_BUS -> {
+                if (aeSecurityCheck(player, present)) {
+                    return null;
+                }
+                return new ContainerMEGasInputBus((MEGasInputBus) present, player);
+            }
             case ME_PATTERN_PROVIDER -> {
                 if (aeSecurityCheck(player, present)) {
                     return null;
@@ -293,6 +305,8 @@ public class CommonProxy implements IGuiHandler {
         ME_ITEM_INPUT_BUS(Mods.AE2.isPresent() ? MEItemInputBus.class : null),
         ME_FLUID_OUTPUT_BUS(Mods.AE2.isPresent() ? MEFluidOutputBus.class : null),
         ME_FLUID_INPUT_BUS(Mods.AE2.isPresent() ? MEFluidInputBus.class : null),
+        ME_GAS_OUTPUT_BUS(Mods.AE2EL.isPresent() && Mods.MEKENG.isPresent() ? MEGasOutputBus.class : null),
+        ME_GAS_INPUT_BUS(Mods.AE2EL.isPresent() && Mods.MEKENG.isPresent() ? MEGasInputBus.class : null),
         ME_PATTERN_PROVIDER(Mods.AE2.isPresent() ? MEPatternProvider.class : null),
         GUI_ESSENCE_PROVIDER(Mods.BM2.isPresent() ? TileLifeEssenceProvider.class : null),
         ;

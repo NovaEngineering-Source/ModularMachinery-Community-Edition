@@ -62,7 +62,7 @@ public class TileParallelController extends TileColorableMachineComponent implem
 
         public void setParallelism(int newParallelism) {
             parallelism = newParallelism;
-            markForUpdate();
+            markForUpdateSync();
         }
 
         public int getMaxParallelism() {

@@ -146,7 +146,12 @@ public class DynamicPattern {
                 }
             } else {
                 if (patternEnd != null && !patternEnd.matches(ctrl.getWorld(), offset, oldState, null)) {
-                    return 0;
+                    offset = offset.subtract(getStructureSizeOffset(face));
+                    // Prevent overlapping structures.
+                    if (!patternEnd.matches(ctrl.getWorld(), offset, oldState, null)) {
+                        return 0;
+                    }
+                    size--;
                 }
                 break;
             }

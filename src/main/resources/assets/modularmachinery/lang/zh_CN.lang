@@ -69,6 +69,8 @@ gui.meitembus.nbt_stored=内部已存储物品。
 
 gui.mefluidoutputbus.title=ME 机械流体输出总线
 gui.mefluidinputbus.title=ME 机械流体输入总线
+gui.megasoutputbus.title=ME 机械气体输出总线
+gui.megasinputbus.title=ME 机械气体输入总线
 gui.mepatternprovider.title=ME 机械样板供应器
 gui.mepatternprovider.inventory=物品栏
 gui.mepatternprovider.cached=已缓存
@@ -377,6 +379,8 @@ tile.modularmachinery.blockmeitemoutputbus.name=ME机械物品输出总线
 tile.modularmachinery.blockmeiteminputbus.name=ME机械物品输入总线
 tile.modularmachinery.blockmefluidoutputbus.name=ME机械流体输出总线
 tile.modularmachinery.blockmefluidinputbus.name=ME机械流体输入总线
+tile.modularmachinery.blockmegasoutputbus.name=ME机械气体输出总线
+tile.modularmachinery.blockmegasinputbus.name=ME机械气体输入总线
 tile.modularmachinery.blockmepatternprovider.name=ME机械样板供应器
 
 error.modularmachinery.requirement.lifeessence=检查生命源质需求时发生错误！

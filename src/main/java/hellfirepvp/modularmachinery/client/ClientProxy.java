@@ -312,6 +312,18 @@ public class ClientProxy extends CommonProxy {
                 }
                 return new GuiMEFluidInputBus((MEFluidInputBus) present, player);
             }
+            case ME_GAS_OUTPUT_BUS -> {
+                if (!Mods.AE2.isPresent() || !Mods.MEKENG.isPresent()) {
+                    return null;
+                }
+                return new GuiMEGasOutputBus((MEGasOutputBus) present, player);
+            }
+            case ME_GAS_INPUT_BUS -> {
+                if (!Mods.AE2.isPresent() || !Mods.MEKENG.isPresent()) {
+                    return null;
+                }
+                return new GuiMEGasInputBus((MEGasInputBus) present, player);
+            }
             case ME_PATTERN_PROVIDER -> {
                 if (!Mods.AE2.isPresent()) {
                     return null;

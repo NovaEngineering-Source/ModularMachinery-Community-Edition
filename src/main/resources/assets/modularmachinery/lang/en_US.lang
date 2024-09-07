@@ -71,6 +71,8 @@ gui.mepatternprovider.nbt_stored=Provider Configured.
 
 gui.mefluidoutputbus.title=ME Machinery Fluid Output Bus
 gui.mefluidinputbus.title=ME Machinery Fluid Input Bus
+gui.megasoutputbus.title=ME Machinery Gas Output Bus
+gui.megasinputbus.title=ME Machinery Gas Input Bus
 gui.mepatternprovider.title=ME Machinery Pattern Provider
 gui.mepatternprovider.inventory=Inventory
 gui.mepatternprovider.cached=Cached

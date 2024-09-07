@@ -1,5 +1,6 @@
 package github.kasuminova.mmce.client.gui.widget.impl.preview;
 
+import github.kasuminova.mmce.client.gui.util.TextureProperties;
 import github.kasuminova.mmce.client.gui.widget.Scrollbar;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetGui;
 import github.kasuminova.mmce.client.gui.widget.container.Row;
@@ -35,10 +36,10 @@ public class IngredientList extends ScrollingColumn {
         scrollbar.setMargin(3, 1, 1, 1);
         scrollbar.setWidthHeight(8, 34);
         scrollbar.getScroll()
-                .setMouseDownTextureXY(204, 143)
-                .setHoveredTextureXY(194, 143)
-                .setTextureXY(184, 143)
-                .setUnavailableTextureXY(214, 143)
+                .setMouseDownTexture(204, 143)
+                .setHoveredTexture(194, 143)
+                .setTexture(184, 143)
+                .setUnavailableTexture(214, 143)
                 .setTextureLocation(WIDGETS_TEX_LOCATION)
                 .setWidthHeight(8, 13);
     }
@@ -56,8 +57,7 @@ public class IngredientList extends ScrollingColumn {
         for (int i = 0; i < list.size(); i++) {
             final ItemStack stack = list.get(i);
             row.addWidget(SlotItemVirtual.ofJEI(stack)
-                    .setSlotTexLocation(WIDGETS_TEX_LOCATION)
-                    .setSlotTexX(184).setSlotTexY(194)
+                    .setSlotTex(TextureProperties.of(WIDGETS_TEX_LOCATION, 184, 194))
             );
             stackPerRow++;
             if (stackPerRow >= maxStackPerRow && i + 1 < totalSize) {
@@ -69,8 +69,7 @@ public class IngredientList extends ScrollingColumn {
         for (int i = 0; i < fluidList.size(); i++) {
             final FluidStack stack = fluidList.get(i);
             row.addWidget(SlotFluidVirtual.ofJEI(stack)
-                    .setSlotTexLocation(WIDGETS_TEX_LOCATION)
-                    .setSlotTexX(184).setSlotTexY(194)
+                    .setSlotTex(TextureProperties.of(WIDGETS_TEX_LOCATION, 184, 194))
             );
             stackPerRow++;
             if (stackPerRow >= maxStackPerRow && i + 1 < totalSize) {

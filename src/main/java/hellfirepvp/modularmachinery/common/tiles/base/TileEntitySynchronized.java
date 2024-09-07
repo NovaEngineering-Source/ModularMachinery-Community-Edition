@@ -15,6 +15,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 import javax.annotation.Nonnull;
 
@@ -26,12 +27,14 @@ import javax.annotation.Nonnull;
  * Date: 28.06.2017 / 17:15
  */
 public class TileEntitySynchronized extends TileEntity {
+    protected boolean requireUpdateComparatorLevel = false;
+
     private boolean inUpdateTask = false;
     private boolean inMarkTask = false;
 
     private long lastUpdateTick = 0;
 
-    public final void readFromNBT(NBTTagCompound compound) {
+    public final void readFromNBT(@Nonnull NBTTagCompound compound) {
         super.readFromNBT(compound);
         readCustomNBT(compound);
     }
@@ -86,7 +89,12 @@ public class TileEntitySynchronized extends TileEntity {
         if (world == null) {
             return;
         }
-        markDirty();
+
+        if (requireUpdateComparatorLevel) {
+            world.updateComparatorOutputLevel(this.pos, this.getBlockType());
+        }
+        markChunkDirty();
+
         inMarkTask = false;
         lastUpdateTick = world.getTotalWorldTime();
     }
@@ -113,12 +121,16 @@ public class TileEntitySynchronized extends TileEntity {
         ModularMachinery.EXECUTE_MANAGER.addTEMarkNoUpdateTask(this);
         inMarkTask = true;
     }
-    
+
     public void markChunkDirty() {
         if (world == null) {
             return;
         }
-        world.markChunkDirty(pos, this);
+        // Prevent extra chunk loading and checks.
+        Chunk loadedChunk = world.getChunkProvider().getLoadedChunk(pos.getX() >> 4, pos.getZ() >> 4);
+        if (loadedChunk != null) {
+            loadedChunk.markDirty();
+        }
     }
 
     /**

@@ -8,18 +8,18 @@
 
 package hellfirepvp.modularmachinery.common.integration.recipe;
 
-import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
 import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementIngredientArray;
 import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementItem;
-import hellfirepvp.modularmachinery.common.integration.ingredient.HybridFluid;
-import hellfirepvp.modularmachinery.common.integration.ingredient.HybridFluidRenderer;
-import hellfirepvp.modularmachinery.common.integration.ingredient.IngredientItemStack;
+import hellfirepvp.modularmachinery.common.integration.ModIntegrationJEI;
 import hellfirepvp.modularmachinery.common.integration.ingredient.IngredientItemStackRenderer;
+import mekanism.api.gas.GasStack;
+import mekanism.client.jei.gas.GasStackRenderer;
 import mezz.jei.api.ingredients.IIngredientRenderer;
+import mezz.jei.plugins.vanilla.ingredients.fluid.FluidStackRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.Optional;
+import net.minecraftforge.fluids.FluidStack;
 
 import java.awt.*;
 import java.util.Collections;
@@ -49,7 +49,9 @@ public abstract class RecipeLayoutPart<T> {
 
     public abstract Class<T> getLayoutTypeClass();
 
-    public abstract IIngredientRenderer<T> provideIngredientRenderer();
+    public IIngredientRenderer<T> provideIngredientRenderer() {
+        return ModIntegrationJEI.ingredientRegistry.getIngredientRenderer(getLayoutTypeClass());
+    }
 
     public IIngredientRenderer<T> provideIngredientRenderer(final ComponentRequirement<?, ?> req) {
         return provideIngredientRenderer();
@@ -85,9 +87,9 @@ public abstract class RecipeLayoutPart<T> {
 
     public abstract void drawBackground(Minecraft mc);
 
-    public static class Tank extends RecipeLayoutPart<HybridFluid> {
+    public static class FluidTank extends RecipeLayoutPart<FluidStack> {
 
-        public Tank(Point offset) {
+        public FluidTank(Point offset) {
             super(offset);
         }
 
@@ -102,8 +104,8 @@ public abstract class RecipeLayoutPart<T> {
         }
 
         @Override
-        public Class<HybridFluid> getLayoutTypeClass() {
-            return HybridFluid.class;
+        public Class<FluidStack> getLayoutTypeClass() {
+            return FluidStack.class;
         }
 
         @Override
@@ -137,16 +139,8 @@ public abstract class RecipeLayoutPart<T> {
         }
 
         @Override
-        public IIngredientRenderer<HybridFluid> provideIngredientRenderer() {
-            HybridFluidRenderer<HybridFluid> copy = new HybridFluidRenderer<>().
-                    copyPrepareFluidRender(
-                            getComponentWidth(), getComponentHeight(),
-                            1, false,
-                            RecipeLayoutHelper.PART_TANK_SHELL.drawable);
-            if (Mods.MEKANISM.isPresent()) {
-                copy = addGasRenderer(copy);
-            }
-            return copy;
+        public IIngredientRenderer<FluidStack> provideIngredientRenderer() {
+            return new FluidStackRenderer(1, false, getComponentWidth(), getComponentHeight(), RecipeLayoutHelper.PART_TANK_SHELL.drawable);
         }
 
         @Override
@@ -159,19 +153,82 @@ public abstract class RecipeLayoutPart<T> {
             return 0;
         }
 
-        @Optional.Method(modid = "mekanism")
-        private HybridFluidRenderer<HybridFluid> addGasRenderer(HybridFluidRenderer<HybridFluid> copy) {
-            return copy.copyPrepareGasRender(
-                    getComponentWidth(), getComponentHeight(),
-                    1, false,
-                    RecipeLayoutHelper.PART_GAS_TANK_SHELL.drawable);
+        @Override
+        public void drawBackground(Minecraft mc) {
+            RecipeLayoutHelper.PART_TANK_SHELL_BACKGROUND.drawable.draw(mc, getOffset().x, getOffset().y);
+        }
+    }
+
+    public static class GasTank extends RecipeLayoutPart<GasStack> {
+
+        public GasTank(Point offset) {
+            super(offset);
+        }
+
+        @Override
+        public int getComponentHeight() {
+            return 18;
+        }
+
+        @Override
+        public int getComponentWidth() {
+            return 18;
+        }
+
+        @Override
+        public IIngredientRenderer<GasStack> provideIngredientRenderer() {
+            return new GasStackRenderer(1, false, getComponentWidth(), getComponentHeight(), RecipeLayoutHelper.PART_GAS_TANK_SHELL.drawable);
+        }
+
+        @Override
+        public Class<GasStack> getLayoutTypeClass() {
+            return GasStack.class;
+        }
+
+        @Override
+        public int getComponentHorizontalGap() {
+            return 0;
+        }
+
+        @Override
+        public int getComponentVerticalGap() {
+            return 0;
+        }
+
+        @Override
+        public int getMaxHorizontalCount() {
+            return 1;
+        }
+
+        @Override
+        public int getMaxHorizontalCount(final int partAmount) {
+            return Math.max((int) Math.ceil((double) partAmount / 4), 1);
+        }
+
+        @Override
+        public int getComponentHorizontalSortingOrder() {
+            return 100;
+        }
+
+        @Override
+        public boolean canBeScaled() {
+            return false;
+        }
+
+        @Override
+        public int getRendererPaddingX() {
+            return 0;
+        }
+
+        @Override
+        public int getRendererPaddingY() {
+            return 0;
         }
 
         @Override
         public void drawBackground(Minecraft mc) {
             RecipeLayoutHelper.PART_TANK_SHELL_BACKGROUND.drawable.draw(mc, getOffset().x, getOffset().y);
         }
-
     }
 
     public static class Energy extends RecipeLayoutPart<Long> {

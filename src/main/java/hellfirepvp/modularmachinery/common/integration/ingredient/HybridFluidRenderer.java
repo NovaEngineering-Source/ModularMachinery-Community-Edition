@@ -12,8 +12,6 @@ import com.google.common.collect.Lists;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.integration.ModIntegrationJEI;
 import mekanism.api.gas.GasStack;
-import mekanism.client.jei.gas.GasStackRenderer;
-import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.ingredients.IIngredientRenderer;
 import mezz.jei.plugins.vanilla.ingredients.fluid.FluidStackRenderer;
 import net.minecraft.client.Minecraft;
@@ -33,25 +31,11 @@ import java.util.List;
  * Created by HellFirePvP
  * Date: 27.08.2017 / 10:10
  */
+@Deprecated
 public class HybridFluidRenderer<T extends HybridFluid> implements IIngredientRenderer<T> {
 
     private FluidStackRenderer fluidStackRenderer = null;
     private IIngredientRenderer gasRenderer = null;
-
-    public HybridFluidRenderer<T> copyPrepareFluidRender(int width, int height, int capacityMb, boolean showCapacity, @Nullable IDrawable overlay) {
-        HybridFluidRenderer<T> copy = new HybridFluidRenderer<>();
-        copy.fluidStackRenderer = new FluidStackRenderer(capacityMb, showCapacity, width, height, overlay);
-        copy.gasRenderer = this.gasRenderer;
-        return copy;
-    }
-
-    @Optional.Method(modid = "mekanism")
-    public HybridFluidRenderer<T> copyPrepareGasRender(int width, int height, int capacityMb, boolean showCapacity, @Nullable IDrawable overlay) {
-        HybridFluidRenderer<T> copy = new HybridFluidRenderer<>();
-        copy.gasRenderer = new GasStackRenderer(capacityMb, showCapacity, width, height, overlay);
-        copy.fluidStackRenderer = this.fluidStackRenderer;
-        return copy;
-    }
 
     @Override
     public void render(@Nonnull Minecraft minecraft, int xPosition, int yPosition, @Nullable T ingredient) {

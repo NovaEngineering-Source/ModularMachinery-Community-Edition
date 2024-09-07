@@ -19,6 +19,7 @@ import hellfirepvp.modularmachinery.common.integration.ModIntegrationTOP;
 import hellfirepvp.modularmachinery.common.machine.RecipeFailureActions;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import ink.ikx.mmce.core.AssemblyConfig;
+import kport.modularmagic.common.tile.TileManaProvider;
 import net.minecraftforge.common.config.Configuration;
 
 import java.io.File;
@@ -70,6 +71,9 @@ public class Config {
         AssemblyConfig.loadFormConfig(lastReadConfig);
         if (Mods.TOP.isPresent()) {
             ModIntegrationTOP.loadFromConfig(lastReadConfig);
+        }
+        if (Mods.BOTANIA.isPresent()) {
+            TileManaProvider.loadFromConfig(lastReadConfig);
         }
 
         String strColor = lastReadConfig.getString("general-casing-color", "general", "FFFFFF", "Defines the _default_ color for machine casings as items or blocks. (Hex color without alpha) Has to be defined both server and clientside!");

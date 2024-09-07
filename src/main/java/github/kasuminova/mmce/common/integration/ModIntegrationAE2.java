@@ -15,7 +15,9 @@ public class ModIntegrationAE2 {
 
     public static void registerUpgrade() {
         Upgrades.CAPACITY.registerItem(new ItemStack(ItemsMM.meFluidOutputBus), 5);
-        Upgrades.CAPACITY.registerItem(new ItemStack(ItemsMM.meFluidinputBus), 5);
+        Upgrades.CAPACITY.registerItem(new ItemStack(ItemsMM.meFluidInputBus), 5);
+        Upgrades.CAPACITY.registerItem(new ItemStack(ItemsMM.meGasOutputBus), 5);
+        Upgrades.CAPACITY.registerItem(new ItemStack(ItemsMM.meGasInputBus), 5);
     }
 
     public static boolean securityCheck(EntityPlayer player, AENetworkProxy proxy) {

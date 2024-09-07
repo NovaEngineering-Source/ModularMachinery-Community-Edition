@@ -36,7 +36,6 @@ public class ConstellationRenderer implements IIngredientRenderer<Constellation>
         }
 
         GlStateManager.pushMatrix();
-        GlStateManager.pushAttrib();
 
         texBlack.bind();
         drawRect(xPosition, yPosition, 58, 58);
@@ -67,7 +66,6 @@ public class ConstellationRenderer implements IIngredientRenderer<Constellation>
             }, true, false);
         }
 
-        GlStateManager.popAttrib();
         GlStateManager.popMatrix();
     }
 

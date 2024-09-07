@@ -16,6 +16,7 @@ import hellfirepvp.modularmachinery.common.block.prop.EnergyHatchData;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.util.IEnergyHandlerAsync;
 import hellfirepvp.modularmachinery.common.util.MiscUtils;
+import hellfirepvp.modularmachinery.common.util.RedstoneHelper;
 import mcjty.lib.api.power.IBigPower;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTPrimitive;
@@ -58,6 +59,7 @@ public abstract class TileEnergyHatch extends TileColorableMachineComponent impl
     protected BlockPos foundCore = null;
     protected int energyCoreSearchFailedCount = 0;
     private GTEnergyContainer energyContainer;
+    private int prevRedstoneLevel = 0;
 
     protected boolean tickedOnce = false;
 
@@ -210,6 +212,17 @@ public abstract class TileEnergyHatch extends TileColorableMachineComponent impl
 
         compound.setLong("energy", this.energy.get());
         compound.setInteger("hatchSize", this.size.ordinal());
+    }
+
+    @Override
+    public void markNoUpdate() {
+        int redstoneLevel = RedstoneHelper.getRedstoneLevel(this);
+        if (prevRedstoneLevel != redstoneLevel) {
+            prevRedstoneLevel = redstoneLevel;
+            this.requireUpdateComparatorLevel = true;
+        }
+        super.markNoUpdate();
+        this.requireUpdateComparatorLevel = false;
     }
 
     //MM stuff

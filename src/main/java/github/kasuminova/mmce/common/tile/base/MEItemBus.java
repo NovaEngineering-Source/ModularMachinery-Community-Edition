@@ -4,6 +4,8 @@ import appeng.api.AEApi;
 import appeng.api.networking.ticking.IGridTickable;
 import appeng.api.storage.channels.IItemStorageChannel;
 import hellfirepvp.modularmachinery.common.util.IOInventory;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -13,15 +15,19 @@ import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.BitSet;
 import java.util.stream.IntStream;
 
 public abstract class MEItemBus extends MEMachineComponent implements IGridTickable {
 
     protected final IItemStorageChannel channel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
-    protected final BitSet changedSlots = new BitSet();
+
+    // TODO: May cause some machine fatal error, but why?
+//    protected final BitSet changedSlots = new BitSet();
+
     protected IOInventory inventory = buildInventory();
+    protected boolean[] changedSlots = new boolean[inventory.getSlots()];
     protected int fullCheckCounter = 5;
+    protected boolean inTick = false;
 
     public abstract IOInventory buildInventory();
 
@@ -31,7 +37,11 @@ public abstract class MEItemBus extends MEMachineComponent implements IGridTicka
             fullCheckCounter = 0;
             return IntStream.range(0, inventory.getSlots()).toArray();
         }
-        return changedSlots.stream().toArray();
+        IntList list = new IntArrayList();
+        IntStream.range(0, changedSlots.length)
+                .filter(i -> changedSlots[i])
+                .forEach(list::add);
+        return list.toIntArray();
     }
 
     public IOInventory getInternalInventory() {
@@ -66,7 +76,7 @@ public abstract class MEItemBus extends MEMachineComponent implements IGridTicka
         this.inventory = IOInventory.deserialize(this, tag);
         this.inventory.setListener(slot -> {
             synchronized (this) {
-                changedSlots.set(slot);
+                changedSlots[slot] = true;
             }
         });
 
@@ -88,6 +98,15 @@ public abstract class MEItemBus extends MEMachineComponent implements IGridTicka
         for (int i = 0; i < inventory.getSlots(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             if (!stack.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean hasChangedSlots() {
+        for (final boolean changed : changedSlots) {
+            if (changed) {
                 return true;
             }
         }

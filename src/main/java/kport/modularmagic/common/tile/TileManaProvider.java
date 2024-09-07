@@ -8,6 +8,7 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.common.config.Configuration;
 import vazkii.botania.api.mana.IManaPool;
 import vazkii.botania.api.mana.IManaReceiver;
 import vazkii.botania.api.mana.ManaNetworkEvent;
@@ -15,7 +16,14 @@ import vazkii.botania.common.core.handler.ManaNetworkHandler;
 
 public abstract class TileManaProvider extends TileColorableMachineComponent implements ITickable, IManaReceiver, MachineComponentTile {
 
+    private static int manaCapacity = 100000;
     private volatile int mana = 0;
+
+    public static void loadFromConfig(Configuration cfg) {
+        manaCapacity = cfg.getInt("Mana Capacity", "mods.botania", manaCapacity, 0, Integer.MAX_VALUE, 
+                "The maximum amount of mana this mana provider can hold."
+        );
+    }
 
     @Override
     public void update() {
@@ -56,7 +64,7 @@ public abstract class TileManaProvider extends TileColorableMachineComponent imp
     }
 
     public int getManaCapacity() {
-        return 100000;
+        return manaCapacity;
     }
 
     @Override
