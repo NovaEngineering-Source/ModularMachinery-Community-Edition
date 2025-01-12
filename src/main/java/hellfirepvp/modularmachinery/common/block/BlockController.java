@@ -36,6 +36,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -111,16 +112,60 @@ public class BlockController extends BlockMachineComponent implements ItemDynami
     }
 
     @Override
-    public void dropBlockAsItemWithChance(@Nonnull final World worldIn, @Nonnull final BlockPos pos, @Nonnull final IBlockState state, final float chance, final int fortune) {
+    public void getDrops(@Nonnull NonNullList<ItemStack> result, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull IBlockState metadata, int fortune) {
+        ItemStack stack = getRestorableDropItem(world, pos, metadata);
+        if (stack != null && !stack.isEmpty()) {
+            result.add(stack);
+        } else {
+            super.getDrops(result, world, pos, metadata, fortune);
+        }
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack getPickBlock(@Nonnull IBlockState state, @Nonnull RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player) {
+        ItemStack stack = getRestorableDropItem(world, pos, state);
+        if (stack != null && !stack.isEmpty()) {
+            return stack;
+        } else {
+            return super.getPickBlock(state, target, world, pos, player);
+        }
+    }
+
+    private ItemStack getRestorableDropItem(@Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
+        Random rand = world instanceof World ? ((World)world).rand : RANDOM;
+        TileEntity tileEntity = world.getTileEntity(pos);
+        if (tileEntity instanceof TileMultiblockMachineController ctrl && ctrl.getOwner() != null) {
+            UUID ownerUUID = ctrl.getOwner();
+            Item dropped = getItemDropped(state, rand, damageDropped(state));
+            if (dropped instanceof ItemBlockController) {
+                ItemStack stackCtrl = new ItemStack(dropped, 1);
+                if (ownerUUID != null) {
+                    NBTTagCompound tag = new NBTTagCompound();
+                    tag.setString("owner", ownerUUID.toString());
+                    stackCtrl.setTagCompound(tag);
+                }
+                return stackCtrl;
+            } else {
+                ModularMachinery.log.warn("Cannot get controller drops at World: " + world + ", Pos: " + MiscUtils.posToString(pos));
+            }
+        }
+        return null;
     }
 
     @Override
-    public void getDrops(@Nonnull final NonNullList<ItemStack> drops, @Nonnull final IBlockAccess world, @Nonnull final BlockPos pos, @Nonnull final IBlockState state, final int fortune) {
+    public boolean removedByPlayer(@Nonnull IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player, boolean willHarvest) {
+        return willHarvest || super.removedByPlayer(state, world, pos, player, willHarvest);
+    }
+
+    @Override
+    public void harvestBlock(@Nonnull World world, @Nonnull EntityPlayer player, @Nonnull BlockPos pos, @Nonnull IBlockState state, TileEntity te, @Nonnull ItemStack stack) {
+        super.harvestBlock(world, player, pos, state, te, stack);
+        world.setBlockToAir(pos);
     }
 
     @Override
     public void breakBlock(World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state) {
-        Random rand = worldIn.rand;
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileMultiblockMachineController ctrl) {
             IOInventory inv = ctrl.getInventory();
@@ -131,22 +176,7 @@ public class BlockController extends BlockMachineComponent implements ItemDynami
                     inv.setStackInSlot(i, ItemStack.EMPTY);
                 }
             }
-
-            UUID ownerUUID = ctrl.getOwner();
-            Item dropped = getItemDropped(state, rand, damageDropped(state));
-            if (dropped instanceof ItemBlockController) {
-                ItemStack stackCtrl = new ItemStack(dropped, 1);
-                if (ownerUUID != null) {
-                    NBTTagCompound tag = new NBTTagCompound();
-                    tag.setString("owner", ownerUUID.toString());
-                    stackCtrl.setTagCompound(tag);
-                }
-                spawnAsEntity(worldIn, pos, stackCtrl);
-            } else {
-                ModularMachinery.log.warn("Cannot get controller drops at World: " + worldIn + ", Pos: " + MiscUtils.posToString(pos));
-            }
         }
-
         super.breakBlock(worldIn, pos, state);
     }
 
