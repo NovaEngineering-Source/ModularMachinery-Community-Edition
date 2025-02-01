@@ -18,6 +18,7 @@ import hellfirepvp.modularmachinery.common.crafting.adapter.nco.AdapterNCOAlloyF
 import hellfirepvp.modularmachinery.common.crafting.adapter.nco.AdapterNCOChemicalReactor;
 import hellfirepvp.modularmachinery.common.crafting.adapter.nco.AdapterNCOInfuser;
 import hellfirepvp.modularmachinery.common.crafting.adapter.nco.AdapterNCOMelter;
+import hellfirepvp.modularmachinery.common.crafting.adapter.tc6.AdapterTC6Crucible;
 import hellfirepvp.modularmachinery.common.crafting.adapter.tc6.AdapterTC6InfusionMatrix;
 import hellfirepvp.modularmachinery.common.crafting.adapter.tconstruct.AdapterSmelteryAlloyRecipe;
 import hellfirepvp.modularmachinery.common.crafting.adapter.tconstruct.AdapterSmelteryMeltingRecipe;
@@ -55,6 +56,7 @@ public class RegistryRecipeAdapters {
         }
         if (Mods.TC6.isPresent()){
             registerAdapter(new AdapterTC6InfusionMatrix());
+            registerAdapter(new AdapterTC6Crucible());
         }
         if (Mods.THERMAL_EXPANSION.isPresent()) {
             registerAdapter(new InsolatorRecipeAdapter(false));
