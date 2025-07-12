@@ -22,6 +22,8 @@ import hellfirepvp.modularmachinery.common.crafting.adapter.tc6.AdapterTC6Infusi
 import hellfirepvp.modularmachinery.common.crafting.adapter.tconstruct.AdapterSmelteryAlloyRecipe;
 import hellfirepvp.modularmachinery.common.crafting.adapter.tconstruct.AdapterSmelteryMeltingRecipe;
 import hellfirepvp.modularmachinery.common.crafting.adapter.te5.InsolatorRecipeAdapter;
+import hellfirepvp.modularmachinery.common.crafting.adapter.te5.CrucibleRecipeAdapter;
+import hellfirepvp.modularmachinery.common.crafting.adapter.te5.PulverizerRecipeAdapter;
 
 import static hellfirepvp.modularmachinery.common.lib.RecipeAdaptersMM.MINECRAFT_FURNACE;
 
@@ -59,6 +61,8 @@ public class RegistryRecipeAdapters {
         if (Mods.THERMAL_EXPANSION.isPresent()) {
             registerAdapter(new InsolatorRecipeAdapter(false));
             registerAdapter(new InsolatorRecipeAdapter(true));
+            registerAdapter(new CrucibleRecipeAdapter());
+            registerAdapter(new PulverizerRecipeAdapter());
         }
     }
 
