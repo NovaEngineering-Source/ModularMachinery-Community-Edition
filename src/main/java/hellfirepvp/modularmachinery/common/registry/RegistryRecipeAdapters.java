@@ -14,10 +14,7 @@ import hellfirepvp.modularmachinery.common.crafting.adapter.AdapterMinecraftFurn
 import hellfirepvp.modularmachinery.common.crafting.adapter.RecipeAdapter;
 import hellfirepvp.modularmachinery.common.crafting.adapter.ic2.AdapterIC2Compressor;
 import hellfirepvp.modularmachinery.common.crafting.adapter.ic2.AdapterIC2Macerator;
-import hellfirepvp.modularmachinery.common.crafting.adapter.nco.AdapterNCOAlloyFurnace;
-import hellfirepvp.modularmachinery.common.crafting.adapter.nco.AdapterNCOChemicalReactor;
-import hellfirepvp.modularmachinery.common.crafting.adapter.nco.AdapterNCOInfuser;
-import hellfirepvp.modularmachinery.common.crafting.adapter.nco.AdapterNCOMelter;
+import hellfirepvp.modularmachinery.common.crafting.adapter.nco.*;
 import hellfirepvp.modularmachinery.common.crafting.adapter.tc6.AdapterTC6InfusionMatrix;
 import hellfirepvp.modularmachinery.common.crafting.adapter.tconstruct.AdapterSmelteryAlloyRecipe;
 import hellfirepvp.modularmachinery.common.crafting.adapter.tconstruct.AdapterSmelteryMeltingRecipe;
@@ -50,6 +47,7 @@ public class RegistryRecipeAdapters {
             registerAdapter(new AdapterNCOInfuser());
             registerAdapter(new AdapterNCOChemicalReactor());
             registerAdapter(new AdapterNCOMelter());
+            registerAdapter(new AdapterNCOIngotFormer());
         }
         if (Mods.TCONSTRUCT.isPresent()) {
             registerAdapter(new AdapterSmelteryMeltingRecipe());
