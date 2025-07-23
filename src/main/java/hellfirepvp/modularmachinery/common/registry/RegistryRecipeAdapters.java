@@ -19,8 +19,16 @@ import hellfirepvp.modularmachinery.common.crafting.adapter.tc6.AdapterTC6Infusi
 import hellfirepvp.modularmachinery.common.crafting.adapter.tconstruct.AdapterSmelteryAlloyRecipe;
 import hellfirepvp.modularmachinery.common.crafting.adapter.tconstruct.AdapterSmelteryMeltingRecipe;
 import hellfirepvp.modularmachinery.common.crafting.adapter.te5.*;
+import hellfirepvp.modularmachinery.common.crafting.adapter.draconicevolution.AdapterDEBasicFusionCrafting;
+import hellfirepvp.modularmachinery.common.crafting.adapter.draconicevolution.AdapterDEWyvernFusionCrafting;
+import hellfirepvp.modularmachinery.common.crafting.adapter.draconicevolution.AdapterDEAwakenedFusionCrafting;
+import hellfirepvp.modularmachinery.common.crafting.adapter.draconicevolution.AdapterDEChaoticFusionCrafting;
 
 import static hellfirepvp.modularmachinery.common.lib.RecipeAdaptersMM.MINECRAFT_FURNACE;
+import static hellfirepvp.modularmachinery.common.lib.RecipeAdaptersMM.DE_BASIC_FUSION_CRAFTING;
+import static hellfirepvp.modularmachinery.common.lib.RecipeAdaptersMM.DE_WYVERN_FUSION_CRAFTING;
+import static hellfirepvp.modularmachinery.common.lib.RecipeAdaptersMM.DE_AWAKENED_FUSION_CRAFTING;
+import static hellfirepvp.modularmachinery.common.lib.RecipeAdaptersMM.DE_CHAOTIC_FUSION_CRAFTING;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -56,6 +64,12 @@ public class RegistryRecipeAdapters {
         }
         if (Mods.TC6.isPresent()){
             registerAdapter(new AdapterTC6InfusionMatrix());
+        }
+        if (Mods.DRACONICEVOLUTION.isPresent()) {
+            DE_BASIC_FUSION_CRAFTING = registerAdapter(new AdapterDEBasicFusionCrafting());
+            DE_WYVERN_FUSION_CRAFTING = registerAdapter(new AdapterDEWyvernFusionCrafting());
+            DE_AWAKENED_FUSION_CRAFTING = registerAdapter(new AdapterDEAwakenedFusionCrafting());
+            DE_CHAOTIC_FUSION_CRAFTING = registerAdapter(new AdapterDEChaoticFusionCrafting());
         }
         if (Mods.THERMAL_EXPANSION.isPresent()) {
             registerAdapter(new InsolatorRecipeAdapter(false));
