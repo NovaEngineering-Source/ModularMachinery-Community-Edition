@@ -1,0 +1,32 @@
+{
+  "adapter": "dragonresearch:fusion_crafting",
+  "machine": "fusion_assembler",
+  "modifiers": [
+    {
+      "target": "duration",
+      "io": "input",
+      "operation": "multiply",
+      "value": 0.8,
+      "affectsChance": false
+    },
+    {
+      "target": "energy",
+      "io": "input", 
+      "operation": "multiply",
+      "value": 1.2,
+      "affectsChance": false
+    }
+  ],
+  "requirements": [
+    {
+      "type": "energy",
+      "io-type": "input",
+      "energyPerTick": 1000
+    }
+  ],
+  "tooltips": [
+    "使用聚合合成核心处理龙之研究配方",
+    "需要大量能源来维持聚合过程",
+    "处理时间比原版聚合合成更快"
+  ]
+}

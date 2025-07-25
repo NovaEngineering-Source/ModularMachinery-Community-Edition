@@ -109,6 +109,7 @@ public enum Mods {
     LUMENIZED("lumenized"),
     ALFHEIM("alfheim"),
     THERMAL_EXPANSION("thermalexpansion"),
+    DRAGON_RESEARCH("dragonresearch"),
     ;
 
     public final String modid;

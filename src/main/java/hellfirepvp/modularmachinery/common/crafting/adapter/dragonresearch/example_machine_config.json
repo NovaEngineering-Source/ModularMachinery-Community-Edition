@@ -1,0 +1,60 @@
+{
+  "registryname": "fusion_assembler",
+  "localizedname": "聚合装配机",
+  "color": [255, 215, 0],
+  "parts": [
+    {
+      "elements": [
+        "MMM",
+        "MIM", 
+        "MCM"
+      ],
+      "pattern": [
+        [
+          {"blockstate": "modularmachinery:blockcasing@0"},
+          {"blockstate": "modularmachinery:blockcasing@0"},
+          {"blockstate": "modularmachinery:blockcasing@0"}
+        ],
+        [
+          {"blockstate": "modularmachinery:blockcasing@0"},
+          {"blockstate": "modularmachinery:blockiteminputbus@0"},
+          {"blockstate": "modularmachinery:blockcasing@0"}
+        ],
+        [
+          {"blockstate": "modularmachinery:blockcasing@0"},
+          {"blockstate": "modularmachinery:blockmachinecontroller@0"},
+          {"blockstate": "modularmachinery:blockcasing@0"}
+        ]
+      ]
+    },
+    {
+      "elements": [
+        "EEE",
+        "EOE",
+        "EEE"
+      ],
+      "pattern": [
+        [
+          {"blockstate": "modularmachinery:blockenergyinputhatch@0"},
+          {"blockstate": "modularmachinery:blockenergyinputhatch@0"},
+          {"blockstate": "modularmachinery:blockenergyinputhatch@0"}
+        ],
+        [
+          {"blockstate": "modularmachinery:blockenergyinputhatch@0"},
+          {"blockstate": "modularmachinery:blockitemoutputbus@0"},
+          {"blockstate": "modularmachinery:blockenergyinputhatch@0"}
+        ],
+        [
+          {"blockstate": "modularmachinery:blockenergyinputhatch@0"},
+          {"blockstate": "modularmachinery:blockenergyinputhatch@0"},
+          {"blockstate": "modularmachinery:blockenergyinputhatch@0"}
+        ]
+      ]
+    }
+  ],
+  "description": [
+    "用于处理龙之研究聚合合成配方的高级装配机",
+    "需要大量能源输入来维持聚合核心的稳定运行",
+    "可以高效处理复杂的聚合合成配方"
+  ]
+}
