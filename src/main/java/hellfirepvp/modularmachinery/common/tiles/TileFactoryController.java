@@ -393,6 +393,13 @@ public class TileFactoryController extends TileMultiblockMachineController {
      */
     public int getAvailableParallelism() {
         int maxParallelism = getMaxParallelism();
+        
+        // 检查是否启用均分并行分配
+        if (foundMachine != null && foundMachine.isEvenParallelismDistribution()) {
+            return getEvenDistributedParallelism();
+        }
+        
+        // 原有逻辑：依次分配并行到各个线程
         for (FactoryRecipeThread thread : recipeThreadList) {
             ActiveMachineRecipe activeRecipe = thread.getActiveRecipe();
             if (activeRecipe == null) {
@@ -409,6 +416,36 @@ public class TileFactoryController extends TileMultiblockMachineController {
         }
 
         return Math.max(1, maxParallelism);
+    }
+
+    /**
+     * 获取单个线程可分配的并行数（用于均分模式）
+     */
+    public int getThreadParallelism() {
+        if (foundMachine != null && foundMachine.isEvenParallelismDistribution()) {
+            return getEvenDistributedParallelism();
+        }
+        return getAvailableParallelism();
+    }
+
+    /**
+     * 获取均分的并行数（仅在启用均分并行分配时调用）
+     */
+    private int getEvenDistributedParallelism() {
+        int totalMaxParallelism = getMaxParallelism();
+        
+        // 计算总的可能线程数（包括活跃和潜在的线程）
+        int totalPossibleThreads = coreRecipeThreads.size() + Math.max(getMaxThreads() - coreRecipeThreads.size(), 0);
+        
+        // 如果没有线程，返回总并行数
+        if (totalPossibleThreads == 0) {
+            return totalMaxParallelism;
+        }
+        
+        // 将总并行数均分给所有可能的线程，每个线程至少获得1个并行
+        int evenParallelism = Math.max(1, totalMaxParallelism / totalPossibleThreads);
+        
+        return evenParallelism;
     }
 
     /**
