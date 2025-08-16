@@ -14,33 +14,10 @@ import kport.modularmagic.common.integration.jei.ingredient.Aura;
 import net.minecraft.util.ResourceLocation;
 import stanhebben.zenscript.annotations.ZenExpansion;
 import stanhebben.zenscript.annotations.ZenMethod;
-import thaumcraft.api.aspects.Aspect;
 
 @ZenRegister
 @ZenExpansion("mods.modularmachinery.RecipePrimer")
 public class MagicPrimer {
-
-    @ZenMethod
-    public static RecipePrimer addAspectInput(RecipePrimer primer, String aspectString, int amount) {
-        Aspect aspect = Aspect.getAspect(aspectString);
-        if (aspect != null)
-            primer.appendComponent(new RequirementAspect(IOType.INPUT, amount, aspect));
-        else
-            CraftTweakerAPI.logError("Invalid aspect name : " + aspectString);
-
-        return primer;
-    }
-
-    @ZenMethod
-    public static RecipePrimer addAspectOutput(RecipePrimer primer, String aspectString, int amount) {
-        Aspect aspect = Aspect.getAspect(aspectString);
-        if (aspect != null)
-            primer.appendComponent(new RequirementAspect(IOType.OUTPUT, amount, aspect));
-        else
-            CraftTweakerAPI.logError("Invalid aspect name : " + aspectString);
-
-        return primer;
-    }
 
     @ZenMethod
     public static RecipePrimer addAuraInput(RecipePrimer primer, String auraType, int amount) {
