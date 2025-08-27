@@ -26,7 +26,6 @@ public abstract class AbstractMachine {
     protected boolean parallelizable = Config.machineParallelizeEnabledByDefault;
     protected boolean hasFactory = Config.enableFactoryControllerByDefault;
     protected boolean factoryOnly = false;
-    protected boolean evenParallelismDistribution = false;
     protected RecipeFailureActions failureAction = RecipeFailureActions.getDefaultAction();
 
     public AbstractMachine(String registryName) {
@@ -133,14 +132,6 @@ public abstract class AbstractMachine {
 
     public void setMaxThreads(int maxThreads) {
         this.maxThreads = maxThreads;
-    }
-
-    public boolean isEvenParallelismDistribution() {
-        return evenParallelismDistribution;
-    }
-
-    public void setEvenParallelismDistribution(boolean evenParallelismDistribution) {
-        this.evenParallelismDistribution = evenParallelismDistribution;
     }
 
     @Override

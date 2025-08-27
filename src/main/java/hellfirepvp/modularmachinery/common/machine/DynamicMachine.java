@@ -358,11 +358,6 @@ public class DynamicMachine extends AbstractMachine {
                 machine.setFactoryOnly(DynamicMachinePreDeserializer.getFactoryOnly(root));
             }
 
-            // Even Parallelism Distribution
-            if (root.has("even-parallelism-distribution")) {
-                machine.setEvenParallelismDistribution(DynamicMachinePreDeserializer.getEvenParallelismDistribution(root));
-            }
-
             // Hide Components When Formed
             if (root.has("hide-components-when-formed")) {
                 machine.setHideComponentsWhenFormed(getHideComponentsWhenFormed(root));

@@ -249,18 +249,6 @@ public class MachineBuilder {
     }
 
     /**
-     * 设置此机械是否启用均分并行分配。
-     * 如果启用，总并行数将均分到每个可用线程，而不是依次分配。
-     *
-     * @param evenParallelismDistribution 是否启用均分并行分配
-     */
-    @ZenMethod
-    public MachineBuilder setEvenParallelismDistribution(boolean evenParallelismDistribution) {
-        machine.setEvenParallelismDistribution(evenParallelismDistribution);
-        return this;
-    }
-
-    /**
      * 添加单方块配方修改器。
      *
      * @param x            X

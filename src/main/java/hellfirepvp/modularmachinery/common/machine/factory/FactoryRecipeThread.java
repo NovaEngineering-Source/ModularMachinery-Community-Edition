@@ -84,7 +84,7 @@ public class FactoryRecipeThread extends RecipeThread {
 
     public void tryRestartRecipe() {
         activeRecipe.reset();
-        activeRecipe.setMaxParallelism(factory.getThreadParallelism());
+        activeRecipe.setMaxParallelism(factory.getAvailableParallelism());
         RecipeCraftingContext context = getContext().reset();
         flushContextModifier();
 
@@ -95,7 +95,9 @@ public class FactoryRecipeThread extends RecipeThread {
             activeRecipe = null;
             setContext(null);
             status = CraftingStatus.failure(result.getFirstErrorMessage(""));
-            createRecipeSearchTask();
+            if (isCoreThread) {
+                createRecipeSearchTask();
+            }
         }
     }
 
@@ -105,7 +107,7 @@ public class FactoryRecipeThread extends RecipeThread {
         searchTask = new FactoryRecipeSearchTask(
                 factory,
                 factory.getFoundMachine(),
-                factory.getThreadParallelism(),
+                factory.getAvailableParallelism(),
                 recipeSet,
                 this,
                 factory.getActiveRecipeList());
