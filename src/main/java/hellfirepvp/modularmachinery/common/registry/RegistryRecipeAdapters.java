@@ -50,7 +50,6 @@ public class RegistryRecipeAdapters {
             registerAdapter(new AdapterNCOSeparator());
             registerAdapter(new AdapterNCOCentrifuge());
             registerAdapter(new AdapterNCOElectrolyzer());
-            registerAdapter(new AdapterNCOSaltMixer());
         }
         if (Mods.TCONSTRUCT.isPresent()) {
             registerAdapter(new AdapterSmelteryMeltingRecipe());
