@@ -46,6 +46,11 @@ public class DynamicMachinePreDeserializer implements JsonDeserializer<DynamicMa
             machine.setFactoryOnly(getFactoryOnly(root));
         }
 
+        // Even Parallelism Distribution
+        if (root.has("even-parallelism-distribution")) {
+            machine.setEvenParallelismDistribution(getEvenParallelismDistribution(root));
+        }
+
         return machine;
     }
 
@@ -126,5 +131,13 @@ public class DynamicMachinePreDeserializer implements JsonDeserializer<DynamicMa
             throw new JsonParseException("'factory-only' has to be either 'true' or 'false'!");
         }
         return elementFactoryOnly.getAsJsonPrimitive().getAsBoolean();
+    }
+
+    public static boolean getEvenParallelismDistribution(JsonObject root) throws JsonParseException {
+        JsonElement elementEvenParallelismDistribution = root.get("even-parallelism-distribution");
+        if (!elementEvenParallelismDistribution.isJsonPrimitive() || !elementEvenParallelismDistribution.getAsJsonPrimitive().isBoolean()) {
+            throw new JsonParseException("'even-parallelism-distribution' has to be either 'true' or 'false'!");
+        }
+        return elementEvenParallelismDistribution.getAsJsonPrimitive().getAsBoolean();
     }
 }
