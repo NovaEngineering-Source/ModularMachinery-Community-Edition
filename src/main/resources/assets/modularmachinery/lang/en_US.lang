@@ -59,11 +59,13 @@ gui.upgradebus.incompatible=§eWarning: %s is not compatible with this machinery
 gui.meitemoutputbus.title=ME Machinery Item Output Bus
 gui.meiteminputbus.title=ME Machinery Item Input Bus
 
-gui.meiteminputbus.inv_action=Use the scroll wheel and the SHIFT, CONTROL, ALT key combination to modify the number of marked items.
+gui.meiteminputbus.inv_action=Use the scroll wheel and the SHIFT and CONTROL key combination to modify the number of marked items.
 gui.meiteminputbus.inv_action.increase.normal=Scroll the wheel up to increase the number of items by 1.
 gui.meiteminputbus.inv_action.decrease.normal=Scroll the wheel down or right-click on an item to decrease the number of items by 1.
 gui.meiteminputbus.inv_action.increase=Press the %s key combination to increase the number of %s items while the wheel is scrolling up.
 gui.meiteminputbus.inv_action.decrease=Press the %s key combination to decrease the number of %s items while the wheel is scrolling up.
+gui.meiteminputbus.inv_action.multiply=Press the %s key combination to double the number of items while the wheel is scrolling up.
+gui.meiteminputbus.inv_action.divide=Press the %s key combination to halve the number of items while the wheel is scrolling down.
 gui.meiteminputbus.items_marked=Items marked: %s
 gui.meitembus.item_cached=Items Cached: %s
 gui.meitembus.nbt_stored=Items have been stored internally.
