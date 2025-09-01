@@ -11,26 +11,26 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class PktMEInputBusInvAction implements IMessage, IMessageHandler<PktMEInputBusInvAction, IMessage> {
-    private int addAmount = 0;
+    private int newAmount = 0;
     private int slotID    = 0;
 
     public PktMEInputBusInvAction() {
     }
 
-    public PktMEInputBusInvAction(final int addAmount, final int slotID) {
-        this.addAmount = addAmount;
+    public PktMEInputBusInvAction(final int newAmount, final int slotID) {
+        this.newAmount = newAmount;
         this.slotID = slotID;
     }
 
     @Override
     public void fromBytes(final ByteBuf buf) {
-        this.addAmount = buf.readInt();
+        this.newAmount = buf.readInt();
         this.slotID = buf.readInt();
     }
 
     @Override
     public void toBytes(final ByteBuf buf) {
-        buf.writeInt(addAmount);
+        buf.writeInt(newAmount);
         buf.writeInt(slotID);
     }
 
@@ -51,20 +51,14 @@ public class PktMEInputBusInvAction implements IMessage, IMessageHandler<PktMEIn
             return null;
         }
 
-        int addAmount = message.addAmount;
-        if (addAmount == 0) {
+        int newAmount = message.newAmount;
+        if (newAmount == 0) {
             return null;
         }
 
-        int count = stack.getCount();
-        if (addAmount > 0) {
-            stack.grow(Math.min(slot.getSlotStackLimit() - count, addAmount));
-            slot.onSlotChanged();
-        } else {
-            int decrAmount = -addAmount;
-            stack.shrink(Math.min(count - 1, decrAmount));
-            slot.onSlotChanged();
-        }
+        ItemStack newStack = stack.copy();
+        newStack.setCount(newAmount);
+        slot.putStack(newStack);
 
         return null;
     }
