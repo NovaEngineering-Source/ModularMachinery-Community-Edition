@@ -31,83 +31,29 @@ import java.util.Locale;
 public class GuiMEItemInputBus extends GuiMEItemBus {
     private static final ResourceLocation TEXTURES_INPUT_BUS = new ResourceLocation(ModularMachinery.MODID, "textures/gui/meiteminputbus.png");
 
-    private int invActionAmount = 0;
-
     public GuiMEItemInputBus(final MEItemInputBus te, final EntityPlayer player) {
         super(new ContainerMEItemInputBus(te, player));
         this.ySize = 204;
-    }
-
-    private static int getAddAmount() {
-        int addAmount;
-        // SHIFT + CTRL + ALT 1000000
-        // ALT + CTRL         100000
-        // ALT + SHIFT        10000
-        // SHIFT + CTRL       1000
-        // CTRL               100
-        // SHIFT              10
-        if (isShiftDown() && isControlDown() && isAltDown()) {
-            addAmount = 1_000_000;
-        } else if (isAltDown() && isControlDown()) {
-            addAmount = 100_000;
-        } else if (isAltDown() && isShiftDown()) {
-            addAmount = 10_000;
-        } else if (isShiftDown() && isControlDown()) {
-            addAmount = 1_000;
-        } else if (isControlDown()) {
-            addAmount = 100;
-        } else if (isShiftDown()) {
-            addAmount = 10;
-        } else {
-            addAmount = 1;
-        }
-        return addAmount;
     }
 
     private static List<String> getAddActionInfo() {
         List<String> tooltip = new ArrayList<>();
         tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action"));
         // Quite a sight, isn't it?
-        String addAmount = MiscUtils.formatDecimal(getAddAmount());
-        if (isShiftDown() && isControlDown() && isAltDown()) {
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase",
-                "SHIFT + CTRL + ALT", addAmount));
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease",
-                "SHIFT + CTRL + ALT", addAmount));
-        } else if (isAltDown() && isControlDown()) {
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase",
-                "CTRL + ALT", addAmount));
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease",
-                "CTRL + ALT", addAmount));
-        } else if (isAltDown() && isShiftDown()) {
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase",
-                "SHIFT + ALT", addAmount));
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease",
-                "SHIFT + ALT", addAmount));
-        } else if (isShiftDown() && isControlDown()) {
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase",
-                "SHIFT + CTRL", addAmount));
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease",
-                "SHIFT + CTRL", addAmount));
-        } else if (isControlDown()) {
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase",
-                "CTRL", addAmount));
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease",
-                "CTRL", addAmount));
-        } else if (isShiftDown()) {
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase",
-                "SHIFT", addAmount));
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease",
-                "SHIFT", addAmount));
+        // It was truly a beautiful sight...
+
+        if (isShiftDown() && isControlDown()) {
+            String keyCombination = "SHIFT + CTRL";
+            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.multiply",
+                    keyCombination));
+            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.divide",
+                    keyCombination));
         } else {
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase.normal"));
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease.normal"));
         }
-        return tooltip;
-    }
 
-    private static boolean isAltDown() {
-        return Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
+        return tooltip;
     }
 
     private static boolean isControlDown() {
@@ -146,29 +92,53 @@ public class GuiMEItemInputBus extends GuiMEItemBus {
             return;
         }
 
-        int amount = wheel < 0 ? -getAddAmount() : getAddAmount();
         int stackCount = stack.getCount();
+        int countToSend = getUpdatedCount(isScrollingUp(wheel), stackCount);
 
-        if (amount > 0) {
-            if (stackCount + amount > slot.getSlotStackLimit()) {
+        if (countToSend > 0) {
+            if (countToSend > slot.getSlotStackLimit()) {
                 return;
             }
-        } else if (stackCount - amount <= 0) {
-            return;
         }
 
-        this.invActionAmount += amount;
-        ClientProxy.clientScheduler.addRunnable(() -> sendInvActionToServer(slot.slotNumber), 0);
+        ClientProxy.clientScheduler.addRunnable(() -> sendInvActionToServer(slot.slotNumber, countToSend), 0);
     }
 
-    public void sendInvActionToServer(int slotNumber) {
-        if (invActionAmount == 0) {
+    private boolean isScrollingUp(int wheel) {
+        return wheel >= 0;
+    }
+
+    private int getUpdatedCount(boolean isScrollingUp, int currentAmount) {
+        if (isShiftDown() && isControlDown()) {
+            if (isScrollingUp) {
+                // Overflow protection
+                if (currentAmount <= Integer.MAX_VALUE / 2) {
+                    return 2 * currentAmount;
+                }
+                return Integer.MAX_VALUE;
+            } else {
+                return Math.max(1, currentAmount / 2);
+            }
+        } else {
+            if (isScrollingUp) {
+                // Overflow protection
+                if (currentAmount < Integer.MAX_VALUE) {
+                    return 1 + currentAmount;
+                }
+                return Integer.MAX_VALUE;
+            } else {
+                return Math.max(1, currentAmount - 1);
+            }
+        }
+    }
+
+    public void sendInvActionToServer(int slotNumber, int amountToSend) {
+        if (amountToSend == 0) {
             return;
         }
         ModularMachinery.NET_CHANNEL.sendToServer(new PktMEInputBusInvAction(
-            invActionAmount, slotNumber
+            amountToSend, slotNumber
         ));
-        invActionAmount = 0;
     }
 
     @Override
