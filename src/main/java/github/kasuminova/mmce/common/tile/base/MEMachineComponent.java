@@ -1,5 +1,6 @@
 package github.kasuminova.mmce.common.tile.base;
 
+import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.security.IActionHost;
@@ -24,7 +25,7 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class MEMachineComponent extends TileColorableMachineComponent implements SelectiveUpdateTileEntity, MachineComponentTile, IActionHost, IGridProxyable {
+public abstract class MEMachineComponent extends TileColorableMachineComponent implements SelectiveUpdateTileEntity, MachineComponentTile, IActionHost, IGridProxyable, IPowerChannelState {
 
     protected final AENetworkProxy proxy = new AENetworkProxy(this, "aeProxy", getVisualItemStack(), true);
     protected final IActionSource  source;
@@ -132,4 +133,13 @@ public abstract class MEMachineComponent extends TileColorableMachineComponent i
         Sides.SERVER.runIfPresent(() -> ModularMachinery.EXECUTE_MANAGER.addSyncTask(proxy::onReady));
     }
 
+    @Override
+    public boolean isPowered() {
+        return proxy.isPowered();
+    }
+
+    @Override
+    public boolean isActive() {
+        return proxy.isActive();
+    }
 }

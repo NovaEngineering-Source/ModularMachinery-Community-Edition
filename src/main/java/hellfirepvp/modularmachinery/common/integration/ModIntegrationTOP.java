@@ -1,5 +1,6 @@
 package hellfirepvp.modularmachinery.common.integration;
 
+import github.kasuminova.mmce.common.integration.theoneprobe.MachineryHatchInfoProvider;
 import hellfirepvp.modularmachinery.common.integration.theoneprobe.MMInfoProvider;
 import mcjty.theoneprobe.TheOneProbe;
 import mcjty.theoneprobe.apiimpl.TheOneProbeImp;
@@ -16,10 +17,11 @@ public class ModIntegrationTOP {
     public static boolean showRecipeProgressBarDecimalPoints     = true;
     public static boolean showParallelControllerInfo             = true;
 
-    public static void registerProvider() {
+    public static void registerProviders() {
         TheOneProbeImp top = TheOneProbe.theOneProbeImp;
 
         top.registerProvider(new MMInfoProvider());
+        top.registerProvider(new MachineryHatchInfoProvider());
     }
 
     public static void loadFromConfig(Configuration cfg) {
