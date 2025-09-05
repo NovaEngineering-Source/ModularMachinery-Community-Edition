@@ -1,6 +1,7 @@
 package com.cleanroommc.client.util;
 
 import com.cleanroommc.client.util.world.DummyWorld;
+import hellfirepvp.modularmachinery.ModularMachinery;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
@@ -11,9 +12,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import javax.vecmath.Vector3f;
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -37,10 +40,26 @@ public class TrackedDummyWorld extends DummyWorld {
 
     public TrackedDummyWorld() {
         proxyWorld = null;
+        initAlfheimLightingEngine();
     }
 
     public TrackedDummyWorld(World world) {
         proxyWorld = world;
+        initAlfheimLightingEngine();
+    }
+
+    private void initAlfheimLightingEngine() {
+        try {
+            Field lightingEngineField = World.class.getDeclaredField("alfheim$lightingEngine");
+            lightingEngineField.setAccessible(true);
+
+            if (lightingEngineField.get(this) == null) {
+                lightingEngineField.set(this, new AtomicReference<>());
+            }
+        } catch (NoSuchFieldException ignored) {
+        } catch (IllegalAccessException e) {
+            ModularMachinery.log.error("Failed to initialize Alfheim lighting engine: ", e);
+        }
     }
 
     public void setRenderFilter(Predicate<BlockPos> renderFilter) {
