@@ -79,35 +79,35 @@ public class GroovyMachineBuilder {
     /**
      * 添加结构形成事件监听器。
      */
-    public GroovyMachineBuilder structureFormedHandler(Closure<?> function) {
-        machine.addMachineEventHandler(MachineStructureFormedEvent.class, IEventHandler.of(function));
+    public GroovyMachineBuilder structureFormedHandler(IEventHandler<MachineStructureFormedEvent> function) {
+        machine.addMachineEventHandler(MachineStructureFormedEvent.class, function);
         return this;
     }
 
     /**
      * 添加结构更新事件监听器。
      */
-    public GroovyMachineBuilder structureUpdateHandler(Closure<?> function) {
-        machine.addMachineEventHandler(MachineStructureUpdateEvent.class, IEventHandler.of(function));
+    public GroovyMachineBuilder structureUpdateHandler(IEventHandler<MachineStructureUpdateEvent> function) {
+        machine.addMachineEventHandler(MachineStructureUpdateEvent.class, function);
         return this;
     }
 
     /**
      * 添加机器事件监听器。
      */
-    public GroovyMachineBuilder tickHandler(Closure<?> function) {
-        machine.addMachineEventHandler(MachineTickEvent.class, IEventHandler.of(function));
+    public GroovyMachineBuilder tickHandler(IEventHandler<MachineTickEvent> function) {
+        machine.addMachineEventHandler(MachineTickEvent.class, function);
         return this;
     }
 
     /**
      * 添加控制器 GUI 渲染事件监听器。
      */
-    public GroovyMachineBuilder guiRenderHandler(Closure<?> function) {
+    public GroovyMachineBuilder guiRenderHandler(IEventHandler<ControllerGUIRenderEvent> function) {
         if (FMLCommonHandler.instance().getSide().isServer()) {
             return this;
         }
-        machine.addMachineEventHandler(ControllerGUIRenderEvent.class, IEventHandler.of(function));
+        machine.addMachineEventHandler(ControllerGUIRenderEvent.class, function);
         return this;
     }
 
@@ -115,11 +115,11 @@ public class GroovyMachineBuilder {
      * 添加控制器 GeckoLib 模型动画事件监听器。
      */
     @Optional.Method(modid = "geckolib3")
-    public GroovyMachineBuilder controllerModelAnimationHandler(Closure<?> function) {
+    public GroovyMachineBuilder controllerModelAnimationHandler(IEventHandler<ControllerModelAnimationEvent> function) {
         if (FMLCommonHandler.instance().getSide().isServer()) {
             return this;
         }
-        machine.addMachineEventHandler(ControllerModelAnimationEvent.class, IEventHandler.of(function));
+        machine.addMachineEventHandler(ControllerModelAnimationEvent.class, function);
         return this;
     }
 
@@ -127,19 +127,19 @@ public class GroovyMachineBuilder {
      * 添加控制器 GeckoLib 模型获取事件监听器。
      */
     @Optional.Method(modid = "geckolib3")
-    public GroovyMachineBuilder controllerModelGetHandler(Closure<?> function) {
+    public GroovyMachineBuilder controllerModelGetHandler(IEventHandler<ControllerModelGetEvent> function) {
         if (FMLCommonHandler.instance().getSide().isServer()) {
             return this;
         }
-        machine.addMachineEventHandler(ControllerModelGetEvent.class, IEventHandler.of(function));
+        machine.addMachineEventHandler(ControllerModelGetEvent.class, function);
         return this;
     }
 
     /**
      * 添加智能数据接口更新事件监听器
      */
-    public GroovyMachineBuilder smartInterfaceUpdateHandler(Closure<?> function) {
-        machine.addMachineEventHandler(SmartInterfaceUpdateEvent.class, IEventHandler.of(function));
+    public GroovyMachineBuilder smartInterfaceUpdateHandler(IEventHandler<SmartInterfaceUpdateEvent> function) {
+        machine.addMachineEventHandler(SmartInterfaceUpdateEvent.class, function);
         return this;
     }
 

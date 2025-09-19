@@ -227,8 +227,8 @@ public class BlockArrayBuilder {
 
     public BlockArrayBuilder blockChecker(Closure<Boolean> checker) {
         if (lastInformation != null) {
-            lastInformation.nbtChecker = (world, pos, blockState, nbt) ->
-                    ClosureHelper.call(true, checker, world, pos, blockState, nbt);
+            lastInformation.setNBTChecker((world, pos, blockState, nbt) ->
+                                                  ClosureHelper.call(true, checker, world, pos, blockState, nbt));
         }
         return this;
     }

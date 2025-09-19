@@ -54,6 +54,7 @@ public class GroovyRecipe implements PreparedRecipe {
     protected final ResourceLocation machineName;
     private int tickTime = 100, priority = 0;
     private boolean doesVoidPerTick = false;
+    private boolean loadJei = true;
 
     private final List<ComponentRequirement<?, ?>> components = new ArrayList<>();
     private final List<Action> needAfterInitActions = new ArrayList<>();
@@ -276,100 +277,100 @@ public class GroovyRecipe implements PreparedRecipe {
     // EventHandlers
     //----------------------------------------------------------------------------------------------
 
-    public GroovyRecipe preCheckHandler(Closure<?> handler) {
+    public GroovyRecipe preCheckHandler(IEventHandler<RecipeCheckEvent> handler) {
         addRecipeEventHandler(RecipeCheckEvent.class, event -> {
             if (event.phase != Phase.START) return;
-            ClosureHelper.call(handler, event);
+            handler.invoke(event);
         });
         return this;
     }
 
 
-    public GroovyRecipe postCheckHandler(Closure<?> handler) {
+    public GroovyRecipe postCheckHandler(IEventHandler<RecipeCheckEvent> handler) {
         addRecipeEventHandler(RecipeCheckEvent.class, event -> {
             if (event.phase != Phase.END) return;
-            ClosureHelper.call(handler, event);
+            handler.invoke(event);
         });
         return this;
     }
 
-    public GroovyRecipe startHandler(Closure<?> handler) {
-        addRecipeEventHandler(RecipeStartEvent.class, IEventHandler.of(handler));
+    public GroovyRecipe startHandler(IEventHandler<RecipeStartEvent> handler) {
+        addRecipeEventHandler(RecipeStartEvent.class, handler);
         return this;
     }
 
-    public GroovyRecipe preTickHandler(Closure<?> handler) {
+    public GroovyRecipe preTickHandler(IEventHandler<RecipeTickEvent> handler) {
         addRecipeEventHandler(RecipeTickEvent.class, event -> {
             if (event.phase != Phase.START) return;
-            ClosureHelper.call(handler, event);
+            handler.invoke(event);
         });
         return this;
     }
 
-    public GroovyRecipe postTickHandler(Closure<?> handler) {
+    public GroovyRecipe postTickHandler(IEventHandler<RecipeTickEvent> handler) {
         addRecipeEventHandler(RecipeTickEvent.class, event -> {
             if (event.phase != Phase.END) return;
-            ClosureHelper.call(handler, event);
+            handler.invoke(event);
         });
         return this;
     }
 
-    public GroovyRecipe failureHandler(Closure<?> handler) {
-        addRecipeEventHandler(RecipeFailureEvent.class, IEventHandler.of(handler));
+    public GroovyRecipe failureHandler(IEventHandler<RecipeFailureEvent> handler) {
+        addRecipeEventHandler(RecipeFailureEvent.class, handler);
         return this;
     }
 
-    public GroovyRecipe finishHandler(Closure<?> handler) {
-        addRecipeEventHandler(RecipeFinishEvent.class, IEventHandler.of(handler));
+    public GroovyRecipe finishHandler(IEventHandler<RecipeFinishEvent> handler) {
+        addRecipeEventHandler(RecipeFinishEvent.class, handler);
         return this;
     }
 
-    public GroovyRecipe factoryStartHandler(Closure<?> handler) {
-        addRecipeEventHandler(FactoryRecipeStartEvent.class, IEventHandler.of(handler));
+    public GroovyRecipe factoryStartHandler(IEventHandler<FactoryRecipeStartEvent> handler) {
+        addRecipeEventHandler(FactoryRecipeStartEvent.class, handler);
         return this;
     }
 
-    public GroovyRecipe factoryPreTickHandler(Closure<?> handler) {
+    public GroovyRecipe factoryPreTickHandler(IEventHandler<FactoryRecipeTickEvent> handler) {
         addRecipeEventHandler(FactoryRecipeTickEvent.class, event -> {
             if (event.phase != Phase.START) {
                 return;
             }
-            ClosureHelper.call(handler, event);
+            handler.invoke(event);
         });
         return this;
     }
 
-    public GroovyRecipe factoryPostTickHandler(Closure<?> handler) {
+    public GroovyRecipe factoryPostTickHandler(IEventHandler<FactoryRecipeTickEvent> handler) {
         addRecipeEventHandler(FactoryRecipeTickEvent.class, event -> {
             if (event.phase != Phase.END) {
                 return;
             }
-            ClosureHelper.call(handler, event);
+            handler.invoke(event);
         });
         return this;
     }
 
 
-    public GroovyRecipe factoryFailureHandler(Closure<?> handler) {
+    public GroovyRecipe factoryFailureHandler(IEventHandler<FactoryRecipeFailureEvent> handler) {
         return eventHandler(FactoryRecipeFailureEvent.class, handler);
     }
 
-    public GroovyRecipe factoryFinishHandler(Closure<?> handler) {
+    public GroovyRecipe factoryFinishHandler(IEventHandler<FactoryRecipeFinishEvent> handler) {
         return eventHandler(FactoryRecipeFinishEvent.class, handler);
     }
 
-    public <H extends RecipeEvent> GroovyRecipe eventHandler(Closure<?> handler) {
+    /*public <H extends RecipeEvent> GroovyRecipe eventHandler(IEventHandler<> handler) {
         if (handler.getParameterTypes().length > 0 && RecipeEvent.class.isAssignableFrom(handler.getParameterTypes()[0])) {
             Class<H> eventClass = (Class<H>) handler.getParameterTypes()[0];
-            addRecipeEventHandler(eventClass, IEventHandler.of(handler));
+            addRecipeEventHandler(eventClass, handler);
         } else {
             GroovyLog.get().error("The parameter type must be explicitly declared when using `eventHandler({})`");
         }
         return this;
-    }
+    }*/
 
-    public <H extends RecipeEvent> GroovyRecipe eventHandler(Class<H> clazz, Closure<?> handler) {
-        addRecipeEventHandler(clazz, IEventHandler.of(handler));
+    public <H extends RecipeEvent> GroovyRecipe eventHandler(Class<H> clazz, IEventHandler<H> handler) {
+        addRecipeEventHandler(clazz, handler);
         return this;
     }
 
@@ -875,7 +876,7 @@ public class GroovyRecipe implements PreparedRecipe {
         return this;
     }
 
-    public GroovyRecipe rainbowInput(RecipePrimer primer) {
+    public GroovyRecipe rainbowInput() {
         appendComponent(new RequirementRainbow());
         return this;
     }
@@ -994,6 +995,11 @@ public class GroovyRecipe implements PreparedRecipe {
         return this;
     }
 
+    public GroovyRecipe hide() {
+        this.loadJei = false;
+        return this;
+    }
+
     //----------------------------------------------------------------------------------------------
     // build
     //----------------------------------------------------------------------------------------------
@@ -1086,6 +1092,11 @@ public class GroovyRecipe implements PreparedRecipe {
         for (Action needAfterInitAction : needAfterInitActions) {
             needAfterInitAction.doAction();
         }
+    }
+
+    @Override
+    public boolean getLoadJEI() {
+        return loadJei;
     }
 }
 

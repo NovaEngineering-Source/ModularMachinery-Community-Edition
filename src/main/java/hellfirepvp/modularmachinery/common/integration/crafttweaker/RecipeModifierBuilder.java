@@ -14,7 +14,7 @@ import stanhebben.zenscript.annotations.ZenMethod;
 @ZenClass("mods.modularmachinery.RecipeModifierBuilder")
 public class RecipeModifierBuilder {
     private String  type         = "";
-    private IOType  ioType    = "";
+    private IOType  ioType       = null;
     private float   value        = 0.0f;
     private int     operation    = 0;
     private boolean affectChance = false;
@@ -94,6 +94,10 @@ public class RecipeModifierBuilder {
     public RecipeModifierBuilder isAffectChance(boolean affectChance) {
         this.affectChance = affectChance;
         return this;
+    }
+
+    public RecipeModifierBuilder affectChance(boolean affectChance) {
+        return isAffectChance(affectChance);
     }
 
     @ZenMethod

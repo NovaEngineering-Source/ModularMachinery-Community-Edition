@@ -4,6 +4,7 @@ import com.cleanroommc.groovyscript.api.GroovyBlacklist;
 import com.cleanroommc.groovyscript.api.GroovyLog;
 import com.cleanroommc.groovyscript.sandbox.ClosureHelper;
 import groovy.lang.Closure;
+import hellfirepvp.modularmachinery.common.data.Config;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.MachineBuilder;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -52,6 +53,7 @@ public class GroovyMachine {
         }
         BlockArrayBuilder pattern = new BlockArrayBuilder(this.dynamicMachine);
         GroovyMachineBuilder settings = new GroovyMachineBuilder(this.dynamicMachine);
+        settings.color(Config.machineColor); // default color
         ClosureHelper.withEnvironment(this.buildFunction, new MachineBuilderHelper(pattern, settings), true);
         ClosureHelper.call(this.buildFunction);
         pattern.build();

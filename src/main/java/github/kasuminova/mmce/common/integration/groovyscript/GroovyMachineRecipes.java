@@ -16,12 +16,10 @@ public class GroovyMachineRecipes extends NamedRegistry implements IScriptReload
     }
 
     @Override
-    public void onReload() {
-    }
+    public void onReload() {}
 
     @Override
-    public void afterScriptLoad() {
-    }
+    public void afterScriptLoad() {}
 
     public GroovyRecipe recipeBuilder(String name) {
         return new GroovyRecipe(this.name);
