@@ -9,12 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MachineComponentProxyRegistry {
-    public static final MachineComponentProxyRegistry INSTANCE = new MachineComponentProxyRegistry();
+    public static final MachineComponentProxyRegistry         INSTANCE      = new MachineComponentProxyRegistry();
+    private final       Map<String, MachineComponentProxy<?>> proxyRegistry = new HashMap<>();
 
     private MachineComponentProxyRegistry() {
     }
-
-    private final Map<String, MachineComponentProxy<?>> proxyRegistry = new HashMap<>();
 
     public Map<String, MachineComponentProxy<?>> getRegistry() {
         return Collections.unmodifiableMap(proxyRegistry);

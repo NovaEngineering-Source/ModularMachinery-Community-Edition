@@ -41,6 +41,28 @@ public class JEIComponentItem extends ComponentRequirement.JEIComponent<ItemStac
         this.requirement = requirement;
     }
 
+    public static void addFuelTooltip(final ItemStack ingredient, final List<String> tooltip) {
+        int burn = TileEntityFurnace.getItemBurnTime(ingredient);
+        if (burn > 0) {
+            tooltip.add(TextFormatting.GRAY + I18n.format("tooltip.machinery.fuel.item", burn));
+        }
+        tooltip.add(I18n.format("tooltip.machinery.fuel"));
+    }
+
+    public static void addChanceTooltip(final boolean input, final List<String> tooltip, final float chance) {
+        if (chance < 1F && chance >= 0F) {
+            String keyNever = input ? "tooltip.machinery.chance.in.never" : "tooltip.machinery.chance.out.never";
+            String keyChance = input ? "tooltip.machinery.chance.in" : "tooltip.machinery.chance.out";
+
+            if (chance == 0F) {
+                tooltip.add(I18n.format(keyNever));
+            } else {
+                String chanceStr = chance < 0.0001F ? "< 0.01%" : MiscUtils.formatFloat(chance * 100F, 2) + "%";
+                tooltip.add(I18n.format(keyChance, chanceStr));
+            }
+        }
+    }
+
     @Override
     public Class<ItemStack> getJEIRequirementClass() {
         return ItemStack.class;
@@ -67,32 +89,10 @@ public class JEIComponentItem extends ComponentRequirement.JEIComponent<ItemStac
         addMinMaxTooltip(input, tooltip);
     }
 
-    public static void addFuelTooltip(final ItemStack ingredient, final List<String> tooltip) {
-        int burn = TileEntityFurnace.getItemBurnTime(ingredient);
-        if (burn > 0) {
-            tooltip.add(TextFormatting.GRAY + I18n.format("tooltip.machinery.fuel.item", burn));
-        }
-        tooltip.add(I18n.format("tooltip.machinery.fuel"));
-    }
-
     public void addMinMaxTooltip(final boolean input, final List<String> tooltip) {
         if (requirement.minAmount != requirement.maxAmount) {
             String key = input ? "tooltip.machinery.min_max_amount.input" : "tooltip.machinery.min_max_amount.output";
             tooltip.add(I18n.format(key, requirement.minAmount, requirement.maxAmount));
-        }
-    }
-
-    public static void addChanceTooltip(final boolean input, final List<String> tooltip, final float chance) {
-        if (chance < 1F && chance >= 0F) {
-            String keyNever = input ? "tooltip.machinery.chance.in.never" : "tooltip.machinery.chance.out.never";
-            String keyChance = input ? "tooltip.machinery.chance.in" : "tooltip.machinery.chance.out";
-
-            if (chance == 0F) {
-                tooltip.add(I18n.format(keyNever));
-            } else {
-                String chanceStr = chance < 0.0001F ? "< 0.01%" : MiscUtils.formatFloat(chance * 100F, 2) + "%";
-                tooltip.add(I18n.format(keyChance, chanceStr));
-            }
         }
     }
 

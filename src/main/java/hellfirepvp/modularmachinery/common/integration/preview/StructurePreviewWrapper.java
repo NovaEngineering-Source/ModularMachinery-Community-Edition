@@ -14,11 +14,13 @@ import github.kasuminova.mmce.client.gui.widget.base.WidgetController;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetGui;
 import github.kasuminova.mmce.client.preivew.PreviewPanels;
 import hellfirepvp.modularmachinery.ModularMachinery;
+import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.block.BlockController;
 import hellfirepvp.modularmachinery.common.block.BlockFactoryController;
 import hellfirepvp.modularmachinery.common.item.ItemBlueprint;
 import hellfirepvp.modularmachinery.common.lib.ItemsMM;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
+import hellfirepvp.modularmachinery.common.modifier.AbstractModifierReplacement;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.ingredients.VanillaTypes;
 import mezz.jei.api.recipe.IRecipeWrapper;
@@ -32,6 +34,8 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,8 +69,8 @@ public class StructurePreviewWrapper implements IRecipeWrapper {
         recipeWrapper = field;
     }
 
-    private final DynamicMachine machine;
-    private GuiBlueprintScreenJEI gui = null;
+    private final DynamicMachine        machine;
+    private       GuiBlueprintScreenJEI gui = null;
 
     public StructurePreviewWrapper(DynamicMachine machine) {
         this.machine = machine;
@@ -81,7 +85,6 @@ public class StructurePreviewWrapper implements IRecipeWrapper {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     public static List<RecipeLayout> getRecipeLayouts(RecipesGui recipesGui) {
         try {
             return (List<RecipeLayout>) recipeLayouts.get(recipesGui);
@@ -148,7 +151,27 @@ public class StructurePreviewWrapper implements IRecipeWrapper {
         }
         stackList.add(bOut);
 
-        ingredients.setInputLists(VanillaTypes.ITEM, this.machine.getPattern().getIngredientList());
+        List<List<ItemStack>> ingredientList;
+        if (gui != null && Mods.AE2.isPresent()) {
+            WidgetController controller = this.gui.getWidgetController();
+            var panel = PreviewPanels.getPanel(this.machine, controller.getGui()).getRenderer();
+            var list = panel.getPattern().getDescriptiveStackList(panel.getTickSnap(), panel.getWorldRenderer().getWorld(), panel.getRenderOffset());
+            list.remove(0);
+            List<List<ItemStack>> finalList = new ArrayList<>();
+            list.forEach(itemStack -> finalList.add(Collections.singletonList(itemStack)));
+            ingredientList = finalList;
+        } else {
+            ingredientList = this.machine.getPattern().getIngredientList();
+        }
+        machine.getModifiers().values().stream()
+               .flatMap(Collection::stream)
+               .map(AbstractModifierReplacement::getDescriptiveStack)
+               .forEach(stack -> ingredientList.add(Collections.singletonList(stack)));
+        machine.getMultiBlockModifiers().stream()
+               .map(AbstractModifierReplacement::getDescriptiveStack)
+               .forEach(stack -> ingredientList.add(Collections.singletonList(stack)));
+
+        ingredients.setInputLists(VanillaTypes.ITEM, ingredientList);
         ingredients.setOutputs(VanillaTypes.ITEM, stackList);
     }
 }

@@ -10,15 +10,15 @@ import java.util.List;
 
 public class IngredientStack {
     public final IngredientType ingredientType;
-    public String oreDictName = "";
-    public ItemStack itemStack;
+    public       String         oreDictName = "";
+    public       ItemStack      itemStack;
 
     public int count;
     public int minCount;
     public int maxCount;
 
-    public NBTTagCompound tag = null;
-    public AdvancedItemChecker itemChecker = null;
+    public NBTTagCompound             tag              = null;
+    public AdvancedItemChecker        itemChecker      = null;
     public List<AdvancedItemModifier> itemModifierList = new ArrayList<>();
 
     public IngredientStack(ItemStack itemStack) {

@@ -1,5 +1,6 @@
 package github.kasuminova.mmce.mixin.minecraft;
 
+import com.cleanroommc.client.shader.ShaderManager;
 import github.kasuminova.mmce.client.renderer.ControllerModelRenderManager;
 import github.kasuminova.mmce.client.renderer.MachineControllerRenderer;
 import hellfirepvp.modularmachinery.common.base.Mods;
@@ -17,21 +18,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinRenderGlobal {
 
     @Inject(method = "renderEntities",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher;drawBatch(I)V",
-                    shift = At.Shift.AFTER,
-                    remap = false
-            )
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher;drawBatch(I)V",
+            shift = At.Shift.AFTER,
+            remap = false
+        )
     )
     private void hookTESRComplete(final Entity renderViewEntity, final ICamera camera, final float partialTicks, final CallbackInfo ci) {
         // Use RenderPass 0, prevent twice render.
         if (Mods.GECKOLIB.isPresent() && MinecraftForgeClient.getRenderPass() == 0) {
-            if (!MachineControllerRenderer.shouldUseBloom()) {
+            if (MachineControllerRenderer.shouldUseBloom() && !ShaderManager.isOptifineShaderPackLoaded()) {
                 ControllerModelRenderManager.INSTANCE.draw();
-                ControllerModelRenderManager.INSTANCE.checkControllerState();
             } else {
                 ControllerModelRenderManager.INSTANCE.draw();
+                ControllerModelRenderManager.INSTANCE.checkControllerState();
             }
         }
     }

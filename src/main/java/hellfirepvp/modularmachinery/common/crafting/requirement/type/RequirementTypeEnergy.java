@@ -25,7 +25,7 @@ public class RequirementTypeEnergy extends RequirementType<Long, RequirementEner
     @Override
     public RequirementEnergy createRequirement(IOType type, JsonObject requirement) {
         if (!requirement.has("energyPerTick") || !requirement.get("energyPerTick").isJsonPrimitive() ||
-                !requirement.get("energyPerTick").getAsJsonPrimitive().isNumber()) {
+            !requirement.get("energyPerTick").getAsJsonPrimitive().isNumber()) {
             throw new JsonParseException("The ComponentType 'energy' expects an 'energyPerTick'-entry that defines the amount of energy per tick!");
         }
         long energyPerTick = requirement.getAsJsonPrimitive("energyPerTick").getAsLong();

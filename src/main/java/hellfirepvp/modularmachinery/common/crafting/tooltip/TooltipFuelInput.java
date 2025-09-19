@@ -33,10 +33,10 @@ public class TooltipFuelInput extends RequirementTip {
     @Override
     public Collection<ComponentRequirement<?, ?>> filterRequirements(MachineRecipe recipe, Collection<ComponentRequirement<?, ?>> requirements) {
         return requirements.stream()
-                .filter(RequirementItem.class::isInstance)
-                .filter(c -> c.getActionType() == IOType.INPUT)
-                .filter(c -> ((RequirementItem) c).requirementType == RequirementItem.ItemRequirementType.FUEL)
-                .collect(Collectors.toList());
+                           .filter(RequirementItem.class::isInstance)
+                           .filter(c -> c.getActionType() == IOType.INPUT)
+                           .filter(c -> ((RequirementItem) c).requirementType == RequirementItem.ItemRequirementType.FUEL)
+                           .collect(Collectors.toList());
     }
 
     @Nonnull

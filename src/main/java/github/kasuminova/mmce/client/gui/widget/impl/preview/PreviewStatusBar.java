@@ -23,8 +23,8 @@ public class PreviewStatusBar extends Column {
     protected int maxWidth = 0;
 
     protected boolean shaderPackLoaded = false;
-    protected boolean vboUnsupported = false;
-    protected boolean vboDisabled = false;
+    protected boolean vboUnsupported   = false;
+    protected boolean vboDisabled      = false;
 
     public PreviewStatusBar(WorldSceneRendererWidget renderer) {
         this.renderer = renderer;
@@ -34,9 +34,9 @@ public class PreviewStatusBar extends Column {
     public void initWidget(final WidgetGui gui) {
         super.initWidget(gui);
         messageLabel.setScale(.72f)
-                .setMarginLeft(22);
+                    .setMarginLeft(22);
         progressLine.setColor(0xFF87CEFA)
-                .setHeight(2);
+                    .setHeight(2);
         addWidgets(progressLine, messageLabel);
     }
 
@@ -58,7 +58,7 @@ public class PreviewStatusBar extends Column {
         List<String> contents = new ArrayList<>();
         if (progress > 0) {
             contents.add(I18n.format("gui.preview.compiling.progress",
-                    MiscUtils.formatFloat(progress * 100f, 1)));
+                MiscUtils.formatFloat(progress * 100f, 1)));
         }
         if (shaderPackLoaded) {
             contents.add(I18n.format("gui.preview.optifine_shader_pack_warn"));

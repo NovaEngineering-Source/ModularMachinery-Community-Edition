@@ -20,13 +20,13 @@ public class ControllerGUIRenderEvent extends MachineEvent {
         super(controller);
     }
 
-    @ZenSetter("extraInfo")
-    public void setExtraInfo(String... info) {
-        this.extraInfo.addAll(Arrays.asList(info));
-    }
-
     @ZenGetter("extraInfo")
     public String[] getExtraInfo() {
         return extraInfo.toArray(new String[0]);
+    }
+
+    @ZenSetter("extraInfo")
+    public void setExtraInfo(String... info) {
+        this.extraInfo.addAll(Arrays.asList(info));
     }
 }

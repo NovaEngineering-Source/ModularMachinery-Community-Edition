@@ -3,6 +3,8 @@ import org.jetbrains.gradle.ext.RunConfigurationContainer
 import java.util.*
 
 plugins {
+    kotlin("jvm") version "2.2.0"
+    kotlin("plugin.serialization") version "2.2.0"
     id("java-library")
     id("maven-publish")
     id("org.jetbrains.gradle.plugin.idea-ext") version "1.1.7"
@@ -12,7 +14,7 @@ plugins {
 
 // Project properties
 group = "hellfirepvp.modularmachinery"
-version = "2.0.0-pre8"
+version = "2.2.2"
 
 // Set the toolchain version to decouple the Java we run Gradle with from the Java used to compile and run the mod
 java {
@@ -24,6 +26,10 @@ java {
     // Generate sources and javadocs jars when building and publishing
     withSourcesJar()
     withJavadocJar()
+}
+
+kotlin {
+    jvmToolchain(8)
 }
 
 // Most RFG configuration lives here, see the JavaDoc for com.gtnewhorizons.retrofuturagradle.MinecraftExtension
@@ -63,11 +69,12 @@ tasks.injectTags.configure {
 
 // Put the version from gradle into mcmod.info
 tasks.processResources.configure {
-//    inputs.property("version", project.version)
-//
-//    filesMatching("mcmod.info") {
-//        expand(mapOf("version" to project.version))
-//    }
+    inputs.property("version", project.version)
+    inputs.property("mcversion", minecraft.mcVersion.get())
+
+    filesMatching("mcmod.info") {
+        expand(mapOf("version" to project.version, "mcversion" to minecraft.mcVersion.get()))
+    }
 }
 
 tasks.compileJava.configure {
@@ -181,11 +188,18 @@ dependencies {
         isTransitive = false
     }
 
+    // Kotlin Support
+    runtimeOnly("io.github.chaosunity.forgelin:Forgelin-Continuous:2.2.0.0") {
+        isTransitive = false
+    }
+    compileOnly("org.jetbrains.kotlin:kotlin-stdlib:2.2.0")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+
     compileOnlyApi("org.jetbrains:annotations:24.1.0")
     annotationProcessor("org.jetbrains:annotations:24.1.0")
-
     api("com.cleanroommc:groovyscript:1.1.1") { isTransitive = false }
-    compileOnly("CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.+")
+    implementation("CraftTweaker2:CraftTweaker2-MC1120-Main:1.12-4.+")
+
     implementation(rfg.deobf("curse.maven:had-enough-items-557549:4810661"))
     compileOnly(rfg.deobf("curse.maven:zenutil-401178:5056679"))
     implementation(rfg.deobf("curse.maven:RedstoneFlux-270789:2920436"))
@@ -200,15 +214,20 @@ dependencies {
     compileOnly(rfg.deobf("curse.maven:tinkers-construct-74072:2902483"))
     compileOnly(rfg.deobf("curse.maven:mantle-74924:2713386"))
     implementation(rfg.deobf("curse.maven:tx-loader-706505:4515357"))
+    implementation(rfg.deobf("curse.maven:cofh-core-69162:2920433"))
+    implementation(rfg.deobf("curse.maven:cofh-world-271384:2920434"))
+    implementation(rfg.deobf("curse.maven:thermal-foundation-222880:2926428"))
+    implementation(rfg.deobf("curse.maven:thermal-expansion-69163:2926431"))
 
     // AE2 Compat
-//    implementation(rfg.deobf("curse.maven:applied-energistics-2-223794:2747063"))
-    implementation(rfg.deobf("curse.maven:ae2-extended-life-570458:5378163"))
+    // implementation(rfg.deobf("curse.maven:applied-energistics-2-223794:2747063"))
+    implementation(rfg.deobf("curse.maven:ae2-extended-life-570458:6302098"))
     implementation(rfg.deobf("curse.maven:ae2-fluid-crafting-rework-623955:5504001"))
     implementation(rfg.deobf("curse.maven:mekanism-energistics-1027681:5408319"))
+    implementation(rfg.deobf("curse.maven:nae2-884359:5380800"))
 
     // GeckoLib
-    implementation(rfg.deobf("software.bernie.geckolib:geckolib-forge-1.12.2:3.0.31"))
+    implementation("software.bernie.geckolib:geckolib-forge-1.12.2:3.0.31")
     // GTCEu / Bloom Effect Support
     compileOnly(rfg.deobf("curse.maven:gregtech-ce-unofficial-557242:5322654"))
     // Bloom Effect Support
@@ -219,17 +238,20 @@ dependencies {
 
     // Modular Magic compact
     compileOnly(rfg.deobf("curse.maven:astral-sorcery-241721:3044416"))
-    compileOnly(rfg.deobf("curse.maven:blood-magic-224791:2822288"))
+    implementation(rfg.deobf("curse.maven:blood-magic-224791:2822288"))
     compileOnly(rfg.deobf("curse.maven:thaumcraft-223628:2629023"))
     compileOnly(rfg.deobf("curse.maven:extrautils2-225561:2678374"))
     compileOnly(rfg.deobf("curse.maven:naturesaura-306626:2882138"))
     compileOnly(rfg.deobf("curse.maven:botania-225643:3330934"))
     compileOnly(rfg.deobf("curse.maven:baubles-227083:2518667"))
-    compileOnly(rfg.deobf("curse.maven:guideapi-228832:2645992"))
+    implementation(rfg.deobf("curse.maven:guideapi-228832:2645992"))
     compileOnly(rfg.deobf("curse.maven:patchouli-306770:3162874"))
     compileOnly(rfg.deobf("curse.maven:thaumic-augmentation-319441:4486505"))
     // Performance Test Tool
     runtimeOnly(rfg.deobf("curse.maven:spark-361579:3542217"))
+    // Optimization
+    implementation(rfg.deobf("curse.maven:stellarcore-1064321:5560444"))
+    implementation(rfg.deobf("curse.maven:configanytime-870276:5212709"))
 }
 
 // Publishing to a Maven repository

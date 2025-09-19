@@ -5,7 +5,7 @@ import net.minecraft.util.BlockRenderLayer;
 
 public class LRVertexBuffer {
 
-    private VertexBuffer[] left = null;
+    private VertexBuffer[] left  = null;
     private VertexBuffer[] right = null;
 
     private boolean useLeft = true;
@@ -16,6 +16,10 @@ public class LRVertexBuffer {
     public LRVertexBuffer(VertexBuffer[] left, VertexBuffer[] right) {
         this.left = left;
         this.right = right;
+    }
+
+    public VertexBuffer[] getBuffer() {
+        return useLeft ? left : right;
     }
 
     public LRVertexBuffer setBuffer(final VertexBuffer[] buffers) {
@@ -30,6 +34,10 @@ public class LRVertexBuffer {
         return useLeft ? setLeft(buffers) : setRight(buffers);
     }
 
+    public VertexBuffer[] getAnotherBuffer() {
+        return useLeft ? right : left;
+    }
+
     public LRVertexBuffer setAnotherBuffer(final VertexBuffer[] buffers) {
         VertexBuffer[] buffer = getAnotherBuffer();
         if (buffer != null) {
@@ -40,14 +48,6 @@ public class LRVertexBuffer {
             }
         }
         return useLeft ? setRight(buffers) : setLeft(buffers);
-    }
-
-    public VertexBuffer[] getBuffer() {
-        return useLeft ? left : right;
-    }
-
-    public VertexBuffer[] getAnotherBuffer() {
-        return useLeft ? right : left;
     }
 
     public boolean isUseLeft() {
@@ -72,13 +72,13 @@ public class LRVertexBuffer {
         return left;
     }
 
-    public VertexBuffer[] getRight() {
-        return right;
-    }
-
     public LRVertexBuffer setLeft(final VertexBuffer[] left) {
         this.left = left;
         return this;
+    }
+
+    public VertexBuffer[] getRight() {
+        return right;
     }
 
     public LRVertexBuffer setRight(final VertexBuffer[] right) {

@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
  */
 public class AirBlockRenderWorld implements IBlockAccess {
 
-    private final Biome globalBiome;
+    private final Biome     globalBiome;
     private final WorldType globalType;
 
     public AirBlockRenderWorld(Biome globalBiome, WorldType globalType) {

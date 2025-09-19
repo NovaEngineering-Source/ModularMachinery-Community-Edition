@@ -41,6 +41,14 @@ public class SlotItemVirtual extends SlotVirtual {
         return new SlotItemVirtualSelectable(stackInSlot);
     }
 
+    public static SlotItemVirtualSelectable ofSelectableJEI() {
+        return Mods.JEI.isPresent() ? new SlotItemVirtualSelectableJEI() : new SlotItemVirtualSelectable();
+    }
+
+    public static SlotItemVirtualSelectable ofSelectableJEI(final ItemStack stackInSlot) {
+        return Mods.JEI.isPresent() ? new SlotItemVirtualSelectableJEI(stackInSlot) : new SlotItemVirtualSelectable(stackInSlot);
+    }
+
     public static SlotItemVirtual of() {
         return new SlotItemVirtual();
     }
@@ -69,12 +77,10 @@ public class SlotItemVirtual extends SlotVirtual {
         int rx = renderPos.posX();
         int ry = renderPos.posY();
 
-        if (slotTexLocation != null) {
+        slotTex.renderIfPresent(renderPos, renderSize, gui, (tex) -> {
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            mc.getTextureManager().bindTexture(slotTexLocation);
-            gui.drawTexturedModalRect(rx, ry, slotTexX, slotTexY, getWidth(), getHeight());
-        }
+        });
 
         if (stackInSlot.isEmpty()) {
             return;
@@ -138,13 +144,13 @@ public class SlotItemVirtual extends SlotVirtual {
 
     // Tooltip function
 
+    public Function<ItemStack, List<String>> getTooltipFunction() {
+        return tooltipFunction;
+    }
+
     public SlotItemVirtual setTooltipFunction(final Function<ItemStack, List<String>> tooltipFunction) {
         this.tooltipFunction = tooltipFunction;
         return this;
-    }
-
-    public Function<ItemStack, List<String>> getTooltipFunction() {
-        return tooltipFunction;
     }
 
 }

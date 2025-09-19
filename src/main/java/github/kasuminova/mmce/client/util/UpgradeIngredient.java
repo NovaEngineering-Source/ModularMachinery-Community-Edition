@@ -16,8 +16,8 @@ import java.util.Objects;
  */
 @SuppressWarnings("ClassCanBeRecord")
 public final class UpgradeIngredient {
-    private final ItemStack descStack;
-    private final AbstractModifierReplacement replacement;
+    private final ItemStack                                  descStack;
+    private final AbstractModifierReplacement                replacement;
     private final Map<BlockPos, BlockArray.BlockInformation> replacementPattern;
 
     public UpgradeIngredient(ItemStack descStack, AbstractModifierReplacement replacement,
@@ -53,12 +53,16 @@ public final class UpgradeIngredient {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
         var that = (UpgradeIngredient) obj;
         return Objects.equals(this.descStack, that.descStack) &&
-                Objects.equals(this.replacement, that.replacement) &&
-                Objects.equals(this.replacementPattern, that.replacementPattern);
+            Objects.equals(this.replacement, that.replacement) &&
+            Objects.equals(this.replacementPattern, that.replacementPattern);
     }
 
     @Override
@@ -69,9 +73,9 @@ public final class UpgradeIngredient {
     @Override
     public String toString() {
         return "UpgradeIngredient[" +
-                "descStack=" + descStack + ", " +
-                "replacement=" + replacement + ", " +
-                "replacementPattern=" + replacementPattern + ']';
+            "descStack=" + descStack + ", " +
+            "replacement=" + replacement + ", " +
+            "replacementPattern=" + replacementPattern + ']';
     }
 
 }

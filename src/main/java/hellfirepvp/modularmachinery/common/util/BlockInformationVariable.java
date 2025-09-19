@@ -9,7 +9,12 @@
 package hellfirepvp.modularmachinery.common.util;
 
 import com.google.common.collect.Lists;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -52,7 +57,7 @@ public class BlockInformationVariable {
                     var.variables.put(entry.getKey(), new BlockArray.BlockInformation(descriptors));
                 } else if (variableElement.isJsonPrimitive() && variableElement.getAsJsonPrimitive().isString()) {
                     var.variables.put(entry.getKey(), new BlockArray.BlockInformation(
-                            Lists.newArrayList(BlockArray.BlockInformation.getDescriptor(variableElement.getAsString()))));
+                        Lists.newArrayList(BlockArray.BlockInformation.getDescriptor(variableElement.getAsString()))));
                 } else {
                     throw new JsonParseException("Variable '" + entry.getKey() + "' has as its value neither an array of BlockState definitions nor a single BlockState as String!");
                 }

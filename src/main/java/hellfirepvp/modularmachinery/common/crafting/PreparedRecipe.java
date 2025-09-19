@@ -30,6 +30,7 @@ public interface PreparedRecipe {
     ResourceLocation getRecipeRegistryName();
 
     ResourceLocation getAssociatedMachineName();
+
     ResourceLocation getParentMachineName();
 
     int getTotalProcessingTickTime();
@@ -45,8 +46,14 @@ public interface PreparedRecipe {
     Map<Class<?>, List<IEventHandler<RecipeEvent>>> getRecipeEventHandlers();
 
     List<String> getTooltipList();
+
     boolean isParallelized();
+
     int getMaxThreads();
+
     String getThreadName();
+
     void loadNeedAfterInitActions();
+
+    boolean getLoadJEI();
 }

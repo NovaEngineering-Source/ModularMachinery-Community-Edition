@@ -22,6 +22,21 @@ import java.util.UUID;
 @SuppressWarnings("MethodMayBeStatic")
 public class ClientHandler {
 
+    public static String convertBytes(long bytes) {
+        if (bytes < 1024) {
+            return bytes + " bytes";
+        } else if (bytes < 1024 * 1024) {
+            double kb = (double) bytes / 1024;
+            return String.format("%.2f KB", kb);
+        } else if (bytes < 1024 * 1024 * 1024) {
+            double mb = (double) bytes / (1024 * 1024);
+            return String.format("%.2f MB", mb);
+        } else {
+            double gb = (double) bytes / (1024 * 1024 * 1024);
+            return String.format("%.2f GB", gb);
+        }
+    }
+
     @SubscribeEvent
     @SideOnly(Side.CLIENT)
     public void onMEItemBusAndPatternProviderItemTooltip(ItemTooltipEvent event) {
@@ -77,31 +92,16 @@ public class ClientHandler {
 
         List<String> left = event.getLeft();
         left.add("");
-        left.add(String.format("%s[ModularMachinery - CE] %sBuffer Pool Size: %s%d InPool %s/ %s%d Total", 
-                TextFormatting.BLUE, TextFormatting.RESET, 
-                TextFormatting.GREEN, BufferBuilderPool.getPoolSize(),
-                TextFormatting.RESET,
-                TextFormatting.YELLOW, BufferBuilderPool.getCreatedBuffers())
+        left.add(String.format("%s[ModularMachinery - CE] %sBuffer Pool Size: %s%d InPool %s/ %s%d Total",
+            TextFormatting.BLUE, TextFormatting.RESET,
+            TextFormatting.GREEN, BufferBuilderPool.getPoolSize(),
+            TextFormatting.RESET,
+            TextFormatting.YELLOW, BufferBuilderPool.getCreatedBuffers())
         );
-        left.add(String.format("%s[ModularMachinery - CE] %sBuffer Mem Usage: %s%s", 
-                TextFormatting.BLUE, TextFormatting.RESET, 
-                TextFormatting.YELLOW, convertBytes(BufferBuilderPool.getBufferMemUsage()))
+        left.add(String.format("%s[ModularMachinery - CE] %sBuffer Mem Usage: %s%s",
+            TextFormatting.BLUE, TextFormatting.RESET,
+            TextFormatting.YELLOW, convertBytes(BufferBuilderPool.getBufferMemUsage()))
         );
-    }
-
-    public static String convertBytes(long bytes) {
-        if (bytes < 1024) {
-            return bytes + " bytes";
-        } else if (bytes < 1024 * 1024) {
-            double kb = (double) bytes / 1024;
-            return String.format("%.2f KB", kb);
-        } else if (bytes < 1024 * 1024 * 1024) {
-            double mb = (double) bytes / (1024 * 1024);
-            return String.format("%.2f MB", mb);
-        } else {
-            double gb = (double) bytes / (1024 * 1024 * 1024);
-            return String.format("%.2f GB", gb);
-        }
     }
 
 }

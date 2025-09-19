@@ -16,6 +16,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.concurrent.locks.ReadWriteLock;
 
 public class MEFluidOutputBus extends MEFluidBus {
 
@@ -51,42 +52,49 @@ public class MEFluidOutputBus extends MEFluidBus {
         if (!proxy.isActive()) {
             return TickRateModulation.IDLE;
         }
+        int[] needUpdateSlots = getNeedUpdateSlots();
+        if (needUpdateSlots.length == 0) {
+            return TickRateModulation.SLOWER;
+        }
 
-        inTick = true;
-        boolean successAtLeastOnce = false;
+        ReadWriteLock rwLock = tanks.getRWLock();
 
         try {
+            rwLock.writeLock().lock();
+
+            inTick = true;
+            boolean successAtLeastOnce = false;
             IMEMonitor<IAEFluidStack> inv = proxy.getStorage().getInventory(channel);
-            synchronized (tanks) {
-                for (final int slot : getNeedUpdateSlots()) {
-                    changedSlots[slot] = false;
-                    IAEFluidStack fluid = tanks.getFluidInSlot(slot);
+            for (final int slot : needUpdateSlots) {
+                changedSlots[slot] = false;
+                IAEFluidStack fluid = tanks.getFluidInSlot(slot);
 
-                    if (fluid == null) {
-                        continue;
-                    }
+                if (fluid == null) {
+                    continue;
+                }
 
-                    IAEFluidStack left = Platform.poweredInsert(proxy.getEnergy(), inv, fluid.copy(), source);
+                IAEFluidStack left = Platform.poweredInsert(proxy.getEnergy(), inv, fluid.copy(), source);
 
-                    if (left != null) {
-                        if (fluid.getStackSize() != left.getStackSize()) {
-                            successAtLeastOnce = true;
-                        }
-                    } else {
+                if (left != null) {
+                    if (fluid.getStackSize() != left.getStackSize()) {
                         successAtLeastOnce = true;
                     }
-
-                    tanks.setFluidInSlot(slot, left);
+                } else {
+                    successAtLeastOnce = true;
                 }
+
+                tanks.setFluidInSlot(slot, left);
             }
+
+            inTick = false;
+            rwLock.writeLock().unlock();
+            return successAtLeastOnce ? TickRateModulation.FASTER : TickRateModulation.SLOWER;
         } catch (GridAccessException e) {
             inTick = false;
             changedSlots = new boolean[TANK_SLOT_AMOUNT];
+            rwLock.writeLock().unlock();
             return TickRateModulation.IDLE;
         }
-
-        inTick = false;
-        return successAtLeastOnce ? TickRateModulation.FASTER : TickRateModulation.SLOWER;
     }
 
     public boolean hasFluid() {
@@ -101,7 +109,7 @@ public class MEFluidOutputBus extends MEFluidBus {
 
     @Override
     public void markNoUpdate() {
-        if (proxy.isActive() && hasFluid()) {
+        if (hasFluid()) {
             try {
                 proxy.getTick().alertDevice(proxy.getNode());
             } catch (GridAccessException e) {

@@ -1,6 +1,13 @@
 package com.cleanroommc.client.preview.renderer.scene;
 
-import com.cleanroommc.client.util.*;
+import com.cleanroommc.client.util.EntityCamera;
+import com.cleanroommc.client.util.LRMap;
+import com.cleanroommc.client.util.LRVertexBuffer;
+import com.cleanroommc.client.util.Position;
+import com.cleanroommc.client.util.PositionedRect;
+import com.cleanroommc.client.util.Size;
+import com.cleanroommc.client.util.TrackedDummyWorld;
+import com.cleanroommc.client.util.Vector3;
 import com.cleanroommc.client.util.world.LRDummyWorld;
 import github.kasuminova.mmce.client.util.BufferBuilderPool;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
@@ -9,7 +16,12 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -34,7 +46,11 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,18 +68,16 @@ import static com.cleanroommc.client.util.Vector3.X;
 @SuppressWarnings("ALL")
 @SideOnly(Side.CLIENT)
 public abstract class WorldSceneRenderer {
-    protected static final FloatBuffer MODELVIEW_MATRIX_BUFFER = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+    protected static final FloatBuffer MODELVIEW_MATRIX_BUFFER  = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
     protected static final FloatBuffer PROJECTION_MATRIX_BUFFER = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-    protected static final IntBuffer VIEWPORT_BUFFER = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
-    protected static final FloatBuffer PIXEL_DEPTH_BUFFER = ByteBuffer.allocateDirect(4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-    protected static final FloatBuffer OBJECT_POS_BUFFER = ByteBuffer.allocateDirect(3 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+    protected static final IntBuffer   VIEWPORT_BUFFER          = ByteBuffer.allocateDirect(16 * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
+    protected static final FloatBuffer PIXEL_DEPTH_BUFFER       = ByteBuffer.allocateDirect(4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+    protected static final FloatBuffer OBJECT_POS_BUFFER        = ByteBuffer.allocateDirect(3 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 
     protected static final AtomicInteger THREAD_ID = new AtomicInteger(0);
 
     protected static final Object2IntMap<BlockRenderLayer> LAYER_PROGRESS_UNITS = new Object2IntOpenHashMap<>();
-    protected static final int TOTAL_PROGRESS_UNIT;
-
-    protected volatile Map<BlockRenderLayer, BufferBuilder> layerBufferBuilders = new EnumMap<>(BlockRenderLayer.class);
+    protected static final int                             TOTAL_PROGRESS_UNIT;
 
     static {
         int totalProgressUnit = 0;
@@ -82,38 +96,54 @@ public abstract class WorldSceneRenderer {
         TOTAL_PROGRESS_UNIT = totalProgressUnit;
     }
 
-    enum CacheState {
-        UNUSED,
-        NEED,
-        COMPILING,
-        COMPILED
-    }
-
-    private final LRDummyWorld dummyWorld;
-    private final LRMap<Collection<BlockPos>, ISceneRenderHook> renderedBlocksMap;
-    private final LRVertexBuffer vertexBuffers = new LRVertexBuffer();
-
-    protected Set<BlockPos> tileEntities = new HashSet<>();
-    protected boolean useCache;
-    protected AtomicReference<CacheState> cacheState;
-    protected int maxProgress;
-    protected final AtomicInteger progress = new AtomicInteger();
-    protected Thread thread;
-    protected EntityCamera viewEntity;
-
-    private Consumer<WorldSceneRenderer> beforeRender;
-    private Consumer<WorldSceneRenderer> afterRender;
-    private Consumer<RayTraceResult> onLookingAt;
-    protected int clearColor;
-    private RayTraceResult lastTraceResult;
-    private Vector3f eyePos = new Vector3f(0, 0, 10f);
-    private Vector3f lookAt = new Vector3f(0, 0, 0);
-    private Vector3f worldUp = new Vector3f(0, 1, 0);
+    protected final    AtomicInteger                                 progress            = new AtomicInteger();
+    private final      LRDummyWorld                                  dummyWorld;
+    private final      LRMap<Collection<BlockPos>, ISceneRenderHook> renderedBlocksMap;
+    private final      LRVertexBuffer                                vertexBuffers       = new LRVertexBuffer();
+    protected volatile Map<BlockRenderLayer, BufferBuilder>          layerBufferBuilders = new EnumMap<>(BlockRenderLayer.class);
+    protected          Set<BlockPos>                                 tileEntities        = new HashSet<>();
+    protected          boolean                                       useCache;
+    protected          AtomicReference<CacheState>                   cacheState;
+    protected          int                                           maxProgress;
+    protected          Thread                                        thread;
+    protected          EntityCamera                                  viewEntity;
+    protected          int                                           clearColor;
+    private            Consumer<WorldSceneRenderer>                  beforeRender;
+    private            Consumer<WorldSceneRenderer>                  afterRender;
+    private            Consumer<RayTraceResult>                      onLookingAt;
+    private            RayTraceResult                                lastTraceResult;
+    private            Vector3f                                      eyePos              = new Vector3f(0, 0, 10f);
+    private            Vector3f                                      lookAt              = new Vector3f(0, 0, 0);
+    private            Vector3f                                      worldUp             = new Vector3f(0, 1, 0);
 
     public WorldSceneRenderer(LRDummyWorld world) {
         this.dummyWorld = world;
         renderedBlocksMap = new LRMap<>(new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
         cacheState = new AtomicReference<>(CacheState.UNUSED);
+    }
+
+    protected static boolean isMouseOver(final PositionedRect positionedRect, final int mouseX, final int mouseY) {
+        return mouseX > positionedRect.position.x && mouseX < positionedRect.position.x + positionedRect.size.width
+            && mouseY > positionedRect.position.y && mouseY < positionedRect.position.y + positionedRect.size.height;
+    }
+
+    public static void setDefaultPassRenderState(int pass) {
+        GlStateManager.color(1, 1, 1, 1);
+        if (pass == 0) { // SOLID
+            GlStateManager.enableDepth();
+            GlStateManager.disableBlend();
+            GlStateManager.depthMask(true);
+            GlStateManager.shadeModel(7424);
+        } else { // TRANSLUCENT
+            GlStateManager.disableBlend();
+            GlStateManager.enableCull();
+            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+            GlStateManager.alphaFunc(516, 0.1F);
+            GlStateManager.enableBlend();
+            GlStateManager.depthMask(false);
+            Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+            GlStateManager.shadeModel(7425);
+        }
     }
 
     public WorldSceneRenderer useCacheBuffer(boolean useCache) {
@@ -163,8 +193,8 @@ public abstract class WorldSceneRenderer {
                     }
                 });
                 layerBufferBuilders.values().stream()
-                        .filter(buffer -> buffer != null)
-                        .forEach(BufferBuilderPool::returnBuffer);
+                                   .filter(buffer -> buffer != null)
+                                   .forEach(BufferBuilderPool::returnBuffer);
                 layerBufferBuilders.clear();
             });
         }
@@ -255,11 +285,6 @@ public abstract class WorldSceneRenderer {
         resetCamera();
     }
 
-    protected static boolean isMouseOver(final PositionedRect positionedRect, final int mouseX, final int mouseY) {
-        return mouseX > positionedRect.position.x && mouseX < positionedRect.position.x + positionedRect.size.width
-                && mouseY > positionedRect.position.y && mouseY < positionedRect.position.y + positionedRect.size.height;
-    }
-
     public Vector3f getEyePos() {
         return eyePos;
     }
@@ -304,7 +329,7 @@ public abstract class WorldSceneRenderer {
         int width = positionedRect.getSize().width;
         int height = positionedRect.getSize().height;
 
-        GlStateManager.pushAttrib();
+        // GlStateManager.pushAttrib();
 
         Minecraft.getMinecraft().entityRenderer.disableLightmap();
         GlStateManager.disableLighting();
@@ -355,8 +380,10 @@ public abstract class WorldSceneRenderer {
         GlStateManager.enableBlend();
         GlStateManager.disableDepth();
 
-        //reset attributes
-        GlStateManager.popAttrib();
+        // TODO: Might need to properly reset remaining attributes?
+        // but this method shouldn't be used - see Forge#1637
+        // GlStateManager.popAttrib();
+        RenderHelper.disableStandardItemLighting();
     }
 
     protected void drawWorld() {
@@ -428,6 +455,15 @@ public abstract class WorldSceneRenderer {
         return vertexBuffers.getBuffer();
     }
 
+    public WorldSceneRenderer setVertexBuffers(VertexBuffer[] vertexBuffers) {
+        this.vertexBuffers.setBuffer(vertexBuffers).setAnotherBuffer(vertexBuffers);
+        for (int j = 0; j < BlockRenderLayer.values().length; ++j) {
+            this.vertexBuffers.getBuffer()[j] = new VertexBuffer(DefaultVertexFormats.BLOCK);
+            this.vertexBuffers.getAnotherBuffer()[j] = new VertexBuffer(DefaultVertexFormats.BLOCK);
+        }
+        return this;
+    }
+
     protected BufferBuilder getLayerBufferBuilder(final BlockRenderLayer layer) {
         BufferBuilder builder = layerBufferBuilders.get(layer);
         if (builder != null) {
@@ -442,15 +478,6 @@ public abstract class WorldSceneRenderer {
         return builder;
     }
 
-    public WorldSceneRenderer setVertexBuffers(VertexBuffer[] vertexBuffers) {
-        this.vertexBuffers.setBuffer(vertexBuffers).setAnotherBuffer(vertexBuffers);
-        for (int j = 0; j < BlockRenderLayer.values().length; ++j) {
-            this.vertexBuffers.getBuffer()[j] = new VertexBuffer(DefaultVertexFormats.BLOCK);
-            this.vertexBuffers.getAnotherBuffer()[j] = new VertexBuffer(DefaultVertexFormats.BLOCK);
-        }
-        return this;
-    }
-
     public void refreshCache() {
         if (isCompiling() || isCompilerThreadAlive()) {
             return;
@@ -458,8 +485,8 @@ public abstract class WorldSceneRenderer {
         cacheState.set(CacheState.COMPILING);
         progress.set(0);
         maxProgress = renderedBlocksMap.getAnotherMap().keySet().stream()
-                .map(Collection::size)
-                .reduce(0, Integer::sum) * 11;
+                                       .map(Collection::size)
+                                       .reduce(0, Integer::sum) * 11;
 
         BlockRenderLayer oldRenderLayer = MinecraftForgeClient.getRenderLayer();
         Minecraft mc = Minecraft.getMinecraft();
@@ -631,7 +658,9 @@ public abstract class WorldSceneRenderer {
 //            }
             IBlockState state = world.getBlockState(pos);
             Block block = state.getBlock();
-            if (block == Blocks.AIR) continue;
+            if (block == Blocks.AIR) {
+                continue;
+            }
             state = state.getActualState(world, pos);
             if (block.canRenderInLayer(state, layer)) {
                 rendererDispatcher.renderBlock(state, pos, world, buffer);
@@ -681,25 +710,6 @@ public abstract class WorldSceneRenderer {
         }
         ForgeHooksClient.setRenderPass(-1);
         RenderHelper.disableStandardItemLighting();
-    }
-
-    public static void setDefaultPassRenderState(int pass) {
-        GlStateManager.color(1, 1, 1, 1);
-        if (pass == 0) { // SOLID
-            GlStateManager.enableDepth();
-            GlStateManager.disableBlend();
-            GlStateManager.depthMask(true);
-            GlStateManager.shadeModel(7424);
-        } else { // TRANSLUCENT
-            GlStateManager.disableBlend();
-            GlStateManager.enableCull();
-            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-            GlStateManager.alphaFunc(516, 0.1F);
-            GlStateManager.enableBlend();
-            GlStateManager.depthMask(false);
-            Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-            GlStateManager.shadeModel(7425);
-        }
     }
 
     public RayTraceResult rayTrace(Vector3f hitPos) {
@@ -825,6 +835,13 @@ public abstract class WorldSceneRenderer {
         resetCamera();
 
         return winPos;
+    }
+
+    enum CacheState {
+        UNUSED,
+        NEED,
+        COMPILING,
+        COMPILED
     }
 
 }

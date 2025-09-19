@@ -4,8 +4,8 @@ import gregtech.api.capability.IEnergyContainer;
 import hellfirepvp.modularmachinery.common.util.IEnergyHandlerAsync;
 
 public class GTEnergyHandlerProxy implements IEnergyHandlerAsync {
-    public static final int ENERGY_MULTIPLIER = 4;
-    public static final long MAX_CAPACITY = Long.MAX_VALUE / ENERGY_MULTIPLIER;
+    public static final int  ENERGY_MULTIPLIER = 4;
+    public static final long MAX_CAPACITY      = Long.MAX_VALUE / ENERGY_MULTIPLIER;
 
     private final IEnergyContainer energyContainer;
 

@@ -4,7 +4,7 @@ import de.ellpeck.naturesaura.api.aura.type.IAuraType;
 
 public class Aura {
 
-    private int amount;
+    private int       amount;
     private IAuraType type;
 
     public Aura(int amount, IAuraType type) {

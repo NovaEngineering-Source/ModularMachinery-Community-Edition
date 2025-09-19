@@ -19,7 +19,7 @@ import java.util.List;
 public class AspectRenderer implements IIngredientRenderer<AspectList> {
 
     private static IDrawableBuilder aspectRender;
-    private static Aspect aspect;
+    private static Aspect           aspect;
 
     @Override
     public void render(Minecraft minecraft, int xPosition, int yPosition, @Nullable AspectList ingredient) {

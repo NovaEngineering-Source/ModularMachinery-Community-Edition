@@ -14,7 +14,11 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -25,14 +29,14 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings({"UnusedReturnValue", "unused"})
 public class DynamicPattern {
-    private final String name;
+    private final String          name;
     private final Set<EnumFacing> faces = EnumSet.noneOf(EnumFacing.class);
 
     private int minSize;
     private int maxSize;
 
     private BlockPos structureSizeOffsetStart = new BlockPos(0, 0, 0);
-    private BlockPos structureSizeOffset = new BlockPos(0, 0, 0);
+    private BlockPos structureSizeOffset      = new BlockPos(0, 0, 0);
 
     //    private TaggedPositionBlockArray patternStart;
     private TaggedPositionBlockArray pattern;
@@ -112,10 +116,10 @@ public class DynamicPattern {
 
         // Return the maximum size.
         return matchResults.entrySet()
-                .stream()
-                .max(Comparator.comparingInt(Map.Entry::getValue))
-                .map(entry -> new MatchResult(entry.getValue(), entry.getKey()))
-                .orElseGet(() -> new MatchResult(0, null));
+                           .stream()
+                           .max(Comparator.comparingInt(Map.Entry::getValue))
+                           .map(entry -> new MatchResult(entry.getValue(), entry.getKey()))
+                           .orElseGet(() -> new MatchResult(0, null));
     }
 
     private int matchesSize(final TileMultiblockMachineController ctrl,
@@ -123,8 +127,7 @@ public class DynamicPattern {
                             final EnumFacing face,
                             final BlockPos facingOffset,
                             final TaggedPositionBlockArray pattern,
-                            @Nullable final TaggedPositionBlockArray patternEnd)
-    {
+                            @Nullable final TaggedPositionBlockArray patternEnd) {
         if (pattern == null) {
             return 0;
         }
@@ -132,7 +135,7 @@ public class DynamicPattern {
         BlockPos offset = facingOffset;
         boolean first = true;
         int size = 0;
-        for (;;) {
+        for (; ; ) {
             if (!first) {
                 offset = offset.add(getStructureSizeOffset(face));
             } else {
@@ -146,7 +149,12 @@ public class DynamicPattern {
                 }
             } else {
                 if (patternEnd != null && !patternEnd.matches(ctrl.getWorld(), offset, oldState, null)) {
-                    return 0;
+                    offset = offset.subtract(getStructureSizeOffset(face));
+                    // Prevent overlapping structures.
+                    if (!patternEnd.matches(ctrl.getWorld(), offset, oldState, null)) {
+                        return 0;
+                    }
+                    size--;
                 }
                 break;
             }
@@ -179,7 +187,7 @@ public class DynamicPattern {
                 final int patternIndex = i;
                 // DynamicComponentSelectorTag
                 pattern.getTaggedPositions().forEach((pos, tag) -> ((TaggedPositionBlockArray) toAdd).setTag(
-                        pos.add(finalOffset), new ComponentSelectorTag(String.format("%s_%s_%d", tag.getTag(), name, patternIndex))));
+                    pos.add(finalOffset), new ComponentSelectorTag(String.format("%s_%s_%d", tag.getTag(), name, patternIndex))));
             }
         }
 
@@ -197,7 +205,7 @@ public class DynamicPattern {
             if (toAdd instanceof TaggedPositionBlockArray) {
                 // DynamicComponentSelectorTag
                 patternEnd.getTaggedPositions().forEach((pos, tag) -> ((TaggedPositionBlockArray) toAdd).setTag(
-                        pos.add(finalOffset), new ComponentSelectorTag(String.format("%s_%s_end", tag.getTag(), name))));
+                    pos.add(finalOffset), new ComponentSelectorTag(String.format("%s_%s_end", tag.getTag(), name))));
             }
         }
     }
@@ -291,11 +299,7 @@ public class DynamicPattern {
     }
 
     public TaggedPositionBlockArray getPattern(EnumFacing patternOffset, EnumFacing facingOffset) {
-        if (patternOffset == EnumFacing.UP || patternOffset == EnumFacing.DOWN) {
-            return BlockArrayCache.getHorizontalBlockArrayCache(pattern, patternOffset, facingOffset);
-        } else {
-            return BlockArrayCache.getBlockArrayCache(pattern, facingOffset);
-        }
+        return BlockArrayCache.getBlockArrayCache(pattern, facingOffset);
     }
 
     public TaggedPositionBlockArray getPatternEnd() {
@@ -312,11 +316,7 @@ public class DynamicPattern {
             return null;
         }
 
-        if (patternOffset == EnumFacing.UP || patternOffset == EnumFacing.DOWN) {
-            return BlockArrayCache.getHorizontalBlockArrayCache(patternEnd, patternOffset, facingOffset);
-        } else {
-            return BlockArrayCache.getBlockArrayCache(patternEnd, patternOffset);
-        }
+        return BlockArrayCache.getBlockArrayCache(patternEnd, patternOffset);
     }
 
     @Desugar

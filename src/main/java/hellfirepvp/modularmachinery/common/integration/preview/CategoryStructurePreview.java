@@ -32,14 +32,14 @@ import javax.annotation.Nonnull;
 public class CategoryStructurePreview implements IRecipeCategory<StructurePreviewWrapper> {
 
     private final IDrawable background;
-    private final String trTitle;
+    private final String    trTitle;
 
     public CategoryStructurePreview() {
         ResourceLocation location = new ResourceLocation(ModularMachinery.MODID, "textures/gui/guiblueprint_new.png");
         this.background = ModIntegrationJEI.jeiHelpers.getGuiHelper()
-                .drawableBuilder(location, 0, 0, GuiScreenBlueprint.X_SIZE, GuiScreenBlueprint.Y_SIZE)
-                .addPadding(0, 0, 0, 0)
-                .build();
+                                                      .drawableBuilder(location, 0, 0, GuiScreenBlueprint.X_SIZE, GuiScreenBlueprint.Y_SIZE)
+                                                      .addPadding(0, 0, 0, 0)
+                                                      .build();
         this.trTitle = I18n.format("jei.category.preview");
     }
 

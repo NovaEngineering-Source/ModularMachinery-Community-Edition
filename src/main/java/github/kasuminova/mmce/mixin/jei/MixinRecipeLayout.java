@@ -17,11 +17,11 @@ public class MixinRecipeLayout {
     private static final ThreadLocal<LinkedList<RenderPos>> TRANSLATE_STACK = ThreadLocal.withInitial(LinkedList::new);
 
     @Redirect(method = "drawRecipe",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/GlStateManager;translate(FFF)V",
-                    remap = true),
-            remap = false)
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/GlStateManager;translate(FFF)V",
+            remap = true),
+        remap = false)
     public void redirectGLTranslate(final float x, final float y, final float z) {
         GlStateManager.translate(x, y, z);
         RenderPos offset = new RenderPos((int) x, (int) y);
@@ -30,11 +30,11 @@ public class MixinRecipeLayout {
     }
 
     @Redirect(method = "drawRecipe",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/GlStateManager;popMatrix()V",
-                    remap = true),
-            remap = false)
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/renderer/GlStateManager;popMatrix()V",
+            remap = true),
+        remap = false)
     public void redirectGLTranslatePop() {
         RenderPos removedOffset = TRANSLATE_STACK.get().removeFirst();
         WidgetController.TRANSLATE_STATE.set(WidgetController.TRANSLATE_STATE.get().subtract(removedOffset));

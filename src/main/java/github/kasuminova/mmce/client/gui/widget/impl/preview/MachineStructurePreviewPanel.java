@@ -1,5 +1,6 @@
 package github.kasuminova.mmce.client.gui.widget.impl.preview;
 
+import github.kasuminova.mmce.client.gui.util.TextureProperties;
 import github.kasuminova.mmce.client.gui.widget.Button;
 import github.kasuminova.mmce.client.gui.widget.Button4State;
 import github.kasuminova.mmce.client.gui.widget.Button5State;
@@ -34,23 +35,23 @@ import java.util.stream.Collectors;
  * All of our preview content is rendered here.
  */
 public class MachineStructurePreviewPanel extends Row {
-    public static final ResourceLocation WIDGETS_TEX_LOCATION = new ResourceLocation(ModularMachinery.MODID,
-            "textures/gui/guiblueprint_new.png");
+    public static final ResourceLocation WIDGETS_TEX_LOCATION        = new ResourceLocation(ModularMachinery.MODID,
+        "textures/gui/guiblueprint_new.png");
     public static final ResourceLocation WIDGETS_TEX_LOCATION_SECOND = new ResourceLocation(ModularMachinery.MODID,
-            "textures/gui/guiblueprint_new_second.png");
+        "textures/gui/guiblueprint_new_second.png");
 
-    public static final int PANEL_WIDTH = 184;
+    public static final int PANEL_WIDTH  = 184;
     public static final int PANEL_HEIGHT = 220;
 
-    public static final int WORLD_RENDERER_WIDTH = 172;
+    public static final int WORLD_RENDERER_WIDTH  = 172;
     public static final int WORLD_RENDERER_HEIGHT = 150;
 
     protected final WorldSceneRendererWidget renderer;
 
     public MachineStructurePreviewPanel(final DynamicMachine machine) {
         renderer = (WorldSceneRendererWidget) new WorldSceneRendererWidget(machine)
-                .setWidthHeight(WORLD_RENDERER_WIDTH, WORLD_RENDERER_HEIGHT)
-                .setAbsXY(6, 26);
+            .setWidthHeight(WORLD_RENDERER_WIDTH, WORLD_RENDERER_HEIGHT)
+            .setAbsXY(6, 26);
 
         // ====================
         // Widgets...
@@ -96,96 +97,96 @@ public class MachineStructurePreviewPanel extends Row {
         title.setAbsXY(5, 5);
 
         previewStatusBar.setMaxWidth(172)
-                .setAbsXY(6, 26);
+                        .setAbsXY(6, 26);
 
-        menuBtn.setClickedTextureXY(184 + 15 + 15, 15)
-                .setMouseDownTextureXY(184 + 15 + 15, 15)
-                .setHoveredTextureXY(184 + 15, 15)
-                .setTextureXY(184, 15)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
-                .setTooltipFunction(btn -> Collections.singletonList(I18n.format(
-                        "gui.preview.button.menu.tip")))
-                .setWidthHeight(13, 13);
-        toggleLayerRender.setClickedTextureXY(184 + 15 + 15 + 15, 30)
-                .setMouseDownTextureXY(184 + 15 + 15, 30)
-                .setHoveredTextureXY(184 + 15, 30)
-                .setTextureXY(184, 30)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
-                .setTooltipFunction(btn -> toggleLayerRender.isClicked()
-                        ? Collections.singletonList(I18n.format("gui.preview.button.toggle_3d_render.tip"))
-                        : Collections.singletonList(I18n.format("gui.preview.button.toggle_layer_render.tip")))
-                .setWidthHeight(13, 13);
+        menuBtn.setClickedTexture(184 + 15 + 15, 15)
+               .setMouseDownTexture(184 + 15 + 15, 15)
+               .setHoveredTexture(184 + 15, 15)
+               .setTexture(184, 15)
+               .setTextureLocation(WIDGETS_TEX_LOCATION)
+               .setTooltipFunction(btn -> Collections.singletonList(I18n.format(
+                   "gui.preview.button.menu.tip")))
+               .setWidthHeight(13, 13);
+        toggleLayerRender.setClickedTexture(184 + 15 + 15 + 15, 30)
+                         .setMouseDownTexture(184 + 15 + 15, 30)
+                         .setHoveredTexture(184 + 15, 30)
+                         .setTexture(184, 30)
+                         .setTextureLocation(WIDGETS_TEX_LOCATION)
+                         .setTooltipFunction(btn -> toggleLayerRender.isClicked()
+                             ? Collections.singletonList(I18n.format("gui.preview.button.toggle_3d_render.tip"))
+                             : Collections.singletonList(I18n.format("gui.preview.button.toggle_layer_render.tip")))
+                         .setWidthHeight(13, 13);
         placeWorldPreview
-                .setMouseDownTextureXY(184 + 15 + 15, 45)
-                .setHoveredTextureXY(184 + 15, 45)
-                .setTextureXY(184, 45)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
-                .setTooltipFunction(btn -> Collections.singletonList(I18n.format(
-                        "gui.preview.button.place_world_preview.tip")))
-                .setWidthHeight(13, 13);
-        enableCycleReplaceableBlocks.setClickedTextureXY(184 + 15 + 15, 105)
-                .setMouseDownTextureXY(184 + 15 + 15, 105)
-                .setHoveredTextureXY(184 + 15, 105)
-                .setTextureXY(184,  105)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
-                .setTooltipFunction(btn -> enableCycleReplaceableBlocks.isClicked()
-                        ? Collections.singletonList(I18n.format("gui.preview.button.disable_cycle_replaceable_blocks.tip"))
-                        : Arrays.asList(
-                                I18n.format("gui.preview.button.enable_cycle_replaceable_blocks.tip.0"),
-                                I18n.format("gui.preview.button.enable_cycle_replaceable_blocks.tip.1")))
-                .setWidthHeight(13, 13);
+            .setMouseDownTexture(184 + 15 + 15, 45)
+            .setHoveredTexture(184 + 15, 45)
+            .setTexture(184, 45)
+            .setTextureLocation(WIDGETS_TEX_LOCATION)
+            .setTooltipFunction(btn -> Collections.singletonList(I18n.format(
+                "gui.preview.button.place_world_preview.tip")))
+            .setWidthHeight(13, 13);
+        enableCycleReplaceableBlocks.setClickedTexture(184 + 15 + 15, 105)
+                                    .setMouseDownTexture(184 + 15 + 15, 105)
+                                    .setHoveredTexture(184 + 15, 105)
+                                    .setTexture(184, 105)
+                                    .setTextureLocation(WIDGETS_TEX_LOCATION)
+                                    .setTooltipFunction(btn -> enableCycleReplaceableBlocks.isClicked()
+                                        ? Collections.singletonList(I18n.format("gui.preview.button.disable_cycle_replaceable_blocks.tip"))
+                                        : Arrays.asList(
+                                        I18n.format("gui.preview.button.enable_cycle_replaceable_blocks.tip.0"),
+                                        I18n.format("gui.preview.button.enable_cycle_replaceable_blocks.tip.1")))
+                                    .setWidthHeight(13, 13);
         dynamicPatternPlus
-                .setMouseDownTextureXY(184 + 15 + 15, 60)
-                .setHoveredTextureXY(184 + 15, 60)
-                .setTextureXY(184, 60)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
-                .setTooltipFunction(btn -> Collections.singletonList(I18n.format(
-                        "gui.preview.button.dynamic_pattern_plus.tip", renderer.getDynamicPatternSize())))
-                .setWidthHeight(13, 13);
+            .setMouseDownTexture(184 + 15 + 15, 60)
+            .setHoveredTexture(184 + 15, 60)
+            .setTexture(184, 60)
+            .setTextureLocation(WIDGETS_TEX_LOCATION)
+            .setTooltipFunction(btn -> Collections.singletonList(I18n.format(
+                "gui.preview.button.dynamic_pattern_plus.tip", renderer.getDynamicPatternSize())))
+            .setWidthHeight(13, 13);
         dynamicPatternSubtract
-                .setMouseDownTextureXY(184 + 15 + 15, 75)
-                .setHoveredTextureXY(184 + 15, 75)
-                .setTextureXY(184, 75)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
-                .setTooltipFunction(btn -> Collections.singletonList(I18n.format(
-                        "gui.preview.button.dynamic_pattern_subtract.tip", renderer.getDynamicPatternSize())))
-                .setWidthHeight(13, 13);
+            .setMouseDownTexture(184 + 15 + 15, 75)
+            .setHoveredTexture(184 + 15, 75)
+            .setTexture(184, 75)
+            .setTextureLocation(WIDGETS_TEX_LOCATION)
+            .setTooltipFunction(btn -> Collections.singletonList(I18n.format(
+                "gui.preview.button.dynamic_pattern_subtract.tip", renderer.getDynamicPatternSize())))
+            .setWidthHeight(13, 13);
 
-        machineExtraInfo.setHoveredTextureXY(184 + 15, 214)
-                .setTextureXY(184, 214)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
-                .setTooltipFunction(btn -> getMachineExtraInfo(machine))
-                .setWidthHeight(13, 13);
-        toggleFormed.setClickedTextureXY(184 + 15 + 15 + 15, 0)
-                .setMouseDownTextureXY(184 + 15 + 15, 0)
-                .setHoveredTextureXY(184 + 15, 0)
-                .setTextureXY(184, 0)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
-                .setTooltipFunction(btn -> toggleFormed.isClicked()
+        machineExtraInfo.setHoveredTexture(184 + 15, 214)
+                        .setTexture(184, 214)
+                        .setTextureLocation(WIDGETS_TEX_LOCATION)
+                        .setTooltipFunction(btn -> getMachineExtraInfo(machine))
+                        .setWidthHeight(13, 13);
+        toggleFormed.setClickedTexture(184 + 15 + 15 + 15, 0)
+                    .setMouseDownTexture(184 + 15 + 15, 0)
+                    .setHoveredTexture(184 + 15, 0)
+                    .setTexture(184, 0)
+                    .setTextureLocation(WIDGETS_TEX_LOCATION)
+                    .setTooltipFunction(btn -> toggleFormed.isClicked()
                         ? Collections.singletonList(I18n.format("gui.preview.button.toggle_unformed.tip"))
                         : Collections.singletonList(I18n.format("gui.preview.button.toggle_formed.tip")))
-                .setWidthHeight(13, 13);
-        showUpgrades.setClickedTextureXY(184 + 15 + 15, 90)
-                .setMouseDownTextureXY(184 + 15 + 15, 90)
-                .setHoveredTextureXY(184 + 15, 90)
-                .setTextureXY(184, 90)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
-                .setTooltipFunction(btn -> showUpgrades.isClicked()
+                    .setWidthHeight(13, 13);
+        showUpgrades.setClickedTexture(184 + 15 + 15, 90)
+                    .setMouseDownTexture(184 + 15 + 15, 90)
+                    .setHoveredTexture(184 + 15, 90)
+                    .setTexture(184, 90)
+                    .setTextureLocation(WIDGETS_TEX_LOCATION)
+                    .setTooltipFunction(btn -> showUpgrades.isClicked()
                         ? Collections.singletonList(I18n.format("gui.preview.button.toggle_upgrade_display.disable.tip"))
                         : Collections.singletonList(I18n.format("gui.preview.button.toggle_upgrade_display.enable.tip")))
-                .setWidthHeight(13, 13);
-        resetCenter.setMouseDownTextureXY(184 + 15 + 15, 229)
-                .setHoveredTextureXY(184 + 15, 229)
-                .setTextureXY(184, 229)
-                .setTextureLocation(WIDGETS_TEX_LOCATION)
-                .setTooltipFunction(btn -> Collections.singletonList(I18n.format("gui.preview.button.reset_center.tip")))
-                .setWidthHeight(13, 13);
+                    .setWidthHeight(13, 13);
+        resetCenter.setMouseDownTexture(184 + 15 + 15, 229)
+                   .setHoveredTexture(184 + 15, 229)
+                   .setTexture(184, 229)
+                   .setTextureLocation(WIDGETS_TEX_LOCATION)
+                   .setTooltipFunction(btn -> Collections.singletonList(I18n.format("gui.preview.button.reset_center.tip")))
+                   .setWidthHeight(13, 13);
 
         ingredientList.setAbsXY(5, 179);
 
-        selectedBlockIngredientMain.setSlotTexX(229).setSlotTexY(105)
-                .setSlotTexLocation(WIDGETS_TEX_LOCATION)
-                .setAbsXY(8, 28);
+        selectedBlockIngredientMain
+            .setSlotTex(TextureProperties.of(WIDGETS_TEX_LOCATION, 229, 105))
+            .setAbsXY(8, 28);
         selectedBlockIngredientList.setAbsXY(8, 48);
 
         // ====================
@@ -196,15 +197,15 @@ public class MachineStructurePreviewPanel extends Row {
         Row bottomMenu = new Row();
         if (!machine.getDynamicPatterns().isEmpty()) {
             bottomMenu.addWidgets(
-                    dynamicPatternPlus.setMarginRight(2).setDisabled(true),
-                    dynamicPatternSubtract.setMarginRight(2).setDisabled(true)
+                dynamicPatternPlus.setMarginRight(2),
+                dynamicPatternSubtract.setMarginRight(2)
             );
         }
         bottomMenu.addWidgets(
-                placeWorldPreview.setMarginRight(2).setDisabled(true),
-                enableCycleReplaceableBlocks.setClicked(true).setMarginRight(2).setDisabled(true),
-                toggleLayerRender.setMarginRight(2).setDisabled(true),
-                menuBtn.setMarginRight(2)
+            placeWorldPreview.setMarginRight(2),
+            enableCycleReplaceableBlocks.setClicked(true).setMarginRight(2),
+            toggleLayerRender.setMarginRight(2),
+            menuBtn.setClicked(true).setMarginRight(2)
         );
         bottomMenu.setAbsXY(PANEL_WIDTH - (bottomMenu.getWidth() + 6), 161);
 
@@ -219,18 +220,18 @@ public class MachineStructurePreviewPanel extends Row {
 
         // Right menu
         Row rightMenu = (Row) new Row().addWidgets(
-                upgradeIngredientList.setEnabled(hasModifier).setMarginRight(2),
-                layerScrollbar.setDisabled(true).setMarginRight(2)
+            upgradeIngredientList.setEnabled(hasModifier).setMarginRight(2),
+            layerScrollbar.setDisabled(true).setMarginRight(2)
         );
         rightMenu.setAbsXY(PANEL_WIDTH - (rightMenu.getWidth() + (hasModifier ? 0 : 6)), 44);
 
         // Add all widgets to preview panel...
         addWidgets(
-                title,
-                previewStatusBar,
-                ingredientList,
-                selectedBlockIngredientMain.setDisabled(true), selectedBlockIngredientList.setDisabled(true),
-                rightTopMenu, rightMenu, bottomMenu
+            title,
+            previewStatusBar,
+            ingredientList,
+            selectedBlockIngredientMain.setDisabled(true), selectedBlockIngredientList.setDisabled(true),
+            rightTopMenu, rightMenu, bottomMenu
         );
         addWidget(renderer);
 
@@ -255,10 +256,29 @@ public class MachineStructurePreviewPanel extends Row {
 
         layerScrollbar.setOnScrollChanged(this::handleLayerScrollbarChanged);
         renderer.setOnPatternUpdate(r -> handleRendererPatternUpdate(machine, r, ingredientList));
-        renderer.setOnBlockSelected(relativePos -> handlePatternBlockSelected(relativePos, selectedBlockIngredientMain, selectedBlockIngredientList));
+        renderer.setOnBlockSelected(worldPos -> handlePatternBlockSelected(worldPos, selectedBlockIngredientMain, selectedBlockIngredientList));
+    }
+
+    protected static void handleShowUpgradesButton(final UpgradeIngredientList upgradeIngredientList, final Button5State showUpgrades, final Row rightMenu) {
+        upgradeIngredientList.setEnabled(showUpgrades.isClicked());
+        rightMenu.setAbsXY(PANEL_WIDTH - (rightMenu.getWidth() + 6), 44);
     }
 
     // Machine extra info.
+
+    protected static void handleMenuButton(final Button5State menuBtn, final Row bottomMenu) {
+        boolean enable = menuBtn.isClicked();
+        bottomMenu.getWidgets().stream()
+                  .filter(widget -> widget != menuBtn)
+                  .forEach(widget -> widget.setEnabled(enable));
+        bottomMenu.setAbsXY(PANEL_WIDTH - (bottomMenu.getWidth() + 6), 161);
+    }
+
+    // Handler methods.
+
+    public WorldSceneRendererWidget getRenderer() {
+        return renderer;
+    }
 
     @Nonnull
     protected List<String> getMachineExtraInfo(final DynamicMachine machine) {
@@ -268,31 +288,31 @@ public class MachineStructurePreviewPanel extends Row {
         tips.add(I18n.format("gui.preview.button.machine_info"));
         tips.add(I18n.format("gui.preview.button.machine_info.xyz.0"));
         tips.add(I18n.format("gui.preview.button.machine_info.xyz.1",
-                max.getX() - min.getX() + 1,
-                max.getY() - min.getY() + 1,
-                max.getZ() - min.getZ() + 1
+            max.getX() - min.getX() + 1,
+            max.getY() - min.getY() + 1,
+            max.getZ() - min.getZ() + 1
         ));
         tips.add(I18n.format("gui.preview.button.machine_info.controller_y_pos",
-                Math.abs(machine.getPattern().getMin().getY())
+            Math.abs(machine.getPattern().getMin().getY())
         ));
         if (machine.getInternalParallelism() > 0) {
             tips.add(I18n.format("gui.preview.button.machine_info.internal_parallelism",
-                    machine.getInternalParallelism()
+                machine.getInternalParallelism()
             ));
         }
         if (machine.getMaxParallelism() != Config.maxMachineParallelism) {
             tips.add(I18n.format("gui.preview.button.machine_info.max_parallelism",
-                    machine.getMaxParallelism()
+                machine.getMaxParallelism()
             ));
         }
         if (machine.isHasFactory()) {
             tips.add(I18n.format("gui.preview.button.machine_info.max_threads",
-                    machine.getMaxThreads()
+                machine.getMaxThreads()
             ));
         }
         if (!machine.getCoreThreadPreset().isEmpty()) {
             tips.add(I18n.format("gui.preview.button.machine_info.core_threads",
-                    machine.getCoreThreadPreset().size()
+                machine.getCoreThreadPreset().size()
             ));
         }
         if (!machine.getDynamicPatterns().isEmpty()) {
@@ -304,11 +324,9 @@ public class MachineStructurePreviewPanel extends Row {
         return tips;
     }
 
-    // Handler methods.
-
-    protected void handlePatternBlockSelected(final BlockPos relativePos, final SlotItemVirtual selectedBlockIngredientMain, final IngredientListVertical selectedBlockIngredientList) {
-        BlockPos pos = relativePos == null ? null : relativePos.subtract(renderer.getRenderOffset());
-        if (pos == null) {
+    protected void handlePatternBlockSelected(final BlockPos worldPos, final SlotItemVirtual selectedBlockIngredientMain, final IngredientListVertical selectedBlockIngredientList) {
+        BlockPos patternPos = worldPos == null ? null : worldPos.subtract(renderer.getRenderOffset());
+        if (patternPos == null) {
             selectedBlockIngredientMain.setStackInSlot(ItemStack.EMPTY);
             selectedBlockIngredientMain.setDisabled(true);
             selectedBlockIngredientList.setStackList(Collections.emptyList(), Collections.emptyList());
@@ -317,15 +335,15 @@ public class MachineStructurePreviewPanel extends Row {
         }
 
         World world = renderer.getWorldRenderer().getWorld();
-        IBlockState clickedBlock = world.getBlockState(relativePos);
-        BlockArray.BlockInformation clicked = renderer.getPattern().getPattern().get(pos);
+        IBlockState clickedBlock = world.getBlockState(worldPos);
+        BlockArray.BlockInformation clicked = renderer.getPattern().getPattern().get(patternPos);
         ItemStack clickedBlockStack = clickedBlock.getBlock().getPickBlock(
-                clickedBlock, renderer.getWorldRenderer().getLastTraceResult(),
-                world, pos,
-                Minecraft.getMinecraft().player);
-        List<ItemStack> replaceable = clicked.getIngredientList(pos, world).stream()
-                .filter(replaceableStack -> !ItemUtils.matchStacks(clickedBlockStack, replaceableStack))
-                .collect(Collectors.toList());
+            clickedBlock, renderer.getWorldRenderer().getLastTraceResult(),
+            world, worldPos,
+            Minecraft.getMinecraft().player);
+        List<ItemStack> replaceable = clicked.getIngredientList(patternPos, world).stream()
+                                             .filter(replaceableStack -> !ItemUtils.matchStacks(clickedBlockStack, replaceableStack))
+                                             .collect(Collectors.toList());
         selectedBlockIngredientMain.setStackInSlot(clickedBlockStack);
         selectedBlockIngredientMain.setEnabled(true);
         selectedBlockIngredientList.setStackList(replaceable, Collections.emptyList());
@@ -335,16 +353,16 @@ public class MachineStructurePreviewPanel extends Row {
     protected void handleRendererPatternUpdate(final DynamicMachine machine, final WorldSceneRendererWidget r, final IngredientList ingredientList) {
         List<ItemStack> stackList = r.getPattern().getDescriptiveStackList(r.getTickSnap(), r.getWorldRenderer().getWorld(), r.getRenderOffset());
         ingredientList.setStackList(stackList.stream()
-                .sorted((left, right) -> {
-                    if (left.getItem() instanceof ItemBlockController) {
-                        return -1;
-                    }
-                    if (right.getItem() instanceof ItemBlockController) {
-                        return 1;
-                    }
-                    return Integer.compare(right.getCount(), left.getCount());
-                })
-                .collect(Collectors.toList()), Collections.emptyList());
+                                             .sorted((left, right) -> {
+                                                 if (left.getItem() instanceof ItemBlockController) {
+                                                     return -1;
+                                                 }
+                                                 if (right.getItem() instanceof ItemBlockController) {
+                                                     return 1;
+                                                 }
+                                                 return Integer.compare(right.getCount(), left.getCount());
+                                             })
+                                             .collect(Collectors.toList()), Collections.emptyList());
         if (r.isStructureFormed()) {
             TileEntity ctrlTE = r.getWorldRenderer().getWorld().getTileEntity(BlockPos.ORIGIN.add(r.getRenderOffset()));
             if (ctrlTE instanceof TileMultiblockMachineController controller) {
@@ -365,11 +383,6 @@ public class MachineStructurePreviewPanel extends Row {
 
     protected void handleToggleFormedButton(final Button5State toggleFormed) {
         renderer.setStructureFormed(toggleFormed.isClicked());
-    }
-
-    protected static void handleShowUpgradesButton(final UpgradeIngredientList upgradeIngredientList, final Button5State showUpgrades, final Row rightMenu) {
-        upgradeIngredientList.setEnabled(showUpgrades.isClicked());
-        rightMenu.setAbsXY(PANEL_WIDTH - (rightMenu.getWidth() + 6), 44);
     }
 
     protected void handleDynamicPatternSubtractButton() {
@@ -405,13 +418,5 @@ public class MachineStructurePreviewPanel extends Row {
             layerScrollbar.setDisabled(true);
         }
         rightMenu.setAbsXY(PANEL_WIDTH - (rightMenu.getWidth() + 6), 44);
-    }
-
-    protected static void handleMenuButton(final Button5State menuBtn, final Row bottomMenu) {
-        boolean enable = menuBtn.isClicked();
-        bottomMenu.getWidgets().stream()
-                .filter(widget -> widget != menuBtn)
-                .forEach(widget -> widget.setEnabled(enable));
-        bottomMenu.setAbsXY(PANEL_WIDTH - (bottomMenu.getWidth() + 6), 161);
     }
 }

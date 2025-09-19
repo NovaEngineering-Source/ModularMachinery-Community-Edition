@@ -20,7 +20,7 @@ import java.util.ArrayList;
 @ZenClass("mods.modularmachinery.IngredientArrayPrimer")
 public class IngredientArrayPrimer {
     private final ArrayList<ChancedIngredientStack> ingredientStackList = new ArrayList<>();
-    private ChancedIngredientStack lastIngredientStack = null;
+    private       ChancedIngredientStack            lastIngredientStack = null;
 
     @ZenMethod
     public IngredientArrayPrimer addIngredient(IIngredient input) {
@@ -39,7 +39,7 @@ public class IngredientArrayPrimer {
             addIngredient(new ChancedIngredientStack(((IOreDictEntry) input).getName(), 1));
         } else if (input instanceof IngredientStack && input.getInternal() instanceof IOreDictEntry) {
             addIngredient(new ChancedIngredientStack(
-                    ((IOreDictEntry) input.getInternal()).getName(), input.getAmount()));
+                ((IOreDictEntry) input.getInternal()).getName(), input.getAmount()));
         }
         return this;
     }
@@ -84,7 +84,7 @@ public class IngredientArrayPrimer {
     public IngredientArrayPrimer setChecker(AdvancedItemCheckerCT checker) {
         if (lastIngredientStack != null) {
             lastIngredientStack.itemChecker = (controller, stack) ->
-                    checker.isMatch(controller, CraftTweakerMC.getIItemStack(stack));
+                checker.isMatch(controller, CraftTweakerMC.getIItemStack(stack));
         }
         return this;
     }
@@ -93,7 +93,7 @@ public class IngredientArrayPrimer {
     public IngredientArrayPrimer addItemModifier(AdvancedItemModifierCT modifier) {
         if (lastIngredientStack != null) {
             lastIngredientStack.itemModifierList.add((controller, stack) -> CraftTweakerMC.getItemStack(
-                    modifier.apply(controller, CraftTweakerMC.getIItemStackMutable(stack))));
+                modifier.apply(controller, CraftTweakerMC.getIItemStackMutable(stack))));
         }
         return this;
     }

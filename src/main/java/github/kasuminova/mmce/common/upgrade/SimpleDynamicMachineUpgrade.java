@@ -19,10 +19,10 @@ import java.util.List;
 @ZenRegister
 @ZenClass("mods.modularmachinery.SimpleDynamicMachineUpgrade")
 public class SimpleDynamicMachineUpgrade extends DynamicMachineUpgrade {
-    private IFunction<SimpleDynamicMachineUpgrade, String[]> descriptionHandler = null;
+    private IFunction<SimpleDynamicMachineUpgrade, String[]> descriptionHandler       = null;
     private IFunction<SimpleDynamicMachineUpgrade, String[]> busGuiDescriptionHandler = null;
 
-    private NBTTagCompound itemData = new NBTTagCompound();
+    private NBTTagCompound itemData   = new NBTTagCompound();
     private NBTTagCompound customData = new NBTTagCompound();
 
     public SimpleDynamicMachineUpgrade(final UpgradeType type) {

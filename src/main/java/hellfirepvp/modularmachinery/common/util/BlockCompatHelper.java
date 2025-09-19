@@ -38,7 +38,7 @@ public class BlockCompatHelper {
 
     private static final Method getITeBlockIc2, getTeClassIc2, getTeBlockState, getITEgetSupportedFacings, getTEBlockId, getITeBlockIc2Class;
     private static final IProperty<EnumFacing> facingPropertyField;
-    private static final Field teBlockItemField;
+    private static final Field                 teBlockItemField;
 
     static {
         Method m1 = null, m2 = null, m3 = null, m4 = null, m5 = null, m6 = null;
@@ -108,7 +108,7 @@ public class BlockCompatHelper {
     @net.minecraftforge.fml.common.Optional.Method(modid = "ic2")
     private static Tuple<IBlockState, TileEntity> tryRecoverTileState(IBlockState state, @Nonnull NBTTagCompound matchTag, BlockArray.TileInstantiateContext context) {
         if (getTeClassIc2 == null || getITeBlockIc2 == null || getTeBlockState == null
-                || getITEgetSupportedFacings == null || facingPropertyField == null) {
+            || getITEgetSupportedFacings == null || facingPropertyField == null) {
             return null;
         }
 

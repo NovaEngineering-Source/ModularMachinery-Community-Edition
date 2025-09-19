@@ -9,7 +9,11 @@
 package hellfirepvp.modularmachinery;
 
 import github.kasuminova.mmce.common.concurrent.TaskExecutor;
-import github.kasuminova.mmce.common.network.*;
+import github.kasuminova.mmce.common.network.PktAutoAssemblyRequest;
+import github.kasuminova.mmce.common.network.PktMEInputBusInvAction;
+import github.kasuminova.mmce.common.network.PktMEPatternProviderAction;
+import github.kasuminova.mmce.common.network.PktMEPatternProviderHandlerItems;
+import github.kasuminova.mmce.common.network.PktPerformanceReport;
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.command.CommandGetBluePrint;
@@ -17,7 +21,12 @@ import hellfirepvp.modularmachinery.common.command.CommandHand;
 import hellfirepvp.modularmachinery.common.command.CommandPerformanceReport;
 import hellfirepvp.modularmachinery.common.command.CommandSyntax;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.command.CommandCTReload;
-import hellfirepvp.modularmachinery.common.network.*;
+import hellfirepvp.modularmachinery.common.network.PktAssemblyReport;
+import hellfirepvp.modularmachinery.common.network.PktCopyToClipboard;
+import hellfirepvp.modularmachinery.common.network.PktInteractFluidTankGui;
+import hellfirepvp.modularmachinery.common.network.PktParallelControllerUpdate;
+import hellfirepvp.modularmachinery.common.network.PktSmartInterfaceUpdate;
+import hellfirepvp.modularmachinery.common.network.PktSyncSelection;
 import kport.modularmagic.common.event.RegistrationEvent;
 import kport.modularmagic.common.network.StarlightMessage;
 import net.minecraft.launchwrapper.Launch;
@@ -25,7 +34,11 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
-import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -40,45 +53,47 @@ import org.apache.logging.log4j.Logger;
  * Date: 26.06.2017 / 20:26
  */
 @Mod(modid = ModularMachinery.MODID, name = ModularMachinery.NAME, version = ModularMachinery.VERSION,
-        dependencies = "required-after:forge@[14.21.0.2371,);" +
-                "after:crafttweaker@[4.0.4,);" +
-                //"after:groovyscript@[1.0.0,);" + // TODO wait for grs 1.0.1
-                "after:zenutils@[1.12.8,);" +
-                "after:jei@[4.13.1.222,);" +
-                "after:gregtech@[2.7.4-beta,);" +
-                "after:appliedenergistics2@[rv6-stable-7,);" +
-                "after:fluxnetworks@[4.1.0,);" +
-                "after:tconstruct@[1.12.2-2.12.0.157,)",
-        acceptedMinecraftVersions = "[1.12, 1.13)"
+    dependencies = "required-after:forge@[14.21.0.2371,);" +
+        "required-after:crafttweaker@[4.0.4,);" +
+        //"after:groovyscript@[1.0.0,);" + // TODO wait for grs 1.0.1
+        "after:zenutils@[1.12.8,);" +
+        "after:jei@[4.13.1.222,);" +
+        "after:gregtech@[2.7.4-beta,);" +
+        "after:appliedenergistics2@[rv6-stable-7,);" +
+        "after:fluxnetworks@[4.1.0,);" +
+        "after:tconstruct@[1.12.2-2.12.0.157,);" +
+        "after:thermalexpansion@[5.5.0,);",
+    acceptedMinecraftVersions = "[1.12, 1.13)",
+    acceptableRemoteVersions = "[2.1.0, 2.3.0)"
 )
 public class ModularMachinery {
 
-    public static final String MODID = "modularmachinery";
-    public static final String NAME = "Modular Machinery: Community Edition";
-    public static final String VERSION = "1.11.1";
-    public static final String CLIENT_PROXY = "hellfirepvp.modularmachinery.client.ClientProxy";
-    public static final String COMMON_PROXY = "hellfirepvp.modularmachinery.common.CommonProxy";
-    public static final SimpleNetworkWrapper NET_CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
-    public static final TaskExecutor EXECUTE_MANAGER = new TaskExecutor();
-    public static final EventBus EVENT_BUS = new EventBus();
+    public static final String               MODID           = "modularmachinery";
+    public static final String               NAME            = "Modular Machinery: Community Edition";
+    public static final String               VERSION         = Tags.VERSION;
+    public static final String               CLIENT_PROXY    = "hellfirepvp.modularmachinery.client.ClientProxy";
+    public static final String               COMMON_PROXY    = "hellfirepvp.modularmachinery.common.CommonProxy";
+    public static final SimpleNetworkWrapper NET_CHANNEL     = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
+    public static final TaskExecutor         EXECUTE_MANAGER = new TaskExecutor();
+    public static final EventBus             EVENT_BUS       = new EventBus();
 
     @Mod.Instance(MODID)
-    public static ModularMachinery instance;
-    public static Logger log;
+    public static  ModularMachinery instance;
+    public static  Logger           log;
     @SidedProxy(clientSide = CLIENT_PROXY, serverSide = COMMON_PROXY)
-    public static CommonProxy proxy;
-    private static boolean devEnvCache = false;
+    public static  CommonProxy      proxy;
+    private static boolean          devEnvCache = false;
 
     static {
         FluidRegistry.enableUniversalBucket();
     }
 
-    public static boolean isRunningInDevEnvironment() {
-        return devEnvCache;
-    }
-
     public ModularMachinery() {
         MinecraftForge.EVENT_BUS.register(RegistrationEvent.class);
+    }
+
+    public static boolean isRunningInDevEnvironment() {
+        return devEnvCache;
     }
 
     @Mod.EventHandler

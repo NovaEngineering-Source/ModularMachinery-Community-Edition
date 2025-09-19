@@ -15,7 +15,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import thaumcraft.api.aspects.Aspect;
 import thecodex6824.thaumicaugmentation.ThaumicAugmentation;
-import thecodex6824.thaumicaugmentation.api.impetus.node.*;
+import thecodex6824.thaumicaugmentation.api.impetus.node.CapabilityImpetusNode;
+import thecodex6824.thaumicaugmentation.api.impetus.node.ConsumeResult;
+import thecodex6824.thaumicaugmentation.api.impetus.node.IImpetusConsumer;
+import thecodex6824.thaumicaugmentation.api.impetus.node.IImpetusProvider;
+import thecodex6824.thaumicaugmentation.api.impetus.node.NodeHelper;
 import thecodex6824.thaumicaugmentation.api.impetus.node.prefab.ImpetusNode;
 import thecodex6824.thaumicaugmentation.api.impetus.node.prefab.SimpleImpetusConsumer;
 import thecodex6824.thaumicaugmentation.api.util.DimensionalBlockPos;
@@ -27,9 +31,9 @@ import javax.annotation.Nullable;
  * @author youyihj
  */
 public abstract class TileImpetusComponent extends TileColorableMachineComponent implements MachineComponentTile {
-    public static final int CAPACITY = 1000;
-    protected volatile int impetus = 0;
-    protected ImpetusNode node;
+    public static final int         CAPACITY = 1000;
+    protected volatile  int         impetus  = 0;
+    protected           ImpetusNode node;
 
     public int getImpetus() {
         return impetus;
@@ -98,8 +102,9 @@ public abstract class TileImpetusComponent extends TileColorableMachineComponent
     @Override
     public void setPos(@Nonnull BlockPos posIn) {
         super.setPos(posIn);
-        if (world != null)
+        if (world != null) {
             node.setLocation(new DimensionalBlockPos(posIn.toImmutable(), world.provider.getDimension()));
+        }
     }
 
     @Override
@@ -117,7 +122,7 @@ public abstract class TileImpetusComponent extends TileColorableMachineComponent
     @Override
     public boolean receiveClientEvent(int id, int type) {
         ThaumicAugmentation.proxy.getRenderHelper().renderSpark(world, pos.getX() + world.rand.nextFloat(),
-                pos.getY() + world.rand.nextFloat(), pos.getZ() + world.rand.nextFloat(), 1.5F, Aspect.ELDRITCH.getColor(), false);
+            pos.getY() + world.rand.nextFloat(), pos.getZ() + world.rand.nextFloat(), 1.5F, Aspect.ELDRITCH.getColor(), false);
 
         return true;
     }

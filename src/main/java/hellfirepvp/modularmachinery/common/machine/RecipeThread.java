@@ -25,16 +25,14 @@ import java.util.concurrent.TimeoutException;
 @ZenClass("mods.modularmachinery.RecipeThread")
 public abstract class RecipeThread {
     protected final TileMultiblockMachineController ctrl;
-    protected final Map<String, RecipeModifier> permanentModifiers = new ConcurrentHashMap<>();
-    protected final Map<String, RecipeModifier> semiPermanentModifiers = new ConcurrentHashMap<>();
+    protected final Map<String, RecipeModifier>     permanentModifiers     = new ConcurrentHashMap<>();
+    protected final Map<String, RecipeModifier>     semiPermanentModifiers = new ConcurrentHashMap<>();
 
-    protected ActiveMachineRecipe activeRecipe = null;
-    protected CraftingStatus status = CraftingStatus.IDLE;
-    protected boolean waitForFinish = false;
-
-    private RecipeCraftingContext context = null;
-
-    protected RecipeSearchTask searchTask = null;
+    protected ActiveMachineRecipe   activeRecipe  = null;
+    protected CraftingStatus        status        = CraftingStatus.IDLE;
+    protected boolean               waitForFinish = false;
+    protected RecipeSearchTask      searchTask    = null;
+    private   RecipeCraftingContext context       = null;
 
     protected RecipeThread(TileMultiblockMachineController ctrl) {
         this.ctrl = ctrl;
@@ -154,13 +152,13 @@ public abstract class RecipeThread {
 
         RecipeCraftingContext ctx;
         try {
-            ctx = searchTask.get(50L, TimeUnit.MICROSECONDS);
+            ctx = searchTask.get(50L, TimeUnit.MILLISECONDS);
             if (ctx != null) {
                 RecipeCraftingContextPool.returnCtx(ctx);
             }
         } catch (TimeoutException ex) {
             ModularMachinery.log.warn("DIM: {} - {} controller is timeout to wait searchTask, discard search result.",
-                    ctrl.getWorld().getWorldInfo().getWorldName(), ctrl.getPos());
+                ctrl.getWorld().getWorldInfo().getWorldName(), ctrl.getPos());
         } catch (Exception ignored) {
         }
         searchTask = null;
@@ -176,11 +174,6 @@ public abstract class RecipeThread {
         context.addModifier(ctrl.getCustomModifiers().values());
         context.addModifier(semiPermanentModifiers.values());
         context.addModifier(permanentModifiers.values());
-    }
-
-    public RecipeThread setActiveRecipe(ActiveMachineRecipe activeRecipe) {
-        this.activeRecipe = activeRecipe;
-        return this;
     }
 
     public RecipeCraftingContext getContext() {
@@ -221,6 +214,11 @@ public abstract class RecipeThread {
         return activeRecipe;
     }
 
+    public RecipeThread setActiveRecipe(ActiveMachineRecipe activeRecipe) {
+        this.activeRecipe = activeRecipe;
+        return this;
+    }
+
     /**
      * 添加一个半永久配方修改器，它会在完成配方后被清空。
      *
@@ -258,6 +256,7 @@ public abstract class RecipeThread {
 
     /**
      * 添加一个永久配方修改器，它将永远存在这个线程中。
+     *
      * @param name     名称
      * @param modifier 修改器
      */
@@ -285,13 +284,14 @@ public abstract class RecipeThread {
     @ZenMethod
     public void removePermanentModifier(String name) {
         RecipeModifier removed = permanentModifiers.remove(name);
-        if ( removed!= null) {
+        if (removed != null) {
             flushContextModifier();
         }
     }
 
     /**
      * 设置当前线程的状态信息。
+     *
      * @param info 信息
      */
     @ZenMethod

@@ -20,7 +20,12 @@ import hellfirepvp.modularmachinery.common.tiles.TileParallelController;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.MiscUtils;
 import io.netty.util.internal.ThrowableUtil;
-import mcjty.theoneprobe.api.*;
+import mcjty.theoneprobe.api.ElementAlignment;
+import mcjty.theoneprobe.api.IProbeHitData;
+import mcjty.theoneprobe.api.IProbeInfo;
+import mcjty.theoneprobe.api.IProbeInfoProvider;
+import mcjty.theoneprobe.api.NumberFormat;
+import mcjty.theoneprobe.api.ProbeMode;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
@@ -36,30 +41,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MMInfoProvider implements IProbeInfoProvider {
-    @Override
-    public String getID() {
-        return "modularmachinery:dynamic_machine_info_provider";
-    }
-
-    @Override
-    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
-        if (!blockState.getBlock().hasTileEntity(blockState)) return;
-
-        //获取方块实体
-        TileEntity tileEntity = world.getTileEntity(data.getPos());
-        if (tileEntity == null) return;
-        //判断是否为机械控制器
-        if (tileEntity instanceof TileMultiblockMachineController machineController) {
-            try {
-                processMultiblockMachineTOP(machineController, probeInfo, player);
-            } catch (Exception e) {
-                ModularMachinery.log.warn(ThrowableUtil.stackTraceToString(e));
-            }
-        } else if (tileEntity instanceof TileParallelController parallelController) {
-            processParallelControllerTOP(parallelController, probeInfo);
-        }
-    }
-
     private static void processParallelControllerTOP(TileParallelController parallelController, IProbeInfo probeInfo) {
         if (!ModIntegrationTOP.showParallelControllerInfo) {
             return;
@@ -105,8 +86,8 @@ public class MMInfoProvider implements IProbeInfoProvider {
 
         IProbeInfo perfBox = newVertical(probeInfo);
         perfBox.text(String.format("%sCPU Avg Usage: %sμs%s, Recipe Search: %sms",
-                TextFormatting.AQUA, formatCPUUsage(machine.getTimeRecorder().usedTimeAvg()),
-                TextFormatting.AQUA, formatRecipeSearchUsage(machine.getTimeRecorder().recipeSearchUsedTimeAvg())));
+            TextFormatting.AQUA, formatCPUUsage(machine.getTimeRecorder().usedTimeAvg()),
+            TextFormatting.AQUA, formatRecipeSearchUsage(machine.getTimeRecorder().recipeSearchUsedTimeAvg())));
         TileMultiblockMachineController.WorkMode workMode = machine.getWorkMode();
         long groupId = machine.getExecuteGroupId();
         if (workMode == TileMultiblockMachineController.WorkMode.ASYNC && groupId != -1) {
@@ -151,11 +132,11 @@ public class MMInfoProvider implements IProbeInfoProvider {
         if (maxThreads > 0) {
             threadBox = newVertical(probeInfo);
             threadBox.text(
-                    TextFormatting.GREEN + String.valueOf(recipeThreads.size()) +
-                            TextFormatting.AQUA + " {*top.factory.thread.running*}" +
-                            TextFormatting.RESET + " / " +
-                            TextFormatting.YELLOW + maxThreads +
-                            TextFormatting.GOLD + " {*top.factory.thread.max*}"
+                TextFormatting.GREEN + String.valueOf(recipeThreads.size()) +
+                    TextFormatting.AQUA + " {*top.factory.thread.running*}" +
+                    TextFormatting.RESET + " / " +
+                    TextFormatting.YELLOW + maxThreads +
+                    TextFormatting.GOLD + " {*top.factory.thread.max*}"
             );
         }
 
@@ -163,9 +144,9 @@ public class MMInfoProvider implements IProbeInfoProvider {
         if (factory.getAvailableParallelism() != trueMaxParallelism) {
             IProbeInfo parallelismBox = threadBox == null ? newVertical(probeInfo) : threadBox;
             parallelismBox.text(TextFormatting.AQUA + "{*top.parallelism*}" +
-                    TextFormatting.GREEN + ((trueMaxParallelism - factory.getAvailableParallelism()) + 1));
+                TextFormatting.GREEN + ((trueMaxParallelism - factory.getAvailableParallelism()) + 1));
             parallelismBox.text(TextFormatting.GOLD + "{*top.max_parallelism*}" +
-                    TextFormatting.YELLOW + trueMaxParallelism);
+                TextFormatting.YELLOW + trueMaxParallelism);
         }
 
         AtomicInteger i = new AtomicInteger();
@@ -222,12 +203,12 @@ public class MMInfoProvider implements IProbeInfoProvider {
             IProbeInfo progressLine = threadProgressBox.horizontal(threadProgressBox.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER));
             progressLine.text(TextFormatting.AQUA + "{*top.recipe.progress*}:  ");
             progressLine.progress((int) progress, 100, threadProgressBox.defaultProgressStyle()
-                    .prefix(progressStr)
-                    .filledColor(progressBarFilledColor)
-                    .alternateFilledColor(progressBarAlternateFilledColor)
-                    .borderColor(progressBarBorderColor)
-                    .backgroundColor(ModIntegrationTOP.recipeProgressBarBackgroundColor)
-                    .numberFormat(NumberFormat.NONE));
+                                                                        .prefix(progressStr)
+                                                                        .filledColor(progressBarFilledColor)
+                                                                        .alternateFilledColor(progressBarAlternateFilledColor)
+                                                                        .borderColor(progressBarBorderColor)
+                                                                        .backgroundColor(ModIntegrationTOP.recipeProgressBarBackgroundColor)
+                                                                        .numberFormat(NumberFormat.NONE));
         });
     }
 
@@ -313,12 +294,12 @@ public class MMInfoProvider implements IProbeInfoProvider {
         IProbeInfo progressLine = statusBox.horizontal(statusBox.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER));
         progressLine.text("{*top.recipe.progress*}:  ");
         progressLine.progress((int) progress, 100, statusBox.defaultProgressStyle()
-                .prefix(progressStr)
-                .filledColor(progressBarFilledColor)
-                .alternateFilledColor(progressBarAlternateFilledColor)
-                .borderColor(progressBarBorderColor)
-                .backgroundColor(ModIntegrationTOP.recipeProgressBarBackgroundColor)
-                .numberFormat(NumberFormat.NONE)
+                                                            .prefix(progressStr)
+                                                            .filledColor(progressBarFilledColor)
+                                                            .alternateFilledColor(progressBarAlternateFilledColor)
+                                                            .borderColor(progressBarBorderColor)
+                                                            .backgroundColor(ModIntegrationTOP.recipeProgressBarBackgroundColor)
+                                                            .numberFormat(NumberFormat.NONE)
         );
     }
 
@@ -333,8 +314,8 @@ public class MMInfoProvider implements IProbeInfoProvider {
         float durationMul = context.getDurationMultiplier();
 
         return Math.round((RecipeModifier.applyModifiers(context, energy, (double) reqPerTick, false) *
-                durationMul *
-                parallelism)
+            durationMul *
+            parallelism)
         );
     }
 
@@ -354,17 +335,17 @@ public class MMInfoProvider implements IProbeInfoProvider {
     private static void addEnergyUsageText(final IProbeInfo probe, final EntityPlayer player, final IOType ioType, final long usagePerTick) {
         if (ioType == IOType.INPUT) {
             probe.text(TextFormatting.AQUA + "{*top.energy.input*}" + TextFormatting.RED +
-                    formatEnergyUsage(player, usagePerTick) + " {*" + EnergyDisplayUtil.type.getUnlocalizedFormat() + "*}/t");
+                formatEnergyUsage(player, usagePerTick) + " {*" + EnergyDisplayUtil.type.getUnlocalizedFormat() + "*}/t");
         } else if (ioType == IOType.OUTPUT) {
             probe.text(TextFormatting.AQUA + "{*top.energy.output*}" + TextFormatting.RED +
-                    formatEnergyUsage(player, usagePerTick) + " {*" + EnergyDisplayUtil.type.getUnlocalizedFormat() + "*}/t");
+                formatEnergyUsage(player, usagePerTick) + " {*" + EnergyDisplayUtil.type.getUnlocalizedFormat() + "*}/t");
         }
     }
 
     private static String formatEnergyUsage(final EntityPlayer player, final long usagePerTick) {
         return player.isSneaking()
-                ? MiscUtils.formatNumber(EnergyDisplayUtil.type.formatEnergyForDisplay(usagePerTick))
-                : MiscUtils.formatDecimal(EnergyDisplayUtil.type.formatEnergyForDisplay(usagePerTick));
+            ? MiscUtils.formatNumber(EnergyDisplayUtil.type.formatEnergyForDisplay(usagePerTick))
+            : MiscUtils.formatDecimal(EnergyDisplayUtil.type.formatEnergyForDisplay(usagePerTick));
     }
 
     private static String formatCPUUsage(final int time) {
@@ -398,9 +379,37 @@ public class MMInfoProvider implements IProbeInfoProvider {
 
     private static IProbeInfo newVertical(final IProbeInfo info) {
         return info.vertical(info.defaultLayoutStyle()
-                .spacing(0)
-                .borderColor(0x801E90FF)
+                                 .spacing(0)
+                                 .borderColor(0x801E90FF)
         );
+    }
+
+    @Override
+    public String getID() {
+        return "modularmachinery:dynamic_machine_info_provider";
+    }
+
+    @Override
+    public void addProbeInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
+        if (!blockState.getBlock().hasTileEntity(blockState)) {
+            return;
+        }
+
+        //获取方块实体
+        TileEntity tileEntity = world.getTileEntity(data.getPos());
+        if (tileEntity == null) {
+            return;
+        }
+        //判断是否为机械控制器
+        if (tileEntity instanceof TileMultiblockMachineController machineController) {
+            try {
+                processMultiblockMachineTOP(machineController, probeInfo, player);
+            } catch (Exception e) {
+                ModularMachinery.log.warn(ThrowableUtil.stackTraceToString(e));
+            }
+        } else if (tileEntity instanceof TileParallelController parallelController) {
+            processParallelControllerTOP(parallelController, probeInfo);
+        }
     }
 
 }

@@ -89,7 +89,7 @@ public class EventHandler {
             }
 
             World world = event.player.getEntityWorld();
-            if (world.getWorldTime() % 15 == 0 && te instanceof final TileMultiblockMachineController ctrl) {
+            if (te instanceof final TileMultiblockMachineController ctrl && world.getWorldTime() % 15 == 0) {
                 int usedTime = ctrl.usedTimeAvg();
                 int searchUsedTimeAvg = ctrl.recipeSearchUsedTimeAvg();
                 ModularMachinery.NET_CHANNEL.sendTo(new PktPerformanceReport(usedTime, searchUsedTimeAvg, ctrl.getWorkMode()), playerMP);

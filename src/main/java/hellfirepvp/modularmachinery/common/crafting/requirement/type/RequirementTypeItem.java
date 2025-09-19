@@ -11,7 +11,6 @@ package hellfirepvp.modularmachinery.common.crafting.requirement.type;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementItem;
-import hellfirepvp.modularmachinery.common.integration.ingredient.IngredientItemStack;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.util.nbt.NBTJsonDeserializer;
 import net.minecraft.init.Items;
@@ -36,7 +35,7 @@ public class RequirementTypeItem extends RequirementType<ItemStack, RequirementI
         RequirementItem req;
 
         if (!jsonObject.has("item") || !jsonObject.get("item").isJsonPrimitive() ||
-                !jsonObject.get("item").getAsJsonPrimitive().isString()) {
+            !jsonObject.get("item").getAsJsonPrimitive().isString()) {
             throw new JsonParseException("The ComponentType 'item' expects an 'item'-entry that defines the item!");
         }
         String itemDefinition = jsonObject.getAsJsonPrimitive("item").getAsString();
@@ -64,7 +63,7 @@ public class RequirementTypeItem extends RequirementType<ItemStack, RequirementI
                 throw new JsonParseException("You cannot define 'fuel' as item output! Offending item-output entry: " + res);
             }
             if (!jsonObject.has("time") || !jsonObject.get("time").isJsonPrimitive() ||
-                    !jsonObject.get("time").getAsJsonPrimitive().isNumber()) {
+                !jsonObject.get("time").getAsJsonPrimitive().isNumber()) {
                 throw new JsonParseException("If you define any:fuel as item input, you have to define the burntime required in total in the 'time' entry alongside the 'item' entry!");
             }
             int burntime = jsonObject.getAsJsonPrimitive("time").getAsInt();

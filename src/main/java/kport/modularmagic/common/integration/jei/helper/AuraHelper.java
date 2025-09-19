@@ -12,8 +12,9 @@ public class AuraHelper<T extends Aura> implements IIngredientHelper<T> {
     @Override
     public T getMatch(Iterable<T> ingredients, T ingredientToMatch) {
         for (T ingredient : ingredients) {
-            if (ingredient.getType() == ingredientToMatch.getType())
+            if (ingredient.getType() == ingredientToMatch.getType()) {
                 return ingredient;
+            }
         }
         return null;
     }

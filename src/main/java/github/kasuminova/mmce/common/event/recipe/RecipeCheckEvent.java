@@ -11,9 +11,9 @@ import stanhebben.zenscript.annotations.ZenSetter;
 @ZenRegister
 @ZenClass("mods.modularmachinery.RecipeCheckEvent")
 public class RecipeCheckEvent extends RecipeEvent {
-    public final Phase phase;
-    private boolean isFailure = false;
-    private String failureReason = null;
+    public final Phase   phase;
+    private      boolean isFailure     = false;
+    private      String  failureReason = null;
 
     public RecipeCheckEvent(TileMultiblockMachineController controller, RecipeCraftingContext context, Phase phase) {
         super(controller, null, context);

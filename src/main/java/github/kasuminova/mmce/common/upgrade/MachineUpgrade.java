@@ -10,13 +10,17 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenGetter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ZenRegister
 @ZenClass("mods.modularmachinery.MachineUpgrade")
 public abstract class MachineUpgrade {
 
-    protected final UpgradeType type;
+    protected final UpgradeType                                type;
     protected final Map<Class<?>, List<UpgradeEventHandlerCT>> eventProcessor = new HashMap<>();
 
     protected TileUpgradeBus parentBus = null;

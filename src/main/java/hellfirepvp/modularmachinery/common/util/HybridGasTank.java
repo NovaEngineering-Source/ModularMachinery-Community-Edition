@@ -36,15 +36,20 @@ public class HybridGasTank extends HybridTank implements IExtendedGasHandler {
     }
 
     @Override
-    public synchronized void setFluid(@Nullable FluidStack fluid) {
-        super.setFluid(fluid);
-        if (getFluid() != null) {
-            setGas(null);
+    public void setFluid(@Nullable FluidStack fluid) {
+        try {
+            rwLock.writeLock().lock();
+            super.setFluid(fluid);
+            if (getFluid() != null) {
+                setGas(null);
+            }
+        } finally {
+            rwLock.writeLock().unlock();
         }
     }
 
     @Override
-    public synchronized int fillInternal(FluidStack resource, boolean doFill) {
+    public int fillInternal(FluidStack resource, boolean doFill) {
         if (getGas() != null && getGas().amount > 0) {
             return 0;
         }
@@ -53,7 +58,7 @@ public class HybridGasTank extends HybridTank implements IExtendedGasHandler {
 
     @Nullable
     @Override
-    public synchronized FluidStack drainInternal(int maxDrain, boolean doDrain) {
+    public FluidStack drainInternal(int maxDrain, boolean doDrain) {
         if (getGas() != null && getGas().amount > 0) {
             return null;
         }
@@ -62,7 +67,7 @@ public class HybridGasTank extends HybridTank implements IExtendedGasHandler {
 
     @Nullable
     @Override
-    public synchronized FluidStack drainInternal(FluidStack resource, boolean doDrain) {
+    public FluidStack drainInternal(FluidStack resource, boolean doDrain) {
         if (getGas() != null && getGas().amount > 0) {
             return null;
         }
@@ -70,58 +75,85 @@ public class HybridGasTank extends HybridTank implements IExtendedGasHandler {
     }
 
     @Nullable
-    public synchronized GasStack getGas() {
-        return this.gasTank.getGas();
+    public GasStack getGas() {
+        try {
+            rwLock.readLock().lock();
+            return this.gasTank.getGas();
+        } finally {
+            rwLock.readLock().unlock();
+        }
     }
 
-    public synchronized void setGas(@Nullable GasStack stack) {
-        if (stack != null) {
-            this.gasTank.setGas(stack.copy());
-            setFluid(null);
-        } else {
-            this.gasTank.setGas(null);
+    public void setGas(@Nullable GasStack stack) {
+        try {
+            rwLock.writeLock().lock();
+            if (stack != null) {
+                this.gasTank.setGas(stack.copy());
+                setFluid(null);
+            } else {
+                this.gasTank.setGas(null);
+            }
+        } finally {
+            rwLock.writeLock().unlock();
         }
     }
 
     @Override
-    public synchronized int receiveGas(EnumFacing side, GasStack stack, boolean doTransfer) {
+    public int receiveGas(EnumFacing side, GasStack stack, boolean doTransfer) {
         if (stack == null || stack.amount <= 0) {
             return 0;
         }
+        try {
+            (doTransfer ? rwLock.writeLock() : rwLock.readLock()).lock();
 
-        if (fluid != null && fluid.amount > 0) {
-            return 0; //We don't collide with the internal fluids
-        }
+            if (fluid != null && fluid.amount > 0) {
+                return 0; //We don't collide with the internal fluids
+            }
 
-        int receive = gasTank.receive(stack, doTransfer);
-        if (receive != 0 && doTransfer) {
-            onContentsChanged();
+            int receive = gasTank.receive(stack, doTransfer);
+            if (receive != 0 && doTransfer) {
+                onContentsChanged();
+            }
+            return receive;
+        } finally {
+            (doTransfer ? rwLock.writeLock() : rwLock.readLock()).unlock();
         }
-        return receive;
     }
 
     @Override
-    public synchronized GasStack drawGas(EnumFacing side, int amount, boolean doTransfer) {
-        if (getGas() == null || amount <= 0) {
-            return null;
-        }
-        if (getFluid() != null && getFluid().amount > 0) {
-            return null; //We don't collide with the internal fluids
-        }
-        if (!this.canDrawGas(side, null)) {
-            return null;
-        }
+    public GasStack drawGas(EnumFacing side, int amount, boolean doTransfer) {
+        try {
+            (doTransfer ? rwLock.writeLock() : rwLock.readLock()).lock();
 
-        GasStack drawn = this.gasTank.draw(amount, doTransfer);
-        if (drawn != null && !doTransfer) {
-            onContentsChanged();
+            if (getGas() == null || amount <= 0) {
+                return null;
+            }
+            if (getFluid() != null && getFluid().amount > 0) {
+                return null; //We don't collide with the internal fluids
+            }
+            if (!this.canDrawGas(side, null)) {
+                return null;
+            }
+
+            GasStack drawn = this.gasTank.draw(amount, doTransfer);
+            if (drawn != null && !doTransfer) {
+                onContentsChanged();
+            }
+            return drawn;
+        } finally {
+            (doTransfer ? rwLock.writeLock() : rwLock.readLock()).unlock();
         }
-        return drawn;
     }
 
     @Override
     public GasStack drawGas(final GasStack toDraw, final boolean doTransfer) {
-        return canDrawGas(null, toDraw.getGas()) ? drawGas(null, toDraw.amount, doTransfer) : null;
+        try {
+            (doTransfer ? rwLock.writeLock() : rwLock.readLock()).lock();
+
+            return canDrawGas(null, toDraw.getGas()) ? drawGas(null, toDraw.amount, doTransfer) : null;
+        } finally {
+            (doTransfer ? rwLock.writeLock() : rwLock.readLock()).unlock();
+        }
     }
 
     @Override

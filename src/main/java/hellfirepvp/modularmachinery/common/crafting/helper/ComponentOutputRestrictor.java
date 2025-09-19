@@ -24,7 +24,7 @@ public abstract class ComponentOutputRestrictor {
     @Deprecated
     public static class RestrictionTank extends ComponentOutputRestrictor {
 
-        public final HybridFluid inserted;
+        public final HybridFluid            inserted;
         public final ProcessingComponent<?> exactComponent;
 
         public RestrictionTank(HybridFluid inserted, ProcessingComponent<?> exactComponent) {
@@ -37,7 +37,7 @@ public abstract class ComponentOutputRestrictor {
     @Deprecated
     public static class RestrictionInventory extends ComponentOutputRestrictor {
 
-        public final ItemStack inserted;
+        public final ItemStack              inserted;
         public final ProcessingComponent<?> exactComponent;
 
         public RestrictionInventory(ItemStack inserted, ProcessingComponent<?> exactComponent) {

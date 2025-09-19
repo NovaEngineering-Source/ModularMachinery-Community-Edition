@@ -41,8 +41,8 @@ public class GTFluidHatchProxy implements MachineComponentProxy<GTFluidHatchProx
         if (te instanceof MetaTileEntityHolder metaTEHolder) {
             MetaTileEntity metaTE = metaTEHolder.getMetaTileEntity();
             return metaTE instanceof MetaTileEntityFluidHatch ||
-                    metaTE instanceof MetaTileEntityMEInputHatch ||
-                    metaTE instanceof MetaTileEntityMEOutputHatch;
+                metaTE instanceof MetaTileEntityMEInputHatch ||
+                metaTE instanceof MetaTileEntityMEOutputHatch;
         }
         return false;
     }

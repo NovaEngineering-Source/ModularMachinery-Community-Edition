@@ -15,7 +15,10 @@ import hellfirepvp.modularmachinery.common.block.BlockController;
 import hellfirepvp.modularmachinery.common.block.BlockFactoryController;
 import hellfirepvp.modularmachinery.common.crafting.MachineRecipe;
 import hellfirepvp.modularmachinery.common.crafting.RecipeRegistry;
-import hellfirepvp.modularmachinery.common.integration.ingredient.*;
+import hellfirepvp.modularmachinery.common.integration.ingredient.HybridFluid;
+import hellfirepvp.modularmachinery.common.integration.ingredient.HybridFluidGas;
+import hellfirepvp.modularmachinery.common.integration.ingredient.HybridFluidRenderer;
+import hellfirepvp.modularmachinery.common.integration.ingredient.HybridStackHelper;
 import hellfirepvp.modularmachinery.common.integration.preview.CategoryStructurePreview;
 import hellfirepvp.modularmachinery.common.integration.preview.StructurePreviewWrapper;
 import hellfirepvp.modularmachinery.common.integration.recipe.CategoryDynamicRecipe;
@@ -27,7 +30,13 @@ import hellfirepvp.modularmachinery.common.lib.ItemsMM;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.machine.MachineRegistry;
 import mezz.jei.Internal;
-import mezz.jei.api.*;
+import mezz.jei.api.IJeiHelpers;
+import mezz.jei.api.IJeiRuntime;
+import mezz.jei.api.IModPlugin;
+import mezz.jei.api.IModRegistry;
+import mezz.jei.api.IRecipeRegistry;
+import mezz.jei.api.ISubtypeRegistry;
+import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
 import mezz.jei.api.recipe.IRecipeCategoryRegistration;
@@ -54,19 +63,19 @@ import java.util.Map;
  */
 @JEIPlugin
 public class ModIntegrationJEI implements IModPlugin {
-    public static final String CATEGORY_PREVIEW = "modularmachinery.preview";
-    public static final List<StructurePreviewWrapper> PREVIEW_WRAPPERS = Lists.newArrayList();
-    private static final Map<DynamicMachine, CategoryDynamicRecipe> RECIPE_CATEGORIES = new HashMap<>();
+    public static final  String                                                           CATEGORY_PREVIEW        = "modularmachinery.preview";
+    public static final  List<StructurePreviewWrapper>                                    PREVIEW_WRAPPERS        = Lists.newArrayList();
+    private static final Map<DynamicMachine, CategoryDynamicRecipe>                       RECIPE_CATEGORIES       = new HashMap<>();
     private static final Map<DynamicMachine, Map<ResourceLocation, DynamicRecipeWrapper>> MACHINE_RECIPE_WRAPPERS = new HashMap<>();
 
     public static Field inputHandler = null;
     public static Field bookmarkList = null;
 
-    public static IStackHelper stackHelper;
-    public static IJeiHelpers jeiHelpers;
+    public static IStackHelper        stackHelper;
+    public static IJeiHelpers         jeiHelpers;
     public static IIngredientRegistry ingredientRegistry;
-    public static IRecipeRegistry recipeRegistry;
-    public static IJeiRuntime jeiRuntime;
+    public static IRecipeRegistry     recipeRegistry;
+    public static IJeiRuntime         jeiRuntime;
 
     static {
         // I Just want to get the BookmarkList...
@@ -98,6 +107,9 @@ public class ModIntegrationJEI implements IModPlugin {
             Iterable<MachineRecipe> recipes = RecipeRegistry.getRecipesFor(machine);
             Map<ResourceLocation, DynamicRecipeWrapper> wrappers = MACHINE_RECIPE_WRAPPERS.computeIfAbsent(machine, v -> new LinkedHashMap<>());
             for (MachineRecipe recipe : recipes) {
+                if (!recipe.getLoadJEI()) {
+                    continue;
+                }
                 DynamicRecipeWrapper wrapper = wrappers.get(recipe.getRegistryName());
                 if (wrapper != null) {
                     wrapper.reloadWrapper(recipe);
@@ -202,22 +214,25 @@ public class ModIntegrationJEI implements IModPlugin {
             Iterable<MachineRecipe> recipes = RecipeRegistry.getRecipesFor(machine);
             Map<ResourceLocation, DynamicRecipeWrapper> wrappers = MACHINE_RECIPE_WRAPPERS.computeIfAbsent(machine, v -> new LinkedHashMap<>());
             for (MachineRecipe recipe : recipes) {
+                if (!recipe.getLoadJEI()) {
+                    continue;
+                }
                 wrappers.put(recipe.getRegistryName(), new DynamicRecipeWrapper(recipe));
             }
             registry.addRecipes(wrappers.values(), getCategoryStringFor(machine));
         }
 
         BlockController.MACHINE_CONTROLLERS.values().forEach(controller ->
-                registry.addRecipeCatalyst(new ItemStack(controller),
-                        getCategoryStringFor(controller.getParentMachine()))
+            registry.addRecipeCatalyst(new ItemStack(controller),
+                getCategoryStringFor(controller.getParentMachine()))
         );
         BlockController.MOC_MACHINE_CONTROLLERS.values().forEach(controller ->
-                registry.addRecipeCatalyst(new ItemStack(controller),
-                        getCategoryStringFor(controller.getParentMachine()))
+            registry.addRecipeCatalyst(new ItemStack(controller),
+                getCategoryStringFor(controller.getParentMachine()))
         );
         BlockFactoryController.FACTORY_CONTROLLERS.values().forEach(controller ->
-                registry.addRecipeCatalyst(new ItemStack(controller),
-                        getCategoryStringFor(controller.getParentMachine()))
+            registry.addRecipeCatalyst(new ItemStack(controller),
+                getCategoryStringFor(controller.getParentMachine()))
         );
     }
 

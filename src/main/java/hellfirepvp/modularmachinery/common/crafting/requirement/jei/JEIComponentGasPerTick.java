@@ -7,11 +7,11 @@ import hellfirepvp.modularmachinery.common.machine.IOType;
 import mekanism.api.gas.GasStack;
 import net.minecraft.client.resources.I18n;
 
-import java.awt.Point;
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
-public class JEIComponentGasPerTick  extends ComponentRequirement.JEIComponent<GasStack> {
+public class JEIComponentGasPerTick extends ComponentRequirement.JEIComponent<GasStack> {
     private final RequirementGasPerTick requirement;
 
     public JEIComponentGasPerTick(RequirementGasPerTick requirement) {

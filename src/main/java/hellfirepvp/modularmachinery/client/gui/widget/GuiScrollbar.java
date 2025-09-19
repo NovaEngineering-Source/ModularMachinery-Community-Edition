@@ -10,12 +10,12 @@ public class GuiScrollbar {
 
     private int displayX = 0;
     private int displayY = 0;
-    private int width = 12;
-    private int height = 16;
+    private int width    = 12;
+    private int height   = 16;
     private int pageSize = 1;
 
-    private int maxScroll = 0;
-    private int minScroll = 0;
+    private int maxScroll     = 0;
+    private int minScroll     = 0;
     private int currentScroll = 0;
 
     public void draw(final GuiScreen g, Minecraft mc) {

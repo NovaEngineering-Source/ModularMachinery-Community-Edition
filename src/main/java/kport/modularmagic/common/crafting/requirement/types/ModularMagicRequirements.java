@@ -9,17 +9,17 @@ import java.util.ArrayList;
 
 public class ModularMagicRequirements {
 
-    public static final ResourceLocation KEY_REQUIREMENT_ASPECT = new ResourceLocation(ModularMachinery.MODID, "aspect");
-    public static final ResourceLocation KEY_REQUIREMENT_AURA = new ResourceLocation(ModularMachinery.MODID, "aura");
-    public static final ResourceLocation KEY_REQUIREMENT_CONSTELLATION = new ResourceLocation(ModularMachinery.MODID, "constellation");
-    public static final ResourceLocation KEY_REQUIREMENT_GRID = new ResourceLocation(ModularMachinery.MODID, "grid");
-    public static final ResourceLocation KEY_REQUIREMENT_LIFE_ESSENCE = new ResourceLocation(ModularMachinery.MODID, "lifeessence");
-    public static final ResourceLocation KEY_REQUIREMENT_RAINBOW = new ResourceLocation(ModularMachinery.MODID, "rainbow");
-    public static final ResourceLocation KEY_REQUIREMENT_STARLIGHT = new ResourceLocation(ModularMachinery.MODID, "starlight");
-    public static final ResourceLocation KEY_REQUIREMENT_WILL = new ResourceLocation(ModularMachinery.MODID, "will");
-    public static final ResourceLocation KEY_REQUIREMENT_MANA = new ResourceLocation(ModularMachinery.MODID, "mana");
-    public static final ResourceLocation KEY_REQUIREMENT_IMPETUS = new ResourceLocation(ModularMachinery.MODID, "impetus");
-    public static final ArrayList<RequirementType<?, ?>> REQUIREMENTS = new ArrayList<>();
+    public static final ResourceLocation                 KEY_REQUIREMENT_ASPECT        = new ResourceLocation(ModularMachinery.MODID, "aspect");
+    public static final ResourceLocation                 KEY_REQUIREMENT_AURA          = new ResourceLocation(ModularMachinery.MODID, "aura");
+    public static final ResourceLocation                 KEY_REQUIREMENT_CONSTELLATION = new ResourceLocation(ModularMachinery.MODID, "constellation");
+    public static final ResourceLocation                 KEY_REQUIREMENT_GRID          = new ResourceLocation(ModularMachinery.MODID, "grid");
+    public static final ResourceLocation                 KEY_REQUIREMENT_LIFE_ESSENCE  = new ResourceLocation(ModularMachinery.MODID, "lifeessence");
+    public static final ResourceLocation                 KEY_REQUIREMENT_RAINBOW       = new ResourceLocation(ModularMachinery.MODID, "rainbow");
+    public static final ResourceLocation                 KEY_REQUIREMENT_STARLIGHT     = new ResourceLocation(ModularMachinery.MODID, "starlight");
+    public static final ResourceLocation                 KEY_REQUIREMENT_WILL          = new ResourceLocation(ModularMachinery.MODID, "will");
+    public static final ResourceLocation                 KEY_REQUIREMENT_MANA          = new ResourceLocation(ModularMachinery.MODID, "mana");
+    public static final ResourceLocation                 KEY_REQUIREMENT_IMPETUS       = new ResourceLocation(ModularMachinery.MODID, "impetus");
+    public static final ArrayList<RequirementType<?, ?>> REQUIREMENTS                  = new ArrayList<>();
 
     public static void initRequirements() {
         if (Mods.ASTRAL_SORCERY.isPresent()) {

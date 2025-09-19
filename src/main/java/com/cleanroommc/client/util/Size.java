@@ -26,11 +26,15 @@ public class Size {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Size)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Size)) {
+            return false;
+        }
         Size size = (Size) o;
         return width == size.width &&
-                height == size.height;
+            height == size.height;
     }
 
     @Override
@@ -41,8 +45,8 @@ public class Size {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("width", width)
-                .add("height", height)
-                .toString();
+                          .add("width", width)
+                          .add("height", height)
+                          .toString();
     }
 }

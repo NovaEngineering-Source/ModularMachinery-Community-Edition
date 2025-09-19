@@ -30,8 +30,8 @@ import javax.vecmath.Vector3f;
  */
 @SideOnly(Side.CLIENT)
 public class FBOWorldSceneRenderer extends WorldSceneRenderer {
-    private int resolutionWidth = 1080;
-    private int resolutionHeight = 1080;
+    private int         resolutionWidth  = 1080;
+    private int         resolutionHeight = 1080;
     private Framebuffer fbo;
 
     public FBOWorldSceneRenderer(LRDummyWorld world, int resolutionWidth, int resolutionHeight) {
@@ -73,7 +73,7 @@ public class FBOWorldSceneRenderer extends WorldSceneRenderer {
         return looking;
     }
 
-    public Vector3f blockPos2ScreenPos(BlockPos pos, boolean depth){
+    public Vector3f blockPos2ScreenPos(BlockPos pos, boolean depth) {
         int lastID = bindFBO();
         Vector3f winPos = super.blockPos2ScreenPos(pos, depth, 0, 0, this.resolutionWidth, this.resolutionHeight);
         unbindFBO(lastID);
@@ -92,7 +92,7 @@ public class FBOWorldSceneRenderer extends WorldSceneRenderer {
         GlStateManager.disableLighting();
         lastID = GL11.glGetInteger(GL11.GL_TEXTURE_2D);
         GlStateManager.bindTexture(fbo.framebufferTexture);
-        GlStateManager.color(1,1,1,1);
+        GlStateManager.color(1, 1, 1, 1);
 
         // render rect with FBO texture
         Tessellator tessellator = Tessellator.getInstance();
@@ -112,7 +112,7 @@ public class FBOWorldSceneRenderer extends WorldSceneRenderer {
         render(x, y, width, height, (float) mouseX, (float) mouseY, traceBlock);
     }
 
-    private int bindFBO(){
+    private int bindFBO() {
         int lastID = GL11.glGetInteger(EXTFramebufferObject.GL_FRAMEBUFFER_BINDING_EXT);
         fbo.setFramebufferColor(0.0F, 0.0F, 0.0F, 0.0F);
         fbo.framebufferClear();
@@ -121,7 +121,7 @@ public class FBOWorldSceneRenderer extends WorldSceneRenderer {
         return lastID;
     }
 
-    private void unbindFBO(int lastID){
+    private void unbindFBO(int lastID) {
         GlStateManager.popMatrix();
         fbo.unbindFramebufferTexture();
         OpenGlHelper.glBindFramebuffer(OpenGlHelper.GL_FRAMEBUFFER, lastID);

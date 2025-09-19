@@ -8,6 +8,7 @@
 
 package hellfirepvp.modularmachinery.common.network;
 
+import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.client.gui.GuiContainerFluidHatch;
 import hellfirepvp.modularmachinery.common.container.ContainerFluidHatch;
 import hellfirepvp.modularmachinery.common.tiles.base.TileFluidTank;
@@ -16,6 +17,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidActionResult;
@@ -73,21 +75,30 @@ public class PktInteractFluidTankGui implements IMessage, IMessageHandler<PktInt
     public IMessage onMessage(PktInteractFluidTankGui pkt, MessageContext ctx) {
         if (ctx.side == Side.SERVER) {
             FMLCommonHandler.instance().getMinecraftServerInstance().addScheduledTask(() -> {
-                EntityPlayer player = ctx.getServerHandler().player;
-                if (player.openContainer instanceof ContainerFluidHatch) {
-                    TileFluidTank hatch = ((ContainerFluidHatch) player.openContainer).getOwner();
-                    ItemStack holding = player.inventory.getItemStack();
-                    if (!holding.isEmpty()) {
-                        FluidActionResult fas = FluidUtil.tryEmptyContainer(holding, hatch.getTank(), Fluid.BUCKET_VOLUME, player, true);
-                        if (fas.isSuccess()) {
-                            player.inventory.setItemStack(fas.getResult());
-                        }
-                    }
+                EntityPlayerMP player = ctx.getServerHandler().player;
+                if (!(player.openContainer instanceof ContainerFluidHatch fluidHatch)) {
+                    return;
                 }
+
+                TileFluidTank hatch = fluidHatch.getOwner();
+                ItemStack holding = player.inventory.getItemStack();
+                if (holding.isEmpty()) {
+                    return;
+                }
+
+                FluidActionResult fas = FluidUtil.tryEmptyContainer(holding, hatch.getTank(), Fluid.BUCKET_VOLUME, player, true);
+                if (!fas.isSuccess()) {
+                    return;
+                }
+
+                ItemStack result = fas.getResult();
+                player.inventory.setItemStack(result);
+                ModularMachinery.NET_CHANNEL.sendTo(new PktInteractFluidTankGui(result), player);
             });
-        } else {
-            updateClientHand(pkt);
+            return null;
         }
+
+        updateClientHand(pkt);
         return null;
     }
 }

@@ -9,10 +9,21 @@
 package hellfirepvp.modularmachinery.common.registry;
 
 import hellfirepvp.modularmachinery.common.CommonProxy;
-import hellfirepvp.modularmachinery.common.crafting.tooltip.*;
+import hellfirepvp.modularmachinery.common.crafting.tooltip.RequirementTip;
+import hellfirepvp.modularmachinery.common.crafting.tooltip.TooltipEnergyInput;
+import hellfirepvp.modularmachinery.common.crafting.tooltip.TooltipEnergyOutput;
+import hellfirepvp.modularmachinery.common.crafting.tooltip.TooltipFuelInput;
+import hellfirepvp.modularmachinery.common.crafting.tooltip.TooltipInterfaceNumberInput;
 import net.minecraft.util.ResourceLocation;
 
-import static hellfirepvp.modularmachinery.common.lib.RequirementTipsMM.*;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTipsMM.TIP_ENERGY_INPUT;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTipsMM.TIP_ENERGY_INPUT_NAME;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTipsMM.TIP_ENERGY_OUTPUT;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTipsMM.TIP_ENERGY_OUTPUT_NAME;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTipsMM.TIP_FUEL_INPUT;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTipsMM.TIP_FUEL_INPUT_NAME;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTipsMM.TIP_SMART_INTERFACE_NUMBER_INPUT;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTipsMM.TIP_SMART_INTERFACE_NUMBER_INPUT_NAME;
 
 /**
  * This class is part of the Astral Sorcery Mod

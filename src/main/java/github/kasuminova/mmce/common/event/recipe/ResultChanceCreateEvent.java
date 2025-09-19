@@ -6,8 +6,8 @@ import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineContr
 import hellfirepvp.modularmachinery.common.util.ResultChance;
 
 public class ResultChanceCreateEvent extends RecipeEvent {
-    public final Phase phase;
-    private ResultChance resultChance;
+    public final Phase        phase;
+    private      ResultChance resultChance;
 
     public ResultChanceCreateEvent(final TileMultiblockMachineController controller,
                                    final RecipeCraftingContext context,

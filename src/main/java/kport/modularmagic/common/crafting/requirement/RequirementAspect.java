@@ -27,9 +27,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class RequirementAspect extends ComponentRequirement.MultiCompParallelizable<AspectList, RequirementTypeAspect>
-        implements Asyncable, ComponentRequirement.Parallelizable {
+    implements Asyncable, ComponentRequirement.Parallelizable {
 
-    public int amount;
+    public int    amount;
     public Aspect aspect;
 
     public RequirementAspect(IOType actionType, int amount, Aspect aspect) {
@@ -52,8 +52,8 @@ public class RequirementAspect extends ComponentRequirement.MultiCompParalleliza
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.getComponent();
         return cmp.getComponentType() instanceof ComponentAspect &&
-                cmp instanceof MachineComponentAspectProvider &&
-                cmp.ioType == getActionType();
+            cmp instanceof MachineComponentAspectProvider &&
+            cmp.ioType == getActionType();
     }
 
     @Nonnull
@@ -63,9 +63,9 @@ public class RequirementAspect extends ComponentRequirement.MultiCompParalleliza
         List<ProcessingComponent<?>> list = new ArrayList<>();
         for (final ProcessingComponent<?> component : components) {
             list.add(new ProcessingComponent<>((
-                    MachineComponent<Object>) component.component(),
-                    new AspectProviderCopy(((AspectProviderCopy) component.providedComponent()).getOriginal()),
-                    component.tag())
+                MachineComponent<Object>) component.component(),
+                new AspectProviderCopy(((AspectProviderCopy) component.providedComponent()).getOriginal()),
+                component.tag())
             );
         }
         return list;

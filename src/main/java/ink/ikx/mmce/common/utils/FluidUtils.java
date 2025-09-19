@@ -5,7 +5,11 @@ import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.*;
+import net.minecraftforge.fluids.BlockFluidBase;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 
 import java.util.Arrays;
@@ -32,7 +36,9 @@ public class FluidUtils {
     public static boolean equalsFluidFromStack(ItemStack stackA, ItemStack stackB) {
         FluidStack fluidA = getFluidFromHandler(stackA);
         FluidStack fluidB = getFluidFromHandler(stackB);
-        if (MiscUtils.areNull(fluidA, fluidB)) return false;
+        if (MiscUtils.areNull(fluidA, fluidB)) {
+            return false;
+        }
         return fluidA.containsFluid(fluidB);
     }
 

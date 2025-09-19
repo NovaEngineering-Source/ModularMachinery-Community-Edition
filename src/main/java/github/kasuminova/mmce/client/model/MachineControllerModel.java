@@ -10,7 +10,7 @@ import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 public class MachineControllerModel extends AnimatedGeoModel<TileMultiblockMachineController> {
-    protected final String modelName;
+    protected final String           modelName;
     protected final ResourceLocation modelLocation;
     protected final ResourceLocation textureLocation;
     protected final ResourceLocation animationFileLocation;

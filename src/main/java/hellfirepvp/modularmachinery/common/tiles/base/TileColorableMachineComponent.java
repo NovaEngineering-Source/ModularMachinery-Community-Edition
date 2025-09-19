@@ -8,6 +8,8 @@
 
 package hellfirepvp.modularmachinery.common.tiles.base;
 
+import github.kasuminova.mmce.common.util.Sides;
+import hellfirepvp.modularmachinery.client.ClientProxy;
 import hellfirepvp.modularmachinery.common.data.Config;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
@@ -50,11 +52,13 @@ public class TileColorableMachineComponent extends TileEntitySynchronized implem
         int newColor = compound.getInteger("casingColor");
         if (definedColor != newColor) {
             definedColor = newColor;
-            World world = getWorld();
-            //noinspection ConstantValue
-            if (world != null) {
-                world.addBlockEvent(pos, world.getBlockState(pos).getBlock(), 1, 1);
-            }
+            Sides.CLIENT.runIfPresent(() -> ClientProxy.clientScheduler.addRunnable(() -> {
+                World world = getWorld();
+                //noinspection ConstantValue
+                if (world != null) {
+                    world.addBlockEvent(pos, world.getBlockState(pos).getBlock(), 1, 1);
+                }
+            }, 0));
         }
     }
 

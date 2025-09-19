@@ -30,8 +30,9 @@ public class BlockGridProviderOutput extends BlockMachineComponent {
     @Override
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
         TileGridProvider tile = (TileGridProvider) worldIn.getTileEntity(pos);
-        if (tile != null)
+        if (tile != null) {
             tile.onBlockPlacedBy(worldIn, pos, state, placer, stack, null);
+        }
     }
 
     @Override

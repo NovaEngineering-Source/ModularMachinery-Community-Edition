@@ -13,13 +13,15 @@ public class DemonWillHelper<T extends DemonWill> implements IIngredientHelper<T
     @Nullable
     @Override
     public T getMatch(Iterable<T> ingredients, T ingredientToMatch) {
-        if (Iterables.isEmpty(ingredients))
+        if (Iterables.isEmpty(ingredients)) {
             return null;
+        }
 
         EnumDemonWillType willTypeToMatch = ingredientToMatch.getWillType();
         for (T demonWill : ingredients) {
-            if (demonWill.getWillType() == willTypeToMatch)
+            if (demonWill.getWillType() == willTypeToMatch) {
                 return demonWill;
+            }
         }
         return null;
     }

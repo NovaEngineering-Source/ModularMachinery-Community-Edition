@@ -9,7 +9,13 @@
 package hellfirepvp.modularmachinery.common.crafting.adapter;
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import crafttweaker.util.IEventHandler;
 import github.kasuminova.mmce.common.event.machine.IEventHandler;
 import github.kasuminova.mmce.common.event.recipe.RecipeEvent;
 import hellfirepvp.modularmachinery.ModularMachinery;
@@ -20,7 +26,12 @@ import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
 import net.minecraft.util.ResourceLocation;
 
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -32,10 +43,10 @@ import java.util.*;
 public class RecipeAdapterAccessor {
 
     private final ResourceLocation owningMachine, adapterKey;
-    private final List<RecipeModifier> modifiers;
-    private final List<ComponentRequirement<?, ?>> additionalRecipeRequirements;
+    private final List<RecipeModifier>                            modifiers;
+    private final List<ComponentRequirement<?, ?>>                additionalRecipeRequirements;
     private final Map<Class<?>, List<IEventHandler<RecipeEvent>>> recipeEventHandlers;
-    private final List<String> tooltipList;
+    private final List<String>                                    tooltipList;
 
     private final List<MachineRecipe> cacheLoaded = new LinkedList<>();
 
@@ -86,12 +97,12 @@ public class RecipeAdapterAccessor {
     public List<MachineRecipe> loadRecipesForAdapter() {
         cacheLoaded.clear();
         Collection<MachineRecipe> recipes = RecipeAdapterRegistry.createRecipesFor(
-                owningMachine,
-                adapterKey,
-                modifiers,
-                additionalRecipeRequirements,
-                recipeEventHandlers,
-                tooltipList);
+            owningMachine,
+            adapterKey,
+            modifiers,
+            additionalRecipeRequirements,
+            recipeEventHandlers,
+            tooltipList);
 
         if (recipes != null) {
             cacheLoaded.addAll(recipes);

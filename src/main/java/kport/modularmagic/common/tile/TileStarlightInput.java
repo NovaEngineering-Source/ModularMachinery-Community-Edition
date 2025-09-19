@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 public class TileStarlightInput extends TileReceiverBase implements MachineComponentTile, ColorableMachineTile {
 
     private int starlightAmount = 0;
-    private int color = Config.machineColor;
+    private int color           = Config.machineColor;
 
     @Override
     public int getMachineColor() {

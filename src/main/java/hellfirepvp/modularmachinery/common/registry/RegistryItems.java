@@ -10,7 +10,11 @@ package hellfirepvp.modularmachinery.common.registry;
 
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.CommonProxy;
-import hellfirepvp.modularmachinery.common.item.*;
+import hellfirepvp.modularmachinery.common.item.ItemBlockCustomName;
+import hellfirepvp.modularmachinery.common.item.ItemBlueprint;
+import hellfirepvp.modularmachinery.common.item.ItemConstructTool;
+import hellfirepvp.modularmachinery.common.item.ItemDynamicColor;
+import hellfirepvp.modularmachinery.common.item.ItemModularium;
 import net.minecraft.item.Item;
 import youyihj.mmce.common.item.MachineProjector;
 
@@ -18,7 +22,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static hellfirepvp.modularmachinery.common.lib.ItemsMM.*;
+import static hellfirepvp.modularmachinery.common.lib.ItemsMM.blueprint;
+import static hellfirepvp.modularmachinery.common.lib.ItemsMM.constructTool;
+import static hellfirepvp.modularmachinery.common.lib.ItemsMM.modularium;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -29,10 +35,10 @@ import static hellfirepvp.modularmachinery.common.lib.ItemsMM.*;
  */
 public class RegistryItems {
 
-    public static final List<ItemDynamicColor> pendingDynamicColorItems = new LinkedList<>();
-    protected static final List<Item> ITEM_BLOCKS = new ArrayList<>();
-    protected static final List<Item> ITEM_BLOCKS_WITH_CUSTOM_NAME = new ArrayList<>();
-    protected static final List<Item> ITEM_MODEL_REGISTER = new ArrayList<>();
+    public static final    List<ItemDynamicColor> pendingDynamicColorItems     = new LinkedList<>();
+    protected static final List<Item>             ITEM_BLOCKS                  = new ArrayList<>();
+    protected static final List<Item>             ITEM_BLOCKS_WITH_CUSTOM_NAME = new ArrayList<>();
+    protected static final List<Item>             ITEM_MODEL_REGISTER          = new ArrayList<>();
 
     public static void initialize() {
         blueprint = prepareRegister(new ItemBlueprint());
@@ -71,8 +77,8 @@ public class RegistryItems {
 
     private static void registerItemModels() {
         ITEM_MODEL_REGISTER.stream()
-                .filter(item -> !(item instanceof ItemBlockCustomName))
-                .forEach(ModularMachinery.proxy::registerItemModel);
+                           .filter(item -> !(item instanceof ItemBlockCustomName))
+                           .forEach(ModularMachinery.proxy::registerItemModel);
     }
 
     private static void registerCustomNameItemBlocks() {

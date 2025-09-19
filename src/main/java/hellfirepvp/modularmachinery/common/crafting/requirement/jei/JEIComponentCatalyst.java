@@ -1,7 +1,6 @@
 package hellfirepvp.modularmachinery.common.crafting.requirement.jei;
 
 import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementCatalyst;
-import hellfirepvp.modularmachinery.common.integration.ingredient.IngredientItemStack;
 import hellfirepvp.modularmachinery.common.integration.recipe.RecipeLayoutPart;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;

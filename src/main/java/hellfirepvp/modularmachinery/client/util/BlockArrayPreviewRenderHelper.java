@@ -16,7 +16,11 @@ import hellfirepvp.modularmachinery.common.util.MiscUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GLAllocation;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -24,7 +28,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
@@ -41,15 +49,15 @@ import java.util.Map;
  */
 public class BlockArrayPreviewRenderHelper {
 
-    private static int hash = -1;
-    private static int batchDList = -1;
-    private BlockArrayRenderHelper renderHelper = null;
-    private BlockArray matchArray = null;
-    private Vec3i renderHelperOffset = null;
-    private DynamicMachine machine = null;
-    private BlockPos attachedPosition = null;
-    private int renderedLayer = -1;
-    private DynamicMachineRenderContext context = null;
+    private static int                         hash               = -1;
+    private static int                         batchDList         = -1;
+    private        BlockArrayRenderHelper      renderHelper       = null;
+    private        BlockArray                  matchArray         = null;
+    private        Vec3i                       renderHelperOffset = null;
+    private        DynamicMachine              machine            = null;
+    private        BlockPos                    attachedPosition   = null;
+    private        int                         renderedLayer      = -1;
+    private        DynamicMachineRenderContext context            = null;
 
     @Nullable
     private static RayTraceResult getLookBlock(Entity e, boolean stopTraceOnLiquids, boolean ignoreBlockWithoutBoundingBox, double range) {
@@ -122,7 +130,7 @@ public class BlockArrayPreviewRenderHelper {
     public void tick() {
         if (attachedPosition != null) {
             if (Minecraft.getMinecraft().player != null &&
-                    Minecraft.getMinecraft().player.getDistanceSqToCenter(attachedPosition) >= 1024) {
+                Minecraft.getMinecraft().player.getDistanceSqToCenter(attachedPosition) >= 1024) {
                 clearSelection();
             }
 
@@ -146,7 +154,9 @@ public class BlockArrayPreviewRenderHelper {
 
         float partialTicks = Minecraft.getMinecraft().getRenderPartialTicks();
         Entity rView = Minecraft.getMinecraft().getRenderViewEntity();
-        if (rView == null) rView = Minecraft.getMinecraft().player;
+        if (rView == null) {
+            rView = Minecraft.getMinecraft().player;
+        }
         Entity entity = rView;
         double tx = entity.lastTickPosX + ((entity.posX - entity.lastTickPosX) * partialTicks);
         double ty = entity.lastTickPosY + ((entity.posY - entity.lastTickPosY) * partialTicks);
@@ -245,7 +255,7 @@ public class BlockArrayPreviewRenderHelper {
             BlockArrayRenderHelper.SampleRenderState state = renderData.getSampleState();
 
             if (Minecraft.getMinecraft().world != null &&
-                    matchPattern.getPattern().get(offset.subtract(move)).matches(Minecraft.getMinecraft().world, offset, false)) {
+                matchPattern.getPattern().get(offset.subtract(move)).matches(Minecraft.getMinecraft().world, offset, false)) {
                 continue;
             }
             if (state.state.getBlock() != Blocks.AIR) {

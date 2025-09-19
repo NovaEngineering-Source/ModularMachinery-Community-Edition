@@ -34,7 +34,7 @@ public enum FluidHatchSize implements IStringSerializable {
     VACUUM(32000);
 
     private final int defaultConfigurationValue;
-    private int size;
+    private       int size;
 
     FluidHatchSize(int defaultConfigurationValue) {
         this.defaultConfigurationValue = defaultConfigurationValue;

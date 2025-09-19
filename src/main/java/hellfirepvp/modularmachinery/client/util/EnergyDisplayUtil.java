@@ -20,9 +20,9 @@ import net.minecraftforge.common.config.Configuration;
  */
 public class EnergyDisplayUtil {
 
-    public static boolean displayFETooltip = true;
+    public static boolean displayFETooltip    = true;
     public static boolean displayIC2EUTooltip = true;
-    public static boolean displayGTEUTooltip = true;
+    public static boolean displayGTEUTooltip  = true;
 
     //Available: FE, RF, IC2_EU, GT_EU
     public static EnergyType type = EnergyType.FE;

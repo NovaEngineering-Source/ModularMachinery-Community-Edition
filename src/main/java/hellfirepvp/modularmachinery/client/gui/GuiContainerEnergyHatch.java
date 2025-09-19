@@ -59,9 +59,9 @@ public class GuiContainerEnergyHatch extends GuiContainerBase<ContainerEnergyHat
 
             List<String> text = Lists.newArrayList();
             text.add(I18n.format("tooltip.energyhatch.charge",
-                    MiscUtils.formatNumber(currentEnergy),
-                    MiscUtils.formatNumber(maxEnergy),
-                    I18n.format(EnergyDisplayUtil.type.getUnlocalizedFormat())));
+                MiscUtils.formatNumber(currentEnergy),
+                MiscUtils.formatNumber(maxEnergy),
+                I18n.format(EnergyDisplayUtil.type.getUnlocalizedFormat())));
 
             FontRenderer font = Minecraft.getMinecraft().fontRenderer;
             drawHoveringText(text, x, z, (font == null ? fontRenderer : font));

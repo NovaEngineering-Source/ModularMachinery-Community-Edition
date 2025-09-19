@@ -39,12 +39,12 @@ public class BlockEnergyOutputHatch extends BlockEnergyHatch {
     @Optional.Method(modid = "gregtech")
     protected void addGTTooltip(List<String> tooltip, EnergyHatchData size) {
         tooltip.add(TextFormatting.GRAY + I18n.format("tooltip.energyhatch.gregtech.voltage.out",
-                MiscUtils.formatDecimal(size.getGTEnergyTransferVoltage()),
-                size.getUnlocalizedGTEnergyTier()));
+            MiscUtils.formatDecimal(size.getGTEnergyTransferVoltage()),
+            size.getUnlocalizedGTEnergyTier()));
         tooltip.add(TextFormatting.GRAY + I18n.format("tooltip.energyhatch.gregtech.amperage",
-                String.valueOf(size.getGtAmperage())));
+            String.valueOf(size.getGtAmperage())));
         tooltip.add(TextFormatting.GRAY + I18n.format("tooltip.energyhatch.gregtech.storage",
-                MiscUtils.formatDecimal(EnergyDisplayUtil.EnergyType.GT_EU.formatEnergyForDisplay(size.maxEnergy))));
+            MiscUtils.formatDecimal(EnergyDisplayUtil.EnergyType.GT_EU.formatEnergyForDisplay(size.maxEnergy))));
     }
 
     @Override
@@ -58,10 +58,10 @@ public class BlockEnergyOutputHatch extends BlockEnergyHatch {
         }
         if (Mods.IC2.isPresent() && EnergyDisplayUtil.displayIC2EUTooltip) {
             tooltip.add(TextFormatting.GRAY + I18n.format("tooltip.energyhatch.ic2.out.voltage",
-                    TextFormatting.BLUE + I18n.format(size.getUnlocalizedEnergyDescriptor())));
+                TextFormatting.BLUE + I18n.format(size.getUnlocalizedEnergyDescriptor())));
             tooltip.add(TextFormatting.GRAY + I18n.format("tooltip.energyhatch.ic2.out.transfer",
-                    TextFormatting.BLUE + MiscUtils.formatDecimal(size.getIC2EnergyTransmission()),
-                    TextFormatting.BLUE + I18n.format("tooltip.energyhatch.ic2.powerrate")));
+                TextFormatting.BLUE + MiscUtils.formatDecimal(size.getIC2EnergyTransmission()),
+                TextFormatting.BLUE + I18n.format("tooltip.energyhatch.ic2.powerrate")));
             tooltip.add("");
         }
         if (Mods.GREGTECH.isPresent() && EnergyDisplayUtil.displayGTEUTooltip) {

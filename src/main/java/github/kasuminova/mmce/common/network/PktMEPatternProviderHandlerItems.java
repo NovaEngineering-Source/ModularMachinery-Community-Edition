@@ -27,9 +27,9 @@ import java.util.stream.IntStream;
 
 public class PktMEPatternProviderHandlerItems implements IMessage, IMessageHandler<PktMEPatternProviderHandlerItems, IMessage> {
 
-    private final List<ItemStack> itemStackList = new ArrayList<>();
+    private final List<ItemStack>  itemStackList  = new ArrayList<>();
     private final List<FluidStack> fluidStackList = new ArrayList<>();
-    private final List<?> gasStackList = new ArrayList<>();
+    private final List<?>          gasStackList   = new ArrayList<>();
 
     public PktMEPatternProviderHandlerItems() {
     }
@@ -37,14 +37,26 @@ public class PktMEPatternProviderHandlerItems implements IMessage, IMessageHandl
     public PktMEPatternProviderHandlerItems(final MEPatternProvider patternProvider) {
         InfItemFluidHandler infHandler = patternProvider.getInfHandler();
         infHandler.getItemStackList().stream()
-                .filter(stack -> !stack.isEmpty())
-                .forEach(itemStackList::add);
+                  .filter(stack -> !stack.isEmpty())
+                  .forEach(itemStackList::add);
         infHandler.getFluidStackList().stream()
-                .filter(Objects::nonNull)
-                .forEach(fluidStackList::add);
+                  .filter(Objects::nonNull)
+                  .forEach(fluidStackList::add);
         if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
             addGasToList(infHandler);
         }
+    }
+
+    @SideOnly(Side.CLIENT)
+    protected static void processPacket(final PktMEPatternProviderHandlerItems message) {
+        List<ItemStack> itemStackList = message.itemStackList;
+        List<FluidStack> fluidStackList = message.fluidStackList;
+        List<?> gasStackList = message.gasStackList;
+        GuiScreen cur = Minecraft.getMinecraft().currentScreen;
+        if (!(cur instanceof GuiMEPatternProvider patternProvider)) {
+            return;
+        }
+        Minecraft.getMinecraft().addScheduledTask(() -> patternProvider.setStackList(itemStackList, fluidStackList, gasStackList));
     }
 
     @SuppressWarnings("unchecked")
@@ -52,24 +64,24 @@ public class PktMEPatternProviderHandlerItems implements IMessage, IMessageHandl
     private void addGasToList(final InfItemFluidHandler infHandler) {
         List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;
         infHandler.getGasStackList().stream()
-                .filter(Objects::nonNull)
-                .map(GasStack.class::cast)
-                .forEach(gasStackList::add);
+                  .filter(Objects::nonNull)
+                  .map(GasStack.class::cast)
+                  .forEach(gasStackList::add);
     }
 
     @Override
     public void fromBytes(final ByteBuf buf) {
         int itemStackListSize = buf.readInt();
         IntStream.range(0, itemStackListSize)
-                .mapToObj(i -> ByteBufUtils.readItemStack(buf))
-                .filter(read -> !read.isEmpty())
-                .forEach(itemStackList::add);
+                 .mapToObj(i -> ByteBufUtils.readItemStack(buf))
+                 .filter(read -> !read.isEmpty())
+                 .forEach(itemStackList::add);
 
         int fluidStackListSize = buf.readInt();
         IntStream.range(0, fluidStackListSize)
-                .mapToObj(i -> FluidStack.loadFluidStackFromNBT(ByteBufUtils.readTag(buf)))
-                .filter(Objects::nonNull)
-                .forEach(fluidStackList::add);
+                 .mapToObj(i -> FluidStack.loadFluidStackFromNBT(ByteBufUtils.readTag(buf)))
+                 .filter(Objects::nonNull)
+                 .forEach(fluidStackList::add);
 
         if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
             fromBytesMekGas(buf);
@@ -83,9 +95,9 @@ public class PktMEPatternProviderHandlerItems implements IMessage, IMessageHandl
 
         int gasStackListSize = buf.readInt();
         IntStream.range(0, gasStackListSize)
-                .mapToObj(i -> GasStack.readFromNBT(ByteBufUtils.readTag(buf)))
-                .filter(Objects::nonNull)
-                .forEach(gasStackList::add);
+                 .mapToObj(i -> GasStack.readFromNBT(ByteBufUtils.readTag(buf)))
+                 .filter(Objects::nonNull)
+                 .forEach(gasStackList::add);
     }
 
     @Override
@@ -95,7 +107,7 @@ public class PktMEPatternProviderHandlerItems implements IMessage, IMessageHandl
 
         buf.writeInt(fluidStackList.size());
         fluidStackList.forEach(stack -> ByteBufUtils.writeTag(buf, stack.writeToNBT(new NBTTagCompound())));
-        
+
         if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
             toBytesMekGas(buf);
         }
@@ -116,18 +128,6 @@ public class PktMEPatternProviderHandlerItems implements IMessage, IMessageHandl
             processPacket(message);
         }
         return null;
-    }
-
-    @SideOnly(Side.CLIENT)
-    protected static void processPacket(final PktMEPatternProviderHandlerItems message) {
-        List<ItemStack> itemStackList = message.itemStackList;
-        List<FluidStack> fluidStackList = message.fluidStackList;
-        List<?> gasStackList = message.gasStackList;
-        GuiScreen cur = Minecraft.getMinecraft().currentScreen;
-        if (!(cur instanceof GuiMEPatternProvider patternProvider)) {
-            return;
-        }
-        Minecraft.getMinecraft().addScheduledTask(() -> patternProvider.setStackList(itemStackList, fluidStackList, gasStackList));
     }
 
 }

@@ -13,8 +13,8 @@ import java.util.List;
 public abstract class GuiScreenDynamic extends GuiScreen {
 
     protected WidgetController widgetController;
-    protected int guiLeft;
-    protected int guiTop;
+    protected int              guiLeft;
+    protected int              guiTop;
 
     @Override
     public void updateScreen() {

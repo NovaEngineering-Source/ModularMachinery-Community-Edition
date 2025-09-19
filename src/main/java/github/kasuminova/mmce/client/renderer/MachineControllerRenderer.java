@@ -1,5 +1,6 @@
 package github.kasuminova.mmce.client.renderer;
 
+import com.cleanroommc.client.shader.ShaderManager;
 import github.kasuminova.mmce.client.model.MachineControllerModel;
 import github.kasuminova.mmce.client.model.StaticModelBones;
 import github.kasuminova.mmce.client.util.BufferProvider;
@@ -22,7 +23,11 @@ import org.lwjgl.opengl.GL11;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.IAnimatableModel;
 import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.geo.render.built.*;
+import software.bernie.geckolib3.geo.render.built.GeoBone;
+import software.bernie.geckolib3.geo.render.built.GeoCube;
+import software.bernie.geckolib3.geo.render.built.GeoModel;
+import software.bernie.geckolib3.geo.render.built.GeoQuad;
+import software.bernie.geckolib3.geo.render.built.GeoVertex;
 
 import javax.annotation.Nonnull;
 import javax.vecmath.Vector3f;
@@ -37,9 +42,8 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
 
     public static final VertexFormat VERTEX_FORMAT = DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL;
 
-    protected static final ThreadLocal<MatrixStack> MATRIX_STACK = ThreadLocal.withInitial(MatrixStack::new);
+    protected static final ThreadLocal<MatrixStack>      MATRIX_STACK       = ThreadLocal.withInitial(MatrixStack::new);
     protected static final ThreadLocal<StaticModelBones> STATIC_MODEL_BONES = new ThreadLocal<>();
-    protected final Map<TileMultiblockMachineController, GeoModelRenderTask> tasks = new WeakHashMap<>();
 
     static {
         if (Mods.GECKOLIB.isPresent()) {
@@ -54,6 +58,8 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
             });
         }
     }
+
+    protected final Map<TileMultiblockMachineController, GeoModelRenderTask> tasks = new WeakHashMap<>();
 
     protected MachineControllerRenderer() {
     }
@@ -78,10 +84,15 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
             // 90
             case WEST -> MATRIX_STACK.get().rotateY(1.5707963267948966f);
             /* There is no need to rotate by 0 */
-            case NORTH -> {}
+            case NORTH -> {
+            }
             // 270
             case EAST -> MATRIX_STACK.get().rotateY(4.71238898038469f);
         }
+    }
+
+    public static boolean shouldUseBloom() {
+        return Mods.GREGTECHCEU.isPresent() || Mods.LUMENIZED.isPresent();
     }
 
     @Override
@@ -114,8 +125,7 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
     public void render(final MachineControllerModel modelProvider,
                        final TileMultiblockMachineController tile,
                        double x, double y, double z,
-                       final float partialTicks)
-    {
+                       final float partialTicks) {
         renderWithBuffer(tile);
     }
 
@@ -123,7 +133,7 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
     private void renderWithBuffer(final TileMultiblockMachineController animatable) {
         GeoModelRenderTask task = getTask(animatable);
 
-        if (MachineControllerRenderer.shouldUseBloom()) {
+        if (MachineControllerRenderer.shouldUseBloom() && !ShaderManager.isOptifineShaderPackLoaded()) {
             task.renderDefault();
             task.setAvailable(true);
         } else {
@@ -136,8 +146,7 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
 
     @Optional.Method(modid = "geckolib3")
     private void renderWithDefault(final MachineControllerModel modelProvider,
-                                   final TileMultiblockMachineController ctrl)
-    {
+                                   final TileMultiblockMachineController ctrl) {
         GeoModel model = modelProvider.getModel();
         modelProvider.setLivingAnimations(ctrl, ctrl.hashCode());
 
@@ -155,8 +164,7 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
     @Optional.Method(modid = "geckolib3")
     public void render(TileMultiblockMachineController tile,
                        BufferProvider bufferProvider,
-                       boolean renderStatic)
-    {
+                       boolean renderStatic) {
         MachineControllerModel modelProvider = tile.getCurrentModel();
         if (modelProvider == null) {
             return;
@@ -193,8 +201,7 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
 
     @Optional.Method(modid = "geckolib3")
     public void renderRecursively(BufferBuilder buffer, GeoBone bone,
-                                  float red, float green, float blue, float alpha)
-    {
+                                  float red, float green, float blue, float alpha) {
         boolean emissive = bone.name.startsWith("emissive") || bone.name.startsWith("bloom");
         boolean transparent = bone.name.startsWith("transparent") || bone.name.startsWith("emissive_transparent") || bone.name.startsWith("bloom_transparent");
         float lastBrightnessX = 0;
@@ -202,6 +209,8 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
         if (emissive || transparent) {
             Tessellator.getInstance().draw();
             if (emissive) {
+                GlStateManager.doPolygonOffset(-3.0F, -3.0F);
+                GlStateManager.enablePolygonOffset();
                 lastBrightnessX = OpenGlHelper.lastBrightnessX;
                 lastBrightnessY = OpenGlHelper.lastBrightnessY;
                 OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240f, 240f);
@@ -238,6 +247,8 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
         if (emissive || transparent) {
             Tessellator.getInstance().draw();
             if (emissive) {
+                GlStateManager.doPolygonOffset(0.0F, 0.0F);
+                GlStateManager.disablePolygonOffset();
                 OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lastBrightnessX, lastBrightnessY);
             }
             if (transparent) {
@@ -251,8 +262,7 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
     public void renderRecursively(BufferProvider bufferProvider,
                                   GeoBone bone,
                                   float red, float green, float blue, float alpha,
-                                  boolean bloom, boolean transparent, boolean isStatic)
-    {
+                                  boolean bloom, boolean transparent, boolean isStatic) {
         bloom |= bone.name.startsWith("emissive") || bone.name.startsWith("bloom");
         transparent |= bone.name.startsWith("transparent") || bone.name.startsWith("emissive_transparent") || bone.name.startsWith("bloom_transparent");
 
@@ -284,8 +294,7 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
     @Optional.Method(modid = "geckolib3")
     public void renderCube(final BufferBuilder builder,
                            final GeoCube cube,
-                           final float red, final float green, final float blue, final float alpha)
-    {
+                           final float red, final float green, final float blue, final float alpha) {
         MatrixStack matrixStack = MATRIX_STACK.get();
         matrixStack.moveToPivot(cube);
         matrixStack.rotate(cube);
@@ -312,15 +321,15 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
 
             for (GeoVertex vertex : quad.vertices) {
                 Vector4f vector4f = new Vector4f(vertex.position.getX(), vertex.position.getY(), vertex.position.getZ(),
-                        1.0F);
+                    1.0F);
 
                 matrixStack.getModelMatrix().transform(vector4f);
 
                 builder.pos(vector4f.getX(), vector4f.getY(), vector4f.getZ())
-                        .tex(vertex.textureU, vertex.textureV)
-                        .color(red, green, blue, alpha)
-                        .normal(normal.getX(), normal.getY(), normal.getZ())
-                        .endVertex();
+                       .tex(vertex.textureU, vertex.textureV)
+                       .color(red, green, blue, alpha)
+                       .normal(normal.getX(), normal.getY(), normal.getZ())
+                       .endVertex();
             }
         }
     }
@@ -346,10 +355,6 @@ public class MachineControllerRenderer extends TileEntitySpecialRenderer<TileMul
     @Override
     public boolean isGlobalRenderer(final TileMultiblockMachineController te) {
         return true;
-    }
-    
-    public static boolean shouldUseBloom() {
-        return Mods.GREGTECHCEU.isPresent() || Mods.LUMENIZED.isPresent();
     }
 
 }

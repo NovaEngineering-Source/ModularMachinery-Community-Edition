@@ -39,8 +39,8 @@ public class GTItemBusProxy implements MachineComponentProxy<GTItemBusProxy.GTIt
         if (te instanceof MetaTileEntityHolder metaTEHolder) {
             MetaTileEntity metaTE = metaTEHolder.getMetaTileEntity();
             return metaTE instanceof MetaTileEntityItemBus ||
-                    metaTE instanceof MetaTileEntityMEInputBus ||
-                    metaTE instanceof MetaTileEntityMEOutputBus;
+                metaTE instanceof MetaTileEntityMEInputBus ||
+                metaTE instanceof MetaTileEntityMEOutputBus;
         }
         return false;
     }

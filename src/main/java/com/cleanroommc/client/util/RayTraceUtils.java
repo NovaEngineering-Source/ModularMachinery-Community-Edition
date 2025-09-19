@@ -75,6 +75,7 @@ public class RayTraceUtils {
 
     public static class DistRayTraceResult extends RayTraceResult {
         public double dist;
+
         public DistRayTraceResult(Vec3d hitVecIn, EnumFacing sideHitIn, BlockPos blockPosIn, double dist) {
             super(hitVecIn, sideHitIn, blockPosIn);
             this.dist = dist;

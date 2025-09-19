@@ -22,8 +22,8 @@ import net.minecraft.item.Item;
  */
 public class ItemsMM {
 
-    public static ItemBlueprint blueprint;
-    public static ItemModularium modularium;
+    public static ItemBlueprint     blueprint;
+    public static ItemModularium    modularium;
     public static ItemConstructTool constructTool;
 
     // AppEng Compat
@@ -35,5 +35,6 @@ public class ItemsMM {
     public static Item meGasOutputBus;
     public static Item meGasInputBus;
     public static Item mePatternProvider;
+    public static Item mePatternMirrorImage;
 
 }

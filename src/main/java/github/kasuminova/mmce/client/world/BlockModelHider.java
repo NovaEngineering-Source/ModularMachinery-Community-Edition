@@ -1,6 +1,7 @@
 package github.kasuminova.mmce.client.world;
 
 import com.cleanroommc.multiblocked.persistence.MultiblockWorldSavedData;
+import github.kasuminova.mmce.client.model.DynamicMachineModelRegistry;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.machine.TaggedPositionBlockArray;
@@ -52,7 +53,7 @@ public class BlockModelHider {
     private static void hideOrShowBlocksMBD(TileMultiblockMachineController ctrl) {
         DynamicMachine foundMachine = ctrl.getFoundMachine();
         BlockPos pos = ctrl.getPos();
-        if (ctrl.isInvalid() || foundMachine == null || !foundMachine.isHideComponentsWhenFormed()) {
+        if (ctrl.isInvalid() || foundMachine == null || DynamicMachineModelRegistry.INSTANCE.getMachineDefaultModel(foundMachine) == null) {
             MultiblockWorldSavedData.removeDisableModel(pos);
             return;
         }
@@ -62,9 +63,11 @@ public class BlockModelHider {
             if (foundPattern != null) {
                 List<BlockPos> transformed = new LinkedList<>();
                 transformed.add(pos);
-                for (BlockPos compPos : foundPattern.getPattern().keySet()) {
-                    BlockPos add = compPos.add(pos);
-                    transformed.add(add);
+                if (foundMachine.isHideComponentsWhenFormed()) {
+                    for (BlockPos compPos : foundPattern.getPattern().keySet()) {
+                        BlockPos add = compPos.add(pos);
+                        transformed.add(add);
+                    }
                 }
                 MultiblockWorldSavedData.addDisableModel(pos, transformed);
             }
@@ -76,7 +79,7 @@ public class BlockModelHider {
     private static void hideOrShowBlocksPlugin(TileMultiblockMachineController ctrl) {
         DynamicMachine foundMachine = ctrl.getFoundMachine();
         BlockPos pos = ctrl.getPos();
-        if (ctrl.isInvalid() || foundMachine == null || !foundMachine.isHideComponentsWhenFormed()) {
+        if (ctrl.isInvalid() || foundMachine == null || DynamicMachineModelRegistry.INSTANCE.getMachineDefaultModel(foundMachine) == null) {
             MultiblockWorldSavedData.removeDisableModel(pos);
             return;
         }
@@ -86,9 +89,11 @@ public class BlockModelHider {
             if (foundPattern != null) {
                 List<BlockPos> transformed = new LinkedList<>();
                 transformed.add(pos);
-                for (BlockPos compPos : foundPattern.getPattern().keySet()) {
-                    BlockPos add = compPos.add(pos);
-                    transformed.add(add);
+                if (foundMachine.isHideComponentsWhenFormed()) {
+                    for (BlockPos compPos : foundPattern.getPattern().keySet()) {
+                        BlockPos add = compPos.add(pos);
+                        transformed.add(add);
+                    }
                 }
                 MultiblockWorldSavedData.addDisableModel(pos, transformed);
             }

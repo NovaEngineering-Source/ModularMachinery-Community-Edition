@@ -99,8 +99,8 @@ public class IngredientItemStackRenderer extends ItemStackRenderer {
             return null;
         }
         return preDefined.stream()
-                .filter(ingredient -> ingredient.stack() == stack)
-                .findFirst()
-                .orElse(null);
+                         .filter(ingredient -> ingredient.stack() == stack)
+                         .findFirst()
+                         .orElse(null);
     }
 }

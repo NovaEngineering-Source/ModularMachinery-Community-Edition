@@ -27,7 +27,7 @@ import java.util.List;
  */
 public abstract class RequirementTip extends IForgeRegistryEntry.Impl<RequirementTip> {
 
-    public static final int LINE_HEIGHT = 9;
+    public static final int LINE_HEIGHT  = 9;
     public static final int SPLIT_HEIGHT = 2;
 
     /**

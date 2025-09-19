@@ -16,7 +16,7 @@ import java.util.List;
 public class Row extends WidgetContainer {
     protected final List<DynamicWidget> widgets = new ArrayList<>();
 
-    protected boolean upAligned = true;
+    protected boolean upAligned   = true;
     protected boolean downAligned = false;
 
     @Override
@@ -293,18 +293,19 @@ public class Row extends WidgetContainer {
     @Override
     public int getWidth() {
         int width = 0;
+        int absWidgetMaxWidth = 0;
         for (final DynamicWidget widget : widgets) {
             if (widget.isDisabled()) {
                 continue;
             }
             int widgetWidth = widget.getMarginLeft() + widget.getWidth() + widget.getMarginRight();
             if (widget.isUseAbsPos()) {
-                width = Math.max(width, widgetWidth);
+                absWidgetMaxWidth = Math.max(widgetWidth + widget.getAbsX(), absWidgetMaxWidth);
                 continue;
             }
             width += widgetWidth;
         }
-        return width;
+        return Math.max(width, absWidgetMaxWidth);
     }
 
     @Override
@@ -366,6 +367,10 @@ public class Row extends WidgetContainer {
         return this;
     }
 
+    public boolean isCenterAligned() {
+        return this.upAligned && this.downAligned;
+    }
+
     public Row setCenterAligned(final boolean centerAligned) {
         if (centerAligned) {
             this.upAligned = true;
@@ -376,9 +381,5 @@ public class Row extends WidgetContainer {
         this.upAligned = true;
         this.downAligned = false;
         return this;
-    }
-
-    public boolean isCenterAligned() {
-        return this.upAligned && this.downAligned;
     }
 }

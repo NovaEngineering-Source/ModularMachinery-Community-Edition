@@ -40,9 +40,9 @@ public class AdapterSmelteryMeltingRecipe extends RecipeAdapter {
 
         for (MeltingRecipe meltingRecipe : meltingRecipes) {
             MachineRecipe recipe = createRecipeShell(new ResourceLocation("tconstruct", "smeltery_melting_" + incId),
-                    owningMachineName, Math.max(Math.round(RecipeModifier.applyModifiers(
-                            modifiers, RequirementTypesMM.REQUIREMENT_DURATION, IOType.INPUT, (float) meltingRecipe.temperature / 10, false)), 1),
-                    incId, false
+                owningMachineName, Math.max(Math.round(RecipeModifier.applyModifiers(
+                    modifiers, RequirementTypesMM.REQUIREMENT_DURATION, IOType.INPUT, (float) meltingRecipe.temperature / 10, false)), 1),
+                incId, false
             );
             recipe.addRecipeEventHandler(RecipeCheckEvent.class, (IEventHandler<RecipeCheckEvent>) event -> {
                 if (event.phase == Phase.START) {

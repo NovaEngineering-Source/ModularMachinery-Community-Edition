@@ -9,7 +9,12 @@
 package hellfirepvp.modularmachinery.common.modifier;
 
 import com.google.common.collect.Lists;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import hellfirepvp.modularmachinery.common.machine.MachineLoader;
 import hellfirepvp.modularmachinery.common.util.BlockArray;
 import hellfirepvp.modularmachinery.common.util.IBlockStateDescriptor;
@@ -31,7 +36,7 @@ import java.util.List;
 public class SingleBlockModifierReplacement extends AbstractModifierReplacement {
 
     private final BlockArray.BlockInformation info;
-    private BlockPos pos = null;
+    private       BlockPos                    pos = null;
 
     public SingleBlockModifierReplacement(BlockArray.BlockInformation info, List<RecipeModifier> modifier, String description) {
         super(modifier, description, info.getDescriptiveStack(0));
@@ -96,7 +101,7 @@ public class SingleBlockModifierReplacement extends AbstractModifierReplacement 
                     String prim = p.getAsString();
                     BlockArray.BlockInformation descr = MachineLoader.VARIABLE_CONTEXT.get(prim);
                     if (descr != null) {
-                        descriptors.addAll(descr.copy().matchingStates);
+                        descriptors.addAll(descr.copy().getMatchingStates());
                     } else {
                         descriptors.add(BlockArray.BlockInformation.getDescriptor(prim));
                     }

@@ -8,7 +8,6 @@ import github.kasuminova.mmce.common.event.recipe.FactoryRecipeFailureEvent;
 import github.kasuminova.mmce.common.event.recipe.FactoryRecipeFinishEvent;
 import github.kasuminova.mmce.common.event.recipe.FactoryRecipeStartEvent;
 import github.kasuminova.mmce.common.event.recipe.FactoryRecipeTickEvent;
-import github.kasuminova.mmce.common.util.concurrent.ActionExecutor;
 import github.kasuminova.mmce.common.util.concurrent.SequentialTaskExecutor;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.block.BlockController;
@@ -33,20 +32,26 @@ import net.minecraftforge.common.util.Constants;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
 
 public class TileFactoryController extends TileMultiblockMachineController {
     private final Map<String, FactoryRecipeThread> coreRecipeThreads = new LinkedHashMap<>();
-    private final List<FactoryRecipeThread> recipeThreadList = new LinkedList<>();
-    private final List<ForkJoinTask<?>> waitToExecute = new ArrayList<>();
-    private CraftingStatus controllerStatus = CraftingStatus.MISSING_STRUCTURE;
-    private int totalParallelism = 1;
-    private int extraThreadCount = 0;
-    private BlockFactoryController parentController = null;
-    private FactoryRecipeSearchTask searchTask = null;
-    private SequentialTaskExecutor threadTask = null;
+    private final List<FactoryRecipeThread>        recipeThreadList  = new LinkedList<>();
+    private final List<ForkJoinTask<?>>            waitToExecute     = new ArrayList<>();
+    private       CraftingStatus                   controllerStatus  = CraftingStatus.MISSING_STRUCTURE;
+    private       int                              totalParallelism  = 1;
+    private       int                              extraThreadCount  = 0;
+    private       BlockFactoryController           parentController  = null;
+    private       FactoryRecipeSearchTask          searchTask        = null;
+    private       SequentialTaskExecutor           threadTask        = null;
 
     private boolean redstoneEffected = false;
 
@@ -109,13 +114,11 @@ public class TileFactoryController extends TileMultiblockMachineController {
                 }
             }
             case SYNC -> {
-                tickExecutor = new ActionExecutor(() -> {
-                    if (doAsyncStep()) {
-                        return;
-                    }
-                    doSyncStep(false);
-                });
-                tickExecutor.run();
+                tickExecutor = null;
+                if (doAsyncStep()) {
+                    return;
+                }
+                doSyncStep(false);
             }
         }
     }
@@ -288,8 +291,8 @@ public class TileFactoryController extends TileMultiblockMachineController {
 
         MachineRecipe recipe = activeRecipe.getRecipe();
         FactoryRecipeFailureEvent event = new FactoryRecipeFailureEvent(
-                thread, this, thread.getStatus().getUnlocMessage(),
-                recipe.doesCancelRecipeOnPerTickFailure());
+            thread, this, thread.getStatus().getUnlocMessage(),
+            recipe.doesCancelRecipeOnPerTickFailure());
         event.postEvent();
 
         return event.isDestructRecipe();
@@ -313,7 +316,7 @@ public class TileFactoryController extends TileMultiblockMachineController {
 
         coreRecipeThreads.clear();
         foundMachine.getCoreThreadPreset().forEach((threadName, thread) ->
-                coreRecipeThreads.put(threadName, thread.copyCoreThread(this)));
+            coreRecipeThreads.put(threadName, thread.copyCoreThread(this)));
     }
 
     protected void searchAndStartRecipe() {
@@ -371,9 +374,15 @@ public class TileFactoryController extends TileMultiblockMachineController {
     @Override
     protected void resetMachine(boolean clearData) {
         super.resetMachine(clearData);
+        if (clearData) {
+            extraThreadCount = 0;
+        }
+    }
+
+    @Override
+    protected void resetRecipe() {
         recipeThreadList.clear();
         coreRecipeThreads.clear();
-        extraThreadCount = 0;
     }
 
     public List<FactoryRecipeThread> getFactoryRecipeThreadList() {
@@ -424,8 +433,8 @@ public class TileFactoryController extends TileMultiblockMachineController {
         for (FactoryRecipeThread thread : recipeThreadList) {
             if (thread.getActiveRecipe() == null) {
                 thread.setContext(context)
-                        .setActiveRecipe(context.getActiveRecipe())
-                        .setStatus(CraftingStatus.SUCCESS);
+                      .setActiveRecipe(context.getActiveRecipe())
+                      .setStatus(CraftingStatus.SUCCESS);
                 onThreadRecipeStart(thread);
                 return;
             }
@@ -437,8 +446,8 @@ public class TileFactoryController extends TileMultiblockMachineController {
 
         FactoryRecipeThread thread = new FactoryRecipeThread(this);
         thread.setContext(context)
-                .setActiveRecipe(context.getActiveRecipe())
-                .setStatus(CraftingStatus.SUCCESS);
+              .setActiveRecipe(context.getActiveRecipe())
+              .setStatus(CraftingStatus.SUCCESS);
         recipeThreadList.add(thread);
         onThreadRecipeStart(thread);
     }
@@ -454,11 +463,11 @@ public class TileFactoryController extends TileMultiblockMachineController {
 
     protected void createRecipeSearchTask() {
         searchTask = new FactoryRecipeSearchTask(
-                this,
-                getFoundMachine(),
-                getAvailableParallelism(),
-                RecipeRegistry.getRecipesFor(foundMachine),
-                null, getActiveRecipeList());
+            this,
+            getFoundMachine(),
+            getAvailableParallelism(),
+            RecipeRegistry.getRecipesFor(foundMachine),
+            null, getActiveRecipeList());
         waitToExecute.add(searchTask);
     }
 

@@ -25,7 +25,7 @@ public class WidgetController {
 
     public static final ThreadLocal<RenderPos> TRANSLATE_STATE = ThreadLocal.withInitial(() -> new RenderPos(0, 0));
 
-    protected final WidgetGui gui;
+    protected final WidgetGui           gui;
     protected final List<DynamicWidget> widgets = new ArrayList<>();
 
     protected List<String> tooltipCache = new ArrayList<>();
@@ -275,9 +275,9 @@ public class WidgetController {
     @Deprecated
     public List<WidgetContainer> getContainers() {
         return widgets.stream()
-                .filter(WidgetContainer.class::isInstance)
-                .map(WidgetContainer.class::cast)
-                .collect(Collectors.toList());
+                      .filter(WidgetContainer.class::isInstance)
+                      .map(WidgetContainer.class::cast)
+                      .collect(Collectors.toList());
     }
 
 }

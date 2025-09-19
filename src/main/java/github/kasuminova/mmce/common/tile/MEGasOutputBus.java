@@ -110,7 +110,7 @@ public class MEGasOutputBus extends MEGasBus {
 
     @Override
     public void markNoUpdate() {
-        if (proxy.isActive() && hasGas()) {
+        if (hasGas()) {
             try {
                 proxy.getTick().alertDevice(proxy.getNode());
             } catch (GridAccessException e) {

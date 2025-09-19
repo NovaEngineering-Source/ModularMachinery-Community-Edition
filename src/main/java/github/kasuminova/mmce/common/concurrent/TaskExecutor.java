@@ -1,11 +1,21 @@
 package github.kasuminova.mmce.common.concurrent;
 
-import github.kasuminova.mmce.common.util.concurrent.*;
+import github.kasuminova.mmce.common.util.Sides;
+import github.kasuminova.mmce.common.util.concurrent.Action;
+import github.kasuminova.mmce.common.util.concurrent.ActionExecutor;
+import github.kasuminova.mmce.common.util.concurrent.CustomForkJoinWorkerThreadFactory;
+import github.kasuminova.mmce.common.util.concurrent.CustomThreadFactory;
+import github.kasuminova.mmce.common.util.concurrent.ExecuteGroup;
+import github.kasuminova.mmce.common.util.concurrent.Queues;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.tiles.base.TileEntitySynchronized;
 import io.netty.util.internal.ThrowableUtil;
-import it.unimi.dsi.fastutil.longs.*;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.longs.LongListIterator;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -13,7 +23,11 @@ import net.minecraftforge.fml.common.thread.SidedThreadGroups;
 import net.minecraftforge.fml.relauncher.Side;
 
 import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
 public class TaskExecutor {
@@ -23,16 +37,16 @@ public class TaskExecutor {
     public static final int CLIENT_THREAD_COUNT = Math.min(Math.max(Runtime.getRuntime().availableProcessors() / 2, 4), 16);
 
     public static final ThreadPoolExecutor THREAD_POOL = new ThreadPoolExecutor(THREAD_COUNT, THREAD_COUNT,
-            5000, TimeUnit.MILLISECONDS,
-            new PriorityBlockingQueue<>(),
-            new CustomThreadFactory("MMCE-TaskExecutor-%s", SidedThreadGroups.SERVER));
+        5000, TimeUnit.MILLISECONDS,
+        new PriorityBlockingQueue<>(),
+        new CustomThreadFactory("MMCE-TaskExecutor-%s", SidedThreadGroups.SERVER));
 
-    public static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool(FMLCommonHandler.instance().getSide().isClient() ? CLIENT_THREAD_COUNT : THREAD_COUNT,
-            new CustomForkJoinWorkerThreadFactory("MMCE-ForkJoinPool-worker-%s"),
-            null, true);
+    public static final ForkJoinPool FORK_JOIN_POOL = new ForkJoinPool(Sides.isClient() ? CLIENT_THREAD_COUNT : THREAD_COUNT,
+        new CustomForkJoinWorkerThreadFactory("MMCE-ForkJoinPool-worker-%s"),
+        null, true);
 
     public static long totalExecuted = 0;
-    public static long taskUsedTime = 0;
+    public static long taskUsedTime  = 0;
     public static long totalUsedTime = 0;
     public static long executedCount = 0;
 
@@ -40,27 +54,39 @@ public class TaskExecutor {
 
     private final Queue<ActionExecutor> submitted = Queues.createConcurrentQueue();
 
-    private final Queue<ActionExecutor> executors = Queues.createConcurrentQueue();
+    private final Queue<ActionExecutor>        executors     = Queues.createConcurrentQueue();
     // TODO: may cause performance issues.
     private final Long2ObjectMap<ExecuteGroup> executeGroups = Long2ObjectMaps.synchronize(new Long2ObjectOpenHashMap<>());
 
     private final Queue<ForkJoinTask<?>> forkJoinTasks = Queues.createConcurrentQueue();
 
-    private final Queue<Action> mainThreadActions = Queues.createConcurrentQueue();
-    private final Queue<TileEntitySynchronized> requireUpdateTEQueue = Queues.createConcurrentQueue();
+    private final Queue<Action>                 mainThreadActions          = Queues.createConcurrentQueue();
+    private final Queue<TileEntitySynchronized> requireUpdateTEQueue       = Queues.createConcurrentQueue();
     private final Queue<TileEntitySynchronized> requireMarkNoUpdateTEQueue = Queues.createConcurrentQueue();
 
     private final TaskSubmitter submitter = new TaskSubmitter();
 
-    private volatile boolean inTick = false;
+    private volatile boolean inTick                = false;
     private volatile boolean shouldUseForkJoinPool = false;
+
+    @SuppressWarnings({"BusyWait", "SameParameterValue"})
+    private static void loopWait(final long nanos) {
+        long startTime = System.nanoTime();
+        while (System.nanoTime() - startTime < nanos) {
+            try {
+                Thread.sleep(0);
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+    }
 
     public void init() {
         THREAD_POOL.prestartAllCoreThreads();
         submitter.start();
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent(priority = EventPriority.LOW)
     public void onServerTick(final TickEvent.ServerTickEvent event) {
         if (event.side == Side.CLIENT) {
             return;
@@ -176,18 +202,6 @@ public class TaskExecutor {
             executed++;
         }
         return executed;
-    }
-
-    @SuppressWarnings({"BusyWait", "SameParameterValue"})
-    private static void loopWait(final long nanos) {
-        long startTime = System.nanoTime();
-        while (System.nanoTime() - startTime < nanos) {
-            try {
-                Thread.sleep(0);
-            } catch (InterruptedException e) {
-                break;
-            }
-        }
     }
 
     private void updateTileEntity() {

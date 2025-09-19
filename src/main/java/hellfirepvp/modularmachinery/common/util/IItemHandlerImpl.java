@@ -6,16 +6,15 @@ import net.minecraftforge.items.IItemHandlerModifiable;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class IItemHandlerImpl implements IItemHandlerModifiable {
-    public static final int DEFAULT_SLOT_LIMIT = 64;
-
-    protected int[] slotLimits = {64}; // Value not present means default, aka 64.
-    protected SlotStackHolder[] inventory = {new SlotStackHolder(0)};
-
-    public boolean allowAnySlots = false;
-    public EnumFacing[] accessibleSides = {};
-    protected int[] inSlots = new int[0], outSlots = new int[0], miscSlots = new int[0];
+    public static final int               DEFAULT_SLOT_LIMIT = 64;
+    public              boolean           allowAnySlots      = false;
+    public              EnumFacing[]      accessibleSides    = {};
+    protected           int[]             slotLimits         = {64}; // Value not present means default, aka 64.
+    protected           SlotStackHolder[] inventory          = {new SlotStackHolder(0)};
+    protected           int[]             inSlots            = new int[0], outSlots = new int[0], miscSlots = new int[0];
 
     protected IItemHandlerImpl() {
     }
@@ -28,7 +27,7 @@ public class IItemHandlerImpl implements IItemHandlerModifiable {
         this.inSlots = inSlots;
         this.outSlots = outSlots;
 
-        int max = Math.max(getArrayMax(inSlots), getArrayMax(outSlots)) ;
+        int max = Math.max(getArrayMax(inSlots), getArrayMax(outSlots));
         this.inventory = new SlotStackHolder[max + 1];
         this.slotLimits = new int[max + 1];
 
@@ -38,7 +37,7 @@ public class IItemHandlerImpl implements IItemHandlerModifiable {
         }
 
         this.accessibleSides = accessibleFrom;
-        System.arraycopy(accessibleFrom, 0,  this.accessibleSides, 0, accessibleFrom.length);
+        System.arraycopy(accessibleFrom, 0, this.accessibleSides, 0, accessibleFrom.length);
     }
 
     public IItemHandlerImpl(IItemHandlerModifiable handler) {
@@ -62,12 +61,33 @@ public class IItemHandlerImpl implements IItemHandlerModifiable {
             SlotStackHolder holder = new SlotStackHolder(i);
             ItemStack stackInSlot = handler.getStackInSlot(i);
             if (stackInSlot.isEmpty()) {
-                holder.itemStack = ItemStack.EMPTY;
+                holder.itemStack.set(ItemStack.EMPTY);
             } else {
-                holder.itemStack = stackInSlot.copy();
+                holder.itemStack.set(stackInSlot.copy());
             }
             this.inventory[i] = holder;
         }
+    }
+
+    protected static boolean arrayContains(int[] array, int i) {
+        return Arrays.binarySearch(array, i) >= 0;
+    }
+
+    protected static boolean canMergeItemStacks(@Nonnull ItemStack stack, @Nonnull ItemStack other) {
+        if (stack.isEmpty() || other.isEmpty() || !stack.isStackable() || !other.isStackable()) {
+            return false;
+        }
+        return stack.isItemEqual(other) && ItemStack.areItemStackTagsEqual(stack, other);
+    }
+
+    protected static int getArrayMax(final int[] slots) {
+        int max = 0;
+        for (final int slot : slots) {
+            if (slot > max) {
+                max = slot;
+            }
+        }
+        return max;
     }
 
     public IItemHandlerImpl copy() {
@@ -92,17 +112,6 @@ public class IItemHandlerImpl implements IItemHandlerModifiable {
 
         copy.slotLimits = slotLimits;
         return copy;
-    }
-
-    protected static boolean arrayContains(int[] array, int i) {
-        return Arrays.binarySearch(array, i) >= 0;
-    }
-
-    protected static boolean canMergeItemStacks(@Nonnull ItemStack stack, @Nonnull ItemStack other) {
-        if (stack.isEmpty() || other.isEmpty() || !stack.isStackable() || !other.isStackable()) {
-            return false;
-        }
-        return stack.isItemEqual(other) && ItemStack.areItemStackTagsEqual(stack, other);
     }
 
     public IItemHandlerImpl setMiscSlots(int... miscSlots) {
@@ -138,7 +147,7 @@ public class IItemHandlerImpl implements IItemHandlerModifiable {
         if (slot <= -1 || slot >= inventory.length) {
             return;
         }
-        this.inventory[slot].itemStack = stack;
+        this.inventory[slot].itemStack.set(stack);
     }
 
     @Override
@@ -157,17 +166,22 @@ public class IItemHandlerImpl implements IItemHandlerModifiable {
     @Override
     @Nonnull
     public ItemStack getStackInSlot(int slot) {
-        if (slot < 0 || slot > inventory.length) {
+        if (slot < 0 || slot >= inventory.length) {
             return ItemStack.EMPTY;
         }
         SlotStackHolder holder = inventory[slot];
-        return holder != null ? holder.itemStack : ItemStack.EMPTY;
+        if (holder != null) {
+            return holder.itemStack.get();
+        }
+        return ItemStack.EMPTY;
     }
 
     @Override
     @Nonnull
     public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-        if (stack.isEmpty()) return stack;
+        if (stack.isEmpty()) {
+            return stack;
+        }
         return insertItemInternal(slot, stack, simulate);
     }
 
@@ -183,15 +197,15 @@ public class IItemHandlerImpl implements IItemHandlerModifiable {
             return stack; // Shouldn't happen anymore here tho
         }
         ItemStack toInsert = ItemUtils.copyStackWithSize(stack, stack.getCount());
-        if (!holder.itemStack.isEmpty()) {
-            ItemStack existing = ItemUtils.copyStackWithSize(holder.itemStack, holder.itemStack.getCount());
+        if (!holder.itemStack.get().isEmpty()) {
+            ItemStack existing = ItemUtils.copyStackWithSize(holder.itemStack.get(), holder.itemStack.get().getCount());
             int max = Math.min(existing.getMaxStackSize(), getSlotLimit(slot));
             if (existing.getCount() >= max || !canMergeItemStacks(existing, toInsert)) {
                 return stack;
             }
             int movable = Math.min(max - existing.getCount(), stack.getCount());
             if (!simulate) {
-                holder.itemStack.grow(movable);
+                holder.itemStack.get().grow(movable);
             }
             if (movable >= stack.getCount()) {
                 return ItemStack.EMPTY;
@@ -204,14 +218,14 @@ public class IItemHandlerImpl implements IItemHandlerModifiable {
             int max = Math.min(stack.getMaxStackSize(), getSlotLimit(slot));
             if (max >= stack.getCount()) {
                 if (!simulate) {
-                    holder.itemStack = stack.copy();
+                    holder.itemStack.set(stack.copy());
                 }
                 return ItemStack.EMPTY;
             } else {
                 ItemStack copy = stack.copy();
                 copy.setCount(max);
                 if (!simulate) {
-                    holder.itemStack = copy;
+                    holder.itemStack.set(copy);
                 }
                 copy = stack.copy();
                 copy.shrink(max);
@@ -236,23 +250,23 @@ public class IItemHandlerImpl implements IItemHandlerModifiable {
         if (holder == null) {
             return ItemStack.EMPTY; // Shouldn't happen anymore here tho
         }
-        if (holder.itemStack.isEmpty()) {
+        if (holder.itemStack.get().isEmpty()) {
             return ItemStack.EMPTY;
         }
 
-        ItemStack extract = ItemUtils.copyStackWithSize(holder.itemStack, Math.min(amount, holder.itemStack.getCount()));
+        ItemStack extract = ItemUtils.copyStackWithSize(holder.itemStack.get(), Math.min(amount, holder.itemStack.get().getCount()));
         if (extract.isEmpty()) {
             return ItemStack.EMPTY;
         }
         if (!simulate) {
-            holder.itemStack = ItemUtils.copyStackWithSize(holder.itemStack, holder.itemStack.getCount() - extract.getCount());
+            holder.itemStack.set(ItemUtils.copyStackWithSize(holder.itemStack.get(), holder.itemStack.get().getCount() - extract.getCount()));
         }
         return extract;
     }
 
     public void clear() {
         for (final SlotStackHolder holder : inventory) {
-            holder.itemStack = ItemStack.EMPTY;
+            holder.itemStack.set(ItemStack.EMPTY);
         }
     }
 
@@ -291,22 +305,11 @@ public class IItemHandlerImpl implements IItemHandlerModifiable {
         }
     }
 
-    protected static int getArrayMax(final int[] slots) {
-        int max = 0;
-        for (final int slot : slots) {
-            if (slot > max) {
-                max = slot;
-            }
-        }
-        return max;
-    }
-
     public static class SlotStackHolder {
 
         public final int slotId;
 
-        @Nonnull
-        public volatile ItemStack itemStack = ItemStack.EMPTY;
+        public final AtomicReference<ItemStack> itemStack = new AtomicReference<>(ItemStack.EMPTY);
 
         public SlotStackHolder(int slotId) {
             this.slotId = slotId;
@@ -314,16 +317,18 @@ public class IItemHandlerImpl implements IItemHandlerModifiable {
 
         public SlotStackHolder copy() {
             SlotStackHolder copied = new SlotStackHolder(slotId);
-            if (!itemStack.isEmpty()) {
-                copied.itemStack = itemStack.copy();
+            ItemStack holderStack = itemStack.get();
+            if (!holderStack.isEmpty()) {
+                copied.itemStack.set(holderStack.copy());
             }
             return copied;
         }
 
         public SlotStackHolder fastCopy() {
             SlotStackHolder copied = new SlotStackHolder(slotId);
-            if (!itemStack.isEmpty()) {
-                copied.itemStack = itemStack;
+            ItemStack holderStack = itemStack.get();
+            if (!holderStack.isEmpty()) {
+                copied.itemStack.set(holderStack);
             }
             return copied;
         }

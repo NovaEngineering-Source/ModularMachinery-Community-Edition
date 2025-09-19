@@ -23,7 +23,12 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -35,18 +40,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * Date: 27.06.2017 / 23:23
  */
 public class RecipeLoader {
-    public static final Collection<RecipeAdapterAccessor> RECIPE_ADAPTER_ACCESSORS = new ConcurrentLinkedQueue<>();
-    private static final Gson GSON = new GsonBuilder()
-            .registerTypeHierarchyAdapter(MachineRecipe.MachineRecipeContainer.class, new MachineRecipe.Deserializer())
-            .registerTypeHierarchyAdapter(ComponentRequirement.class, new MachineRecipe.ComponentDeserializer())
-            .registerTypeHierarchyAdapter(RecipeAdapterAccessor.class, new RecipeAdapterAccessor.Deserializer())
-            .registerTypeHierarchyAdapter(RecipeModifier.class, new RecipeModifier.Deserializer())
-            .registerTypeHierarchyAdapter(RecipeRunnableCommand.class, new RecipeRunnableCommand.Deserializer())
-            .create();
-
-    public static final ThreadLocal<String> CURRENTLY_READING_PATH = new ThreadLocal<>();
-
-    private static Map<String, Exception> failedAttempts = new ConcurrentHashMap<>();
+    public static final  Collection<RecipeAdapterAccessor> RECIPE_ADAPTER_ACCESSORS = new ConcurrentLinkedQueue<>();
+    public static final  ThreadLocal<String>               CURRENTLY_READING_PATH   = new ThreadLocal<>();
+    private static final Gson                              GSON                     = new GsonBuilder()
+        .registerTypeHierarchyAdapter(MachineRecipe.MachineRecipeContainer.class, new MachineRecipe.Deserializer())
+        .registerTypeHierarchyAdapter(ComponentRequirement.class, new MachineRecipe.ComponentDeserializer())
+        .registerTypeHierarchyAdapter(RecipeAdapterAccessor.class, new RecipeAdapterAccessor.Deserializer())
+        .registerTypeHierarchyAdapter(RecipeModifier.class, new RecipeModifier.Deserializer())
+        .registerTypeHierarchyAdapter(RecipeRunnableCommand.class, new RecipeRunnableCommand.Deserializer())
+        .create();
+    private static       Map<String, Exception>            failedAttempts           = new ConcurrentHashMap<>();
 
     public static Map<FileType, List<File>> discoverDirectory(File directory) {
         Map<FileType, List<File>> candidates = new EnumMap<>(FileType.class);

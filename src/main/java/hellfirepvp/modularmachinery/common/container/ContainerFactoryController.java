@@ -34,8 +34,8 @@ public class ContainerFactoryController extends ContainerBase<TileFactoryControl
         super(owner, opening);
 
         this.slotBlueprint = addSlotToContainer(new SlotBlueprint(
-                owner.getInventory().asGUIAccess(),
-                TileMultiblockMachineController.BLUEPRINT_SLOT, 255, 8));
+            owner.getInventory().asGUIAccess(),
+            TileMultiblockMachineController.BLUEPRINT_SLOT, 255, 8));
     }
 
     @Nonnull

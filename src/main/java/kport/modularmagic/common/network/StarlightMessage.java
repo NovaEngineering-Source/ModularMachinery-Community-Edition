@@ -12,7 +12,7 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public class StarlightMessage implements IMessage {
 
-    public int starlightAmount;
+    public int      starlightAmount;
     public BlockPos pos;
 
     public StarlightMessage() {

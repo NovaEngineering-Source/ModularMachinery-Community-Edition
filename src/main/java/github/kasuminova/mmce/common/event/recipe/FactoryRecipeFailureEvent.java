@@ -10,8 +10,8 @@ import stanhebben.zenscript.annotations.ZenSetter;
 @ZenRegister
 @ZenClass("mods.modularmachinery.FactoryRecipeFailureEvent")
 public class FactoryRecipeFailureEvent extends FactoryRecipeEvent {
-    private final String cause;
-    private boolean destructRecipe;
+    private final String  cause;
+    private       boolean destructRecipe;
 
     public FactoryRecipeFailureEvent(FactoryRecipeThread recipeThread, TileMultiblockMachineController controller, String cause, boolean destructRecipe) {
         super(recipeThread, controller);

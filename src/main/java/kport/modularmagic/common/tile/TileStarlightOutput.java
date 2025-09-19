@@ -32,10 +32,10 @@ import java.util.Map;
 
 public class TileStarlightOutput extends TileSourceBase implements MachineComponentTile, IStarlightSource, ILinkableTile, ColorableMachineTile {
 
-    public int tick;
-    public IWeakConstellation constellation = ConstellationRegistry.getWeakConstellations().get(0);
-    private float starlightProduced = 0.0F;
-    private int color = Config.machineColor;
+    public  int                tick;
+    public  IWeakConstellation constellation     = ConstellationRegistry.getWeakConstellations().get(0);
+    private float              starlightProduced = 0.0F;
+    private int                color             = Config.machineColor;
 
     @Override
     public int getMachineColor() {

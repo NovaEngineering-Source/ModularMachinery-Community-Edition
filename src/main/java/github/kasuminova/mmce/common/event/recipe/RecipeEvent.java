@@ -15,9 +15,9 @@ import java.util.List;
 @ZenRegister
 @ZenClass("mods.modularmachinery.RecipeEvent")
 public class RecipeEvent extends MachineEvent {
-    private final ActiveMachineRecipe activeRecipe;
+    private final ActiveMachineRecipe   activeRecipe;
     private final RecipeCraftingContext context;
-    private final RecipeThread recipeThread;
+    private final RecipeThread          recipeThread;
 
     public RecipeEvent(TileMultiblockMachineController controller, RecipeThread recipeThread, RecipeCraftingContext context) {
         super(controller);

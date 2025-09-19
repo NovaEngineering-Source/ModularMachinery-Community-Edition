@@ -21,9 +21,9 @@ import java.util.List;
 @ModOnly("geckolib3")
 @ZenClass("mods.modularmachinery.ControllerModelAnimationEvent")
 public class ControllerModelAnimationEvent extends MachineEvent {
-    private final List<AnimationCT> animations = new ArrayList<>();
+    private final List<AnimationCT>                               animations = new ArrayList<>();
     private final AnimationEvent<TileMultiblockMachineController> event;
-    private final String currentModelName;
+    private final String                                          currentModelName;
 
     private int playState = 0;
 

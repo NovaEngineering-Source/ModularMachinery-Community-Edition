@@ -1,6 +1,7 @@
 package github.kasuminova.mmce.client.gui.widget.impl.patternprovider;
 
 import github.kasuminova.mmce.client.gui.GuiMEPatternProvider;
+import github.kasuminova.mmce.client.gui.util.TextureProperties;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetGui;
 import github.kasuminova.mmce.client.gui.widget.container.Row;
 import github.kasuminova.mmce.client.gui.widget.impl.preview.IngredientList;
@@ -19,18 +20,22 @@ import java.util.function.Function;
 
 public class PatternProviderIngredientList extends IngredientList {
 
+    protected static SlotVirtual initSlot(final SlotVirtual slot) {
+        return slot.setSlotTex(TextureProperties.of(GuiMEPatternProvider.GUI_TEXTURE, 220, 232));
+    }
+
     @Override
     public void initWidget(final WidgetGui gui) {
         super.initWidget(gui);
         scrollbar.setMargin(5, 1, 1, 1);
         scrollbar.setWidthHeight(9, 124);
         scrollbar.getScroll()
-                .setMouseDownTextureXY(198, 232)
-                .setHoveredTextureXY(187, 232)
-                .setTextureXY(176, 232)
-                .setUnavailableTextureXY(209, 232)
-                .setTextureLocation(GuiMEPatternProvider.GUI_TEXTURE)
-                .setWidthHeight(9, 18);
+                 .setMouseDownTexture(198, 232)
+                 .setHoveredTexture(187, 232)
+                 .setTexture(176, 232)
+                 .setUnavailableTexture(209, 232)
+                 .setTextureLocation(GuiMEPatternProvider.GUI_TEXTURE)
+                 .setWidthHeight(9, 18);
     }
 
     public PatternProviderIngredientList setStackList(final List<ItemStack> list, final List<FluidStack> fluidList, final List<?> gasList) {
@@ -68,10 +73,6 @@ public class PatternProviderIngredientList extends IngredientList {
     @Optional.Method(modid = "mekeng")
     private Row addGasSlots(final List<?> gasList, Row row, int[] stackPerRow, final int totalSize) {
         return addSlots((List<GasStack>) gasList, row, stackPerRow, totalSize, SlotGasVirtual::ofJEI);
-    }
-
-    protected static SlotVirtual initSlot(final SlotVirtual slot) {
-        return slot.setSlotTexLocation(GuiMEPatternProvider.GUI_TEXTURE).setSlotTexX(220).setSlotTexY(232);
     }
 
 }

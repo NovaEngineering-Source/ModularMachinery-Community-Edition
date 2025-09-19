@@ -43,11 +43,12 @@ public class ItemDebugStruct extends Item {
     @Nonnull
     @Override
     public EnumActionResult onItemUse(
-            @Nonnull EntityPlayer player, World worldIn, @Nonnull BlockPos pos,
-            @Nonnull EnumHand hand, @Nonnull EnumFacing facing,
-            float hitX, float hitY, float hitZ)
-    {
-        if (worldIn.isRemote) return EnumActionResult.SUCCESS;
+        @Nonnull EntityPlayer player, World worldIn, @Nonnull BlockPos pos,
+        @Nonnull EnumHand hand, @Nonnull EnumFacing facing,
+        float hitX, float hitY, float hitZ) {
+        if (worldIn.isRemote) {
+            return EnumActionResult.SUCCESS;
+        }
         TileEntity te = worldIn.getTileEntity(pos);
         if (te instanceof TileMachineController) {
             DynamicMachine dm = ((TileMachineController) te).getBlueprintMachine();

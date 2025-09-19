@@ -7,12 +7,25 @@ public class AnimationValue {
     private final double px3, px2, px1, py3, py2, py1;
     private final int animationTime;
 
-    private long startTime;
-    private boolean finished = false;
-    private float solveCache = 0;
+    private long    startTime;
+    private boolean finished   = false;
+    private float   solveCache = 0;
 
     private double prevValue;
     private double targetValue;
+
+    public AnimationValue(double value, double targetValue, int animationTime, double a, double b, double c, double d) {
+        this.prevValue = value;
+        this.targetValue = targetValue;
+
+        this.animationTime = animationTime;
+        this.px3 = 3 * a;
+        this.px2 = 3 * (c - a) - this.px3;
+        this.px1 = 1 - this.px3 - this.px2;
+        this.py3 = 3 * b;
+        this.py2 = 3 * (d - b) - this.py3;
+        this.py1 = 1 - this.py3 - this.py2;
+    }
 
     public static AnimationValue ofFinished(double value, int animationTime, double a, double b, double c, double d) {
         return ofFinished(value, value, animationTime, a, b, c, d);
@@ -31,19 +44,6 @@ public class AnimationValue {
 
     public static AnimationValue of(double value, double targetValue, int animationTime, double a, double b, double c, double d) {
         return new AnimationValue(value, targetValue, animationTime, a, b, c, d);
-    }
-
-    public AnimationValue(double value, double targetValue, int animationTime, double a, double b, double c, double d) {
-        this.prevValue = value;
-        this.targetValue = targetValue;
-
-        this.animationTime = animationTime;
-        this.px3 = 3 * a;
-        this.px2 = 3 * (c - a) - this.px3;
-        this.px1 = 1 - this.px3 - this.px2;
-        this.py3 = 3 * b;
-        this.py2 = 3 * (d - b) - this.py3;
-        this.py1 = 1 - this.py3 - this.py2;
     }
 
     public double get() {

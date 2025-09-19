@@ -35,7 +35,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -47,7 +53,7 @@ import java.util.*;
 public class PlayerStructureSelectionHelper {
 
     private static final Map<UUID, StructureSelection> activeSelectionMap = new HashMap<>();
-    public static StructureSelection clientSelection = null;
+    public static        StructureSelection            clientSelection    = null;
 
     public static void toggleInSelection(EntityPlayer player, BlockPos pos) {
         activeSelectionMap.computeIfAbsent(player.getUniqueID(), uuid -> new StructureSelection()).togglePosition(pos);
@@ -63,8 +69,8 @@ public class PlayerStructureSelectionHelper {
     public static void sendSelection(EntityPlayer player) {
         if (player instanceof EntityPlayerMP) {
             ModularMachinery.NET_CHANNEL.sendTo(
-                    new PktSyncSelection(activeSelectionMap.computeIfAbsent(player.getUniqueID(), uuid -> new StructureSelection()).getSelectedPositions()),
-                    (EntityPlayerMP) player);
+                new PktSyncSelection(activeSelectionMap.computeIfAbsent(player.getUniqueID(), uuid -> new StructureSelection()).getSelectedPositions()),
+                (EntityPlayerMP) player);
         }
     }
 

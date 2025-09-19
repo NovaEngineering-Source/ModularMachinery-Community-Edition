@@ -8,10 +8,10 @@ import net.minecraft.world.World;
 import java.util.List;
 
 public class ComponentRestriction {
-    private final int minimumCount;
-    private final int maximumCount;
+    private final int                               minimumCount;
+    private final int                               maximumCount;
     private final List<BlockArray.BlockInformation> matching;
-    private String restrictionDesc;
+    private       String                            restrictionDesc;
 
     public ComponentRestriction(final int minimumCount,
                                 final int maximumCount,

@@ -46,8 +46,7 @@ public class BlockRainbowProvider extends BlockMachineComponent {
                                 @Nonnull BlockPos pos,
                                 @Nonnull IBlockState state,
                                 @Nonnull EntityLivingBase placer,
-                                @Nonnull ItemStack stack)
-    {
+                                @Nonnull ItemStack stack) {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
 
         if (placer instanceof final EntityPlayerMP player) {

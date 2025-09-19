@@ -8,7 +8,11 @@
 
 package hellfirepvp.modularmachinery.common.crafting.command;
 
-import com.google.gson.*;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.MathHelper;
@@ -26,7 +30,7 @@ import java.lang.reflect.Type;
 public class RecipeRunnableCommand {
 
     private final String command;
-    private final int interval;
+    private final int    interval;
 
     public RecipeRunnableCommand(String command) {
         this(command, -1);
@@ -79,7 +83,7 @@ public class RecipeRunnableCommand {
                 if (objCommand.has("interval")) {
                     JsonElement elementInterval = objCommand.get("interval");
                     if (!elementInterval.isJsonPrimitive() ||
-                            !elementInterval.getAsJsonPrimitive().isNumber()) {
+                        !elementInterval.getAsJsonPrimitive().isNumber()) {
                         throw new JsonParseException("Interval specified in 'interval' of recipe command object is not an int!");
                     }
                     interval = elementInterval.getAsInt();

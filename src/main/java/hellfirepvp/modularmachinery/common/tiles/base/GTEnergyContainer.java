@@ -29,7 +29,7 @@ import static hellfirepvp.modularmachinery.common.block.prop.EnergyHatchData.ena
 public class GTEnergyContainer implements IEnergyContainer {
 
     private final TileEnergyHatch hatch;
-    private final IOType ioType;
+    private final IOType          ioType;
 
     public GTEnergyContainer(TileEnergyHatch hatch, IOType ioType) {
         this.hatch = hatch;
@@ -47,8 +47,8 @@ public class GTEnergyContainer implements IEnergyContainer {
                 if (Mods.GREGTECH.isPresent() && enableGTExplodes) {
                     BlockPos pos = hatch.getPos();
                     hatch.getWorld().createExplosion(null,
-                            pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
-                            GTUtility.getTierByVoltage(voltage), true);
+                        pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                        GTUtility.getTierByVoltage(voltage), true);
                 }
                 return maxAmperage;
             }

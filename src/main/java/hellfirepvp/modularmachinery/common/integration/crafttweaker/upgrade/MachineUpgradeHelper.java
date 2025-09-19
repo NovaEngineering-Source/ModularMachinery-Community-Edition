@@ -35,7 +35,7 @@ public class MachineUpgradeHelper {
     /**
      * 为一个物品添加固定的机械升级，会在物品被创建时自动添加物品。
      *
-     * @param itemStack 物品
+     * @param itemStack   物品
      * @param upgradeName 升级名称
      */
     @ZenMethod
@@ -55,7 +55,7 @@ public class MachineUpgradeHelper {
     /**
      * 将一个升级应用至机械升级，相当于直接写入相关升级的 NBT.
      *
-     * @param stackCT  物品
+     * @param stackCT     物品
      * @param upgradeName 名称
      * @return 添加了目标机械升级的物品。
      */

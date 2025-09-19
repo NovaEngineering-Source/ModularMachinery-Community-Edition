@@ -18,12 +18,12 @@ public class LRDummyWorld {
         return useLeft ? left : right;
     }
 
-    public TrackedDummyWorld getAnotherWorld() {
-        return useLeft ? right : left;
-    }
-
     public LRDummyWorld setWorld(final TrackedDummyWorld world) {
         return useLeft ? setLeft(world) : setRight(world);
+    }
+
+    public TrackedDummyWorld getAnotherWorld() {
+        return useLeft ? right : left;
     }
 
     public LRDummyWorld setAnotherWorld(final TrackedDummyWorld world) {
@@ -52,13 +52,13 @@ public class LRDummyWorld {
         return left;
     }
 
-    public TrackedDummyWorld getRight() {
-        return right;
-    }
-
     public LRDummyWorld setLeft(final TrackedDummyWorld left) {
         this.left = left;
         return this;
+    }
+
+    public TrackedDummyWorld getRight() {
+        return right;
     }
 
     public LRDummyWorld setRight(final TrackedDummyWorld right) {

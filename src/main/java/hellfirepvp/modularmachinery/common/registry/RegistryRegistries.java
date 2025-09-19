@@ -17,7 +17,14 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryManager;
 
-import static hellfirepvp.modularmachinery.common.lib.RegistriesMM.*;
+import static hellfirepvp.modularmachinery.common.lib.RegistriesMM.ADAPTER_REGISTRY;
+import static hellfirepvp.modularmachinery.common.lib.RegistriesMM.ADAPTER_REGISTRY_NAME;
+import static hellfirepvp.modularmachinery.common.lib.RegistriesMM.COMPONENT_TYPE_REGISTRY;
+import static hellfirepvp.modularmachinery.common.lib.RegistriesMM.COMPONENT_TYPE_REGISTRY_NAME;
+import static hellfirepvp.modularmachinery.common.lib.RegistriesMM.REQUIREMENT_TIPS_REGISTRY;
+import static hellfirepvp.modularmachinery.common.lib.RegistriesMM.REQUIREMENT_TIPS_REGISTRY_NAME;
+import static hellfirepvp.modularmachinery.common.lib.RegistriesMM.REQUIREMENT_TYPE_REGISTRY;
+import static hellfirepvp.modularmachinery.common.lib.RegistriesMM.REQUIREMENT_TYPE_REGISTRY_NAME;
 
 /**
  * This class is part of the Modular Machinery Mod

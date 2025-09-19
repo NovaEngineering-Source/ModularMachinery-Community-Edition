@@ -9,6 +9,7 @@
 package hellfirepvp.modularmachinery.common.machine;
 
 import crafttweaker.annotations.ZenRegister;
+import github.kasuminova.mmce.common.util.BlockPos2ValueMap;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentSelectorTag;
 import hellfirepvp.modularmachinery.common.util.BlockArray;
 import hellfirepvp.modularmachinery.common.util.MiscUtils;
@@ -16,7 +17,6 @@ import net.minecraft.util.math.BlockPos;
 import stanhebben.zenscript.annotations.ZenClass;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,13 +29,13 @@ import java.util.Map;
 @ZenRegister
 @ZenClass("mods.modularmachinery.TaggedPositionBlockArray")
 public class TaggedPositionBlockArray extends BlockArray {
-    private Map<BlockPos, ComponentSelectorTag> taggedPositions = new HashMap<>();
+    private Map<BlockPos, ComponentSelectorTag> taggedPositions = new BlockPos2ValueMap<>();
 
     public TaggedPositionBlockArray() {
     }
 
-    public TaggedPositionBlockArray(long traitNum) {
-        super(traitNum);
+    public TaggedPositionBlockArray(long uid) {
+        super(uid);
     }
 
     public TaggedPositionBlockArray(TaggedPositionBlockArray another) {
@@ -60,13 +60,13 @@ public class TaggedPositionBlockArray extends BlockArray {
     public void overwrite(final BlockArray other) {
         super.overwrite(other);
         if (other instanceof TaggedPositionBlockArray) {
-            this.taggedPositions = new HashMap<>(((TaggedPositionBlockArray) other).taggedPositions);
+            this.taggedPositions = new BlockPos2ValueMap<>(((TaggedPositionBlockArray) other).taggedPositions);
         }
     }
 
     @Override
     public TaggedPositionBlockArray rotateYCCW() {
-        TaggedPositionBlockArray out = new TaggedPositionBlockArray(traitNum);
+        TaggedPositionBlockArray out = new TaggedPositionBlockArray(uid);
 
         for (Map.Entry<BlockPos, BlockInformation> entry : pattern.entrySet()) {
             out.addBlock(MiscUtils.rotateYCCW(entry.getKey()), entry.getValue().copyRotateYCCW());
@@ -79,33 +79,4 @@ public class TaggedPositionBlockArray extends BlockArray {
         return out;
     }
 
-    @Override
-    public TaggedPositionBlockArray rotateUp() {
-        TaggedPositionBlockArray out = new TaggedPositionBlockArray(traitNum);
-
-        Map<BlockPos, BlockInformation> outPattern = out.pattern;
-        for (BlockPos pos : pattern.keySet()) {
-            outPattern.put(MiscUtils.rotateUp(pos), pattern.get(pos).copy());
-        }
-        for (BlockPos pos : taggedPositions.keySet()) {
-            out.taggedPositions.put(MiscUtils.rotateUp(pos), taggedPositions.get(pos));
-        }
-
-        return out;
-    }
-
-    @Override
-    public TaggedPositionBlockArray rotateDown() {
-        TaggedPositionBlockArray out = new TaggedPositionBlockArray(traitNum);
-
-        Map<BlockPos, BlockInformation> outPattern = out.pattern;
-        for (BlockPos pos : pattern.keySet()) {
-            outPattern.put(MiscUtils.rotateDown(pos), pattern.get(pos).copy());
-        }
-        for (BlockPos pos : taggedPositions.keySet()) {
-            out.taggedPositions.put(MiscUtils.rotateDown(pos), taggedPositions.get(pos));
-        }
-
-        return out;
-    }
 }

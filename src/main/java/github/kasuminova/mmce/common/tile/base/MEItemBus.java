@@ -24,24 +24,28 @@ public abstract class MEItemBus extends MEMachineComponent implements IGridTicka
     // TODO: May cause some machine fatal error, but why?
 //    protected final BitSet changedSlots = new BitSet();
 
-    protected IOInventory inventory = buildInventory();
-    protected boolean[] changedSlots = new boolean[inventory.getSlots()];
-    protected int fullCheckCounter = 5;
-    protected boolean inTick = false;
+    protected IOInventory inventory         = buildInventory();
+    protected boolean[]   changedSlots      = new boolean[inventory.getSlots()];
+    protected int[]       failureCounter    = new int[inventory.getSlots()];
+    protected long        lastFullCheckTick = 0;
+    protected boolean     inTick            = false;
 
     public abstract IOInventory buildInventory();
 
     protected synchronized int[] getNeedUpdateSlots() {
-        fullCheckCounter++;
-        if (fullCheckCounter >= 5) {
-            fullCheckCounter = 0;
+        long current = world.getTotalWorldTime();
+        if (lastFullCheckTick + 100 < current) {
+            lastFullCheckTick = current;
             return IntStream.range(0, inventory.getSlots()).toArray();
         }
-        IntList list = new IntArrayList();
-        IntStream.range(0, changedSlots.length)
-                .filter(i -> changedSlots[i])
-                .forEach(list::add);
-        return list.toArray(new int[0]);
+        IntList needUpdateSlots = new IntArrayList(changedSlots.length + 1);
+        int bound = changedSlots.length;
+        for (int i = 0; i < bound; i++) {
+            if (changedSlots[i] && failureCounter[i] <= 0) {
+                needUpdateSlots.add(i);
+            }
+        }
+        return needUpdateSlots.toIntArray();
     }
 
     public IOInventory getInternalInventory() {
@@ -103,7 +107,7 @@ public abstract class MEItemBus extends MEMachineComponent implements IGridTicka
         }
         return false;
     }
-    
+
     public boolean hasChangedSlots() {
         for (final boolean changed : changedSlots) {
             if (changed) {

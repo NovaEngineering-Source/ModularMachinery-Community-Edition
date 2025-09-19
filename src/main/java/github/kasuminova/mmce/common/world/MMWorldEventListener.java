@@ -1,6 +1,7 @@
 package github.kasuminova.mmce.common.world;
 
 import github.kasuminova.mmce.client.world.BlockModelHider;
+import it.unimi.dsi.fastutil.Function;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.block.state.IBlockState;
@@ -55,12 +56,12 @@ public class MMWorldEventListener implements IWorldEventListener {
     }
 
     @SubscribeEvent
-    public void onWorldTickStart(TickEvent.WorldTickEvent event) {
+    public void onServerTickStart(TickEvent.ServerTickEvent event) {
         if (event.side != Side.SERVER || event.phase != TickEvent.Phase.START) {
             return;
         }
 
-        worldChangedChunks.put(event.world, new Long2ObjectOpenHashMap<>());
+        worldChangedChunks.values().forEach(Function::clear);
     }
 
     @SubscribeEvent

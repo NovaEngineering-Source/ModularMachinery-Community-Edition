@@ -24,7 +24,15 @@ import java.util.List;
 
 public class TileSmartInterface extends TileEntityRestrictedTick implements MachineComponentTile, SelectiveUpdateTileEntity {
     private final List<SmartInterfaceData> boundData = new ArrayList<>();
-    private final SmartInterfaceProvider provider = new SmartInterfaceProvider(this);
+    private final SmartInterfaceProvider   provider  = new SmartInterfaceProvider(this);
+
+    public static void onDataUpdate(TileSmartInterface owner, SmartInterfaceData newData) {
+        TileEntity te = owner.getWorld().getTileEntity(newData.getPos());
+        if (!(te instanceof final TileMultiblockMachineController ctrl)) {
+            return;
+        }
+        new SmartInterfaceUpdateEvent(ctrl, owner.getPos(), newData).postEvent();
+    }
 
     @Override
     @Nonnull
@@ -91,16 +99,8 @@ public class TileSmartInterface extends TileEntityRestrictedTick implements Mach
         }
     }
 
-    public static void onDataUpdate(TileSmartInterface owner, SmartInterfaceData newData) {
-        TileEntity te = owner.getWorld().getTileEntity(newData.getPos());
-        if (!(te instanceof final TileMultiblockMachineController ctrl)) {
-            return;
-        }
-        new SmartInterfaceUpdateEvent(ctrl, owner.getPos(), newData).postEvent();
-    }
-
     public static class SmartInterfaceProvider extends MachineComponent<SmartInterfaceProvider> {
-        private final TileSmartInterface parent;
+        private final TileSmartInterface       parent;
         private final List<SmartInterfaceData> boundData;
 
         public SmartInterfaceProvider(TileSmartInterface parent) {

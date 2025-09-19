@@ -25,7 +25,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static net.minecraft.client.gui.GuiScreen.*;
+import static net.minecraft.client.gui.GuiScreen.isKeyComboCtrlA;
+import static net.minecraft.client.gui.GuiScreen.isKeyComboCtrlC;
+import static net.minecraft.client.gui.GuiScreen.isKeyComboCtrlV;
+import static net.minecraft.client.gui.GuiScreen.isKeyComboCtrlX;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -39,8 +42,8 @@ public class MiscUtils {
 
     public static <K, V, N> Map<K, N> remap(Map<K, V> map, Function<V, N> remapFct) {
         return map.entrySet()
-                .stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, (e) -> remapFct.apply(e.getValue())));
+                  .stream()
+                  .collect(Collectors.toMap(Map.Entry::getKey, (e) -> remapFct.apply(e.getValue())));
     }
 
     public static List<String> splitStringBy(String str, String spl) {
@@ -153,7 +156,7 @@ public class MiscUtils {
 
     public static boolean isTextBoxKey(int i) {
         return i == Keyboard.KEY_BACK || i == Keyboard.KEY_DELETE || i == Keyboard.KEY_LEFT || i == Keyboard.KEY_RIGHT || i == Keyboard.KEY_END ||
-               i == Keyboard.KEY_HOME || isKeyComboCtrlA(i) || isKeyComboCtrlC(i) || isKeyComboCtrlV(i) || isKeyComboCtrlX(i);
+            i == Keyboard.KEY_HOME || isKeyComboCtrlA(i) || isKeyComboCtrlC(i) || isKeyComboCtrlV(i) || isKeyComboCtrlX(i);
     }
 
     public static String posToString(Vec3i pos) {

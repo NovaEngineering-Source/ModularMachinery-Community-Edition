@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class ModularMagicItems {
 
-    public static final ArrayList<Item> ITEMS = new ArrayList<>();
+    public static final ArrayList<Item>             ITEMS       = new ArrayList<>();
     public static final ArrayList<ItemDynamicColor> COLOR_ITEMS = new ArrayList<>();
 
     public static void initItems() {

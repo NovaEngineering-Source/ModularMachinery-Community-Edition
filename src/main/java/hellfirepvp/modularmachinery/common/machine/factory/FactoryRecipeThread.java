@@ -22,7 +22,13 @@ import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenGetter;
 import stanhebben.zenscript.annotations.ZenMethod;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * <p>TileFactoryController 的一部分，存储单独的配方运行数据。</p>
@@ -33,24 +39,24 @@ import java.util.*;
 @ZenRegister
 @ZenClass("mods.modularmachinery.FactoryRecipeThread")
 public class FactoryRecipeThread extends RecipeThread {
-    public static final int IDLE_TIME_OUT = 200;
-    public static final List<Action> WAIT_FOR_ADD = new ArrayList<>();
-    private final TreeSet<MachineRecipe> recipeSet = new TreeSet<>();
-    public int idleTime = 0;
-    private TileFactoryController factory;
-    private boolean isCoreThread;
-    private String threadName;
+    public static final int                    IDLE_TIME_OUT = 200;
+    public static final List<Action>           WAIT_FOR_ADD  = new ArrayList<>();
+    private final       TreeSet<MachineRecipe> recipeSet     = new TreeSet<>();
+    public              int                    idleTime      = 0;
+    private             TileFactoryController  factory;
+    private             boolean                isCoreThread;
+    private             String                 threadName;
 
     public FactoryRecipeThread(TileFactoryController factory) {
         this(factory, false, "", Collections.emptySet(), Collections.emptyMap());
     }
 
     public FactoryRecipeThread(
-            TileFactoryController factory,
-            boolean isCoreThread,
-            String threadName,
-            Set<MachineRecipe> recipeSet,
-            Map<String, RecipeModifier> permanentModifiers) {
+        TileFactoryController factory,
+        boolean isCoreThread,
+        String threadName,
+        Set<MachineRecipe> recipeSet,
+        Map<String, RecipeModifier> permanentModifiers) {
         super(factory);
         this.factory = factory;
         this.isCoreThread = isCoreThread;
@@ -62,6 +68,57 @@ public class FactoryRecipeThread extends RecipeThread {
     @ZenMethod
     public static FactoryRecipeThread createCoreThread(String threadName) {
         return new FactoryRecipeThread(null, true, threadName, Collections.emptySet(), Collections.emptyMap());
+    }
+
+    public static FactoryRecipeThread deserialize(NBTTagCompound tag, TileFactoryController factory) {
+        if (!tag.hasKey("status")) {
+            return null;
+        }
+
+        Map<String, RecipeModifier> permanentModifiers = new HashMap<>();
+        if (tag.hasKey("permanentModifiers", Constants.NBT.TAG_LIST)) {
+            NBTTagList tagList = tag.getTagList("permanentModifiers", Constants.NBT.TAG_COMPOUND);
+            for (int i = 0; i < tagList.tagCount(); i++) {
+                NBTTagCompound modifierTag = tagList.getCompoundTagAt(i);
+                permanentModifiers.put(modifierTag.getString("key"), RecipeModifier.deserialize(modifierTag.getCompoundTag("modifier")));
+            }
+        }
+
+        Map<String, RecipeModifier> semiPermanentModifiers = new HashMap<>();
+        if (tag.hasKey("semiPermanentModifiers", Constants.NBT.TAG_LIST)) {
+            NBTTagList tagList = tag.getTagList("semiPermanentModifiers", Constants.NBT.TAG_COMPOUND);
+            for (int i = 0; i < tagList.tagCount(); i++) {
+                NBTTagCompound modifierTag = tagList.getCompoundTagAt(i);
+                semiPermanentModifiers.put(modifierTag.getString("key"), RecipeModifier.deserialize(modifierTag.getCompoundTag("modifier")));
+            }
+        }
+
+        ActiveMachineRecipe activeRecipe = deserializeActiveRecipe(tag, factory);
+
+        // https://github.com/KasumiNova/ModularMachinery-Community-Edition/issues/34
+        if (factory.getFoundMachine() != null
+            && activeRecipe != null
+            && !activeRecipe.getRecipe().getOwningMachineIdentifier().equals(factory.getFoundMachine().getRegistryName())) {
+            activeRecipe = null;
+        }
+
+        FactoryRecipeThread thread = (FactoryRecipeThread) new FactoryRecipeThread(factory)
+            .setActiveRecipe(activeRecipe)
+            .setStatus(CraftingStatus.deserialize(tag.getCompoundTag("status")));
+        thread.permanentModifiers.putAll(permanentModifiers);
+        thread.semiPermanentModifiers.putAll(semiPermanentModifiers);
+
+        // Core Thread
+        if (tag.hasKey("coreThreadName")) {
+            Map<String, FactoryRecipeThread> threads = factory.getFoundMachine().getCoreThreadPreset();
+            FactoryRecipeThread coreThread = threads.get(tag.getString("coreThreadName"));
+            if (coreThread == null) {
+                return thread;
+            }
+            return coreThread.copyDataToAnother(factory, thread);
+        }
+        // Simple Thread
+        return thread;
     }
 
     public CraftingStatus onTick() {
@@ -105,12 +162,12 @@ public class FactoryRecipeThread extends RecipeThread {
         TileFactoryController factory = this.factory;
         Iterable<MachineRecipe> recipeSet = this.recipeSet.isEmpty() ? RecipeRegistry.getRecipesFor(factory.getFoundMachine()) : this.recipeSet;
         searchTask = new FactoryRecipeSearchTask(
-                factory,
-                factory.getFoundMachine(),
-                factory.getAvailableParallelism(),
-                recipeSet,
-                this,
-                factory.getActiveRecipeList());
+            factory,
+            factory.getFoundMachine(),
+            factory.getAvailableParallelism(),
+            recipeSet,
+            this,
+            factory.getActiveRecipeList());
         factory.getWaitToExecute().add(searchTask);
     }
 
@@ -148,57 +205,6 @@ public class FactoryRecipeThread extends RecipeThread {
             tag.setTag("semiPermanentModifiers", tagList);
         }
         return tag;
-    }
-
-    public static FactoryRecipeThread deserialize(NBTTagCompound tag, TileFactoryController factory) {
-        if (!tag.hasKey("status")) {
-            return null;
-        }
-
-        Map<String, RecipeModifier> permanentModifiers = new HashMap<>();
-        if (tag.hasKey("permanentModifiers", Constants.NBT.TAG_LIST)) {
-            NBTTagList tagList = tag.getTagList("permanentModifiers", Constants.NBT.TAG_COMPOUND);
-            for (int i = 0; i < tagList.tagCount(); i++) {
-                NBTTagCompound modifierTag = tagList.getCompoundTagAt(i);
-                permanentModifiers.put(modifierTag.getString("key"), RecipeModifier.deserialize(modifierTag.getCompoundTag("modifier")));
-            }
-        }
-
-        Map<String, RecipeModifier> semiPermanentModifiers = new HashMap<>();
-        if (tag.hasKey("semiPermanentModifiers", Constants.NBT.TAG_LIST)) {
-            NBTTagList tagList = tag.getTagList("semiPermanentModifiers", Constants.NBT.TAG_COMPOUND);
-            for (int i = 0; i < tagList.tagCount(); i++) {
-                NBTTagCompound modifierTag = tagList.getCompoundTagAt(i);
-                semiPermanentModifiers.put(modifierTag.getString("key"), RecipeModifier.deserialize(modifierTag.getCompoundTag("modifier")));
-            }
-        }
-
-        ActiveMachineRecipe activeRecipe = deserializeActiveRecipe(tag, factory);
-
-        // https://github.com/KasumiNova/ModularMachinery-Community-Edition/issues/34
-        if (factory.getFoundMachine() != null
-                && activeRecipe != null
-                && !activeRecipe.getRecipe().getOwningMachineIdentifier().equals(factory.getFoundMachine().getRegistryName())) {
-            activeRecipe = null;
-        }
-
-        FactoryRecipeThread thread = (FactoryRecipeThread) new FactoryRecipeThread(factory)
-                .setActiveRecipe(activeRecipe)
-                .setStatus(CraftingStatus.deserialize(tag.getCompoundTag("status")));
-        thread.permanentModifiers.putAll(permanentModifiers);
-        thread.semiPermanentModifiers.putAll(semiPermanentModifiers);
-
-        // Core Thread
-        if (tag.hasKey("coreThreadName")) {
-            Map<String, FactoryRecipeThread> threads = factory.getFoundMachine().getCoreThreadPreset();
-            FactoryRecipeThread coreThread = threads.get(tag.getString("coreThreadName"));
-            if (coreThread == null) {
-                return thread;
-            }
-            return coreThread.copyDataToAnother(factory, thread);
-        }
-        // Simple Thread
-        return thread;
     }
 
     public TileFactoryController getFactory() {

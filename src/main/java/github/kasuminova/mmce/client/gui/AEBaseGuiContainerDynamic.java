@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AEBaseGuiContainerDynamic extends AEBaseGui {
-    
+
     protected WidgetController widgetController = null;
-    protected Slot hoveredSlot = null;
+    protected Slot             hoveredSlot      = null;
 
     public AEBaseGuiContainerDynamic(final Container container) {
         super(container);
@@ -34,10 +34,10 @@ public abstract class AEBaseGuiContainerDynamic extends AEBaseGui {
     public void initGui() {
         super.initGui();
         widgetController.getGui()
-                .setGuiLeft(guiLeft)
-                .setGuiTop(guiTop)
-                .setXSize(width)
-                .setYSize(height);
+                        .setGuiLeft(guiLeft)
+                        .setGuiTop(guiTop)
+                        .setXSize(width)
+                        .setYSize(height);
         widgetController.init();
     }
 
@@ -110,9 +110,9 @@ public abstract class AEBaseGuiContainerDynamic extends AEBaseGui {
 
     protected void updateHoveredSlot(final int mouseX, final int mouseY) {
         hoveredSlot = this.inventorySlots.inventorySlots.stream()
-                .filter(slot -> this.isMouseOverSlot(slot, mouseX, mouseY) && slot.isEnabled())
-                .findFirst()
-                .orElse(null);
+                                                        .filter(slot -> this.isMouseOverSlot(slot, mouseX, mouseY) && slot.isEnabled())
+                                                        .findFirst()
+                                                        .orElse(null);
     }
 
     protected boolean isMouseOverSlot(Slot slotIn, int mouseX, int mouseY) {

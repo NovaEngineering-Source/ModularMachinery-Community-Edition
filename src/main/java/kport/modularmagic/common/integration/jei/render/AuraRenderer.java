@@ -17,7 +17,7 @@ import java.util.List;
 
 public class AuraRenderer implements IIngredientRenderer<Aura> {
 
-    private static ItemStack aura = null;
+    private static ItemStack aura     = null;
     private static IAuraType auraType = null;
 
     @Override

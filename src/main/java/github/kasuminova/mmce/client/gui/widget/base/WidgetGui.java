@@ -11,10 +11,10 @@ import net.minecraft.client.gui.inventory.GuiContainer;
  */
 public class WidgetGui {
     private final GuiScreen gui;
-    private int xSize;
-    private int ySize;
-    private int guiLeft;
-    private int guiTop;
+    private       int       xSize;
+    private       int       ySize;
+    private       int       guiLeft;
+    private       int       guiTop;
 
     public WidgetGui(final GuiScreen gui, final int xSize, final int ySize, final int guiLeft, final int guiTop) {
         this.gui = gui;

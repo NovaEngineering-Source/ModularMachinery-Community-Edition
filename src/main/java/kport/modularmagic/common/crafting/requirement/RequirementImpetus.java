@@ -49,8 +49,8 @@ public class RequirementImpetus extends ComponentRequirement.MultiCompParalleliz
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.getComponent();
         return cmp.getComponentType() instanceof ComponentImpetus &&
-                cmp instanceof MachineComponentImpetus &&
-                cmp.getIOType() == this.getActionType();
+            cmp instanceof MachineComponentImpetus &&
+            cmp.getIOType() == this.getActionType();
     }
 
     @Nonnull
@@ -60,9 +60,9 @@ public class RequirementImpetus extends ComponentRequirement.MultiCompParalleliz
         List<ProcessingComponent<?>> list = new ArrayList<>();
         for (final ProcessingComponent<?> component : components) {
             list.add(new ProcessingComponent<>((
-                    MachineComponent<Object>) component.component(),
-                    new ImpetusProviderCopy(((ImpetusProviderCopy) component.providedComponent()).getOriginal()),
-                    component.tag())
+                MachineComponent<Object>) component.component(),
+                new ImpetusProviderCopy(((ImpetusProviderCopy) component.providedComponent()).getOriginal()),
+                component.tag())
             );
         }
         return list;

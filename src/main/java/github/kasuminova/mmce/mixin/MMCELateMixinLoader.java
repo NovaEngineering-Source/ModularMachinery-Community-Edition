@@ -12,7 +12,9 @@ public class MMCELateMixinLoader implements ILateMixinLoader {
     @Override
     public List<String> getMixinConfigs() {
         return Arrays.asList(
-                "mixins.mmce_jei_hacky.json"
+            "mixins.mmce_jei_hacky.json",
+            "mixins.mmce_ae2.json",
+            "mixins.mmce_nae2.json"
         );
     }
 
@@ -20,6 +22,8 @@ public class MMCELateMixinLoader implements ILateMixinLoader {
     public boolean shouldMixinConfigQueue(final String mixinConfig) {
         return switch (mixinConfig) {
             case "mixins.mmce_jei_hacky.json" -> Loader.isModLoaded("jei");
+            case "mixins.mmce_ae2.json" -> Loader.isModLoaded("appliedenergistics2");
+            case "mixins.mmce_nae2.json" -> Loader.isModLoaded("nae2");
             default -> true;
         };
     }

@@ -17,11 +17,11 @@ public class MultiLineLabel extends DynamicWidget {
 
     protected List<String> contents;
 
-    protected boolean leftAligned = true;
-    protected boolean rightAligned = false;
-    protected boolean verticalCentering = false;
+    protected boolean leftAligned         = true;
+    protected boolean rightAligned        = false;
+    protected boolean verticalCentering   = false;
     protected boolean autoRecalculateSize = true;
-    protected boolean autoWrap = true;
+    protected boolean autoWrap            = true;
 
     protected float scale = 1.0F;
 

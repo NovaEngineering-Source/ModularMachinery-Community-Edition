@@ -12,12 +12,14 @@ public class AspectHelper<T extends AspectList> implements IIngredientHelper<T> 
     @Nullable
     @Override
     public T getMatch(Iterable<T> ingredients, T ingredientToMatch) {
-        if (Iterables.isEmpty(ingredients))
+        if (Iterables.isEmpty(ingredients)) {
             return null;
+        }
 
         for (T list : ingredients) {
-            if (list.getAspects()[0].getTag().equalsIgnoreCase(ingredientToMatch.getAspects()[0].getTag()))
+            if (list.getAspects()[0].getTag().equalsIgnoreCase(ingredientToMatch.getAspects()[0].getTag())) {
                 return list;
+            }
         }
         return null;
     }

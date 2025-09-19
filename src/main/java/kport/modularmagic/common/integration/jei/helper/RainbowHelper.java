@@ -12,8 +12,9 @@ public class RainbowHelper<T extends Rainbow> implements IIngredientHelper<T> {
     @Override
     public T getMatch(Iterable<T> ingredients, T ingredientToMatch) {
         for (Rainbow rainbow : ingredients) {
-            if (rainbow.isWorking() == ingredientToMatch.isWorking())
+            if (rainbow.isWorking() == ingredientToMatch.isWorking()) {
                 return ingredientToMatch;
+            }
         }
         return null;
     }

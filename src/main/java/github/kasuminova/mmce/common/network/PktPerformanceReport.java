@@ -7,9 +7,9 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class PktPerformanceReport implements IMessage, IMessageHandler<PktPerformanceReport, IMessage> {
-    private int usedTime = 0;
-    private int searchUsedTime = 0;
-    private byte workMode = 0;
+    private int  usedTime       = 0;
+    private int  searchUsedTime = 0;
+    private byte workMode       = 0;
 
     public PktPerformanceReport() {
     }

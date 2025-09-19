@@ -27,10 +27,10 @@ import java.util.IllegalFormatException;
 
 public class GuiContainerSmartInterface extends GuiContainerBase<ContainerSmartInterface> {
     private final TileSmartInterface smartInterface;
-    private GuiTextField textField;
-    private GuiButton prev;
-    private GuiButton next;
-    private int showing = 0;
+    private       GuiTextField       textField;
+    private       GuiButton          prev;
+    private       GuiButton          next;
+    private       int                showing = 0;
 
     public GuiContainerSmartInterface(TileSmartInterface owner, EntityPlayer opening) {
         super(new ContainerSmartInterface(owner, opening));
@@ -77,7 +77,7 @@ public class GuiContainerSmartInterface extends GuiContainerBase<ContainerSmartI
 
         BlockPos pos = data.getPos();
         fr.drawStringWithShadow(String.format("%s (%s)", machine.getLocalizedName(), MiscUtils.posToString(pos)),
-                offsetX, offsetY, 0xFFFFFF);
+            offsetX, offsetY, 0xFFFFFF);
 
         offsetY += 10;
         fr.drawStringWithShadow(I18n.format(type.getHeaderInfo()), offsetX, offsetY, 0xFFFFFF);
@@ -86,8 +86,8 @@ public class GuiContainerSmartInterface extends GuiContainerBase<ContainerSmartI
         String valueInfo;
         try {
             valueInfo = type.getValueInfo().isEmpty()
-                    ? I18n.format("gui.smartinterface.value", data.getValue())
-                    : String.format(type.getValueInfo(), data.getValue());
+                ? I18n.format("gui.smartinterface.value", data.getValue())
+                : String.format(type.getValueInfo(), data.getValue());
         } catch (IllegalFormatException ex) {
             ModularMachinery.log.warn(ThrowableUtil.stackTraceToString(ex));
             valueInfo = I18n.format("gui.smartinterface.value", data.getValue());
@@ -196,8 +196,8 @@ public class GuiContainerSmartInterface extends GuiContainerBase<ContainerSmartI
         textField = new GuiTextField(0, fontRenderer, this.width / 2 + 10, this.height / 2 - 48, 70, 10);
         textField.setMaxStringLength(16);
         prev = new GuiButton(1, this.width / 2 - 81, this.height / 2 - 25, 40, 20,
-                I18n.format("gui.smartinterface.prev"));
+            I18n.format("gui.smartinterface.prev"));
         next = new GuiButton(2, this.width / 2 + 41, this.height / 2 - 25, 40, 20,
-                I18n.format("gui.smartinterface.next"));
+            I18n.format("gui.smartinterface.next"));
     }
 }

@@ -35,9 +35,9 @@ public class AdapterSmelteryAlloyRecipe extends RecipeAdapter {
 
         for (AlloyRecipe alloyRecipe : alloyRecipes) {
             MachineRecipe recipe = createRecipeShell(new ResourceLocation("tconstruct", "smeltery_alloy_" + incId),
-                    owningMachineName, Math.round(RecipeModifier.applyModifiers(
-                            modifiers, RequirementTypesMM.REQUIREMENT_DURATION, IOType.INPUT, WORK_TIME, false)),
-                    incId, false
+                owningMachineName, Math.round(RecipeModifier.applyModifiers(
+                    modifiers, RequirementTypesMM.REQUIREMENT_DURATION, IOType.INPUT, WORK_TIME, false)),
+                incId, false
             );
 
             // Fluid Input

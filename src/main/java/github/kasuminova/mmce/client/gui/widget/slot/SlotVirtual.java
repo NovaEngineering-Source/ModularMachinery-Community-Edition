@@ -1,18 +1,17 @@
 package github.kasuminova.mmce.client.gui.widget.slot;
 
 import github.kasuminova.mmce.client.gui.util.MousePos;
+import github.kasuminova.mmce.client.gui.util.TextureProperties;
 import github.kasuminova.mmce.client.gui.widget.base.DynamicWidget;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
+import java.util.Optional;
 
 public abstract class SlotVirtual extends DynamicWidget {
 
-    protected ResourceLocation slotTexLocation = null;
-    protected int slotTexX = 0;
-    protected int slotTexY = 0;
+    protected TextureProperties slotTex = TextureProperties.EMPTY;
 
     protected boolean mouseOver = false;
 
@@ -27,6 +26,8 @@ public abstract class SlotVirtual extends DynamicWidget {
             GlStateManager.colorMask(true, true, true, false);
             GuiScreen.drawRect(rx, ry, rx + 16, ry + 16, new Color(255, 255, 255, 150).getRGB());
             GlStateManager.colorMask(true, true, true, true);
+            GlStateManager.color(1F, 1F, 1F, 1F);
+            GlStateManager.enableBlend();
             GlStateManager.enableLighting();
             GlStateManager.enableDepth();
         }
@@ -34,18 +35,12 @@ public abstract class SlotVirtual extends DynamicWidget {
 
     // Texture Location.
 
-    public SlotVirtual setSlotTexLocation(final ResourceLocation slotTexLocation) {
-        this.slotTexLocation = slotTexLocation;
-        return this;
+    public TextureProperties getSlotTex() {
+        return slotTex;
     }
 
-    public SlotVirtual setSlotTexX(final int slotTexX) {
-        this.slotTexX = slotTexX;
-        return this;
-    }
-
-    public SlotVirtual setSlotTexY(final int slotTexY) {
-        this.slotTexY = slotTexY;
+    public SlotVirtual setSlotTex(final TextureProperties slotTex) {
+        this.slotTex = Optional.ofNullable(slotTex).orElse(TextureProperties.EMPTY);
         return this;
     }
 

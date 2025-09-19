@@ -38,9 +38,9 @@ import javax.annotation.Nonnull;
 @ZenRegister
 @ZenClass("mods.modularmachinery.ActiveMachineRecipe")
 public class ActiveMachineRecipe {
-    private final MachineRecipe recipe;
-    private NBTTagCompound data = new NBTTagCompound();
-    private int tick = 0, totalTick;
+    private final MachineRecipe  recipe;
+    private       NBTTagCompound data = new NBTTagCompound();
+    private       int            tick = 0, totalTick;
     private int maxParallelism, parallelism = 1;
 
     public ActiveMachineRecipe(MachineRecipe recipe, int maxParallelism) {
@@ -78,7 +78,7 @@ public class ActiveMachineRecipe {
     @Nonnull
     public CraftingStatus tick(TileMultiblockMachineController ctrl, RecipeCraftingContext context) {
         totalTick = Math.round(RecipeModifier.applyModifiers(
-                context, RequirementTypesMM.REQUIREMENT_DURATION, null, this.recipe.getRecipeTotalTickTime(), false));
+            context, RequirementTypesMM.REQUIREMENT_DURATION, null, this.recipe.getRecipeTotalTickTime(), false));
 
         //Skip per-tick logic until the controller can finish the recipe
         if (this.isCompleted()) {
@@ -131,7 +131,7 @@ public class ActiveMachineRecipe {
 
     public void calculateExtraParallelism(final RecipeCraftingContext context) {
         float totalTick = RecipeModifier.applyModifiers(
-                context, RequirementTypesMM.REQUIREMENT_DURATION, null, this.recipe.getRecipeTotalTickTime(), false);
+            context, RequirementTypesMM.REQUIREMENT_DURATION, null, this.recipe.getRecipeTotalTickTime(), false);
         if (totalTick < 0F) {
             this.totalTick = 1;
         } else if (totalTick < 1) {
@@ -146,7 +146,7 @@ public class ActiveMachineRecipe {
     public void start(RecipeCraftingContext context) {
         context.startCrafting();
         totalTick = Math.round(RecipeModifier.applyModifiers(
-                context, RequirementTypesMM.REQUIREMENT_DURATION, null, this.recipe.getRecipeTotalTickTime(), false));
+            context, RequirementTypesMM.REQUIREMENT_DURATION, null, this.recipe.getRecipeTotalTickTime(), false));
     }
 
     public NBTTagCompound serialize() {

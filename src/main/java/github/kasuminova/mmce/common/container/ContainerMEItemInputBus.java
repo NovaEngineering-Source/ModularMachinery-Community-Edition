@@ -20,7 +20,7 @@ public class ContainerMEItemInputBus extends AEBaseContainer {
         for (int y = 0; y < 4; y++) {
             for (int x = 0; x < 4; x++) {
                 this.addSlotToContainer(new SlotFake(config,
-                        y * 4 + x, 8 + 18 * x, 35 + 18 * y));
+                    y * 4 + x, 8 + 18 * x, 35 + 18 * y));
             }
         }
 
@@ -28,7 +28,7 @@ public class ContainerMEItemInputBus extends AEBaseContainer {
         for (int y = 0; y < 4; y++) {
             for (int x = 0; x < 4; x++) {
                 this.addSlotToContainer(new SlotDisabled(internal,
-                        y * 4 + x, 90 + 8 + 18 * x, 35 + 18 * y));
+                    y * 4 + x, 90 + 8 + 18 * x, 35 + 18 * y));
             }
         }
     }

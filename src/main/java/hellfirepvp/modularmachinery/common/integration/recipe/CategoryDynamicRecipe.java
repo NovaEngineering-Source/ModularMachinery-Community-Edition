@@ -30,8 +30,13 @@ import net.minecraft.client.resources.I18n;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -42,15 +47,15 @@ import java.util.*;
  */
 public class CategoryDynamicRecipe implements IRecipeCategory<DynamicRecipeWrapper> {
 
-    final LinkedList<RecipeLayoutPart<?>> inputComponents = Lists.newLinkedList();
-    final LinkedList<RecipeLayoutPart<?>> outputComponents = Lists.newLinkedList();
-    private final DynamicMachine machine;
-    private final String category;
-    private final String title;
-    int realHeight;
+    final         LinkedList<RecipeLayoutPart<?>> inputComponents  = Lists.newLinkedList();
+    final         LinkedList<RecipeLayoutPart<?>> outputComponents = Lists.newLinkedList();
+    private final DynamicMachine                  machine;
+    private final String                          category;
+    private final String                          title;
+    int       realHeight;
     Rectangle rectangleProcessArrow;
     private IDrawable sizeEmptyDrawable;
-    private Point offsetProcessArrow;
+    private Point     offsetProcessArrow;
 
     public CategoryDynamicRecipe(DynamicMachine machine) {
         this.machine = machine;
@@ -83,6 +88,9 @@ public class CategoryDynamicRecipe implements IRecipeCategory<DynamicRecipeWrapp
         int widestTooltip = 0;
 
         for (MachineRecipe recipe : recipes) {
+            if (!recipe.getLoadJEI()) {
+                continue;
+            }
             Map<IOType, Object2IntOpenHashMap<Class<?>>> tempComp = new EnumMap<>(IOType.class);
             for (ComponentRequirement<?, ?> req : recipe.getCraftingRequirements()) {
                 req.initializeJEIRequirements();
@@ -101,7 +109,7 @@ public class CategoryDynamicRecipe implements IRecipeCategory<DynamicRecipeWrapp
             for (Map.Entry<IOType, Object2IntOpenHashMap<Class<?>>> cmpEntry : tempComp.entrySet()) {
                 for (Map.Entry<Class<?>, Integer> cntEntry : cmpEntry.getValue().entrySet()) {
                     int current = componentCounts.computeIfAbsent(cmpEntry.getKey(), ioType -> new HashMap<>())
-                            .computeIfAbsent(cntEntry.getKey(), clazz -> 0);
+                                                 .computeIfAbsent(cntEntry.getKey(), clazz -> 0);
                     if (cntEntry.getValue() > current) {
                         componentCounts.get(cmpEntry.getKey()).put(cntEntry.getKey(), cntEntry.getValue());
                     }
@@ -218,7 +226,7 @@ public class CategoryDynamicRecipe implements IRecipeCategory<DynamicRecipeWrapp
         int halfY = highestY / 2;
         offsetProcessArrow = new Point(tempArrowOffsetX, halfY / 2);
         rectangleProcessArrow = new Rectangle(offsetProcessArrow.x, offsetProcessArrow.y,
-                RecipeLayoutHelper.PART_PROCESS_ARROW.xSize, RecipeLayoutHelper.PART_PROCESS_ARROW.zSize);
+            RecipeLayoutHelper.PART_PROCESS_ARROW.xSize, RecipeLayoutHelper.PART_PROCESS_ARROW.zSize);
 
         //Texts for input consumed/produced
         highestY += longestTooltip;
@@ -264,7 +272,7 @@ public class CategoryDynamicRecipe implements IRecipeCategory<DynamicRecipeWrapp
     }
 
     @Override
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    @SuppressWarnings({"rawtypes"})
     public void setRecipe(@Nonnull IRecipeLayout recipeLayout, @Nonnull DynamicRecipeWrapper recipeWrapper, @Nonnull IIngredients ingredients) {
         List<Class<?>> foundClasses = new LinkedList<>();
 
@@ -289,15 +297,15 @@ public class CategoryDynamicRecipe implements IRecipeCategory<DynamicRecipeWrapp
                 if (clazz.isAssignableFrom(slot.getLayoutTypeClass())) {
                     int index = compSlotIndex[0];
                     clazzGroup.init(
-                            index,
-                            true,
-                            index < inputReqList.size() ? slot.provideIngredientRenderer(inputReqList.get(index)) : slot.provideIngredientRenderer(),
-                            slot.getOffset().x,
-                            slot.getOffset().y,
-                            slot.getComponentWidth(),
-                            slot.getComponentHeight(),
-                            slot.getRendererPaddingX(),
-                            slot.getRendererPaddingY());
+                        index,
+                        true,
+                        index < inputReqList.size() ? slot.provideIngredientRenderer(inputReqList.get(index)) : slot.provideIngredientRenderer(),
+                        slot.getOffset().x,
+                        slot.getOffset().y,
+                        slot.getComponentWidth(),
+                        slot.getComponentHeight(),
+                        slot.getRendererPaddingX(),
+                        slot.getRendererPaddingY());
                     compSlotIndex[0]++;
                     amtCompInputs++;
                 }
@@ -308,15 +316,15 @@ public class CategoryDynamicRecipe implements IRecipeCategory<DynamicRecipeWrapp
                 if (clazz.isAssignableFrom(slot.getLayoutTypeClass())) {
                     int index = compSlotIndex[0] - amtCompInputs;
                     clazzGroup.init(
-                            compSlotIndex[0],
-                            false,
-                            index < outputReqList.size() ? slot.provideIngredientRenderer(outputReqList.get(index)) : slot.provideIngredientRenderer(),
-                            slot.getOffset().x,
-                            slot.getOffset().y,
-                            slot.getComponentWidth(),
-                            slot.getComponentHeight(),
-                            slot.getRendererPaddingX(),
-                            slot.getRendererPaddingY());
+                        compSlotIndex[0],
+                        false,
+                        index < outputReqList.size() ? slot.provideIngredientRenderer(outputReqList.get(index)) : slot.provideIngredientRenderer(),
+                        slot.getOffset().x,
+                        slot.getOffset().y,
+                        slot.getComponentWidth(),
+                        slot.getComponentHeight(),
+                        slot.getRendererPaddingX(),
+                        slot.getRendererPaddingY());
                     compSlotIndex[0]++;
                 }
             }
@@ -326,7 +334,7 @@ public class CategoryDynamicRecipe implements IRecipeCategory<DynamicRecipeWrapp
 
             clazzGroup.addTooltipCallback((slotIndex, input, ingredient, tooltip) -> {
                 Map<Class<?>, List<ComponentRequirement<?, ?>>> components = recipeWrapper.finalOrderedComponents
-                        .get(input ? IOType.INPUT : IOType.OUTPUT);
+                    .get(input ? IOType.INPUT : IOType.OUTPUT);
                 if (components != null) {
                     List<ComponentRequirement<?, ?>> compList = components.get(clazz);
 

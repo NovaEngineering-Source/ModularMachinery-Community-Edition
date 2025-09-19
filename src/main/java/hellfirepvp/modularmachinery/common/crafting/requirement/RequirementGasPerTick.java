@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class RequirementGasPerTick extends ComponentRequirement.PerTickParallelizable<GasStack, RequirementTypeGasPerTick>
-        implements ComponentRequirement.Parallelizable {
+    implements ComponentRequirement.Parallelizable {
 
     public final GasStack required;
 
@@ -52,7 +52,7 @@ public class RequirementGasPerTick extends ComponentRequirement.PerTickParalleli
     public String getMissingComponentErrorMessage(IOType ioType) {
         ResourceLocation compKey = this.requirementType.getRegistryName();
         return String.format("component.missing.%s.%s.%s",
-                compKey.getNamespace(), compKey.getPath(), ioType.name().toLowerCase());
+            compKey.getNamespace(), compKey.getPath(), ioType.name().toLowerCase());
     }
 
     @Override
@@ -74,7 +74,7 @@ public class RequirementGasPerTick extends ComponentRequirement.PerTickParalleli
     @Nonnull
     @Override
     public List<ProcessingComponent<?>> copyComponents(final List<ProcessingComponent<?>> components) {
-        return HybridFluidUtils.copyFluidHandlerComponents(components);
+        return HybridFluidUtils.copyGasHandlerComponents(components);
     }
 
     @Override
@@ -124,4 +124,5 @@ public class RequirementGasPerTick extends ComponentRequirement.PerTickParalleli
 
         return (int) (totalIO / required);
     }
+
 }

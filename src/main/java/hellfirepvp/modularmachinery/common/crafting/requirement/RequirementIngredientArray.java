@@ -1,5 +1,6 @@
 package hellfirepvp.modularmachinery.common.crafting.requirement;
 
+import github.kasuminova.mmce.common.concurrent.Sync;
 import github.kasuminova.mmce.common.helper.AdvancedItemChecker;
 import github.kasuminova.mmce.common.helper.AdvancedItemModifier;
 import github.kasuminova.mmce.common.itemtype.ChancedIngredientStack;
@@ -30,12 +31,13 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RequirementIngredientArray extends ComponentRequirement.MultiCompParallelizable<ItemStack, RequirementTypeIngredientArray>
-        implements ComponentRequirement.ChancedRequirement {
+    implements ComponentRequirement.ChancedRequirement {
 
     protected final List<ChancedIngredientStack> ingredients;
-    public List<IngredientItemStack> cachedJEIIORequirementList = null;
+    public          List<IngredientItemStack>    cachedJEIIORequirementList = null;
 
     public float chance = 1.0F;
 
@@ -60,7 +62,7 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
         MachineComponent<?> cmp = component.component();
         ComponentType cmpType = cmp.getComponentType();
         return (cmpType.equals(ComponentTypesMM.COMPONENT_ITEM) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS))
-               && cmp.ioType == actionType;
+            && cmp.ioType == actionType;
     }
 
     @Override
@@ -81,7 +83,8 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
                     int amt = Math.round(RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_ITEM, actionType, itemStack.getCount(), false));
                     itemStack.setCount(amt);
                 }
-                case ORE_DICT -> copied.count = Math.round(RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_ITEM, actionType, item.count, false));
+                case ORE_DICT ->
+                    copied.count = Math.round(RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_ITEM, actionType, item.count, false));
             }
             copied.chance = RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_ITEM, actionType, item.chance, true);
 
@@ -98,7 +101,7 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
     public String getMissingComponentErrorMessage(IOType ioType) {
         ResourceLocation compKey = RequirementTypesMM.KEY_REQUIREMENT_ITEM;
         return String.format("component.missing.%s.%s.%s",
-                compKey.getNamespace(), compKey.getPath(), ioType.name().toLowerCase());
+            compKey.getNamespace(), compKey.getPath(), ioType.name().toLowerCase());
     }
 
     @Override
@@ -231,7 +234,7 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
         for (final ChancedIngredientStack ingredient : ingredients) {
             int toConsume = applyModifierAmount(context, ingredient.count, ingredient.minCount, ingredient.maxCount, chance != ResultChance.GUARANTEED);
             int maxConsume = toConsume * (maxMultiplier - ingredientConsumed);
-            int consumed = 0;
+            final AtomicInteger consumed = new AtomicInteger();
 
             AdvancedItemChecker checker;
 
@@ -241,15 +244,17 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
                     ItemStack stack = ItemUtils.copyStackWithSize(ingredient.itemStack, toConsume);
 
                     for (final IItemHandlerModifiable handler : handlers) {
-                        stack.setCount(maxConsume - consumed);
-                        if (checker != null) {
-                            consumed += ItemUtils.consumeAll(
-                                    handler, stack, checker, context.getMachineController()) / toConsume;
-                        } else {
-                            consumed += ItemUtils.consumeAll(
-                                    handler, stack, ingredient.tag);
-                        }
-                        if (consumed >= maxConsume) {
+                        Sync.executeSyncIfPresent(handler, () -> {
+                            stack.setCount(maxConsume - consumed.get());
+                            if (checker != null) {
+                                consumed.addAndGet(ItemUtils.consumeAll(
+                                    handler, stack, checker, context.getMachineController()) / toConsume);
+                            } else {
+                                consumed.addAndGet(ItemUtils.consumeAll(
+                                    handler, stack, ingredient.tag));
+                            }
+                        });
+                        if (consumed.get() >= maxConsume) {
                             break;
                         }
                     }
@@ -258,21 +263,23 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
                     checker = ingredient.itemChecker;
 
                     for (final IItemHandlerModifiable handler : handlers) {
-                        if (checker != null) {
-                            consumed += ItemUtils.consumeAll(
-                                    handler, ingredient.oreDictName, maxConsume - consumed, checker, context.getMachineController());
-                        } else {
-                            consumed += ItemUtils.consumeAll(
-                                    handler, ingredient.oreDictName, maxConsume - consumed, ingredient.tag);
-                        }
-                        if (consumed >= maxConsume) {
+                        Sync.executeSyncIfPresent(handler, () -> {
+                            if (checker != null) {
+                                consumed.addAndGet(ItemUtils.consumeAll(
+                                    handler, ingredient.oreDictName, maxConsume - consumed.get(), checker, context.getMachineController()));
+                            } else {
+                                consumed.addAndGet(ItemUtils.consumeAll(
+                                    handler, ingredient.oreDictName, maxConsume - consumed.get(), ingredient.tag));
+                            }
+                        });
+                        if (consumed.get() >= maxConsume) {
                             break;
                         }
                     }
                 }
             }
 
-            ingredientConsumed += (consumed / toConsume);
+            ingredientConsumed += (consumed.get() / toConsume);
         }
 
         return ingredientConsumed;
@@ -287,7 +294,7 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
             return 0;
         }
 
-        int inserted = 0;
+        final AtomicInteger inserted = new AtomicInteger();
         int toInsert = applyModifierAmount(context, selected.count, selected.minCount, selected.maxCount, chance != ResultChance.GUARANTEED);
 
         if (toInsert <= 0) {
@@ -318,17 +325,16 @@ public class RequirementIngredientArray extends ComponentRequirement.MultiCompPa
             stack.setCount(1);
         }
 
-        int maxInsert = toInsert * maxMultiplier;
+        final ItemStack finalStack = stack;
+        final int maxInsert = toInsert * maxMultiplier;
         for (final IItemHandlerModifiable handler : handlers) {
-            synchronized (handler) {
-                inserted += ItemUtils.insertAll(stack, handler, maxInsert - inserted);
-            }
-            if (inserted >= maxInsert) {
+            Sync.executeSyncIfPresent(handler, () -> inserted.addAndGet(ItemUtils.insertAll(finalStack, handler, maxInsert - inserted.get())));
+            if (inserted.get() >= maxInsert) {
                 break;
             }
         }
 
-        return inserted / toInsert;
+        return inserted.get() / toInsert;
     }
 
     protected int applyModifierAmount(final RecipeCraftingContext context, int defaultCount, int minAmount, int maxAmount, boolean randomAmount) {

@@ -8,7 +8,11 @@ import hellfirepvp.modularmachinery.common.util.SmartInterfaceType;
 import net.minecraft.client.resources.I18n;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.MissingFormatArgumentException;
 import java.util.stream.Collectors;
 
 public class TooltipInterfaceNumberInput extends RequirementTip {
@@ -17,8 +21,8 @@ public class TooltipInterfaceNumberInput extends RequirementTip {
     @Override
     public Collection<ComponentRequirement<?, ?>> filterRequirements(MachineRecipe recipe, Collection<ComponentRequirement<?, ?>> requirements) {
         return requirements.stream()
-                .filter(RequirementInterfaceNumInput.class::isInstance)
-                .collect(Collectors.toList());
+                           .filter(RequirementInterfaceNumInput.class::isInstance)
+                           .collect(Collectors.toList());
     }
 
     @Nonnull

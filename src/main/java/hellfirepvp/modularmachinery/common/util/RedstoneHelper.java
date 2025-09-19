@@ -26,7 +26,9 @@ import net.minecraftforge.items.ItemHandlerHelper;
 public class RedstoneHelper {
 
     public static int getRedstoneLevel(TileEntity sync) {
-        if (sync == null) return 0;
+        if (sync == null) {
+            return 0;
+        }
         if (sync instanceof TileInventory) {
             return ItemHandlerHelper.calcRedstoneFromInventory(((TileInventory) sync).getInventory());
         } else if (sync instanceof TileFluidTank) {

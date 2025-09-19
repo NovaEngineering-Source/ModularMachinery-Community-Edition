@@ -17,8 +17,8 @@ import java.util.List;
 
 public class RequirementCatalyst extends RequirementIngredientArray {
     protected final List<RecipeModifier> modifierList = new ArrayList<>();
-    protected final List<String> toolTipList = new ArrayList<>();
-    protected boolean isRequired = false;
+    protected final List<String>         toolTipList  = new ArrayList<>();
+    protected       boolean              isRequired   = false;
 
     public RequirementCatalyst(ItemStack item) {
         super(Collections.singletonList(new ChancedIngredientStack(item)));
@@ -111,7 +111,8 @@ public class RequirementCatalyst extends RequirementIngredientArray {
                     int amt = Math.round(RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_ITEM, actionType, itemStack.getCount(), false));
                     itemStack.setCount(amt);
                 }
-                case ORE_DICT -> copied.count = Math.round(RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_ITEM, actionType, item.count, false));
+                case ORE_DICT ->
+                    copied.count = Math.round(RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_ITEM, actionType, item.count, false));
             }
             copied.chance = RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_ITEM, actionType, item.chance, true);
 

@@ -45,7 +45,7 @@ public class CommandGetBluePrint extends CommandBase {
         DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineName));
         if (machine == null) {
             sender.sendMessage(new TextComponentTranslation(
-                    "command.modularmachinery.get_blueprint.not_found", machineName));
+                "command.modularmachinery.get_blueprint.not_found", machineName));
             return;
         }
 
@@ -54,7 +54,7 @@ public class CommandGetBluePrint extends CommandBase {
 
         if (player.addItemStackToInventory(blueprint)) {
             sender.sendMessage(
-                    new TextComponentTranslation("command.modularmachinery.get_blueprint.success"));
+                new TextComponentTranslation("command.modularmachinery.get_blueprint.success"));
         }
     }
 }

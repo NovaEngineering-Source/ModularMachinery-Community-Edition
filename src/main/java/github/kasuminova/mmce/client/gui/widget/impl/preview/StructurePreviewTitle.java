@@ -14,9 +14,9 @@ public class StructurePreviewTitle extends Row {
         MultiLineLabel prefix = new MultiLineLabel(Collections.singletonList(machine.getPrefix()));
         MultiLineLabel title = new MultiLineLabel(Collections.singletonList(machine.getLocalizedName()));
         prefix.setCenterAligned(true).setVerticalCentering(true)
-                .setWidthHeight(36, 18).setMargin(0).setMarginDown(1).setMarginRight(2);
+              .setWidthHeight(36, 18).setMargin(0).setMarginDown(1).setMarginRight(2);
         title.setCenterAligned(true).setVerticalCentering(true)
-                .setWidthHeight(136, 18).setMargin(0).setMarginDown(1);
+             .setWidthHeight(136, 18).setMargin(0).setMarginDown(1);
         addWidgets(prefix, title);
     }
 

@@ -28,6 +28,7 @@ public class GuiMEFluidOutputBus extends GuiUpgradeable {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void initGui() {
         super.initGui();
 
@@ -35,7 +36,7 @@ public class GuiMEFluidOutputBus extends GuiUpgradeable {
 
         for (int i = 0; i < MEFluidOutputBus.TANK_SLOT_AMOUNT; i++) {
             final GuiFluidTank guiTank = new GuiFluidTank(fluidTank, i, i,
-                    8 + 18 * i, 26, 16, 68);
+                8 + 18 * i, 26, 16, 68);
 
             // AE2 Unofficial Extended Life Check
             if (Mods.AE2EL.isPresent()) {

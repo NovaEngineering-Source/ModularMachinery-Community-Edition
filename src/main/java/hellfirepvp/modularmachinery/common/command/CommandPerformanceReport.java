@@ -10,7 +10,10 @@ import net.minecraft.util.text.TextFormatting;
 
 import javax.annotation.Nonnull;
 
-import static github.kasuminova.mmce.common.concurrent.TaskExecutor.*;
+import static github.kasuminova.mmce.common.concurrent.TaskExecutor.executedCount;
+import static github.kasuminova.mmce.common.concurrent.TaskExecutor.taskUsedTime;
+import static github.kasuminova.mmce.common.concurrent.TaskExecutor.totalExecuted;
+import static github.kasuminova.mmce.common.concurrent.TaskExecutor.totalUsedTime;
 
 public class CommandPerformanceReport extends CommandBase {
     private static final String LANG_KEY = "command.modularmachinery.performance_report";
@@ -49,28 +52,28 @@ public class CommandPerformanceReport extends CommandBase {
         long usedTimeAvg = totalExecuted == 0 ? 0 : taskUsedTime / totalExecuted;
 
         sender.sendMessage(new TextComponentTranslation(LANG_KEY + ".title",
-                TextFormatting.GREEN + MiscUtils.formatDecimal(executedCount) + TextFormatting.RESET));
+            TextFormatting.GREEN + MiscUtils.formatDecimal(executedCount) + TextFormatting.RESET));
         sender.sendMessage(new TextComponentString(""));
 
         sender.sendMessage(new TextComponentTranslation(LANG_KEY + ".total_executed",
-                TextFormatting.BLUE + MiscUtils.formatDecimal(totalExecuted) + TextFormatting.RESET));
+            TextFormatting.BLUE + MiscUtils.formatDecimal(totalExecuted) + TextFormatting.RESET));
         sender.sendMessage(new TextComponentTranslation(LANG_KEY + ".tasks_avg_per_execution",
-                TextFormatting.BLUE + String.valueOf(executedAvgPerExecution) + TextFormatting.RESET));
+            TextFormatting.BLUE + String.valueOf(executedAvgPerExecution) + TextFormatting.RESET));
         sender.sendMessage(new TextComponentString(""));
 
         sender.sendMessage(new TextComponentTranslation(LANG_KEY + ".total_used_time",
-                TextFormatting.BLUE + String.valueOf(totalUsedTime / 1000) + TextFormatting.RESET));
+            TextFormatting.BLUE + String.valueOf(totalUsedTime / 1000) + TextFormatting.RESET));
         sender.sendMessage(new TextComponentTranslation(LANG_KEY + ".used_time_avg_per_execution",
-                TextFormatting.YELLOW + String.format("%.2f", usedTimeAvgPerExecution) + TextFormatting.RESET));
+            TextFormatting.YELLOW + String.format("%.2f", usedTimeAvgPerExecution) + TextFormatting.RESET));
         sender.sendMessage(new TextComponentString(""));
 
         sender.sendMessage(new TextComponentTranslation(LANG_KEY + ".task_used_time",
-                TextFormatting.BLUE + MiscUtils.formatDecimal(((double) taskUsedTime / 1000L)) + TextFormatting.RESET));
+            TextFormatting.BLUE + MiscUtils.formatDecimal(((double) taskUsedTime / 1000L)) + TextFormatting.RESET));
         sender.sendMessage(new TextComponentString(""));
 
         sender.sendMessage(new TextComponentTranslation(LANG_KEY + ".task_used_time_avg",
-                TextFormatting.YELLOW + String.format("%.2f", taskUsedTimeAvg) + TextFormatting.RESET));
+            TextFormatting.YELLOW + String.format("%.2f", taskUsedTimeAvg) + TextFormatting.RESET));
         sender.sendMessage(new TextComponentTranslation(LANG_KEY + ".used_time_avg",
-                TextFormatting.BLUE + String.valueOf(usedTimeAvg) + TextFormatting.RESET));
+            TextFormatting.BLUE + String.valueOf(usedTimeAvg) + TextFormatting.RESET));
     }
 }

@@ -1,5 +1,6 @@
 package github.kasuminova.mmce.common.block.appeng;
 
+import appeng.api.implementations.items.IMemoryCard;
 import github.kasuminova.mmce.common.tile.MEItemInputBus;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.CommonProxy;
@@ -13,7 +14,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -22,14 +25,21 @@ import javax.annotation.Nullable;
 public class BlockMEItemInputBus extends BlockMEItemBus {
     @Override
     public boolean onBlockActivated(
-            @Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state,
-            @Nonnull EntityPlayer playerIn, @Nonnull EnumHand hand,
-            @Nonnull EnumFacing facing,
-            float hitX, float hitY, float hitZ)
-    {
+        @Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state,
+        @Nonnull EntityPlayer playerIn, @Nonnull EnumHand hand,
+        @Nonnull EnumFacing facing,
+        float hitX, float hitY, float hitZ) {
         if (!worldIn.isRemote) {
             TileEntity te = worldIn.getTileEntity(pos);
-            if (te instanceof MEItemInputBus) {
+            if (te instanceof MEItemInputBus itemInputBus) {
+                ItemStack heldItem = playerIn.getHeldItem(hand);
+                if (heldItem.getItem() instanceof IMemoryCard memoryCard) {
+                    boolean handled = handleSettingsTransfer(itemInputBus, memoryCard, playerIn, heldItem);
+                    if (handled) {
+                        return true;
+                    }
+                }
+
                 playerIn.openGui(ModularMachinery.MODID, CommonProxy.GuiType.ME_ITEM_INPUT_BUS.ordinal(), worldIn, pos.getX(), pos.getY(), pos.getZ());
             }
         }
@@ -47,30 +57,32 @@ public class BlockMEItemInputBus extends BlockMEItemBus {
     }
 
     @Override
+    public void getDrops(@Nonnull final NonNullList<ItemStack> drops, @Nonnull final IBlockAccess world, @Nonnull final BlockPos pos, @Nonnull final IBlockState state, final int fortune) {
+    }
+
+    @Override
     public void breakBlock(final World worldIn,
                            @Nonnull final BlockPos pos,
-                           @Nonnull final IBlockState state)
-    {
+                           @Nonnull final IBlockState state) {
         TileEntity te = worldIn.getTileEntity(pos);
+        ItemStack dropped = new ItemStack(ItemsMM.meItemInputBus);
 
         if (te == null) {
-            super.dropBlockAsItemWithChance(worldIn, pos, state, 1.0F, 0);
+            spawnAsEntity(worldIn, pos, dropped);
             worldIn.removeTileEntity(pos);
             return;
         }
         if (!(te instanceof final MEItemInputBus bus)) {
-            super.dropBlockAsItemWithChance(worldIn, pos, state, 1.0F, 0);
+            spawnAsEntity(worldIn, pos, dropped);
             worldIn.removeTileEntity(pos);
             return;
         }
-
         if (!bus.hasItem() && !bus.configInvHasItem()) {
-            super.dropBlockAsItemWithChance(worldIn, pos, state, 1.0F, 0);
+            spawnAsEntity(worldIn, pos, dropped);
             worldIn.removeTileEntity(pos);
             return;
         }
 
-        ItemStack dropped = new ItemStack(ItemsMM.meItemInputBus);
         IOInventory inventory = bus.getInternalInventory();
         IOInventory cfgInventory = bus.getConfigInventory();
 
@@ -96,8 +108,7 @@ public class BlockMEItemInputBus extends BlockMEItemBus {
                                 @Nonnull final BlockPos pos,
                                 @Nonnull final IBlockState state,
                                 @Nonnull final EntityLivingBase placer,
-                                @Nonnull final ItemStack stack)
-    {
+                                @Nonnull final ItemStack stack) {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
 
         TileEntity te = worldIn.getTileEntity(pos);

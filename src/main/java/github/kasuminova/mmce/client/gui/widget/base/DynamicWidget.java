@@ -20,17 +20,17 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 public abstract class DynamicWidget {
-    protected int width = 0;
+    protected int width  = 0;
     protected int height = 0;
 
-    protected int absX;
-    protected int absY;
+    protected int     absX;
+    protected int     absY;
     protected boolean useAbsPos = false;
 
-    protected int marginLeft = 0;
+    protected int marginLeft  = 0;
     protected int marginRight = 0;
-    protected int marginUp = 0;
-    protected int marginDown = 0;
+    protected int marginUp    = 0;
+    protected int marginDown  = 0;
 
     protected boolean visible = true;
     protected boolean enabled = true;
@@ -377,20 +377,20 @@ public abstract class DynamicWidget {
         return setAbsX(absX).setAbsY(absY);
     }
 
-    public DynamicWidget setUseAbsPos(final boolean useAbsPos) {
-        this.useAbsPos = useAbsPos;
-        return this;
-    }
-
     /**
      * 绝对坐标会使组件始终在一个坐标上渲染（但在屏幕上的确切位置仍取决于组件容器），使用绝对坐标渲染的组件会忽略 margin 属性。
      * <br/>
      * Absolute coordinates cause the component to always be rendered at one coordinate (but the exact position
-     * on the screen still depends on the component container). Widgets rendered using absolute coordinates 
+     * on the screen still depends on the component container). Widgets rendered using absolute coordinates
      * ignore the margin attribute.
      */
     public boolean isUseAbsPos() {
         return useAbsPos;
+    }
+
+    public DynamicWidget setUseAbsPos(final boolean useAbsPos) {
+        this.useAbsPos = useAbsPos;
+        return this;
     }
 
     // Margin

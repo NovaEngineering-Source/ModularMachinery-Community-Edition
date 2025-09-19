@@ -14,19 +14,20 @@ import crafttweaker.annotations.ZenRegister;
 import github.kasuminova.mmce.common.helper.AdvancedBlockChecker;
 import github.kasuminova.mmce.common.machine.pattern.SpecialItemBlockProxy;
 import github.kasuminova.mmce.common.machine.pattern.SpecialItemBlockProxyRegistry;
+import github.kasuminova.mmce.common.util.BlockPos2ValueMap;
 import hellfirepvp.modularmachinery.client.ClientScheduler;
-import hellfirepvp.modularmachinery.common.block.BlockStatedMachineComponent;
 import hellfirepvp.modularmachinery.common.util.nbt.NBTJsonSerializer;
 import hellfirepvp.modularmachinery.common.util.nbt.NBTMatchingHelper;
 import ink.ikx.mmce.common.utils.StackUtils;
 import ink.ikx.mmce.common.utils.StructureIngredient;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Rotation;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -38,7 +39,14 @@ import stanhebben.zenscript.annotations.ZenClass;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -53,27 +61,27 @@ import java.util.stream.Collectors;
 public class BlockArray {
     private static final ResourceLocation IC_2_TILE_BLOCK = new ResourceLocation("ic2", "te");
 
-    public final long traitNum;
+    public final long uid;
 
-    protected Map<BlockPos, BlockInformation> pattern = new HashMap<>();
-    protected Map<BlockPos, BlockInformation> tileBlocksArray = new HashMap<>();
-    private BlockPos min = new BlockPos(0, 0, 0), max = new BlockPos(0, 0, 0), size = new BlockPos(0, 0, 0);
+    protected Map<BlockPos, BlockInformation> pattern         = new BlockPos2ValueMap<>();
+    protected Map<BlockPos, BlockInformation> tileBlocksArray = new BlockPos2ValueMap<>();
+    private   BlockPos                        min             = new BlockPos(0, 0, 0), max = new BlockPos(0, 0, 0), size = new BlockPos(0, 0, 0);
 
     public BlockArray() {
-        this.traitNum = BlockArrayCache.nextTraitNum();
+        this.uid = BlockArrayCache.nextUID();
     }
 
-    public BlockArray(long traitNum) {
-        this.traitNum = traitNum;
+    public BlockArray(long uid) {
+        this.uid = uid;
     }
 
     public BlockArray(BlockArray other) {
-        this.pattern = new HashMap<>(other.pattern);
+        this.pattern = new BlockPos2ValueMap<>(other.pattern);
         this.min = new BlockPos(other.min.getX(), other.min.getY(), other.min.getZ());
         this.max = new BlockPos(other.max.getX(), other.max.getY(), other.max.getZ());
         this.size = new BlockPos(other.size.getX(), other.size.getY(), other.size.getZ());
 
-        this.traitNum = other.traitNum;
+        this.uid = other.uid;
     }
 
     public BlockArray(BlockArray other, BlockPos offset) {
@@ -84,7 +92,7 @@ public class BlockArray {
         this.max = new BlockPos(offset.getX() + other.max.getX(), offset.getY() + other.max.getY(), offset.getZ() + other.max.getZ());
         this.size = new BlockPos(other.size.getX(), other.size.getY(), other.size.getZ());
 
-        this.traitNum = other.traitNum;
+        this.uid = other.uid;
     }
 
     public StructureBoundingBox getPatternBoundingBox(final BlockPos ctrlPos) {
@@ -103,7 +111,7 @@ public class BlockArray {
     }
 
     public void overwrite(BlockArray other) {
-        this.pattern = new HashMap<>(other.pattern);
+        this.pattern = new BlockPos2ValueMap<>(other.pattern);
         this.min = new BlockPos(other.min.getX(), other.min.getY(), other.min.getZ());
         this.max = new BlockPos(other.max.getX(), other.max.getY(), other.max.getZ());
         this.size = new BlockPos(other.size.getX(), other.size.getY(), other.size.getZ());
@@ -114,7 +122,7 @@ public class BlockArray {
     }
 
     public void addBlock(BlockPos offset, @Nonnull BlockInformation info) {
-        pattern.put(offset, info);
+        pattern.put(offset, info.canonicalize());
         updateSize(offset);
     }
 
@@ -169,7 +177,7 @@ public class BlockArray {
     }
 
     public Map<BlockPos, BlockInformation> getPatternSlice(int slice) {
-        Map<BlockPos, BlockInformation> copy = new HashMap<>();
+        Map<BlockPos, BlockInformation> copy = new BlockPos2ValueMap<>();
         for (BlockPos pos : pattern.keySet()) {
             if (pos.getY() == slice) {
                 copy.put(pos, pattern.get(pos));
@@ -374,36 +382,11 @@ public class BlockArray {
     }
 
     public BlockArray rotateYCCW() {
-        BlockArray out = new BlockArray(traitNum);
-        Map<BlockPos, BlockInformation> outPattern = out.pattern;
+        BlockArray out = new BlockArray(uid);
 
         for (BlockPos pos : pattern.keySet()) {
             BlockInformation info = pattern.get(pos);
             out.addBlock(MiscUtils.rotateYCCW(pos), info.copyRotateYCCW());
-        }
-
-        return out;
-    }
-
-    public BlockArray rotateUp() {
-        BlockArray out = new BlockArray(traitNum);
-        Map<BlockPos, BlockInformation> outPattern = out.pattern;
-
-        for (BlockPos pos : pattern.keySet()) {
-            BlockInformation info = pattern.get(pos);
-            outPattern.put(MiscUtils.rotateUp(pos), info.copy());
-        }
-
-        return out;
-    }
-
-    public BlockArray rotateDown() {
-        BlockArray out = new BlockArray(traitNum);
-        Map<BlockPos, BlockInformation> outPattern = out.pattern;
-
-        for (BlockPos pos : pattern.keySet()) {
-            BlockInformation info = pattern.get(pos);
-            outPattern.put(MiscUtils.rotateDown(pos), info.copy());
         }
 
         return out;
@@ -462,63 +445,35 @@ public class BlockArray {
     public static class BlockInformation {
 
         public static final int CYCLE_TICK_SPEED = 30;
-        public List<IBlockStateDescriptor> matchingStates = new ArrayList<>();
 
-        private List<IBlockState> samples = new ArrayList<>();
+        private static final ObjectOpenHashSet<BlockInformation> POOL = new ObjectOpenHashSet<>();
+
+        private List<IBlockStateDescriptor> matchingStates = new ObjectArrayList<>();
+        private List<IBlockState>           samples        = new ObjectArrayList<>();
 
         private boolean hasTileEntity;
-        protected NBTTagCompound matchingTag = null;
-        protected NBTTagCompound previewTag = null;
-        public AdvancedBlockChecker nbtChecker = null;
+        private boolean hasStateMachineComponent;
+
+        private NBTTagCompound matchingTag = null;
+        private NBTTagCompound previewTag  = null;
+
+        private AdvancedBlockChecker nbtChecker = null;
 
         public BlockInformation(List<IBlockStateDescriptor> matching) {
             this.matchingStates.addAll(matching);
             for (IBlockStateDescriptor desc : matchingStates) {
-                samples.addAll(desc.applicable);
+                samples.addAll(desc.getApplicable());
                 if (!hasTileEntity) {
-                    hasTileEntity = hasTileEntity(desc.applicable);
+                    hasTileEntity = desc.hasTileEntity();
+                }
+                if (!hasStateMachineComponent) {
+                    hasStateMachineComponent = desc.hasStatedMachineComponent();
                 }
             }
         }
 
-        public void addMatchingStates(List<IBlockStateDescriptor> matching) {
-            for (IBlockStateDescriptor desc : matching) {
-                if (!matchingStates.contains(desc)) {
-                    matchingStates.add(desc);
-                }
-                for (IBlockState state : desc.applicable) {
-                    if (!samples.contains(state)) {
-                        samples.add(state);
-                    }
-                }
-                if (!hasTileEntity) {
-                    hasTileEntity = hasTileEntity(desc.applicable);
-                }
-            }
-        }
-
-        public boolean hasTileEntity() {
-            return hasTileEntity;
-        }
-
-        public boolean hasStatedMachineComponent() {
-            for (final IBlockStateDescriptor matchingState : matchingStates) {
-                for (final IBlockState state : matchingState.applicable) {
-                    if (state.getBlock() instanceof BlockStatedMachineComponent) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        private static boolean hasTileEntity(List<IBlockState> matching) {
-            for (IBlockState state : matching) {
-                if (state.getBlock().hasTileEntity(state)) {
-                    return true;
-                }
-            }
-            return false;
+        public static void clearPool() {
+            POOL.clear();
         }
 
         public static IBlockStateDescriptor getDescriptor(String strElement) throws JsonParseException {
@@ -538,10 +493,47 @@ public class BlockArray {
                 throw new JsonParseException("Couldn't find block with registryName '" + res + "' !");
             }
             if (meta == -1) {
-                return new IBlockStateDescriptor(block);
+                return IBlockStateDescriptor.of(block);
             } else {
-                return new IBlockStateDescriptor(block.getStateFromMeta(meta));
+                return IBlockStateDescriptor.of(block.getStateFromMeta(meta));
             }
+        }
+
+        public static Tuple<ItemStack, IBlockState> getTupleIngredientFromBlockState(IBlockState state) {
+            return new Tuple<>(StackUtils.getStackFromBlockState(state), state);
+        }
+
+        public BlockInformation canonicalize() {
+            synchronized (POOL) {
+                return POOL.addOrGet(this);
+            }
+        }
+
+        public void addMatchingStates(List<IBlockStateDescriptor> matching) {
+            for (IBlockStateDescriptor desc : matching) {
+                if (!matchingStates.contains(desc)) {
+                    matchingStates.add(desc);
+                }
+                for (IBlockState state : desc.getApplicable()) {
+                    if (!samples.contains(state)) {
+                        samples.add(state);
+                    }
+                }
+                if (!hasTileEntity) {
+                    hasTileEntity = desc.hasTileEntity();
+                }
+                if (!hasStateMachineComponent) {
+                    hasStateMachineComponent = desc.hasStatedMachineComponent();
+                }
+            }
+        }
+
+        public boolean hasTileEntity() {
+            return hasTileEntity;
+        }
+
+        public boolean hasStatedMachineComponent() {
+            return hasStateMachineComponent;
         }
 
         public NBTTagCompound getMatchingTag() {
@@ -565,11 +557,7 @@ public class BlockArray {
         }
 
         public IBlockState getSampleState(long snapTick) {
-            int tickSpeed = CYCLE_TICK_SPEED;
-//            if (samples.size() > 10) {
-//                tickSpeed *= 0.6;
-//            }
-            int p = (int) ((snapTick == -1 ? ClientScheduler.getClientTick() : snapTick) / tickSpeed);
+            int p = (int) ((snapTick == -1 ? ClientScheduler.getClientTick() : snapTick) / CYCLE_TICK_SPEED);
             int part = p % samples.size();
             return samples.get(part);
         }
@@ -585,75 +573,61 @@ public class BlockArray {
         public List<ItemStack> getIngredientList() {
             List<ItemStack> list = new ArrayList<>();
             samples.stream()
-                    .map(StackUtils::getStackFromBlockState)
-                    .filter(stackFromBlockState -> ItemUtils.stackNotInList(list, stackFromBlockState))
-                    .forEach(list::add);
+                   .map(StackUtils::getStackFromBlockState)
+                   .filter(stackFromBlockState -> ItemUtils.stackNotInList(list, stackFromBlockState))
+                   .forEach(list::add);
             return list;
         }
 
         public List<ItemStack> getIngredientList(BlockPos pos, World world) {
             List<ItemStack> list = new ArrayList<>();
             samples.stream()
-                    .map(state -> StackUtils.getStackFromBlockState(state, pos, world))
-                    .filter(stackFromBlockState -> ItemUtils.stackNotInList(list, stackFromBlockState))
-                    .forEach(list::add);
+                   .map(state -> StackUtils.getStackFromBlockState(state, pos, world))
+                   .filter(stackFromBlockState -> ItemUtils.stackNotInList(list, stackFromBlockState))
+                   .forEach(list::add);
             return list;
         }
 
         public List<Tuple<ItemStack, IBlockState>> getBlockStateIngredientList() {
             return samples.stream()
-                    .map(BlockInformation::getTupleIngredientFromBlockState)
-                    .collect(Collectors.toList());
-        }
-
-        public static Tuple<ItemStack, IBlockState> getTupleIngredientFromBlockState(IBlockState state) {
-            return new Tuple<>(StackUtils.getStackFromBlockState(state), state);
+                          .map(BlockInformation::getTupleIngredientFromBlockState)
+                          .collect(Collectors.toList());
         }
 
         public BlockInformation copyRotateYCCW() {
-            List<IBlockStateDescriptor> newDescriptors = new ArrayList<>();
+            List<IBlockStateDescriptor> newDescList = new ObjectArrayList<>();
 
-            boolean noBlockCanRotated = true;
+            AtomicBoolean hasBlockRotated = new AtomicBoolean(false);
             for (IBlockStateDescriptor desc : this.matchingStates) {
-                IBlockStateDescriptor copy = new IBlockStateDescriptor();
-                for (IBlockState applicableState : desc.applicable) {
-                    IBlockState rotated = applicableState.withRotation(Rotation.COUNTERCLOCKWISE_90);
-                    if (rotated != applicableState) {
-                        noBlockCanRotated = false;
-                    }
-
-                    copy.applicable.add(rotated);
-                }
-                newDescriptors.add(copy);
+                newDescList.add(desc.copyRotateYCCW(hasBlockRotated));
             }
 
             BlockInformation bi;
-            if (noBlockCanRotated) {
+            if (!hasBlockRotated.get()) {
                 bi = new BlockInformation(Collections.emptyList());
                 bi.matchingStates = this.matchingStates;
                 bi.samples = this.samples;
                 bi.hasTileEntity = this.hasTileEntity;
+                bi.hasStateMachineComponent = this.hasStateMachineComponent;
             } else {
-                bi = new BlockInformation(newDescriptors);
+                bi = new BlockInformation(newDescList);
             }
+            bi.matchingTag = this.matchingTag;
+            bi.previewTag = this.previewTag;
+            bi.nbtChecker = this.nbtChecker;
 
-            if (this.getMatchingTag() != null) {
-                bi.setMatchingTag(this.getMatchingTag());
-            }
             return bi;
         }
 
         public BlockInformation copy() {
-            List<IBlockStateDescriptor> descr = new ArrayList<>(this.matchingStates.size());
+            List<IBlockStateDescriptor> newDescList = new ObjectArrayList<>(this.matchingStates.size());
             for (IBlockStateDescriptor desc : this.matchingStates) {
-                IBlockStateDescriptor copy = new IBlockStateDescriptor();
-                copy.applicable.addAll(desc.applicable);
-                descr.add(copy);
+                newDescList.add(desc.copy());
             }
-            BlockInformation bi = new BlockInformation(descr);
-            if (this.getMatchingTag() != null) {
-                bi.setMatchingTag(this.getMatchingTag());
-            }
+            BlockInformation bi = new BlockInformation(newDescList);
+            bi.matchingTag = this.matchingTag;
+            bi.previewTag = this.previewTag;
+            bi.nbtChecker = this.nbtChecker;
             return bi;
         }
 
@@ -662,21 +636,23 @@ public class BlockArray {
             int atMeta = atBlock.getMetaFromState(state);
 
             for (IBlockStateDescriptor descriptor : matchingStates) {
-                for (IBlockState applicable : descriptor.applicable) {
+                for (IBlockState applicable : descriptor.getApplicable()) {
                     Block type = applicable.getBlock();
                     int meta = type.getMetaFromState(applicable);
                     if (!type.equals(atBlock) || meta != atMeta) {
                         continue;
                     }
 
-                    if (!isNBTCheckerMatch(world, at, applicable)) return false;
+                    if (!isNBTCheckerMatch(world, at, applicable)) {
+                        return false;
+                    }
 
-                    if (getMatchingTag() != null) {
+                    if (matchingTag != null) {
                         TileEntity te = world.getTileEntity(at);
-                        if (te != null && getMatchingTag().getSize() > 0) {
+                        if (te != null && matchingTag.getSize() > 0) {
                             NBTTagCompound cmp = new NBTTagCompound();
                             te.writeToNBT(cmp);
-                            return NBTMatchingHelper.matchNBTCompound(getMatchingTag(), cmp); //No match at this position.
+                            return NBTMatchingHelper.matchNBTCompound(matchingTag, cmp); //No match at this position.
                         }
                     }
                     return true;
@@ -707,6 +683,34 @@ public class BlockArray {
             NBTTagCompound cmp = new NBTTagCompound();
             te.writeToNBT(cmp);
             return nbtChecker.isMatch(world, at, applicable, cmp);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(matchingStates, matchingTag, previewTag, nbtChecker);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof BlockInformation another) {
+                return matchingStates.equals(another.matchingStates) &&
+                    Objects.equals(matchingTag, another.matchingTag) &&
+                    Objects.equals(previewTag, another.previewTag) &&
+                    Objects.equals(nbtChecker, another.nbtChecker);
+            }
+            return false;
+        }
+
+        public AdvancedBlockChecker getNBTChecker() {
+            return nbtChecker;
+        }
+
+        public void setNBTChecker(AdvancedBlockChecker nbtChecker) {
+            this.nbtChecker = nbtChecker;
+        }
+
+        public List<IBlockStateDescriptor> getMatchingStates() {
+            return matchingStates;
         }
     }
 

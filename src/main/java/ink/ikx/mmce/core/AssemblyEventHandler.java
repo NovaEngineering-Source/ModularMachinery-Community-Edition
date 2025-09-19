@@ -47,8 +47,62 @@ public class AssemblyEventHandler {
     public static final AssemblyEventHandler INSTANCE = new AssemblyEventHandler();
 
     private static final Cache<EntityPlayer, Boolean> ASSEMBLY_ACCESS_TOKEN = CacheBuilder.newBuilder()
-            .expireAfterWrite(1, TimeUnit.SECONDS)
-            .build();
+                                                                                          .expireAfterWrite(1, TimeUnit.SECONDS)
+                                                                                          .build();
+
+    private static void assemblyBefore(DynamicMachine machine, EntityPlayer player, BlockPos pos, int dynamicPatternSize) {
+        if (machine == null) {
+            player.sendMessage(new TextComponentTranslation("message.assembly.tip.no_machine"));
+            return;
+        }
+
+        if (MachineAssemblyManager.checkMachineExist(pos)) {
+            player.sendMessage(new TextComponentTranslation("message.assembly.tip.already_assembly"));
+            return;
+        }
+
+        EnumFacing controllerFacing = player.world.getBlockState(pos).getValue(BlockController.FACING);
+        BlockArray machinePattern = new BlockArray(BlockArrayCache.getBlockArrayCache(machine.getPattern(), controllerFacing));
+
+        Map<String, DynamicPattern> dynamicPatterns = machine.getDynamicPatterns();
+        for (final DynamicPattern pattern : dynamicPatterns.values()) {
+            dynamicPatternSize = Math.max(dynamicPatternSize, pattern.getMinSize());
+        }
+
+        for (final DynamicPattern pattern : dynamicPatterns.values()) {
+            pattern.addPatternToBlockArray(
+                machinePattern,
+                Math.min(Math.max(pattern.getMinSize(), dynamicPatternSize), pattern.getMaxSize()),
+                pattern.getFaces().iterator().next(),
+                controllerFacing);
+        }
+
+        MachineAssembly assembly = new MachineAssembly(
+            player.world, pos, player,
+            StructureIngredient.of(player.world, pos, machinePattern)
+        );
+
+        if (player.isCreative()) {
+            assembly.assemblyCreative();
+            return;
+        }
+
+        if (MachineAssembly.checkAllItems(player, assembly.getIngredient().copy())) {
+            assembly.buildIngredients(false);
+            MachineAssemblyManager.addMachineAssembly(assembly);
+            return;
+        }
+
+        if (!AssemblyConfig.needAllBlocks) {
+            player.sendMessage(new TextComponentTranslation("message.assembly.tip.partial_assembly"));
+            assembly.buildIngredients(false);
+            MachineAssemblyManager.addMachineAssembly(assembly);
+        }
+    }
+
+    private static ItemStack getBlueprint(TileMultiblockMachineController controller) {
+        return controller.getInventory().getStackInSlot(TileMultiblockMachineController.BLUEPRINT_SLOT);
+    }
 
     @SubscribeEvent
     public void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
@@ -72,7 +126,9 @@ public class AssemblyEventHandler {
             if (getBlueprint(ctrl).isEmpty()) {
                 ItemStack copy = stack.copy();
                 copy.setCount(1);
-                if (!player.isCreative()) stack.setCount(stack.getCount() - 1);
+                if (!player.isCreative()) {
+                    stack.setCount(stack.getCount() - 1);
+                }
                 ctrl.getInventory().setStackInSlot(TileMultiblockMachineController.BLUEPRINT_SLOT, copy);
             }
             event.setCanceled(true);
@@ -112,8 +168,7 @@ public class AssemblyEventHandler {
     public void processAutoAssembly(final EntityPlayer player,
                                     final ItemStack handStack,
                                     final BlockPos pos,
-                                    final short dynamicPatternSize)
-    {
+                                    final short dynamicPatternSize) {
         Boolean access = ASSEMBLY_ACCESS_TOKEN.getIfPresent(player);
         if (access == null) {
             return;
@@ -129,7 +184,9 @@ public class AssemblyEventHandler {
         Block block = world.getBlockState(pos).getBlock();
 
         Item item = Item.getByNameOrId(AssemblyConfig.itemName);
-        if (item == null) item = Items.STICK;
+        if (item == null) {
+            item = Items.STICK;
+        }
 
         if (player.isSneaking()) {
             return;
@@ -187,59 +244,5 @@ public class AssemblyEventHandler {
     @SubscribeEvent
     public void onPlayerLogOut(PlayerEvent.PlayerLoggedOutEvent event) {
         MachineAssemblyManager.removeMachineAssembly(event.player);
-    }
-
-    private static void assemblyBefore(DynamicMachine machine, EntityPlayer player, BlockPos pos, int dynamicPatternSize) {
-        if (machine == null) {
-            player.sendMessage(new TextComponentTranslation("message.assembly.tip.no_machine"));
-            return;
-        }
-
-        if (MachineAssemblyManager.checkMachineExist(pos)) {
-            player.sendMessage(new TextComponentTranslation("message.assembly.tip.already_assembly"));
-            return;
-        }
-
-        EnumFacing controllerFacing = player.world.getBlockState(pos).getValue(BlockController.FACING);
-        BlockArray machinePattern = new BlockArray(BlockArrayCache.getBlockArrayCache(machine.getPattern(), controllerFacing));
-
-        Map<String, DynamicPattern> dynamicPatterns = machine.getDynamicPatterns();
-        for (final DynamicPattern pattern : dynamicPatterns.values()) {
-            dynamicPatternSize = Math.max(dynamicPatternSize, pattern.getMinSize());
-        }
-
-        for (final DynamicPattern pattern : dynamicPatterns.values()) {
-            pattern.addPatternToBlockArray(
-                    machinePattern,
-                    Math.min(Math.max(pattern.getMinSize(), dynamicPatternSize), pattern.getMaxSize()),
-                    pattern.getFaces().iterator().next(),
-                    controllerFacing);
-        }
-
-        MachineAssembly assembly = new MachineAssembly(
-                player.world, pos, player,
-                StructureIngredient.of(player.world, pos, machinePattern)
-        );
-
-        if (player.isCreative()) {
-            assembly.assemblyCreative();
-            return;
-        }
-
-        if (MachineAssembly.checkAllItems(player, assembly.getIngredient().copy())) {
-            assembly.buildIngredients(false);
-            MachineAssemblyManager.addMachineAssembly(assembly);
-            return;
-        }
-
-        if (!AssemblyConfig.needAllBlocks) {
-            player.sendMessage(new TextComponentTranslation("message.assembly.tip.partial_assembly"));
-            assembly.buildIngredients(false);
-            MachineAssemblyManager.addMachineAssembly(assembly);
-        }
-    }
-
-    private static ItemStack getBlueprint(TileMultiblockMachineController controller) {
-        return controller.getInventory().getStackInSlot(TileMultiblockMachineController.BLUEPRINT_SLOT);
     }
 }

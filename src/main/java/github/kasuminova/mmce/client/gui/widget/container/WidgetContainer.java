@@ -40,11 +40,11 @@ public abstract class WidgetContainer extends DynamicWidget {
             int scissorHeight = renderSize.isHeightLimited() ? renderSize.height() : height;
 
             Rectangle scissorFrame = new Rectangle(
-                    (guiLeft + offsetX) * res.getScaleFactor(),
-                    // y is left bottom...
-                    gui.getGui().mc.displayHeight - ((guiTop + offsetY + scissorHeight) * res.getScaleFactor()),
-                    scissorWidth * res.getScaleFactor(),
-                    scissorHeight * res.getScaleFactor()
+                (guiLeft + offsetX) * res.getScaleFactor(),
+                // y is left bottom...
+                gui.getGui().mc.displayHeight - ((guiTop + offsetY + scissorHeight) * res.getScaleFactor()),
+                scissorWidth * res.getScaleFactor(),
+                scissorHeight * res.getScaleFactor()
             );
 
             if (scissorStack.peekFirst() == null) {

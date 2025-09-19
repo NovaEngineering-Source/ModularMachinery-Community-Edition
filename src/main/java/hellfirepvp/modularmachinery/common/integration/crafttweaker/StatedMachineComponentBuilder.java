@@ -15,7 +15,7 @@ public class StatedMachineComponentBuilder {
     public StatedMachineComponentBuilder(final String registryName) {
         this.block = new BlockStatedMachineComponent();
         this.block.setRegistryName(
-                new ResourceLocation(ModularMachinery.MODID, registryName));
+            new ResourceLocation(ModularMachinery.MODID, registryName));
     }
 
     @ZenMethod

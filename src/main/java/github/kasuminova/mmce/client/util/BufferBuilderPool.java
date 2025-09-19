@@ -5,14 +5,18 @@ import it.unimi.dsi.fastutil.objects.ObjectLists;
 import net.minecraft.client.renderer.BufferBuilder;
 
 import java.lang.ref.WeakReference;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class BufferBuilderPool {
 
-    private static final List<WeakReference<BufferBuilder>> BUFFERS = ObjectLists.synchronize(new ObjectArrayList<>());
-    private static final NavigableMap<Integer, Queue<BufferBuilder>> POOL = new ConcurrentSkipListMap<>();
+    private static final List<WeakReference<BufferBuilder>>          BUFFERS = ObjectLists.synchronize(new ObjectArrayList<>());
+    private static final NavigableMap<Integer, Queue<BufferBuilder>> POOL    = new ConcurrentSkipListMap<>();
 
     public static synchronized BufferBuilder borrowBuffer(int initSize) {
         Map.Entry<Integer, Queue<BufferBuilder>> entry = POOL.ceilingEntry(initSize);
@@ -57,7 +61,7 @@ public class BufferBuilderPool {
 
     public static long getBufferMemUsage() {
         long sum = 0;
-        for (Iterator<WeakReference<BufferBuilder>> iterator = BUFFERS.iterator(); iterator.hasNext();) {
+        for (Iterator<WeakReference<BufferBuilder>> iterator = BUFFERS.iterator(); iterator.hasNext(); ) {
             final WeakReference<BufferBuilder> ref = iterator.next();
             BufferBuilder buffer = ref.get();
             if (buffer == null) {

@@ -33,17 +33,9 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * This class is part of the Modular Machinery Mod
- * The complete source code for this mod can be found on github.
- * Class: RequirementFluid
- * Created by HellFirePvP
- * Date: 24.02.2018 / 12:28
- * TODO: Split FluidStack and GasStack into two different Requirements, combining the two makes for terrible code.
- */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RequirementFluid extends ComponentRequirement.MultiCompParallelizable<Object, RequirementTypeFluid>
-        implements ComponentRequirement.ChancedRequirement, Asyncable {
+    implements ComponentRequirement.ChancedRequirement, Asyncable {
 
     public final FluidStack required;
 
@@ -120,7 +112,7 @@ public class RequirementFluid extends ComponentRequirement.MultiCompParallelizab
     public String getMissingComponentErrorMessage(IOType ioType) {
         ResourceLocation compKey = this.requirementType.getRegistryName();
         return String.format("component.missing.%s.%s.%s",
-                compKey.getNamespace(), compKey.getPath(), ioType.name().toLowerCase());
+            compKey.getNamespace(), compKey.getPath(), ioType.name().toLowerCase());
     }
 
     @Override
@@ -128,27 +120,27 @@ public class RequirementFluid extends ComponentRequirement.MultiCompParallelizab
         MachineComponent<?> cmp = component.component();
         ComponentType cmpType = cmp.getComponentType();
         return (cmpType.equals(ComponentTypesMM.COMPONENT_FLUID) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS))
-                && cmp.ioType == actionType;
+            && cmp.ioType == actionType;
     }
 
     @Override
     public void startCrafting(List<ProcessingComponent<?>> components, RecipeCraftingContext context, ResultChance chance) {
         if (actionType == IOType.INPUT && chance.canWork(RecipeModifier.applyModifiers(context, this, this.chance, true))) {
-            doFluidGasIO(components, context);
+            doFluidIO(components, context);
         }
     }
 
     @Override
     public void finishCrafting(final List<ProcessingComponent<?>> components, final RecipeCraftingContext context, final ResultChance chance) {
         if (actionType == IOType.OUTPUT && chance.canWork(RecipeModifier.applyModifiers(context, this, this.chance, true))) {
-            doFluidGasIO(components, context);
+            doFluidIO(components, context);
         }
     }
 
     @Nonnull
     @Override
     public CraftCheck canStartCrafting(final List<ProcessingComponent<?>> components, final RecipeCraftingContext context) {
-        return doFluidGasIO(components, context);
+        return doFluidIO(components, context);
     }
 
     @Nonnull
@@ -163,16 +155,16 @@ public class RequirementFluid extends ComponentRequirement.MultiCompParallelizab
             return maxParallelism;
         }
         if (parallelizeUnaffected) {
-            if (doFluidGasIOInternal(components, context, 1) >= 1) {
+            if (doFluidIOInternal(components, context, 1) >= 1) {
                 return maxParallelism;
             }
             return 0;
         }
-        return doFluidGasIOInternal(components, context, maxParallelism);
+        return doFluidIOInternal(components, context, maxParallelism);
     }
 
-    private CraftCheck doFluidGasIO(final List<ProcessingComponent<?>> components, final RecipeCraftingContext context) {
-        int mul = doFluidGasIOInternal(components, context, parallelism);
+    private CraftCheck doFluidIO(final List<ProcessingComponent<?>> components, final RecipeCraftingContext context) {
+        int mul = doFluidIOInternal(components, context, parallelism);
         if (mul < parallelism) {
             return switch (actionType) {
                 case INPUT -> CraftCheck.failure("craftcheck.failure.fluid.input");
@@ -186,29 +178,6 @@ public class RequirementFluid extends ComponentRequirement.MultiCompParallelizab
         }
         return CraftCheck.success();
     }
-
-    private int doFluidGasIOInternal(final List<ProcessingComponent<?>> components, final RecipeCraftingContext context, final int maxMultiplier) {
-        return doFluidIOInternal(components, context, maxMultiplier);
-    }
-
-//    @Optional.Method(modid = "mekanism")
-//    private int doGasIOInternal(final List<ProcessingComponent<?>> components, final RecipeCraftingContext context, final int maxMultiplier) {
-//        List<IExtendedGasHandler> fluidHandlers = HybridFluidUtils.castGasHandlerComponents(components);
-//
-//        long required = Math.round(RecipeModifier.applyModifiers(context, this, (double) this.required.amount, false));
-//        long maxRequired = required * maxMultiplier;
-//
-//        GasStack stack = ((HybridFluidGas) this.required).asGasStack().copy();
-//        long totalIO = HybridFluidUtils.doSimulateDrainOrFill(stack, fluidHandlers, maxRequired, actionType);
-//
-//        if (totalIO < required) {
-//            return 0;
-//        }
-//
-//        HybridFluidUtils.doDrainOrFill(stack, totalIO, fluidHandlers, actionType);
-//
-//        return (int) (totalIO / required);
-//    }
 
     private int doFluidIOInternal(final List<ProcessingComponent<?>> components, final RecipeCraftingContext context, final int maxMultiplier) {
         List<IFluidHandler> fluidHandlers = HybridFluidUtils.castFluidHandlerComponents(components);

@@ -10,7 +10,9 @@ import org.lwjgl.opengl.GL11;
 public class RenderUtils {
 
     public static void renderBlockOverLay(BlockPos pos, float r, float g, float b, float a, float scale) {
-        if (pos == null) return;
+        if (pos == null) {
+            return;
+        }
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
         GlStateManager.translate((pos.getX() + 0.5), (pos.getY() + 0.5), (pos.getZ() + 0.5));

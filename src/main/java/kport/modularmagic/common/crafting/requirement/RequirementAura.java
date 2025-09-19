@@ -20,14 +20,18 @@ import kport.modularmagic.common.tile.machinecomponent.MachineComponentAuraProvi
 import net.minecraft.util.math.ChunkPos;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class RequirementAura extends ComponentRequirement.MultiCompParallelizable<Aura, RequirementTypeAura>
-        implements Asyncable, ComponentRequirement.Parallelizable {
+    implements Asyncable, ComponentRequirement.Parallelizable {
 
     public Aura aura;
-    public int max;
-    public int min;
+    public int  max;
+    public int  min;
 
     public RequirementAura(IOType type, Aura aura, int max, int min) {
         super((RequirementTypeAura) RegistriesMM.REQUIREMENT_TYPE_REGISTRY.getValue(ModularMagicRequirements.KEY_REQUIREMENT_AURA), type);
@@ -50,8 +54,8 @@ public class RequirementAura extends ComponentRequirement.MultiCompParallelizabl
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.getComponent();
         return cmp.getComponentType() instanceof ComponentAura &&
-                cmp instanceof MachineComponentAuraProvider &&
-                cmp.ioType == getActionType();
+            cmp instanceof MachineComponentAuraProvider &&
+            cmp.ioType == getActionType();
     }
 
     @Nonnull
@@ -183,8 +187,8 @@ public class RequirementAura extends ComponentRequirement.MultiCompParallelizabl
     @Override
     public ComponentRequirement<Aura, RequirementTypeAura> deepCopyModified(List<RecipeModifier> modifiers) {
         Aura aura = new Aura(Math.round(
-                RecipeModifier.applyModifiers(modifiers, this, this.aura.getAmount(), false)),
-                this.aura.getType()
+            RecipeModifier.applyModifiers(modifiers, this, this.aura.getAmount(), false)),
+            this.aura.getType()
         );
         return new RequirementAura(actionType, aura, this.max, this.min);
     }

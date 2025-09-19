@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UpgradeInfo {
-    private final List<ItemStack> matches = new ArrayList<>();
+    private final List<ItemStack>      matches  = new ArrayList<>();
     private final List<MachineUpgrade> upgrades = new ArrayList<>();
 
     public UpgradeInfo(List<ItemStack> matches) {

@@ -27,7 +27,7 @@ import java.util.List;
 
 public class RequirementMana extends ComponentRequirement.PerTickParallelizable<Mana, RequirementTypeMana> implements Asyncable {
 
-    public int manaAmount;
+    public int     manaAmount;
     public boolean perTick;
 
     public RequirementMana(IOType actionType, int manaAmount, boolean perTick) {
@@ -49,8 +49,8 @@ public class RequirementMana extends ComponentRequirement.PerTickParallelizable<
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.getComponent();
         return cmp.getComponentType() instanceof ComponentMana &&
-                cmp instanceof MachineComponentManaProvider &&
-                cmp.ioType == getActionType();
+            cmp instanceof MachineComponentManaProvider &&
+            cmp.ioType == getActionType();
     }
 
     @Nonnull
@@ -59,9 +59,9 @@ public class RequirementMana extends ComponentRequirement.PerTickParallelizable<
         List<ProcessingComponent<?>> list = new ArrayList<>();
         for (final ProcessingComponent<?> component : components) {
             list.add(new ProcessingComponent<>((
-                    MachineComponent<Object>) component.component(),
-                    new ManaProviderCopy(((ManaProviderCopy) component.providedComponent()).getOriginal()),
-                    component.tag())
+                MachineComponent<Object>) component.component(),
+                new ManaProviderCopy(((ManaProviderCopy) component.providedComponent()).getOriginal()),
+                component.tag())
             );
         }
         return list;

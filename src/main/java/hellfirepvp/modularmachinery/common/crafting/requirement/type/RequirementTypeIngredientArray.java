@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import github.kasuminova.mmce.common.itemtype.ChancedIngredientStack;
 import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementIngredientArray;
-import hellfirepvp.modularmachinery.common.integration.ingredient.IngredientItemStack;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.util.nbt.NBTJsonDeserializer;
 import net.minecraft.init.Items;
@@ -26,19 +25,19 @@ public class RequirementTypeIngredientArray extends RequirementType<ItemStack, R
      * Example:
      * {@code
      * {
-     *     "type": "modularmachinery:ingredient_array_input",
-     *     "io-type": "input",
-     *     "items": [
-     *         {
-     *             "item": "contenttweaker:programming_circuit_a",
-     *             "amount": 2
-     *         },
-     *         {
-     *             "item": "contenttweaker:programming_circuit_b",
-     *             "amount": 2
-     *         }
-     *     ],
-     *     "chance": 0.5
+     * "type": "modularmachinery:ingredient_array_input",
+     * "io-type": "input",
+     * "items": [
+     * {
+     * "item": "contenttweaker:programming_circuit_a",
+     * "amount": 2
+     * },
+     * {
+     * "item": "contenttweaker:programming_circuit_b",
+     * "amount": 2
+     * }
+     * ],
+     * "chance": 0.5
      * }
      * }
      */

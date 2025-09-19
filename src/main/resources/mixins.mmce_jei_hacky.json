@@ -6,6 +6,8 @@
     "compatibilityLevel": "JAVA_8",
     "client": [
         "MixinRecipeLayout",
-        "MixinRecipesGui"
+        "MixinRecipesGui",
+        "MixinRecipesGui$AccessorRecipeLayout",
+        "MixinRecipesGui$AccessorStructurePreviewWrapper"
     ]
 }

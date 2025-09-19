@@ -79,6 +79,10 @@ public abstract class TileLifeEssenceProvider extends TileInventory implements M
 
         @Override
         public synchronized void doRestrictedTick() {
+            if (world.isRemote) {
+                return;
+            }
+
             SoulNetwork soulNetwork = getSoulNetwork();
             if (soulNetwork == null) {
                 return;
@@ -126,13 +130,17 @@ public abstract class TileLifeEssenceProvider extends TileInventory implements M
 
         @Override
         public synchronized void doRestrictedTick() {
+            if (world.isRemote) {
+                return;
+            }
+
             SoulNetwork soulNetwork = getSoulNetwork();
             if (soulNetwork == null) {
                 return;
             }
 
             int prev = lifeEssenceCache;
-            lifeEssenceCache -= soulNetwork.add(new SoulTicket(lifeEssenceCache), lifeEssenceCache);
+            lifeEssenceCache -= soulNetwork.add(new SoulTicket(lifeEssenceCache), getOrbCapacity());
             if (prev != lifeEssenceCache) {
                 markNoUpdate();
             }
@@ -145,8 +153,7 @@ public abstract class TileLifeEssenceProvider extends TileInventory implements M
                 return 0;
             }
 
-            int maxCapacity = orbCapacity / 10;
-            int maxCanAdd = maxCapacity - lifeEssenceCache;
+            int maxCanAdd = orbCapacity - lifeEssenceCache;
             if (maxCanAdd <= 0) {
                 return 0;
             }

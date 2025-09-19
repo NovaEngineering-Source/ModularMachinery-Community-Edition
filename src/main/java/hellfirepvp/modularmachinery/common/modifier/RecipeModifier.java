@@ -8,7 +8,11 @@
 
 package hellfirepvp.modularmachinery.common.modifier;
 
-import com.google.gson.*;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import crafttweaker.annotations.ZenRegister;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.crafting.IntegrationTypeHelper;
@@ -37,18 +41,18 @@ import java.util.Collection;
 @ZenClass("mods.modularmachinery.RecipeModifier")
 public class RecipeModifier {
 
-    public static final String IO_INPUT = "input";
+    public static final String IO_INPUT  = "input";
     public static final String IO_OUTPUT = "output";
 
-    public static final int OPERATION_ADD = 0;
+    public static final int OPERATION_ADD      = 0;
     public static final int OPERATION_MULTIPLY = 1;
 
     @Nullable
     protected final RequirementType<?, ?> target;
-    protected final IOType ioTarget;
-    protected final float modifier;
-    protected final int operation;
-    protected final boolean chance;
+    protected final IOType                ioTarget;
+    protected final float                 modifier;
+    protected final int                   operation;
+    protected final boolean               chance;
 
     public RecipeModifier(@Nullable RequirementType<?, ?> target, IOType ioTarget, float modifier, int operation, boolean affectsChance) {
         this.target = target;
@@ -81,12 +85,12 @@ public class RecipeModifier {
     public static RecipeModifier deserialize(NBTTagCompound compound) {
         if (compound.hasKey("target") && compound.hasKey("ioTarget") && compound.hasKey("operation") && compound.hasKey("value") && compound.hasKey("chance")) {
             return RecipeModifierBuilder.newBuilder()
-                    .setRequirementType(compound.getString("target"))
-                    .setIOType(compound.getByte("ioTarget") == 0 ? IO_INPUT : IO_OUTPUT)
-                    .setOperation(compound.getByte("operation"))
-                    .setValue(compound.getFloat("value"))
-                    .isAffectChance(compound.getBoolean("chance"))
-                    .build();
+                                        .setRequirementType(compound.getString("target"))
+                                        .setIOType(compound.getByte("ioTarget") == 0 ? IO_INPUT : IO_OUTPUT)
+                                        .setOperation(compound.getByte("operation"))
+                                        .setValue(compound.getFloat("value"))
+                                        .isAffectChance(compound.getBoolean("chance"))
+                                        .build();
         }
         return null;
     }
@@ -199,15 +203,15 @@ public class RecipeModifier {
     public static class ModifierApplier {
         public static final ModifierApplier DEFAULT_APPLIER = new ModifierApplier();
 
-        public float inputAdd = 0;
-        public float inputMul = 1;
+        public float inputAdd  = 0;
+        public float inputMul  = 1;
         public float outputAdd = 0;
         public float outputMul = 1;
 
         public double apply(final double value, final IOType ioType) {
             return ioType == null || ioType == IOType.INPUT
-                    ? (value + inputAdd) * inputMul
-                    : (value + outputAdd) * outputMul;
+                ? (value + inputAdd) * inputMul
+                : (value + outputAdd) * outputMul;
         }
 
         public boolean isDefault() {
@@ -237,7 +241,7 @@ public class RecipeModifier {
                 target = IntegrationTypeHelper.searchRequirementType(targetStr);
                 if (target != null) {
                     ModularMachinery.log.info("[Modular Machinery]: Deprecated requirement name '"
-                            + targetStr + "'! Consider using " + target.getRegistryName().toString());
+                        + targetStr + "'! Consider using " + target.getRegistryName().toString());
                 }
             }
             if (!part.has("multiplier") || !part.get("multiplier").isJsonPrimitive() || !part.getAsJsonPrimitive("multiplier").isNumber()) {

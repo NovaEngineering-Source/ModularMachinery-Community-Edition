@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 public class GuiFullCapFluidTank extends GuiFluidTank {
 
     protected final IAEFluidTank tank;
-    protected final int slot;
+    protected final int          slot;
 
     protected boolean darkened = false;
 

@@ -21,15 +21,13 @@ public class MixinTileEntityRendererDispatcher {
      * Prevents MBD from hiding the controller's TESR.
      */
     @Inject(
-            method = "getRenderer(Lnet/minecraft/tileentity/TileEntity;)Lnet/minecraft/client/renderer/tileentity/TileEntitySpecialRenderer;",
-            at = @At("HEAD"),
-            cancellable = true
+        method = "getRenderer(Lnet/minecraft/tileentity/TileEntity;)Lnet/minecraft/client/renderer/tileentity/TileEntitySpecialRenderer;",
+        at = @At("HEAD"),
+        cancellable = true
     )
     private <T extends TileEntity> void injectGetRenderer(TileEntity te, CallbackInfoReturnable<TileEntitySpecialRenderer<T>> cir) {
-        if (te != null) {
-            if (te instanceof TileMultiblockMachineController) {
-                cir.setReturnValue(instance.getRenderer(te.getClass()));
-            }
+        if (te instanceof TileMultiblockMachineController) {
+            cir.setReturnValue(instance.getRenderer(te.getClass()));
         }
     }
 

@@ -4,8 +4,20 @@ import com.cleanroommc.groovyscript.api.GroovyBlacklist;
 import crafttweaker.annotations.ZenRegister;
 import github.kasuminova.mmce.common.event.Phase;
 import github.kasuminova.mmce.common.event.client.ControllerGUIRenderEvent;
-import github.kasuminova.mmce.common.event.machine.*;
-import github.kasuminova.mmce.common.event.recipe.*;
+import github.kasuminova.mmce.common.event.machine.MachineEvent;
+import github.kasuminova.mmce.common.event.machine.MachineStructureFormedEvent;
+import github.kasuminova.mmce.common.event.machine.MachineStructureUpdateEvent;
+import github.kasuminova.mmce.common.event.machine.MachineTickEvent;
+import github.kasuminova.mmce.common.event.machine.SmartInterfaceUpdateEvent;
+import github.kasuminova.mmce.common.event.recipe.FactoryRecipeFailureEvent;
+import github.kasuminova.mmce.common.event.recipe.FactoryRecipeFinishEvent;
+import github.kasuminova.mmce.common.event.recipe.FactoryRecipeStartEvent;
+import github.kasuminova.mmce.common.event.recipe.FactoryRecipeTickEvent;
+import github.kasuminova.mmce.common.event.recipe.RecipeCheckEvent;
+import github.kasuminova.mmce.common.event.recipe.RecipeFailureEvent;
+import github.kasuminova.mmce.common.event.recipe.RecipeFinishEvent;
+import github.kasuminova.mmce.common.event.recipe.RecipeStartEvent;
+import github.kasuminova.mmce.common.event.recipe.RecipeTickEvent;
 import github.kasuminova.mmce.common.integration.Logger;
 import github.kasuminova.mmce.common.upgrade.SimpleMachineUpgrade;
 import github.kasuminova.mmce.common.upgrade.UpgradeType;
@@ -166,7 +178,9 @@ public class MachineUpgradeBuilder {
     @ZenMethod
     public MachineUpgradeBuilder addPreRecipeCheckHandler(UpgradeEventHandlerCT handler) {
         addEventHandler(RecipeCheckEvent.class, (event, upgrade) -> {
-            if (((RecipeCheckEvent) event).phase != Phase.START) return;
+            if (((RecipeCheckEvent) event).phase != Phase.START) {
+                return;
+            }
             handler.handle(event, upgrade);
         });
         return this;
@@ -175,7 +189,9 @@ public class MachineUpgradeBuilder {
     @ZenMethod
     public MachineUpgradeBuilder addPostRecipeCheckHandler(UpgradeEventHandlerCT handler) {
         addEventHandler(RecipeCheckEvent.class, (event, upgrade) -> {
-            if (((RecipeCheckEvent) event).phase != Phase.END) return;
+            if (((RecipeCheckEvent) event).phase != Phase.END) {
+                return;
+            }
             handler.handle(event, upgrade);
         });
         return this;
@@ -190,7 +206,9 @@ public class MachineUpgradeBuilder {
     @ZenMethod
     public MachineUpgradeBuilder addRecipePreTickHandler(UpgradeEventHandlerCT handler) {
         addEventHandler(RecipeTickEvent.class, (event, upgrade) -> {
-            if (((RecipeTickEvent) event).phase == Phase.START) handler.handle(event, upgrade);
+            if (((RecipeTickEvent) event).phase == Phase.START) {
+                handler.handle(event, upgrade);
+            }
         });
         return this;
     }
@@ -198,7 +216,9 @@ public class MachineUpgradeBuilder {
     @ZenMethod
     public MachineUpgradeBuilder addRecipePostTickHandler(UpgradeEventHandlerCT handler) {
         addEventHandler(RecipeTickEvent.class, (event, upgrade) -> {
-            if (((RecipeTickEvent) event).phase == Phase.END) handler.handle(event, upgrade);
+            if (((RecipeTickEvent) event).phase == Phase.END) {
+                handler.handle(event, upgrade);
+            }
         });
         return this;
     }
@@ -231,7 +251,9 @@ public class MachineUpgradeBuilder {
     @ZenMethod
     public MachineUpgradeBuilder addFactoryRecipePreTickHandler(UpgradeEventHandlerCT handler) {
         addEventHandler(FactoryRecipeTickEvent.class, (event, upgrade) -> {
-            if (((FactoryRecipeTickEvent) event).phase == Phase.START) handler.handle(event, upgrade);
+            if (((FactoryRecipeTickEvent) event).phase == Phase.START) {
+                handler.handle(event, upgrade);
+            }
         });
         return this;
     }
@@ -239,7 +261,9 @@ public class MachineUpgradeBuilder {
     @ZenMethod
     public MachineUpgradeBuilder addFactoryRecipePostTickHandler(UpgradeEventHandlerCT handler) {
         addEventHandler(FactoryRecipeTickEvent.class, (event, upgrade) -> {
-            if (((FactoryRecipeTickEvent) event).phase == Phase.END) handler.handle(event, upgrade);
+            if (((FactoryRecipeTickEvent) event).phase == Phase.END) {
+                handler.handle(event, upgrade);
+            }
         });
         return this;
     }
@@ -259,7 +283,9 @@ public class MachineUpgradeBuilder {
     @ZenMethod
     public MachineUpgradeBuilder addMachinePreTickHandler(UpgradeEventHandlerCT handler) {
         addEventHandler(MachineTickEvent.class, (event, upgrade) -> {
-            if (((MachineTickEvent) event).phase == Phase.START) handler.handle(event, upgrade);
+            if (((MachineTickEvent) event).phase == Phase.START) {
+                handler.handle(event, upgrade);
+            }
         });
         return this;
     }
@@ -267,7 +293,9 @@ public class MachineUpgradeBuilder {
     @ZenMethod
     public MachineUpgradeBuilder addMachinePostTickHandler(UpgradeEventHandlerCT handler) {
         addEventHandler(MachineTickEvent.class, (event, upgrade) -> {
-            if (((MachineTickEvent) event).phase == Phase.END) handler.handle(event, upgrade);
+            if (((MachineTickEvent) event).phase == Phase.END) {
+                handler.handle(event, upgrade);
+            }
         });
         return this;
     }

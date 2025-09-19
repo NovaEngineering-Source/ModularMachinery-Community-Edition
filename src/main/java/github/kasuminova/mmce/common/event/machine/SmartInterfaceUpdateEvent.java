@@ -12,7 +12,7 @@ import stanhebben.zenscript.annotations.ZenGetter;
 @ZenRegister
 @ZenClass("mods.modularmachinery.SmartInterfaceUpdateEvent")
 public class SmartInterfaceUpdateEvent extends MachineEvent {
-    private final IBlockPos interfacePos;
+    private final IBlockPos          interfacePos;
     private final SmartInterfaceData newData;
 
     public SmartInterfaceUpdateEvent(TileMultiblockMachineController controller, BlockPos interfacePos, SmartInterfaceData newData) {

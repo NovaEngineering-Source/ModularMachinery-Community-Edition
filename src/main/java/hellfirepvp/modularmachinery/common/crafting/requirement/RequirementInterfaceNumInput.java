@@ -1,6 +1,10 @@
 package hellfirepvp.modularmachinery.common.crafting.requirement;
 
-import hellfirepvp.modularmachinery.common.crafting.helper.*;
+import hellfirepvp.modularmachinery.common.crafting.helper.ComponentOutputRestrictor;
+import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
+import hellfirepvp.modularmachinery.common.crafting.helper.CraftCheck;
+import hellfirepvp.modularmachinery.common.crafting.helper.ProcessingComponent;
+import hellfirepvp.modularmachinery.common.crafting.helper.RecipeCraftingContext;
 import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementTypeInterfaceNumInput;
 import hellfirepvp.modularmachinery.common.lib.ComponentTypesMM;
 import hellfirepvp.modularmachinery.common.lib.RequirementTypesMM;
@@ -18,8 +22,8 @@ import java.util.List;
 
 public class RequirementInterfaceNumInput extends ComponentRequirement<Float, RequirementTypeInterfaceNumInput> {
     protected final SmartInterfaceType type;
-    protected final float minValue;
-    protected final float maxValue;
+    protected final float              minValue;
+    protected final float              maxValue;
 
     public RequirementInterfaceNumInput(ResourceLocation machineName, String type, float minValue, float maxValue) throws NullPointerException {
         super(RequirementTypesMM.REQUIREMENT_INTERFACE_NUMBER_INPUT, IOType.INPUT);
@@ -58,7 +62,7 @@ public class RequirementInterfaceNumInput extends ComponentRequirement<Float, Re
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.component();
         if (cmp.getComponentType().equals(ComponentTypesMM.COMPONENT_SMART_INTERFACE) &&
-                cmp instanceof final TileSmartInterface.SmartInterfaceProvider provider) {
+            cmp instanceof final TileSmartInterface.SmartInterfaceProvider provider) {
 
             return provider.getMachineData(type.getType()) != null;
         } else {
@@ -81,8 +85,8 @@ public class RequirementInterfaceNumInput extends ComponentRequirement<Float, Re
 
         String customMsg = type.getNotEqualMessage();
         return CraftCheck.failure(customMsg.isEmpty()
-                ? "craftcheck.failure.interface.number.notequal"
-                : customMsg);
+            ? "craftcheck.failure.interface.number.notequal"
+            : customMsg);
     }
 
     @Override

@@ -22,7 +22,7 @@ public class StructurePreviewHelper {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         if (player != null) {
             player.sendMessage(
-                    new TextComponentTranslation("message.machine_projector.project", machine.getLocalizedName())
+                new TextComponentTranslation("message.machine_projector.project", machine.getLocalizedName())
             );
         }
         DynamicMachineRenderContext context = DynamicMachineRenderContext.createContext(machine);

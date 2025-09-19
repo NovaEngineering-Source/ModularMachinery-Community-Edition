@@ -61,8 +61,8 @@ public class GuiContainerFluidHatch extends GuiContainerBase<ContainerFluidHatch
         int offsetX = (this.width - this.xSize) / 2;
         int offsetZ = (this.height - this.ySize) / 2;
         if (mouseButton == 0 &&
-                mouseX >= 15 + offsetX && mouseX <= 35 + offsetX &&
-                mouseY >= 10 + offsetZ && mouseY <= 71 + offsetZ) {
+            mouseX >= 15 + offsetX && mouseX <= 35 + offsetX &&
+            mouseY >= 10 + offsetZ && mouseY <= 71 + offsetZ) {
 
             ItemStack held = this.mc.player.inventory.getItemStack();
             if (!held.isEmpty()) {

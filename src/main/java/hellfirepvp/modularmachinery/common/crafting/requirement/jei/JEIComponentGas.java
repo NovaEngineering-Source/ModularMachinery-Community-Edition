@@ -5,7 +5,7 @@ import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementGas;
 import hellfirepvp.modularmachinery.common.integration.recipe.RecipeLayoutPart;
 import mekanism.api.gas.GasStack;
 
-import java.awt.Point;
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 

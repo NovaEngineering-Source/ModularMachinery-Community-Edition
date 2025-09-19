@@ -23,11 +23,11 @@ import java.util.Map;
  * Date: 27.06.2017 / 11:32
  */
 public class ClientScheduler {
-    private static final Object lock = new Object();
-    private static long clientTick = 0;
-    private final Map<Runnable, Counter> queuedRunnables = new HashMap<>();
-    private final Map<Runnable, Integer> waitingRunnables = new HashMap<>();
-    private boolean inTick = false;
+    private static final Object                 lock             = new Object();
+    private static       long                   clientTick       = 0;
+    private final        Map<Runnable, Counter> queuedRunnables  = new HashMap<>();
+    private final        Map<Runnable, Integer> waitingRunnables = new HashMap<>();
+    private              boolean                inTick           = false;
 
     public static long getClientTick() {
         return clientTick;

@@ -3,6 +3,7 @@ package github.kasuminova.mmce.client.gui;
 import appeng.client.gui.widgets.GuiCustomSlot;
 import appeng.fluids.client.gui.widgets.GuiFluidTank;
 import github.kasuminova.mmce.client.gui.slot.GuiFullCapFluidTank;
+import github.kasuminova.mmce.client.gui.util.TextureProperties;
 import github.kasuminova.mmce.client.gui.widget.Button;
 import github.kasuminova.mmce.client.gui.widget.Button4State;
 import github.kasuminova.mmce.client.gui.widget.ButtonElements;
@@ -33,11 +34,11 @@ import java.util.List;
 public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
 
     public static final ResourceLocation GUI_TEXTURE =
-            new ResourceLocation(ModularMachinery.MODID, "textures/gui/mepatternprovider.png");
+        new ResourceLocation(ModularMachinery.MODID, "textures/gui/mepatternprovider.png");
 
     protected final MEPatternProvider owner;
 
-    protected final PatternProviderIngredientList stackList = new PatternProviderIngredientList();
+    protected final PatternProviderIngredientList                     stackList       = new PatternProviderIngredientList();
     protected final ButtonElements<MEPatternProvider.WorkModeSetting> workModeSetting = new ButtonElements<>();
 
     public GuiMEPatternProvider(final MEPatternProvider owner, final EntityPlayer player) {
@@ -52,28 +53,28 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
 
         // Titles...
         this.widgetController.addWidget(
-                new MultiLineLabel(Collections.singletonList(I18n.format("gui.mepatternprovider.title")))
-                        .setAutoWrap(false)
-                        .setMargin(0)
-                        .setAbsXY(7, 11)
+            new MultiLineLabel(Collections.singletonList(I18n.format("gui.mepatternprovider.title")))
+                .setAutoWrap(false)
+                .setMargin(0)
+                .setAbsXY(7, 11)
         );
         this.widgetController.addWidget(
-                new MultiLineLabel(Collections.singletonList(I18n.format("gui.mepatternprovider.cached")))
-                        .setAutoWrap(false)
-                        .setMargin(0)
-                        .setAbsXY(180, 11)
+            new MultiLineLabel(Collections.singletonList(I18n.format("gui.mepatternprovider.cached")))
+                .setAutoWrap(false)
+                .setMargin(0)
+                .setAbsXY(180, 11)
         );
         this.widgetController.addWidget(
-                new MultiLineLabel(Collections.singletonList(I18n.format("gui.mepatternprovider.inventory")))
-                        .setAutoWrap(false)
-                        .setMargin(0)
-                        .setAbsXY(7, 101)
+            new MultiLineLabel(Collections.singletonList(I18n.format("gui.mepatternprovider.inventory")))
+                .setAutoWrap(false)
+                .setMargin(0)
+                .setAbsXY(7, 101)
         );
         this.widgetController.addWidget(
-                new MultiLineLabel(Collections.singletonList(I18n.format("gui.mepatternprovider.single_inv")))
-                        .setAutoWrap(false)
-                        .setMargin(0)
-                        .setAbsXY(180, 158)
+            new MultiLineLabel(Collections.singletonList(I18n.format("gui.mepatternprovider.single_inv")))
+                .setAutoWrap(false)
+                .setMargin(0)
+                .setAbsXY(180, 158)
         );
 
         // Init StackList...
@@ -84,72 +85,81 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
         // Init ReturnItems...
         Button4State returnItems = new Button4State();
         returnItems
-                .setMouseDownTextureXY(176 + 18 + 18, 214)
-                .setHoveredTextureXY(176 + 18, 214)
-                .setTextureXY(176, 214)
-                .setTextureLocation(GuiMEPatternProvider.GUI_TEXTURE)
-                .setTooltipFunction((btn) -> {
-                    List<String> tooltips = new ArrayList<>();
-                    tooltips.add(I18n.format("gui.mepatternprovider.return_items"));
-                    tooltips.add(I18n.format("gui.mepatternprovider.return_items.desc"));
-                    return tooltips;
-                })
-                .setOnClickedListener((btn) -> ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.RETURN_ITEMS)))
-                .setWidthHeight(16, 16);
+            .setMouseDownTexture(176 + 18 + 18, 214)
+            .setHoveredTexture(176 + 18, 214)
+            .setTexture(176, 214)
+            .setTextureLocation(GuiMEPatternProvider.GUI_TEXTURE)
+            .setTooltipFunction((btn) -> {
+                List<String> tooltips = new ArrayList<>();
+                tooltips.add(I18n.format("gui.mepatternprovider.return_items"));
+                tooltips.add(I18n.format("gui.mepatternprovider.return_items.desc"));
+                return tooltips;
+            })
+            .setOnClickedListener((btn) -> ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.RETURN_ITEMS)))
+            .setWidthHeight(16, 16);
 
         // Init WorkModeSetting...
         workModeSetting
-                // ButtonTexture 1
-                .addElement(MEPatternProvider.WorkModeSetting.DEFAULT, 140, 196, GuiMEPatternProvider.GUI_TEXTURE)
-                // ButtonTexture 2
-                .addElement(MEPatternProvider.WorkModeSetting.BLOCKING_MODE, 140 + 18, 196, GuiMEPatternProvider.GUI_TEXTURE)
-                // ButtonTexture 3
-                .addElement(MEPatternProvider.WorkModeSetting.CRAFTING_LOCK_MODE, 140 + 18 + 18, 196, GuiMEPatternProvider.GUI_TEXTURE)
-                // ButtonTexture 5
-                .setMouseDownTextureXY(140 + 18 + 18 + 18 + 18 + 18, 196)
-                // ButtonTexture 5
-                .setHoveredTextureXY(140 + 18 + 18 + 18 + 18, 196)
-                // ButtonTexture 4
-                .setTextureXY(140 + 18 + 18 + 18, 196)
-                .setTextureLocation(GuiMEPatternProvider.GUI_TEXTURE)
-                .setTooltipFunction((btn) -> {
-                    MEPatternProvider.WorkModeSetting current = workModeSetting.getCurrentSelection();
-                    List<String> tooltips = new ArrayList<>();
-                    tooltips.add(I18n.format("gui.mepatternprovider.work_mode.desc"));
-                    tooltips.add((current == MEPatternProvider.WorkModeSetting.DEFAULT ? I18n.format("gui.mepatternprovider.current") : "") 
-                                 + I18n.format("gui.mepatternprovider.default.desc"));
-                    tooltips.add((current == MEPatternProvider.WorkModeSetting.BLOCKING_MODE ? I18n.format("gui.mepatternprovider.current") : "")
-                                 + I18n.format("gui.mepatternprovider.blocking_mode.desc"));
-                    tooltips.add((current == MEPatternProvider.WorkModeSetting.CRAFTING_LOCK_MODE ? I18n.format("gui.mepatternprovider.current") : "") 
-                                 + I18n.format("gui.mepatternprovider.crafting_lock_mode.desc"));
-                    return tooltips;
-                })
-                .setOnClickedListener((btn) -> {
-                    MEPatternProvider.WorkModeSetting current = workModeSetting.getCurrentSelection();
-                    if (current == null) {
-                        return;
-                    }
-                    switch (current) {
-                        case DEFAULT -> ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_DEFAULT_MODE));
-                        case BLOCKING_MODE ->ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_BLOCKING_MODE));
-                        case CRAFTING_LOCK_MODE -> ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_CRAFTING_LOCK_MODE));
-                    }
-                })
-                .setWidthHeight(16, 16);
+            // ButtonTexture 1
+            .addElement(MEPatternProvider.WorkModeSetting.DEFAULT, TextureProperties.of(140, 196, 16, 16))
+            // ButtonTexture 2
+            .addElement(MEPatternProvider.WorkModeSetting.BLOCKING_MODE, TextureProperties.of(140 + 18, 196, 16, 16))
+            // ButtonTexture 3
+            .addElement(MEPatternProvider.WorkModeSetting.CRAFTING_LOCK_MODE, TextureProperties.of(140 + 18 + 18, 196, 16, 16))
+            // ButtonTexture 0
+            .addElement(MEPatternProvider.WorkModeSetting.ENHANCED_BLOCKING_MODE, TextureProperties.of(140 - 18, 196, 16, 16))
+            // ButtonTexture 5
+            .setMouseDownTexture(140 + 18 + 18 + 18 + 18 + 18, 196)
+            // ButtonTexture 5
+            .setHoveredTexture(140 + 18 + 18 + 18 + 18, 196)
+            // ButtonTexture 4
+            .setTexture(140 + 18 + 18 + 18, 196)
+            .setTextureLocation(GuiMEPatternProvider.GUI_TEXTURE)
+            .setTooltipFunction((btn) -> {
+                MEPatternProvider.WorkModeSetting current = workModeSetting.getCurrentSelection();
+                List<String> tooltips = new ArrayList<>();
+                tooltips.add(I18n.format("gui.mepatternprovider.work_mode.desc"));
+                tooltips.add((current == MEPatternProvider.WorkModeSetting.DEFAULT ? I18n.format("gui.mepatternprovider.current") : "")
+                    + I18n.format("gui.mepatternprovider.default.desc"));
+                tooltips.add((current == MEPatternProvider.WorkModeSetting.BLOCKING_MODE ? I18n.format("gui.mepatternprovider.current") : "")
+                    + I18n.format("gui.mepatternprovider.blocking_mode.desc"));
+                tooltips.add((current == MEPatternProvider.WorkModeSetting.CRAFTING_LOCK_MODE ? I18n.format("gui.mepatternprovider.current") : "")
+                    + I18n.format("gui.mepatternprovider.crafting_lock_mode.desc"));
+                tooltips.add((current == MEPatternProvider.WorkModeSetting.ENHANCED_BLOCKING_MODE ? I18n.format("gui.mepatternprovider.current") : "")
+                    + I18n.format("gui.mepatternprovider.enhanced_blocking_mode.desc"));
+                return tooltips;
+            })
+            .setOnClickedListener((btn) -> {
+                MEPatternProvider.WorkModeSetting current = workModeSetting.getCurrentSelection();
+                if (current == null) {
+                    return;
+                }
+                switch (current) {
+                    case DEFAULT ->
+                        ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_DEFAULT_MODE));
+                    case BLOCKING_MODE ->
+                        ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_BLOCKING_MODE));
+                    case CRAFTING_LOCK_MODE ->
+                        ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_CRAFTING_LOCK_MODE));
+                    case ENHANCED_BLOCKING_MODE ->
+                        ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_ENHANCED_BLOCKING_MODE));
+                }
+            })
+            .setWidthHeight(16, 16);
 
         // Init Single Inv Tip Button...
         Button singleInvTip = new Button();
         singleInvTip
-                .setTextureLocation(GuiMEPatternProvider.GUI_TEXTURE)
-                .setTextureXY(230, 214)
-                .setHoveredTextureXY(230 + 11, 214)
-                .setTooltipFunction((btn) -> {
-                    List<String> tooltips = new ArrayList<>();
-                    tooltips.add(I18n.format("gui.mepatternprovider.single_inv.desc"));
-                    return tooltips;
-                })
-                .setWidthHeight(9, 11)
-                .setAbsXY(240, 157);
+            .setTextureLocation(GuiMEPatternProvider.GUI_TEXTURE)
+            .setTexture(230, 214)
+            .setHoveredTexture(230 + 11, 214)
+            .setTooltipFunction((btn) -> {
+                List<String> tooltips = new ArrayList<>();
+                tooltips.add(I18n.format("gui.mepatternprovider.single_inv.desc"));
+                return tooltips;
+            })
+            .setWidthHeight(9, 11)
+            .setAbsXY(240, 157);
 
         // Init Widget Containers...
         Row stackListButtons = new Row();
@@ -168,7 +178,7 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
         super.initGui();
 
         final GuiFullCapFluidTank guiTank = new GuiFullCapFluidTank(owner.getSubFluidHandler(),
-                0, 0, 232, 172, 16, 16
+            0, 0, 232, 172, 16, 16
         );
 
         // AE2 Unofficial Extended Life Check

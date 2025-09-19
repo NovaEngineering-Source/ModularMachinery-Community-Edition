@@ -4,10 +4,10 @@ import hellfirepvp.modularmachinery.ModularMachinery;
 import io.netty.util.internal.ThrowableUtil;
 
 public class ActionExecutor implements Runnable, Comparable<ActionExecutor> {
-    public final Action action;
-    public final int priority;
+    public final    Action  action;
+    public final    int     priority;
     public volatile boolean isCompleted = false;
-    public volatile int usedTime = 0;
+    public volatile int     usedTime    = 0;
 
     public ActionExecutor(Action action) {
         this(action, 0);

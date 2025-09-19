@@ -32,12 +32,12 @@ public abstract class AdapterIC2Machine extends RecipeAdapter {
                                               final int workTime) {
         for (ic2.api.recipe.MachineRecipe<IRecipeInput, Collection<ItemStack>> machineRecipe : machineRecipes) {
             MachineRecipe recipe = createRecipeShell(
-                    new ResourceLocation("ic2", recipeRegistryNamePrefix + incId),
-                    owningMachineName,
-                    Math.max(1, Math.round(
-                            RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_DURATION, null, workTime, false))
-                    ),
-                    incId, false);
+                new ResourceLocation("ic2", recipeRegistryNamePrefix + incId),
+                owningMachineName,
+                Math.max(1, Math.round(
+                    RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_DURATION, null, workTime, false))
+                ),
+                incId, false);
 
             int inAmount = Math.round(RecipeModifier.applyModifiers(modifiers, RequirementTypesMM.REQUIREMENT_ITEM, IOType.INPUT, machineRecipe.getInput().getAmount(), false));
 

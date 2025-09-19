@@ -25,14 +25,15 @@ import net.minecraftforge.registries.ForgeRegistry;
  */
 public class RegistriesMM {
 
-    public static final ResourceLocation ADAPTER_REGISTRY_NAME = new ResourceLocation(ModularMachinery.MODID, "recipeadapters");
-    public static final ResourceLocation COMPONENT_TYPE_REGISTRY_NAME = new ResourceLocation(ModularMachinery.MODID, "componenttypes");
-    public static final ResourceLocation REQUIREMENT_TYPE_REGISTRY_NAME = new ResourceLocation(ModularMachinery.MODID, "requirementtypes");
-    public static final ResourceLocation REQUIREMENT_TIPS_REGISTRY_NAME = new ResourceLocation(ModularMachinery.MODID, "requirementtips");
-    public static ForgeRegistry<RecipeAdapter> ADAPTER_REGISTRY;
-    public static ForgeRegistry<ComponentType> COMPONENT_TYPE_REGISTRY;
-    public static ForgeRegistry<RequirementType<?, ?>> REQUIREMENT_TYPE_REGISTRY;
-    public static ForgeRegistry<RequirementTip> REQUIREMENT_TIPS_REGISTRY;
+    public static final ResourceLocation                     ADAPTER_REGISTRY_NAME          = new ResourceLocation(ModularMachinery.MODID, "recipeadapters");
+    public static final ResourceLocation                     COMPONENT_TYPE_REGISTRY_NAME   = new ResourceLocation(ModularMachinery.MODID, "componenttypes");
+    public static final ResourceLocation                     REQUIREMENT_TYPE_REGISTRY_NAME = new ResourceLocation(ModularMachinery.MODID, "requirementtypes");
+    public static final ResourceLocation                     REQUIREMENT_TIPS_REGISTRY_NAME = new ResourceLocation(ModularMachinery.MODID, "requirementtips");
+    public static       ForgeRegistry<RecipeAdapter>         ADAPTER_REGISTRY;
+    public static       ForgeRegistry<ComponentType>         COMPONENT_TYPE_REGISTRY;
+    public static       ForgeRegistry<RequirementType<?, ?>> REQUIREMENT_TYPE_REGISTRY;
+    public static       ForgeRegistry<RequirementTip>        REQUIREMENT_TIPS_REGISTRY;
+
     private RegistriesMM() {
     }
 

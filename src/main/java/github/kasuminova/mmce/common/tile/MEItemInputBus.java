@@ -8,6 +8,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.me.GridAccessException;
 import appeng.util.Platform;
 import github.kasuminova.mmce.common.tile.base.MEItemBus;
+import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.lib.ItemsMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
@@ -20,10 +21,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
 
-public class MEItemInputBus extends MEItemBus {
-    private static final Map<ItemStack, IAEItemStack> AE_STACK_CACHE = new WeakHashMap<>();
-    private IOInventory configInventory = buildConfigInventory();
+public class MEItemInputBus extends MEItemBus implements SettingsTransfer {
+
+    private static final String CONFIG_TAG_KEY = "configInventory";
+
+    // A simple cache for AEItemStack.
+    private static final Map<ItemStack, IAEItemStack> AE_STACK_CACHE  = new WeakHashMap<>();
+    private              IOInventory                  configInventory = buildConfigInventory();
 
     @Override
     public IOInventory buildInventory() {
@@ -69,8 +75,8 @@ public class MEItemInputBus extends MEItemBus {
     public void readCustomNBT(final NBTTagCompound compound) {
         super.readCustomNBT(compound);
 
-        if (compound.hasKey("configInventory")) {
-            readConfigInventoryNBT(compound.getCompoundTag("configInventory"));
+        if (compound.hasKey(CONFIG_TAG_KEY)) {
+            readConfigInventoryNBT(compound.getCompoundTag(CONFIG_TAG_KEY));
         }
     }
 
@@ -78,7 +84,7 @@ public class MEItemInputBus extends MEItemBus {
     public void writeCustomNBT(final NBTTagCompound compound) {
         super.writeCustomNBT(compound);
 
-        compound.setTag("configInventory", configInventory.writeNBT());
+        compound.setTag(CONFIG_TAG_KEY, configInventory.writeNBT());
     }
 
     public IOInventory getConfigInventory() {
@@ -132,73 +138,82 @@ public class MEItemInputBus extends MEItemBus {
             return TickRateModulation.IDLE;
         }
 
-        inTick = true;
+        int[] needUpdateSlots = getNeedUpdateSlots();
+        if (needUpdateSlots.length == 0) {
+            return TickRateModulation.SLOWER;
+        }
+
+        ReadWriteLock rwLock = inventory.getRWLock();
 
         try {
+            rwLock.writeLock().lock();
+
             boolean successAtLeastOnce = false;
-
+            inTick = true;
             IMEMonitor<IAEItemStack> inv = proxy.getStorage().getInventory(channel);
+            for (final int slot : needUpdateSlots) {
+                changedSlots[slot] = false;
+                ItemStack cfgStack = configInventory.getStackInSlot(slot);
+                ItemStack invStack = inventory.getStackInSlot(slot);
 
-            synchronized (inventory) {
-                for (final int slot : getNeedUpdateSlots()) {
-                    changedSlots[slot] = false;
-                    ItemStack cfgStack = configInventory.getStackInSlot(slot);
-                    ItemStack invStack = inventory.getStackInSlot(slot);
-
-                    if (cfgStack.isEmpty()) {
-                        if (invStack.isEmpty()) {
-                            continue;
-                        }
-                        inventory.setStackInSlot(slot, insertStackToAE(inv, invStack));
+                if (cfgStack.isEmpty()) {
+                    if (invStack.isEmpty()) {
                         continue;
                     }
+                    inventory.setStackInSlot(slot, insertStackToAE(inv, invStack));
+                    continue;
+                }
 
-                    if (!ItemUtils.matchStacks(cfgStack, invStack)) {
-                        if (invStack.isEmpty() || insertStackToAE(inv, invStack).isEmpty()) {
-                            ItemStack stack = extractStackFromAE(inv, cfgStack);
-                            inventory.setStackInSlot(slot, stack);
-                            if (!stack.isEmpty()) {
-                                successAtLeastOnce = true;
-                            }
-                        }
-                        continue;
-                    }
-
-                    if (cfgStack.getCount() == invStack.getCount()) {
-                        continue;
-                    }
-
-                    if (cfgStack.getCount() > invStack.getCount()) {
-                        int countToReceive = cfgStack.getCount() - invStack.getCount();
-                        ItemStack stack = extractStackFromAE(inv, ItemUtils.copyStackWithSize(invStack, countToReceive));
+                if (!ItemUtils.matchStacks(cfgStack, invStack)) {
+                    if (invStack.isEmpty() || insertStackToAE(inv, invStack).isEmpty()) {
+                        ItemStack stack = extractStackFromAE(inv, cfgStack);
+                        inventory.setStackInSlot(slot, stack);
                         if (!stack.isEmpty()) {
-                            inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(
-                                    invStack, invStack.getCount() + stack.getCount())
-                            );
                             successAtLeastOnce = true;
                         }
-                    } else {
-                        int countToExtract = invStack.getCount() - cfgStack.getCount();
-                        ItemStack stack = insertStackToAE(inv, ItemUtils.copyStackWithSize(invStack, countToExtract));
-                        if (stack.isEmpty()) {
-                            inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(
-                                    invStack, invStack.getCount() - countToExtract)
-                            );
-                        } else {
-                            inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(
-                                    invStack, invStack.getCount() - countToExtract + stack.getCount())
-                            );
-                        }
-                        successAtLeastOnce = true;
                     }
+                    continue;
+                }
+
+                if (cfgStack.getCount() == invStack.getCount()) {
+                    continue;
+                }
+
+                if (cfgStack.getCount() > invStack.getCount()) {
+                    int countToReceive = cfgStack.getCount() - invStack.getCount();
+                    ItemStack stack = extractStackFromAE(inv, ItemUtils.copyStackWithSize(invStack, countToReceive));
+                    if (!stack.isEmpty()) {
+                        int newCount = invStack.getCount() + stack.getCount();
+                        inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(invStack, newCount));
+                        successAtLeastOnce = true;
+                        failureCounter[slot] = 0;
+                    } else {
+                        // If AE doesn't have enough item?
+                        failureCounter[slot]++;
+                    }
+                } else {
+                    int countToExtract = invStack.getCount() - cfgStack.getCount();
+                    ItemStack stack = insertStackToAE(inv, ItemUtils.copyStackWithSize(invStack, countToExtract));
+                    if (stack.isEmpty()) {
+                        inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(
+                            invStack, invStack.getCount() - countToExtract)
+                        );
+                    } else {
+                        inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(
+                            invStack, invStack.getCount() - countToExtract + stack.getCount())
+                        );
+                    }
+                    successAtLeastOnce = true;
                 }
             }
 
             inTick = false;
+            rwLock.writeLock().unlock();
             return successAtLeastOnce ? TickRateModulation.FASTER : TickRateModulation.SLOWER;
         } catch (GridAccessException e) {
             inTick = false;
             changedSlots = new boolean[changedSlots.length];
+            rwLock.writeLock().unlock();
             return TickRateModulation.IDLE;
         }
     }
@@ -235,7 +250,7 @@ public class MEItemInputBus extends MEItemBus {
 
     @Override
     public void markNoUpdate() {
-        if (proxy.isActive() && hasChangedSlots()) {
+        if (hasChangedSlots()) {
             try {
                 proxy.getTick().alertDevice(proxy.getNode());
             } catch (GridAccessException e) {
@@ -269,5 +284,22 @@ public class MEItemInputBus extends MEItemBus {
             slotIDs[slotID] = slotID;
         }
         configInventory.setStackLimit(Integer.MAX_VALUE, slotIDs);
+    }
+
+    @Override
+    public NBTTagCompound downloadSettings() {
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setTag(CONFIG_TAG_KEY, configInventory.writeNBT());
+        return tag;
+    }
+
+    @Override
+    public void uploadSettings(NBTTagCompound settings) {
+        readConfigInventoryNBT(settings.getCompoundTag(CONFIG_TAG_KEY));
+        try {
+            proxy.getTick().alertDevice(proxy.getNode());
+        } catch (GridAccessException e) {
+            ModularMachinery.log.warn("Error while uploading settings", e);
+        }
     }
 }

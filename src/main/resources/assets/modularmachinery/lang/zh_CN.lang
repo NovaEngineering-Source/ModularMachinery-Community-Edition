@@ -58,6 +58,7 @@ gui.upgradebus.incompatible=§e警告：%s 与此机械不兼容。
 
 gui.meitemoutputbus.title=ME 机械物品输出总线
 gui.meiteminputbus.title=ME 机械物品输入总线
+
 gui.meiteminputbus.inv_action=使用滚轮和 SHIFT, CONTROL, ALT 组合键来修改标记物品的数量。
 gui.meiteminputbus.inv_action.increase.normal=滚轮向上滚动增加 1 个物品数量。
 gui.meiteminputbus.inv_action.decrease.normal=滚轮向下滚动或右击物品减少 1 个物品数量。
@@ -80,7 +81,8 @@ gui.mepatternprovider.current=§a[当前启用]
 gui.mepatternprovider.default.desc=默认：供应器正常工作。
 gui.mepatternprovider.crafting_lock_mode.desc=合成锁定模式：只有当机器完成配方时才会继续存储物品。
 gui.mepatternprovider.blocking_mode.desc=阻挡模式：供应器内含有物品时不继续存储物品。
-gui.mepatternprovider.work_mode.desc=供应器工作模式（点击在三个模式中切换）：
+gui.mepatternprovider.enhanced_blocking_mode.desc=强化阻挡模式：在阻挡模式的基础上，使当前配方仍然可以继续存储物品。
+gui.mepatternprovider.work_mode.desc=供应器工作模式（点击在四个模式中切换）：
 gui.mepatternprovider.return_items=清空物品
 gui.mepatternprovider.return_items.desc=将供应器中的所有物品和流体返还给 ME 网络，这会重置合成锁定模式的状态。
 gui.mepatternprovider.nbt_stored=供应器已配置。
@@ -120,10 +122,6 @@ gui.preview.optifine_shader_pack_warn=§4Optifine 光影不兼容！预览性能
 gui.preview.vbo_unsupported_warn=§4显卡不兼容顶点缓冲器！预览性能将大幅下降。
 gui.preview.vbo_disabled_warn=§4顶点缓冲器未启用！预览性能将大幅下降。
 
-gui.blueprint.popout.info=潜行以将当前预览锁定在当前世界中。
-gui.blueprint.popout.place=右击以显示预览；远离或放置其他结构预览（蓝图）将会清除此前世界中的结构预览；视角面对控制器时可以根据其朝向自动旋转。
-gui.blueprint.popout.placed.dynamic_pattern=投影期间使用自动组装时会优先使用投影的动态结构大小。
-
 top.recipe.progress=进度
 top.machine.owner=所有者：
 top.machine.owner.self=你
@@ -161,6 +159,10 @@ component.missing.modularmachinery.item.output=没有找到物品输出口！
 component.missing.modularmachinery.item.input=没有找到物品输入口！
 component.missing.modularmachinery.interface.number=没有找到对应类型的智能数据接口！
 
+gui.blueprint.popout.info=潜行以将当前预览锁定在当前世界中。
+gui.blueprint.popout.place=右击以显示预览；远离或放置其他结构预览（蓝图）将会清除此前世界中的结构预览；视角面对控制器时可以根据其朝向自动旋转。
+gui.blueprint.popout.placed.dynamic_pattern=投影期间使用自动组装时会优先使用投影的动态结构大小。
+
 jei.category.preview=结构预览
 
 message.structurebuild.confirmrotation=控制器面朝 %s
@@ -175,6 +177,7 @@ message.assembly.tip.already_assembly=模块化组装：机器已在组装队列
 message.assembly.tip.success=模块化组装：组装完成！
 message.assembly.tip.cancelled=模块化组装：组装已取消！
 message.assembly.tip.cannot_replace=模块化组装: 无法在 %s 放置方块，请检查目标坐标是否存在方块！
+message.assembly.tip.too_high=模块化组装: 无法在 %s 放置方块，因为超过建筑高度限制！
 message.assembly.tip.skipped=模块化组装：已跳过 %s 的方块放置。
 message.assembly.tip.missing=模块化组装：%s 需要物品组装，但是物品栏中缺少方块或桶！
 message.assembly.tip.required=模块化组装：缺失材料，需要以下材料：
@@ -187,6 +190,11 @@ message.reloaded=模块化机械：已完成重载！JEI 中的配方变化需�
 message.cleared.recipes=模块化机械：已清理 %s 个旧配方。
 message.reloaded.recipes=模块化机械：已重载 %s 个配方。
 message.reloaded.machines=模块化机械：已重载 %s 个机械结构。
+
+message.blockmepatternprovider.save=已保存供应器坐标！
+message.blockmepatternprovider.load=已写入供应器坐标！
+message.blockmepatternprovider.tip0=使用内存卡绑定ME机械样板供应器！
+message.blockmepatternprovider.tip1=绑定供应器坐标位于 X:%s,Y:%s,Z:%s
 
 tooltip.item.controller.owner.self=§a你是控制器的所有者。
 tooltip.item.controller.owner.not_self=§c你不是控制器的所有者。
@@ -382,6 +390,7 @@ tile.modularmachinery.blockmefluidinputbus.name=ME机械流体输入总线
 tile.modularmachinery.blockmegasoutputbus.name=ME机械气体输出总线
 tile.modularmachinery.blockmegasinputbus.name=ME机械气体输入总线
 tile.modularmachinery.blockmepatternprovider.name=ME机械样板供应器
+tile.modularmachinery.blockmepatternmirrorimage.name=ME机械样板镜像
 
 error.modularmachinery.requirement.lifeessence=检查生命源质需求时发生错误！
 error.modularmachinery.requirement.lifeessence.orb=缺失或未绑定气血宝珠！
@@ -437,3 +446,5 @@ tile.modularmachinery.blockimpetusproviderinput.name=元动输入接口
 tile.modularmachinery.blockimpetusprovideroutput.name=元动输出接口
 
 tooltip.modularcontroller.machine_projector=蹲下时右击控制器以投影其机器的蓝图至世界。
+
+

@@ -1,7 +1,11 @@
 package kport.modularmagic.common.crafting.requirement;
 
 import hellfirepvp.modularmachinery.ModularMachinery;
-import hellfirepvp.modularmachinery.common.crafting.helper.*;
+import hellfirepvp.modularmachinery.common.crafting.helper.ComponentOutputRestrictor;
+import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
+import hellfirepvp.modularmachinery.common.crafting.helper.CraftCheck;
+import hellfirepvp.modularmachinery.common.crafting.helper.ProcessingComponent;
+import hellfirepvp.modularmachinery.common.crafting.helper.RecipeCraftingContext;
 import hellfirepvp.modularmachinery.common.lib.RegistriesMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
@@ -32,8 +36,8 @@ public class RequirementStarlight extends ComponentRequirement.PerTick<Starlight
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cpn = component.getComponent();
         return (cpn.getContainerProvider() instanceof TileStarlightInput || cpn.getContainerProvider() instanceof TileStarlightOutput) &&
-                cpn.getComponentType() instanceof ComponentStarlight &&
-                cpn.ioType == getActionType();
+            cpn.getComponentType() instanceof ComponentStarlight &&
+            cpn.ioType == getActionType();
     }
 
     @Nonnull
@@ -41,8 +45,8 @@ public class RequirementStarlight extends ComponentRequirement.PerTick<Starlight
     public CraftCheck doIOTick(ProcessingComponent<?> component, RecipeCraftingContext context) {
         if (getActionType() == IOType.OUTPUT) {
             ModularMachinery.EXECUTE_MANAGER.addSyncTask(() ->
-                    ((TileStarlightOutput) component.getComponent().getContainerProvider())
-                            .setStarlightProduced(this.starlightAmount / 4000));
+                ((TileStarlightOutput) component.getComponent().getContainerProvider())
+                    .setStarlightProduced(this.starlightAmount / 4000));
         }
         return CraftCheck.success();
     }

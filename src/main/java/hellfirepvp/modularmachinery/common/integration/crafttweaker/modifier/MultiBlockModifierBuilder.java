@@ -19,11 +19,11 @@ import java.util.List;
 @ZenRegister
 @ZenClass("mods.modularmachinery.MultiblockModifierBuilder")
 public class MultiBlockModifierBuilder {
-    private final List<RecipeModifier> modifiers = new LinkedList<>();
-    private final List<String> descriptions = new ArrayList<>();
-    private final String modifierName;
-    private BlockArray blockArray = null;
-    private ItemStack descriptiveStack = ItemStack.EMPTY;
+    private final List<RecipeModifier> modifiers        = new LinkedList<>();
+    private final List<String>         descriptions     = new ArrayList<>();
+    private final String               modifierName;
+    private       BlockArray           blockArray       = null;
+    private       ItemStack            descriptiveStack = ItemStack.EMPTY;
 
     private MultiBlockModifierBuilder() {
         this.modifierName = null;

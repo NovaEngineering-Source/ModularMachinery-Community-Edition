@@ -19,7 +19,7 @@ import java.util.List;
 
 public class DemonWillRenderer implements IIngredientRenderer<DemonWill> {
 
-    private static IDrawableBuilder willCrystal;
+    private static IDrawableBuilder  willCrystal;
     private static EnumDemonWillType willType;
 
     @Override
@@ -27,16 +27,18 @@ public class DemonWillRenderer implements IIngredientRenderer<DemonWill> {
         GlStateManager.enableDepth();
         RenderHelper.enableGUIStandardItemLighting();
 
-        if (ingredient == null)
+        if (ingredient == null) {
             return;
+        }
 
         if ((willCrystal == null || willType == null || willType != ingredient.getWillType()) && ingredient.getWillType() != null) {
             willType = ingredient.getWillType();
             ResourceLocation texture;
-            if (willType != EnumDemonWillType.DEFAULT)
-                texture = new ResourceLocation(BloodMagic.MODID, "textures/items/soulgemgrand_" + ingredient.getWillType().name + "tilemachinecontroller.png");
-            else
+            if (willType != EnumDemonWillType.DEFAULT) {
+                texture = new ResourceLocation(BloodMagic.MODID, "textures/items/soulgemgrand_" + ingredient.getWillType().name + ".png");
+            } else {
                 texture = new ResourceLocation(BloodMagic.MODID, "textures/items/soulgemgrand.png");
+            }
             willCrystal = JeiPlugin.GUI_HELPER.drawableBuilder(texture, 0, 0, 16, 16);
         }
         willCrystal.setTextureSize(16, 16);

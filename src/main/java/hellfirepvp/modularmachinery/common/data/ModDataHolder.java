@@ -117,7 +117,9 @@ public class ModDataHolder {
             }
             while (itr.hasNext()) {
                 Path filePath = itr.next();
-                if (!filePath.getFileName().toString().endsWith(".json")) continue;
+                if (!filePath.getFileName().toString().endsWith(".json")) {
+                    continue;
+                }
 
                 File target = new File(directoryTo, filePath.getFileName().toString());
                 try (FileOutputStream fos = new FileOutputStream(target)) {

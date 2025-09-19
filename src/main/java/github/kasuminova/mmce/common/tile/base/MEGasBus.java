@@ -33,22 +33,22 @@ import javax.annotation.Nullable;
 import java.util.stream.IntStream;
 
 public abstract class MEGasBus extends MEMachineComponent implements
-        IGasInventoryHost,
-        IUpgradeableHost,
-        IConfigManagerHost,
-        IAEAppEngInventory,
-        IGridTickable {
+    IGasInventoryHost,
+    IUpgradeableHost,
+    IConfigManagerHost,
+    IAEAppEngInventory,
+    IGridTickable {
 
-    public static final int TANK_SLOT_AMOUNT = 9;
+    public static final int TANK_SLOT_AMOUNT      = 9;
     public static final int TANK_DEFAULT_CAPACITY = 8000;
 
-    protected final IGasStorageChannel channel = AEApi.instance().storage().getStorageChannel(IGasStorageChannel.class);
-    protected final ConfigManager cm = new ConfigManager(this);
-    protected final UpgradeInventory upgrades;
-    protected final GasInventory tanks;
+    protected final IGasStorageChannel  channel           = AEApi.instance().storage().getStorageChannel(IGasStorageChannel.class);
+    protected final ConfigManager       cm                = new ConfigManager(this);
+    protected final UpgradeInventory    upgrades;
+    protected final GasInventory        tanks;
     protected final GasInventoryHandler handler;
-    protected boolean[] changedSlots;
-    protected int fullCheckCounter = 5;
+    protected       boolean[]           changedSlots;
+    protected       long                lastFullCheckTick = 0;
 
     protected boolean inTick = false;
 
@@ -60,16 +60,19 @@ public abstract class MEGasBus extends MEMachineComponent implements
     }
 
     protected synchronized int[] getNeedUpdateSlots() {
-        fullCheckCounter++;
-        if (fullCheckCounter >= 5) {
-            fullCheckCounter = 0;
+        long current = world.getTotalWorldTime();
+        if (lastFullCheckTick + 100 < current) {
+            lastFullCheckTick = current;
             return IntStream.range(0, tanks.size()).toArray();
         }
-        IntList list = new IntArrayList();
-        IntStream.range(0, changedSlots.length)
-                .filter(i -> changedSlots[i])
-                .forEach(list::add);
-        return list.toArray(new int[0]);
+        IntList needUpdateSlots = new IntArrayList(changedSlots.length + 1);
+        int bound = changedSlots.length;
+        for (int i = 0; i < bound; i++) {
+            if (changedSlots[i]) {
+                needUpdateSlots.add(i);
+            }
+        }
+        return needUpdateSlots.toIntArray();
     }
 
     public GasInventory getTanks() {
@@ -153,7 +156,7 @@ public abstract class MEGasBus extends MEMachineComponent implements
 
     private void updateTankCapacity() {
         tanks.setCap(
-                (int) (Math.pow(4, getInstalledUpgrades(Upgrades.CAPACITY) + 1) * (MEGasBus.TANK_DEFAULT_CAPACITY / 4)));
+            (int) (Math.pow(4, getInstalledUpgrades(Upgrades.CAPACITY) + 1) * (MEGasBus.TANK_DEFAULT_CAPACITY / 4)));
     }
 
     @Override

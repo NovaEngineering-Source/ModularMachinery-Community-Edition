@@ -24,7 +24,7 @@ import net.minecraft.util.ResourceLocation;
 public abstract class GuiContainerBase<T extends Container> extends GuiContainer {
 
     public static final ResourceLocation TEXTURES_EMPTY_GUI = new ResourceLocation(ModularMachinery.MODID, "textures/gui/guismartinterface.png");
-    protected final T container;
+    protected final     T                container;
 
     public GuiContainerBase(ContainerBase<?> container) {
         super(container);

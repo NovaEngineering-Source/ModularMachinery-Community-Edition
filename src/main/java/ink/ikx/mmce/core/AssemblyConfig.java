@@ -22,14 +22,14 @@ public class AssemblyConfig {
 
     public static void loadFormConfig(Configuration config) {
         itemName = config.getString("itemName", "auto-assembly", "minecraft:stick",
-                "Set the Item auto-assembly.");
+            "Set the Item auto-assembly.");
         itemMeta = config.getInt("itemMeta", "auto-assembly", 0,
-                0, 32767, "Set the Item's meta, e.g. 0");
+            0, 32767, "Set the Item's meta, e.g. 0");
         tickBlock = config.getInt("tickBlock", "auto-assembly", 5,
-                1, 1000, "Set how many ticks to assemble the block once.");
+            1, 1000, "Set how many ticks to assemble the block once.");
         needAllBlocks = config.getBoolean("needAllBlocks", "auto-assembly", true,
-                "Set the auto-assembly need all blocks must be in the inventory.");
+            "Set the auto-assembly need all blocks must be in the inventory.");
         skipBlockContainNBT = config.getBoolean("skipBlockContainNBT", "auto-assembly", false,
-                "Set whether to skip blocks containing NBTs.");
+            "Set whether to skip blocks containing NBTs.");
     }
 }

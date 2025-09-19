@@ -29,10 +29,11 @@ public class GridRenderer implements IIngredientRenderer<Grid> {
     @Override
     public List<String> getTooltip(Minecraft minecraft, Grid ingredient, ITooltipFlag tooltipFlag) {
         List<String> tooltip = new ArrayList<>();
-        if (ingredient.getPower() > 0)
+        if (ingredient.getPower() > 0) {
             tooltip.add(I18n.format("info.modularmachinery.grid.required", ingredient.getPower()));
-        else
+        } else {
             tooltip.add(I18n.format("info.modularmachinery.grid.produced", Math.abs(ingredient.getPower())));
+        }
         return tooltip;
     }
 

@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractModifierReplacement {
-    private static final AtomicInteger DEFAULT_NAME_COUNTER = new AtomicInteger(0);
-    protected final String modifierName;
-    protected final List<RecipeModifier> modifier;
-    protected final List<String> description;
-    protected final ItemStack descriptiveStack;
+    private static final AtomicInteger        DEFAULT_NAME_COUNTER = new AtomicInteger(0);
+    protected final      String               modifierName;
+    protected final      List<RecipeModifier> modifier;
+    protected final      List<String>         description;
+    protected final      ItemStack            descriptiveStack;
 
     public AbstractModifierReplacement(List<RecipeModifier> modifier, String description, ItemStack descriptiveStack) {
         this(null, modifier, description, descriptiveStack);

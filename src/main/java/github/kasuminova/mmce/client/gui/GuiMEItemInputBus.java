@@ -71,34 +71,34 @@ public class GuiMEItemInputBus extends GuiMEItemBus {
         String addAmount = MiscUtils.formatDecimal(getAddAmount());
         if (isShiftDown() && isControlDown() && isAltDown()) {
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase",
-                    "SHIFT + CTRL + ALT", addAmount));
+                "SHIFT + CTRL + ALT", addAmount));
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease",
-                    "SHIFT + CTRL + ALT", addAmount));
+                "SHIFT + CTRL + ALT", addAmount));
         } else if (isAltDown() && isControlDown()) {
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase",
-                    "CTRL + ALT", addAmount));
+                "CTRL + ALT", addAmount));
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease",
-                    "CTRL + ALT", addAmount));
+                "CTRL + ALT", addAmount));
         } else if (isAltDown() && isShiftDown()) {
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase",
-                    "SHIFT + ALT", addAmount));
+                "SHIFT + ALT", addAmount));
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease",
-                    "SHIFT + ALT", addAmount));
+                "SHIFT + ALT", addAmount));
         } else if (isShiftDown() && isControlDown()) {
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase",
-                    "SHIFT + CTRL", addAmount));
+                "SHIFT + CTRL", addAmount));
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease",
-                    "SHIFT + CTRL", addAmount));
+                "SHIFT + CTRL", addAmount));
         } else if (isControlDown()) {
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase",
-                    "CTRL", addAmount));
+                "CTRL", addAmount));
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease",
-                    "CTRL", addAmount));
+                "CTRL", addAmount));
         } else if (isShiftDown()) {
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase",
-                    "SHIFT", addAmount));
+                "SHIFT", addAmount));
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease",
-                    "SHIFT", addAmount));
+                "SHIFT", addAmount));
         } else {
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase.normal"));
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease.normal"));
@@ -166,7 +166,7 @@ public class GuiMEItemInputBus extends GuiMEItemBus {
             return;
         }
         ModularMachinery.NET_CHANNEL.sendToServer(new PktMEInputBusInvAction(
-                invActionAmount, slotNumber
+            invActionAmount, slotNumber
         ));
         invActionAmount = 0;
     }

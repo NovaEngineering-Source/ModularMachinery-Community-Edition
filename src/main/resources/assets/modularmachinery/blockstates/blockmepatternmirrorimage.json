@@ -1,0 +1,9 @@
+{
+  "defaults": {
+    "model": "modularmachinery:blockmepatternmirrorimage"
+  },
+  "variants": {
+    "inventory": { "model": "modularmachinery:blockmepatternmirrorimage" },
+    "normal": { "model": "modularmachinery:blockmepatternmirrorimage"}
+  }
+}

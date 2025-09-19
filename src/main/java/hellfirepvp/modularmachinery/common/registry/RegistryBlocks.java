@@ -1,6 +1,5 @@
 /*******************************************************************************
  * HellFirePvP / Modular Machinery 2019
- *
  * This project is licensed under GNU GENERAL PUBLIC LICENSE Version 3.
  * The source code is available on github: https://github.com/HellFirePvP/ModularMachinery
  * For further details, see the License file there.
@@ -8,23 +7,94 @@
 
 package hellfirepvp.modularmachinery.common.registry;
 
-import github.kasuminova.mmce.common.block.appeng.*;
+import github.kasuminova.mmce.common.block.appeng.BlockMEFluidInputBus;
+import github.kasuminova.mmce.common.block.appeng.BlockMEFluidOutputBus;
+import github.kasuminova.mmce.common.block.appeng.BlockMEGasInputBus;
+import github.kasuminova.mmce.common.block.appeng.BlockMEGasOutputBus;
+import github.kasuminova.mmce.common.block.appeng.BlockMEItemInputBus;
+import github.kasuminova.mmce.common.block.appeng.BlockMEItemOutputBus;
+import github.kasuminova.mmce.common.block.appeng.BlockMEMachineComponent;
+import github.kasuminova.mmce.common.block.appeng.BlockMEPatternMirrorImage;
+import github.kasuminova.mmce.common.block.appeng.BlockMEPatternProvider;
+import github.kasuminova.mmce.common.tile.MEFluidInputBus;
+import github.kasuminova.mmce.common.tile.MEFluidOutputBus;
+import github.kasuminova.mmce.common.tile.MEGasInputBus;
+import github.kasuminova.mmce.common.tile.MEGasOutputBus;
+import github.kasuminova.mmce.common.tile.MEItemInputBus;
+import github.kasuminova.mmce.common.tile.MEItemOutputBus;
+import github.kasuminova.mmce.common.tile.MEPatternMirrorImage;
+import github.kasuminova.mmce.common.tile.MEPatternProvider;
 import github.kasuminova.mmce.common.integration.groovyscript.GroovyMachine;
-import github.kasuminova.mmce.common.tile.*;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.base.Mods;
-import hellfirepvp.modularmachinery.common.block.*;
+import hellfirepvp.modularmachinery.common.block.BlockCasing;
+import hellfirepvp.modularmachinery.common.block.BlockController;
+import hellfirepvp.modularmachinery.common.block.BlockCustomName;
+import hellfirepvp.modularmachinery.common.block.BlockDynamicColor;
+import hellfirepvp.modularmachinery.common.block.BlockEnergyInputHatch;
+import hellfirepvp.modularmachinery.common.block.BlockEnergyOutputHatch;
+import hellfirepvp.modularmachinery.common.block.BlockFactoryController;
+import hellfirepvp.modularmachinery.common.block.BlockFluidInputHatch;
+import hellfirepvp.modularmachinery.common.block.BlockFluidOutputHatch;
+import hellfirepvp.modularmachinery.common.block.BlockInputBus;
+import hellfirepvp.modularmachinery.common.block.BlockMachineComponent;
+import hellfirepvp.modularmachinery.common.block.BlockOutputBus;
+import hellfirepvp.modularmachinery.common.block.BlockParallelController;
+import hellfirepvp.modularmachinery.common.block.BlockSmartInterface;
+import hellfirepvp.modularmachinery.common.block.BlockStatedMachineComponent;
+import hellfirepvp.modularmachinery.common.block.BlockUpgradeBus;
 import hellfirepvp.modularmachinery.common.data.Config;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.MachineBuilder;
-import hellfirepvp.modularmachinery.common.item.*;
+import hellfirepvp.modularmachinery.common.item.ItemBlockController;
+import hellfirepvp.modularmachinery.common.item.ItemBlockCustomName;
+import hellfirepvp.modularmachinery.common.item.ItemBlockMEMachineComponent;
+import hellfirepvp.modularmachinery.common.item.ItemBlockMachineComponent;
+import hellfirepvp.modularmachinery.common.item.ItemBlockMachineComponentCustomName;
 import hellfirepvp.modularmachinery.common.lib.ItemsMM;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.machine.MachineRegistry;
-import hellfirepvp.modularmachinery.common.tiles.*;
+import hellfirepvp.modularmachinery.common.tiles.TileEnergyInputHatch;
+import hellfirepvp.modularmachinery.common.tiles.TileEnergyOutputHatch;
+import hellfirepvp.modularmachinery.common.tiles.TileFactoryController;
+import hellfirepvp.modularmachinery.common.tiles.TileFluidInputHatch;
+import hellfirepvp.modularmachinery.common.tiles.TileFluidOutputHatch;
+import hellfirepvp.modularmachinery.common.tiles.TileItemInputBus;
+import hellfirepvp.modularmachinery.common.tiles.TileItemOutputBus;
+import hellfirepvp.modularmachinery.common.tiles.TileMachineController;
+import hellfirepvp.modularmachinery.common.tiles.TileParallelController;
+import hellfirepvp.modularmachinery.common.tiles.TileSmartInterface;
+import hellfirepvp.modularmachinery.common.tiles.TileUpgradeBus;
 import hellfirepvp.modularmachinery.common.tiles.base.TileColorableMachineComponent;
-import kport.modularmagic.common.block.*;
-import kport.modularmagic.common.tile.*;
+import kport.modularmagic.common.block.BlockAspectProviderInput;
+import kport.modularmagic.common.block.BlockAspectProviderOutput;
+import kport.modularmagic.common.block.BlockAuraProviderInput;
+import kport.modularmagic.common.block.BlockAuraProviderOutput;
+import kport.modularmagic.common.block.BlockConstellationProvider;
+import kport.modularmagic.common.block.BlockGridProviderInput;
+import kport.modularmagic.common.block.BlockGridProviderOutput;
+import kport.modularmagic.common.block.BlockImpetusProviderInput;
+import kport.modularmagic.common.block.BlockImpetusProviderOutput;
+import kport.modularmagic.common.block.BlockLifeEssenceProviderInput;
+import kport.modularmagic.common.block.BlockLifeEssenceProviderOutput;
+import kport.modularmagic.common.block.BlockManaProviderInput;
+import kport.modularmagic.common.block.BlockManaProviderOutput;
+import kport.modularmagic.common.block.BlockRainbowProvider;
+import kport.modularmagic.common.block.BlockStarlightProviderInput;
+import kport.modularmagic.common.block.BlockStarlightProviderOutput;
+import kport.modularmagic.common.block.BlockWillProviderInput;
+import kport.modularmagic.common.block.BlockWillProviderOutput;
+import kport.modularmagic.common.tile.TileAspectProvider;
+import kport.modularmagic.common.tile.TileAuraProvider;
+import kport.modularmagic.common.tile.TileConstellationProvider;
+import kport.modularmagic.common.tile.TileGridProvider;
+import kport.modularmagic.common.tile.TileImpetusComponent;
+import kport.modularmagic.common.tile.TileLifeEssenceProvider;
+import kport.modularmagic.common.tile.TileManaProvider;
+import kport.modularmagic.common.tile.TileRainbowProvider;
+import kport.modularmagic.common.tile.TileStarlightInput;
+import kport.modularmagic.common.tile.TileStarlightOutput;
+import kport.modularmagic.common.tile.TileWillProvider;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResource;
@@ -49,7 +119,44 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-import static hellfirepvp.modularmachinery.common.lib.BlocksMM.*;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockAspectProviderInput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockAspectProviderOutput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockAuraProviderInput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockAuraProviderOutput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockCasing;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockConstellationProvider;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockController;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockFactoryController;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockGridProviderInput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockGridProviderOutput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockImpetusProviderInput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockImpetusProviderOutput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockLifeEssenceProviderInput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockLifeEssenceProviderOutput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockManaProviderInput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockManaProviderOutput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockRainbowProvider;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockStarlightProviderInput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockStarlightProviderOutput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockWillProviderInput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.blockWillProviderOutput;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.energyInputHatch;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.energyOutputHatch;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.fluidInputHatch;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.fluidOutputHatch;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.itemInputBus;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.itemOutputBus;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.meFluidInputBus;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.meFluidOutputBus;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.meGasInputBus;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.meGasOutputBus;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.meItemInputBus;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.meItemOutputBus;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.mePatternMirrorImage;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.mePatternProvider;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.parallelController;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.smartInterface;
+import static hellfirepvp.modularmachinery.common.lib.BlocksMM.upgradeBus;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -60,8 +167,8 @@ import static hellfirepvp.modularmachinery.common.lib.BlocksMM.*;
  */
 public class RegistryBlocks {
 
-    public static final List<BlockDynamicColor> pendingIBlockColorBlocks = new LinkedList<>();
-    private static final List<Block> blockModelRegister = new ArrayList<>();
+    public static final  List<BlockDynamicColor> pendingIBlockColorBlocks = new LinkedList<>();
+    private static final List<Block>             blockModelRegister       = new ArrayList<>();
 
     public static void initialize() {
         registerBlocks();
@@ -122,7 +229,7 @@ public class RegistryBlocks {
             ItemsMM.meItemOutputBus = prepareItemBlockRegister(meItemOutputBus);
             meItemInputBus = prepareRegister(new BlockMEItemInputBus());
             ItemsMM.meItemInputBus = prepareItemBlockRegister(meItemInputBus);
-            
+
             meFluidOutputBus = prepareRegister(new BlockMEFluidOutputBus());
             ItemsMM.meFluidOutputBus = prepareItemBlockRegister(meFluidOutputBus);
             meFluidInputBus = prepareRegister(new BlockMEFluidInputBus());
@@ -137,6 +244,8 @@ public class RegistryBlocks {
 
             mePatternProvider = prepareRegister(new BlockMEPatternProvider());
             ItemsMM.mePatternProvider = prepareItemBlockRegister(mePatternProvider);
+            mePatternMirrorImage = prepareRegister(new BlockMEPatternMirrorImage());
+            ItemsMM.mePatternMirrorImage = prepareItemBlockRegister(mePatternMirrorImage);
         }
 
         if (Mods.BM2.isPresent()) {
@@ -231,6 +340,7 @@ public class RegistryBlocks {
                 registerTileWithModID(MEGasInputBus.class);
             }
             registerTileWithModID(MEPatternProvider.class);
+            registerTileWithModID(MEPatternMirrorImage.class);
         }
         if (Mods.BM2.isPresent()) {
             GameRegistry.registerTileEntity(TileWillProvider.Input.class, new ResourceLocation(ModularMachinery.MODID, "tilewillproviderinput"));
@@ -268,7 +378,7 @@ public class RegistryBlocks {
 
     private static void registerExampleStatedMachineComponent() {
         registerStatedMachineComponent((BlockStatedMachineComponent)
-                                               new BlockStatedMachineComponent().setRegistryName("crushing_wheels"));
+            new BlockStatedMachineComponent().setRegistryName("crushing_wheels"));
     }
 
     private static void registerCustomStatedMachineComponent() {
@@ -417,7 +527,7 @@ public class RegistryBlocks {
 
     private static void writeMachineControllerModelInternal(String basePath, IResourceManager resourceManager, BlockController controller) throws IOException {
         IResource blockStateResource = resourceManager.getResource(
-                new ResourceLocation(ModularMachinery.MODID, "blockstates/block_machine_controller.json"));
+            new ResourceLocation(ModularMachinery.MODID, "blockstates/block_machine_controller.json"));
 
         File blockStateFile = new File(basePath, "modularmachinery/blockstates/" + controller.getRegistryName().getPath() + ".json");
         if (blockStateFile.exists()) {
@@ -432,7 +542,7 @@ public class RegistryBlocks {
 
     private static void writeFactoryControllerModelInternal(String basePath, IResourceManager resourceManager, BlockFactoryController controller) throws IOException {
         IResource blockStateResource = resourceManager.getResource(
-                new ResourceLocation(ModularMachinery.MODID, "blockstates/block_factory_controller.json"));
+            new ResourceLocation(ModularMachinery.MODID, "blockstates/block_factory_controller.json"));
 
         File blockStateFile = new File(basePath, "modularmachinery/blockstates/" + controller.getRegistryName().getPath() + ".json");
         if (blockStateFile.exists()) {

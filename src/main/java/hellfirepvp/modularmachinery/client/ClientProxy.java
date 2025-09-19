@@ -8,13 +8,33 @@
 
 package hellfirepvp.modularmachinery.client;
 
-import github.kasuminova.mmce.client.gui.*;
+import github.kasuminova.mmce.client.gui.GuiMEFluidInputBus;
+import github.kasuminova.mmce.client.gui.GuiMEFluidOutputBus;
+import github.kasuminova.mmce.client.gui.GuiMEGasInputBus;
+import github.kasuminova.mmce.client.gui.GuiMEGasOutputBus;
+import github.kasuminova.mmce.client.gui.GuiMEItemInputBus;
+import github.kasuminova.mmce.client.gui.GuiMEItemOutputBus;
+import github.kasuminova.mmce.client.gui.GuiMEPatternProvider;
 import github.kasuminova.mmce.client.renderer.MachineControllerRenderer;
 import github.kasuminova.mmce.client.resource.GeoModelExternalLoader;
 import github.kasuminova.mmce.common.handler.ClientHandler;
-import github.kasuminova.mmce.common.tile.*;
+import github.kasuminova.mmce.common.tile.MEFluidInputBus;
+import github.kasuminova.mmce.common.tile.MEFluidOutputBus;
+import github.kasuminova.mmce.common.tile.MEGasInputBus;
+import github.kasuminova.mmce.common.tile.MEGasOutputBus;
+import github.kasuminova.mmce.common.tile.MEItemInputBus;
+import github.kasuminova.mmce.common.tile.MEItemOutputBus;
+import github.kasuminova.mmce.common.tile.MEPatternProvider;
 import hellfirepvp.modularmachinery.ModularMachinery;
-import hellfirepvp.modularmachinery.client.gui.*;
+import hellfirepvp.modularmachinery.client.gui.GuiContainerEnergyHatch;
+import hellfirepvp.modularmachinery.client.gui.GuiContainerFluidHatch;
+import hellfirepvp.modularmachinery.client.gui.GuiContainerItemBus;
+import hellfirepvp.modularmachinery.client.gui.GuiContainerParallelController;
+import hellfirepvp.modularmachinery.client.gui.GuiContainerSmartInterface;
+import hellfirepvp.modularmachinery.client.gui.GuiContainerUpgradeBus;
+import hellfirepvp.modularmachinery.client.gui.GuiFactoryController;
+import hellfirepvp.modularmachinery.client.gui.GuiMachineController;
+import hellfirepvp.modularmachinery.client.gui.GuiScreenBlueprint;
 import hellfirepvp.modularmachinery.client.util.BlockArrayPreviewRenderHelper;
 import hellfirepvp.modularmachinery.client.util.DebugOverlayHelper;
 import hellfirepvp.modularmachinery.client.util.SelectionBoxRenderHelper;
@@ -30,7 +50,11 @@ import hellfirepvp.modularmachinery.common.item.ItemDynamicColor;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.registry.RegistryBlocks;
 import hellfirepvp.modularmachinery.common.registry.RegistryItems;
-import hellfirepvp.modularmachinery.common.tiles.*;
+import hellfirepvp.modularmachinery.common.tiles.TileFactoryController;
+import hellfirepvp.modularmachinery.common.tiles.TileMachineController;
+import hellfirepvp.modularmachinery.common.tiles.TileParallelController;
+import hellfirepvp.modularmachinery.common.tiles.TileSmartInterface;
+import hellfirepvp.modularmachinery.common.tiles.TileUpgradeBus;
 import hellfirepvp.modularmachinery.common.tiles.base.TileEnergyHatch;
 import hellfirepvp.modularmachinery.common.tiles.base.TileFluidTank;
 import hellfirepvp.modularmachinery.common.tiles.base.TileItemBus;
@@ -81,12 +105,12 @@ import java.util.List;
 @Mod.EventBusSubscriber(value = Side.CLIENT, modid = ModularMachinery.MODID)
 public class ClientProxy extends CommonProxy {
 
-    public static final ClientScheduler clientScheduler = new ClientScheduler();
-    public static final BlockArrayPreviewRenderHelper renderHelper = new BlockArrayPreviewRenderHelper();
+    public static final ClientScheduler               clientScheduler = new ClientScheduler();
+    public static final BlockArrayPreviewRenderHelper renderHelper    = new BlockArrayPreviewRenderHelper();
 
-    private final List<Block> blockModelsToRegister = new LinkedList<>();
-    private final List<Item> itemModelsToRegister = new LinkedList<>();
-    private final List<Item> itemModelsCustomNameToRegister = new LinkedList<>();
+    private final List<Block> blockModelsToRegister          = new LinkedList<>();
+    private final List<Item>  itemModelsToRegister           = new LinkedList<>();
+    private final List<Item>  itemModelsCustomNameToRegister = new LinkedList<>();
 
     private static void registerPendingIBlockColorBlocks() {
         BlockColors colors = Minecraft.getMinecraft().getBlockColors();
@@ -94,13 +118,13 @@ public class ClientProxy extends CommonProxy {
             colors.registerBlockColorHandler(dynamicColor::getColorMultiplier, (Block) dynamicColor);
         }
         BlockController.MACHINE_CONTROLLERS.values().forEach(block ->
-                colors.registerBlockColorHandler(block::getColorMultiplier, block)
+            colors.registerBlockColorHandler(block::getColorMultiplier, block)
         );
         BlockController.MOC_MACHINE_CONTROLLERS.values().forEach(block ->
-                colors.registerBlockColorHandler(block::getColorMultiplier, block)
+            colors.registerBlockColorHandler(block::getColorMultiplier, block)
         );
         BlockFactoryController.FACTORY_CONTROLLERS.values().forEach(block ->
-                colors.registerBlockColorHandler(block::getColorMultiplier, block)
+            colors.registerBlockColorHandler(block::getColorMultiplier, block)
         );
     }
 
@@ -110,13 +134,13 @@ public class ClientProxy extends CommonProxy {
             colors.registerItemColorHandler(dynamicColor::getColorFromItemstack, (Item) dynamicColor);
         }
         BlockController.MACHINE_CONTROLLERS.values().forEach(block ->
-                colors.registerItemColorHandler(block::getColorFromItemstack, block)
+            colors.registerItemColorHandler(block::getColorFromItemstack, block)
         );
         BlockController.MOC_MACHINE_CONTROLLERS.values().forEach(block ->
-                colors.registerItemColorHandler(block::getColorFromItemstack, block)
+            colors.registerItemColorHandler(block::getColorFromItemstack, block)
         );
         BlockFactoryController.FACTORY_CONTROLLERS.values().forEach(block ->
-                colors.registerItemColorHandler(block::getColorFromItemstack, block)
+            colors.registerItemColorHandler(block::getColorFromItemstack, block)
         );
     }
 
@@ -126,11 +150,11 @@ public class ClientProxy extends CommonProxy {
         if (!list.isEmpty()) {
             for (ItemStack i : list) {
                 ModelLoader.setCustomModelResourceLocation(item, i.getItemDamage(),
-                        new ModelResourceLocation(ModularMachinery.MODID + ":" + name, "inventory"));
+                    new ModelResourceLocation(ModularMachinery.MODID + ":" + name, "inventory"));
             }
         } else {
             ModelLoader.setCustomModelResourceLocation(item, 0,
-                    new ModelResourceLocation(ModularMachinery.MODID + ":" + name, "inventory"));
+                new ModelResourceLocation(ModularMachinery.MODID + ":" + name, "inventory"));
         }
     }
 
@@ -175,12 +199,12 @@ public class ClientProxy extends CommonProxy {
                     String name = unlocName + "_" + ((BlockVariants) block).getBlockStateName(state);
                     ModelBakery.registerItemVariants(i, new ResourceLocation(ModularMachinery.MODID, name));
                     ModelLoader.setCustomModelResourceLocation(i, block.getMetaFromState(state),
-                            new ModelResourceLocation(ModularMachinery.MODID + ":" + name, "inventory"));
+                        new ModelResourceLocation(ModularMachinery.MODID + ":" + name, "inventory"));
                 }
             } else {
                 ModelBakery.registerItemVariants(i, new ResourceLocation(ModularMachinery.MODID, block.getClass().getSimpleName().toLowerCase()));
                 ModelLoader.setCustomModelResourceLocation(i, 0,
-                        new ModelResourceLocation(ModularMachinery.MODID + ":" + block.getClass().getSimpleName().toLowerCase(), "inventory"));
+                    new ModelResourceLocation(ModularMachinery.MODID + ":" + block.getClass().getSimpleName().toLowerCase(), "inventory"));
             }
         }
         for (Item item : itemModelsToRegister) {

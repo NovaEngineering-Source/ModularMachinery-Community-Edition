@@ -32,11 +32,11 @@ public class RequirementTypeFluid extends RequirementType<Object, RequirementFlu
         RequirementFluid req;
 
         if (!requirement.has("fluid") || !requirement.get("fluid").isJsonPrimitive() ||
-                !requirement.get("fluid").getAsJsonPrimitive().isString()) {
+            !requirement.get("fluid").getAsJsonPrimitive().isString()) {
             throw new JsonParseException("The ComponentType 'fluid' expects an 'fluid'-entry that defines the type of fluid!");
         }
         if (!requirement.has("amount") || !requirement.get("amount").isJsonPrimitive() ||
-                !requirement.get("amount").getAsJsonPrimitive().isNumber()) {
+            !requirement.get("amount").getAsJsonPrimitive().isNumber()) {
             throw new JsonParseException("The ComponentType 'fluid' expects an 'amount'-entry that defines the type of fluid!");
         }
         String fluidName = requirement.getAsJsonPrimitive("fluid").getAsString();

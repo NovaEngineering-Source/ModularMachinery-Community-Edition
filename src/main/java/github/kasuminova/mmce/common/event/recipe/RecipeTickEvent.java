@@ -12,12 +12,12 @@ import stanhebben.zenscript.annotations.ZenMethod;
 @ZenRegister
 @ZenClass("mods.modularmachinery.RecipeTickEvent")
 public class RecipeTickEvent extends RecipeEvent {
-    public final Phase phase;
+    public final  Phase        phase;
     private final RecipeThread recipeThread;
-    private boolean isFailure = false;
-    private boolean destructRecipe = false;
-    private boolean preventProgressing = false;
-    private String failureReason = null;
+    private       boolean      isFailure          = false;
+    private       boolean      destructRecipe     = false;
+    private       boolean      preventProgressing = false;
+    private       String       failureReason      = null;
 
     public RecipeTickEvent(TileMultiblockMachineController controller, RecipeThread recipeThread, Phase phase) {
         super(controller, recipeThread, recipeThread.getContext());
@@ -41,9 +41,9 @@ public class RecipeTickEvent extends RecipeEvent {
         if (isFailure) {
             if (destructRecipe) {
                 recipeThread.setActiveRecipe(null)
-                        .setContext(null)
-                        .setStatus(CraftingStatus.failure(failureReason))
-                        .getSemiPermanentModifiers().clear();
+                            .setContext(null)
+                            .setStatus(CraftingStatus.failure(failureReason))
+                            .getSemiPermanentModifiers().clear();
                 return;
             }
             recipeThread.setStatus(CraftingStatus.failure(failureReason));

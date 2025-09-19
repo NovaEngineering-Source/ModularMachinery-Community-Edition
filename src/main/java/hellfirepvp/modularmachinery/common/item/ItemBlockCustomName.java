@@ -36,12 +36,12 @@ public class ItemBlockCustomName extends ItemBlock {
 
     @Nonnull
     @Override
-    public String getUnlocalizedNameInefficiently(@Nonnull ItemStack stack) {
+    public String getTranslationKey(@Nonnull ItemStack stack) {
         Block block = getBlock();
         if (block instanceof BlockCustomName) {
             String identifier = ((BlockCustomName) block).getIdentifierForMeta(stack.getItemDamage());
-            return super.getUnlocalizedNameInefficiently(stack) + "." + identifier;
+            return super.getTranslationKey(stack) + "." + identifier;
         }
-        return super.getUnlocalizedNameInefficiently(stack);
+        return super.getTranslationKey(stack);
     }
 }

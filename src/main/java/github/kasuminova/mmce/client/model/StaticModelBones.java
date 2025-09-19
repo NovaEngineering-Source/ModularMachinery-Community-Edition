@@ -10,9 +10,10 @@ import java.util.Set;
 
 public class StaticModelBones {
 
-    private final GeoModel model;
+    private final GeoModel      model;
     private final AnimationFile animationFile;
-    private Set<String> staticBones = new HashSet<>();;
+    private       Set<String>   staticBones = new HashSet<>();
+    ;
 
     private StaticModelBones(final GeoModel model, final AnimationFile animationFile) {
         this.model = model;
@@ -26,9 +27,9 @@ public class StaticModelBones {
 
     public void compile() {
         Set<String> animatedBones = animationFile.getAllAnimations().stream()
-                .flatMap(animation -> animation.boneAnimations.stream())
-                .map(boneAnimation -> boneAnimation.boneName)
-                .collect(ImmutableSet.toImmutableSet());
+                                                 .flatMap(animation -> animation.boneAnimations.stream())
+                                                 .map(boneAnimation -> boneAnimation.boneName)
+                                                 .collect(ImmutableSet.toImmutableSet());
 
         model.topLevelBones.forEach(bone -> recursiveAdd(bone, animatedBones));
         staticBones = ImmutableSet.copyOf(staticBones);
@@ -41,9 +42,9 @@ public class StaticModelBones {
 
         staticBones.add(bone.name);
         bone.childBones.stream()
-                .filter(childBone -> !childBone.childBones.isEmpty())
-                .filter(childBone -> !animatedBones.contains(childBone.name))
-                .forEach(staticBone -> recursiveAdd(staticBone, animatedBones));
+                       .filter(childBone -> !childBone.childBones.isEmpty())
+                       .filter(childBone -> !animatedBones.contains(childBone.name))
+                       .forEach(staticBone -> recursiveAdd(staticBone, animatedBones));
     }
 
     public boolean isStaticBone(final String boneName) {

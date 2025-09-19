@@ -51,12 +51,10 @@ public class SlotFluidVirtual extends SlotVirtual {
         int rx = renderPos.posX();
         int ry = renderPos.posY();
 
-        if (slotTexLocation != null) {
+        slotTex.renderIfPresent(renderPos, renderSize, gui, (tex) -> {
             GlStateManager.enableBlend();
             GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-            mc.getTextureManager().bindTexture(slotTexLocation);
-            gui.getGui().drawTexturedModalRect(rx, ry, slotTexX, slotTexY, getWidth(), getHeight());
-        }
+        });
 
         if (fluidStack != null && fluidStack.amount > 0) {
             int fluidColor = fluidStack.getFluid().getColor(fluidStack);

@@ -28,7 +28,13 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.model.animation.Animation;
 
 import javax.annotation.Nonnull;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -40,8 +46,8 @@ import java.util.stream.Collectors;
  */
 public class DynamicRecipeWrapper implements IRecipeWrapper {
 
-    public Map<IOType, Map<Class<?>, List<ComponentRequirement<?, ?>>>> finalOrderedComponents = new EnumMap<>(IOType.class);
-    private MachineRecipe recipe;
+    public  Map<IOType, Map<Class<?>, List<ComponentRequirement<?, ?>>>> finalOrderedComponents = new EnumMap<>(IOType.class);
+    private MachineRecipe                                                recipe;
 
     public DynamicRecipeWrapper(MachineRecipe recipe) {
         reloadWrapper(recipe);
@@ -59,7 +65,7 @@ public class DynamicRecipeWrapper implements IRecipeWrapper {
                 continue;
             }
             finalOrderedComponents.get(req.getActionType())
-                    .computeIfAbsent(comp.getJEIRequirementClass(), clazz -> new LinkedList<>()).add(req);
+                                  .computeIfAbsent(comp.getJEIRequirementClass(), clazz -> new LinkedList<>()).add(req);
         }
     }
 
@@ -71,8 +77,8 @@ public class DynamicRecipeWrapper implements IRecipeWrapper {
         if (recipeCategory != null) {
             if (recipeCategory.rectangleProcessArrow.contains(mouseX, mouseY)) {
                 tooltips.add(
-                        I18n.format("tooltip.machinery.duration.seconds", (float) recipe.getRecipeTotalTickTime() / 20) +
-                                I18n.format("tooltip.machinery.duration.tick", recipe.getRecipeTotalTickTime()));
+                    I18n.format("tooltip.machinery.duration.seconds", (float) recipe.getRecipeTotalTickTime() / 20) +
+                        I18n.format("tooltip.machinery.duration.tick", recipe.getRecipeTotalTickTime()));
             }
         }
 
@@ -82,14 +88,16 @@ public class DynamicRecipeWrapper implements IRecipeWrapper {
     @Override
     public void drawInfo(Minecraft minecraft, int recipeWidth, int recipeHeight, int mouseX, int mouseY) {
         CategoryDynamicRecipe recipeCategory = ModIntegrationJEI.getCategory(recipe.getOwningMachine());
-        if (recipeCategory == null) return;
+        if (recipeCategory == null) {
+            return;
+        }
 
         int totalDur = this.recipe.getRecipeTotalTickTime();
         int tick = (int) (ClientScheduler.getClientTick() % totalDur);
         int pxPart = MathHelper.ceil(((float) tick + Animation.getPartialTickTime()) / ((float) totalDur) * RecipeLayoutHelper.PART_PROCESS_ARROW_ACTIVE.xSize);
         ModIntegrationJEI.jeiHelpers.getGuiHelper()
-                .createDrawable(RecipeLayoutHelper.LOCATION_JEI_ICONS, 72, 15, pxPart, RecipeLayoutHelper.PART_PROCESS_ARROW_ACTIVE.zSize)
-                .draw(minecraft, recipeCategory.rectangleProcessArrow.x, recipeCategory.rectangleProcessArrow.y);
+                                    .createDrawable(RecipeLayoutHelper.LOCATION_JEI_ICONS, 72, 15, pxPart, RecipeLayoutHelper.PART_PROCESS_ARROW_ACTIVE.zSize)
+                                    .draw(minecraft, recipeCategory.rectangleProcessArrow.x, recipeCategory.rectangleProcessArrow.y);
 
         int offsetY = recipeCategory.realHeight;
 
@@ -129,28 +137,28 @@ public class DynamicRecipeWrapper implements IRecipeWrapper {
         long totalEnergyIn = 0;
         //noinspection SimplifyStreamApiCallChains
         for (ComponentRequirement<?, ?> req : this.recipe.getCraftingRequirements().stream()
-                .filter(RequirementEnergy.class::isInstance)
-                .filter(r -> r.getActionType() == IOType.INPUT)
-                .collect(Collectors.toList())) {
+                                                         .filter(RequirementEnergy.class::isInstance)
+                                                         .filter(r -> r.getActionType() == IOType.INPUT)
+                                                         .collect(Collectors.toList())) {
             totalEnergyIn += ((RequirementEnergy) req).getRequiredEnergyPerTick();
         }
         long totalEnergyOut = 0;
         //noinspection SimplifyStreamApiCallChains
         for (ComponentRequirement<?, ?> req : this.recipe.getCraftingRequirements().stream()
-                .filter(RequirementEnergy.class::isInstance)
-                .filter(r -> r.getActionType() == IOType.OUTPUT)
-                .collect(Collectors.toList())) {
+                                                         .filter(RequirementEnergy.class::isInstance)
+                                                         .filter(r -> r.getActionType() == IOType.OUTPUT)
+                                                         .collect(Collectors.toList())) {
             totalEnergyOut += ((RequirementEnergy) req).getRequiredEnergyPerTick();
         }
 
         long finalTotalEnergyIn = totalEnergyIn;
         recipeCategory.inputComponents.stream()
-                .filter(RecipeLayoutPart.Energy.class::isInstance)
-                .forEach(part -> ((RecipeLayoutPart.Energy) part).drawEnergy(minecraft, finalTotalEnergyIn));
+                                      .filter(RecipeLayoutPart.Energy.class::isInstance)
+                                      .forEach(part -> ((RecipeLayoutPart.Energy) part).drawEnergy(minecraft, finalTotalEnergyIn));
         long finalTotalEnergyOut = totalEnergyOut;
         recipeCategory.outputComponents.stream()
-                .filter(RecipeLayoutPart.Energy.class::isInstance)
-                .forEach(part -> ((RecipeLayoutPart.Energy) part).drawEnergy(minecraft, finalTotalEnergyOut));
+                                       .filter(RecipeLayoutPart.Energy.class::isInstance)
+                                       .forEach(part -> ((RecipeLayoutPart.Energy) part).drawEnergy(minecraft, finalTotalEnergyOut));
         GlStateManager.color(1F, 1F, 1F, 1F);
     }
 
@@ -160,8 +168,9 @@ public class DynamicRecipeWrapper implements IRecipeWrapper {
         Map<IIngredientType, Map<IOType, List<ComponentRequirement>>> componentMap = new HashMap<>();
 
         for (ComponentRequirement<?, ?> req : this.recipe.getCraftingRequirements()) {
-            if (req instanceof RequirementEnergy)
+            if (req instanceof RequirementEnergy) {
                 continue; //TODO: Ignore. They're handled differently. I should probably rework this...
+            }
 
             ComponentRequirement.JEIComponent<?> comp = req.provideJEIComponent();
             if (comp == null) {
@@ -169,7 +178,7 @@ public class DynamicRecipeWrapper implements IRecipeWrapper {
             }
             IIngredientType type = ModIntegrationJEI.ingredientRegistry.getIngredientType(comp.getJEIRequirementClass());
             componentMap.computeIfAbsent(type, t -> new EnumMap<>(IOType.class))
-                    .computeIfAbsent(req.getActionType(), tt -> new LinkedList<>()).add(req);
+                        .computeIfAbsent(req.getActionType(), tt -> new LinkedList<>()).add(req);
         }
 
         componentMap.forEach((type, ioGroup) -> ioGroup.forEach((ioType, components) -> {

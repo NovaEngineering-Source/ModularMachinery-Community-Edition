@@ -22,9 +22,9 @@ import java.util.List;
  */
 public class RecipeCommandContainer {
 
-    private final List<RecipeRunnableCommand> startCommands = new ArrayList<>();
+    private final List<RecipeRunnableCommand> startCommands      = new ArrayList<>();
     private final List<RecipeRunnableCommand> processingCommands = new ArrayList<>();
-    private final List<RecipeRunnableCommand> finishCommands = new ArrayList<>();
+    private final List<RecipeRunnableCommand> finishCommands     = new ArrayList<>();
 
     public void addStartCommand(RecipeRunnableCommand command) {
         this.startCommands.add(command);

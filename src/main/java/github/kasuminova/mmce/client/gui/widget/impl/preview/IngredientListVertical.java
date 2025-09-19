@@ -15,12 +15,12 @@ import net.minecraftforge.fluids.FluidStack;
 import java.util.List;
 
 public class IngredientListVertical extends IngredientList {
-    protected ResourceLocation listBgTexLocation = MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION;
-    protected int listBgTexX = 229;
-    protected int listBgTexY = 125;
-    protected int listBgTexWidth = 25;
-    protected int listBgTexWidthWithNoScrollbar = 18;
-    protected int listBgTexHeight = 126;
+    protected ResourceLocation listBgTexLocation             = MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION;
+    protected int              listBgTexX                    = 229;
+    protected int              listBgTexY                    = 125;
+    protected int              listBgTexWidth                = 25;
+    protected int              listBgTexWidthWithNoScrollbar = 18;
+    protected int              listBgTexHeight               = 126;
 
     public IngredientListVertical() {
         setWidthHeight(25, 126);
@@ -32,12 +32,12 @@ public class IngredientListVertical extends IngredientList {
         scrollbar.setMargin(1, 1, 1, 1);
         scrollbar.setWidthHeight(6, 124);
         scrollbar.getScroll()
-                .setMouseDownTextureXY(200, 175)
-                .setHoveredTextureXY(192, 175)
-                .setTextureXY(184, 175)
-                .setUnavailableTextureXY(208, 175)
-                .setTextureLocation(MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION)
-                .setWidthHeight(6, 17);
+                 .setMouseDownTexture(200, 175)
+                 .setHoveredTexture(192, 175)
+                 .setTexture(184, 175)
+                 .setUnavailableTexture(208, 175)
+                 .setTextureLocation(MachineStructurePreviewPanel.WIDGETS_TEX_LOCATION)
+                 .setWidthHeight(6, 17);
         checkScrollbarRange();
     }
 
@@ -77,9 +77,9 @@ public class IngredientListVertical extends IngredientList {
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         gui.drawTexturedModalRect(
-                renderPos.posX(), renderPos.posY(),
-                listBgTexX, listBgTexY,
-                scrollbar.isDisabled() ? listBgTexWidthWithNoScrollbar : listBgTexWidth, listBgTexHeight
+            renderPos.posX(), renderPos.posY(),
+            listBgTexX, listBgTexY,
+            scrollbar.isDisabled() ? listBgTexWidthWithNoScrollbar : listBgTexWidth, listBgTexHeight
         );
     }
 

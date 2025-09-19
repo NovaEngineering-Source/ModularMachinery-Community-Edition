@@ -22,6 +22,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -32,24 +33,24 @@ import javax.annotation.Nullable;
 import java.util.stream.IntStream;
 
 public abstract class MEFluidBus extends MEMachineComponent implements
-        IAEFluidInventory,
-        IUpgradeableHost,
-        IConfigManagerHost,
-        IAEAppEngInventory,
-        IGridTickable {
+    IAEFluidInventory,
+    IUpgradeableHost,
+    IConfigManagerHost,
+    IAEAppEngInventory,
+    IGridTickable {
 
-    public static final int TANK_SLOT_AMOUNT = 9;
+    public static final int TANK_SLOT_AMOUNT      = 9;
     public static final int TANK_DEFAULT_CAPACITY = 8000;
 
-    protected final IFluidStorageChannel channel = AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class);
-    protected final ConfigManager cm = new ConfigManager(this);
+    protected final IFluidStorageChannel        channel           = AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class);
+    protected final ConfigManager               cm                = new ConfigManager(this);
     // TODO: May cause some machine fatal error, but why?
 //    protected final BitSet changedSlots = new BitSet();
-    protected final UpgradeInventory upgrades;
+    protected final UpgradeInventory            upgrades;
     protected final AEFluidInventoryUpgradeable tanks;
-    protected boolean[] changedSlots;
-    protected int fullCheckCounter = 5;
-    protected boolean inTick = false;
+    protected       boolean[]                   changedSlots;
+    protected       long                        lastFullCheckTick = 0;
+    protected       boolean                     inTick            = false;
 
     public MEFluidBus() {
         this.tanks = new AEFluidInventoryUpgradeable(this, TANK_SLOT_AMOUNT, TANK_DEFAULT_CAPACITY);
@@ -58,16 +59,19 @@ public abstract class MEFluidBus extends MEMachineComponent implements
     }
 
     protected synchronized int[] getNeedUpdateSlots() {
-        fullCheckCounter++;
-        if (fullCheckCounter >= 5) {
-            fullCheckCounter = 0;
+        long current = world.getTotalWorldTime();
+        if (lastFullCheckTick + 100 < current) {
+            lastFullCheckTick = current;
             return IntStream.range(0, tanks.getSlots()).toArray();
         }
-        IntList list = new IntArrayList();
-        IntStream.range(0, changedSlots.length)
-                .filter(i -> changedSlots[i])
-                .forEach(list::add);
-        return list.toArray(new int[0]);
+        IntList needUpdateSlots = new IntArrayList(changedSlots.length + 1);
+        int bound = changedSlots.length;
+        for (int i = 0; i < bound; i++) {
+            if (changedSlots[i]) {
+                needUpdateSlots.add(i);
+            }
+        }
+        return needUpdateSlots.toIntArray();
     }
 
     public IAEFluidTank getTanks() {
@@ -127,7 +131,7 @@ public abstract class MEFluidBus extends MEMachineComponent implements
         if (upgrades == null) {
             return 0;
         }
-        return upgrades.getInstalledUpgrades( u );
+        return upgrades.getInstalledUpgrades(u);
     }
 
     @Override
@@ -143,7 +147,7 @@ public abstract class MEFluidBus extends MEMachineComponent implements
 
     private void updateTankCapacity() {
         tanks.setCapacity(
-                (int) (Math.pow(4, getInstalledUpgrades(Upgrades.CAPACITY) + 1) * (MEFluidBus.TANK_DEFAULT_CAPACITY / 4)));
+            (int) (Math.pow(4, getInstalledUpgrades(Upgrades.CAPACITY) + 1) * (MEFluidBus.TANK_DEFAULT_CAPACITY / 4)));
     }
 
     @Override
@@ -152,6 +156,11 @@ public abstract class MEFluidBus extends MEMachineComponent implements
             changedSlots[slot] = true;
         }
         markNoUpdateSync();
+    }
+
+    @Override
+    public synchronized void onFluidInventoryChanged(final IAEFluidTank inv, final int slot, final InvOperation operation, final FluidStack added, final FluidStack removed) {
+        onFluidInventoryChanged(inv, slot);
     }
 
     @Override

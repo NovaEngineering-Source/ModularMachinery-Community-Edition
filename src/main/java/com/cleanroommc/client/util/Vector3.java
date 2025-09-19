@@ -58,6 +58,10 @@ public class Vector3 {
         return new Vector3(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
     }
 
+    public static boolean between(double min, double value, double max) {
+        return min <= value && value <= max;
+    }
+
     public Vec3d vec3() {
         return new Vec3d(this.x, this.y, this.z);
     }
@@ -95,17 +99,17 @@ public class Vector3 {
 
     @SideOnly(Side.CLIENT)
     public Vector3f vector3f() {
-        return new Vector3f((float)this.x, (float)this.y, (float)this.z);
+        return new Vector3f((float) this.x, (float) this.y, (float) this.z);
     }
 
     @SideOnly(Side.CLIENT)
     public Vector4f vector4f() {
-        return new Vector4f((float)this.x, (float)this.y, (float)this.z, 1.0F);
+        return new Vector4f((float) this.x, (float) this.y, (float) this.z, 1.0F);
     }
 
     @SideOnly(Side.CLIENT)
     public void glVertex() {
-        GlStateManager.glVertex3f((float)this.x, (float)this.y, (float)this.z);
+        GlStateManager.glVertex3f((float) this.x, (float) this.y, (float) this.z);
     }
 
     public Vector3 set(double x1, double y1, double z1) {
@@ -235,17 +239,13 @@ public class Vector3 {
         if (!(o instanceof Vector3)) {
             return false;
         } else {
-            Vector3 v = (Vector3)o;
+            Vector3 v = (Vector3) o;
             return this.x == v.x && this.y == v.y && this.z == v.z;
         }
     }
 
     public boolean equalsT(Vector3 v) {
         return between(this.x - 1.0E-5D, v.x, this.x + 1.0E-5D) && between(this.y - 1.0E-5D, v.y, this.y + 1.0E-5D) && between(this.z - 1.0E-5D, v.z, this.z + 1.0E-5D);
-    }
-
-    public static boolean between(double min, double value, double max) {
-        return min <= value && value <= max;
     }
 
     public Vector3 copy() {

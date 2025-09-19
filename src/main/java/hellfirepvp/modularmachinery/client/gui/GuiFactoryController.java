@@ -27,21 +27,21 @@ import java.util.List;
 import java.util.Map;
 
 public class GuiFactoryController extends GuiContainerBase<ContainerFactoryController> {
-    public static final double FONT_SCALE = 0.72;
-    private static final ResourceLocation TEXTURES_FACTORY = new ResourceLocation(ModularMachinery.MODID, "textures/gui/guifactory.png");
+    public static final  double           FONT_SCALE                = 0.72;
+    private static final ResourceLocation TEXTURES_FACTORY          = new ResourceLocation(ModularMachinery.MODID, "textures/gui/guifactory.png");
     private static final ResourceLocation TEXTURES_FACTORY_ELEMENTS = new ResourceLocation(ModularMachinery.MODID, "textures/gui/guifactoryelements.png");
-    private static final int SCROLLBAR_TOP = 8;
-    private static final int SCROLLBAR_LEFT = 94;
-    private static final int SCROLLBAR_HEIGHT = 197;
-    private static final int MAX_PAGE_ELEMENTS = 6;
-    private static final int FACTORY_ELEMENT_WIDTH = 86;
-    private static final int FACTORY_ELEMENT_HEIGHT = 32;
-    private static final int TEXT_DRAW_OFFSET_X = 113;
-    private static final int TEXT_DRAW_OFFSET_Y = 12;
-    private static final int RECIPE_QUEUE_OFFSET_X = 8;
-    private static final int RECIPE_QUEUE_OFFSET_Y = 8;
+    private static final int              SCROLLBAR_TOP             = 8;
+    private static final int              SCROLLBAR_LEFT            = 94;
+    private static final int              SCROLLBAR_HEIGHT          = 197;
+    private static final int              MAX_PAGE_ELEMENTS         = 6;
+    private static final int              FACTORY_ELEMENT_WIDTH     = 86;
+    private static final int              FACTORY_ELEMENT_HEIGHT    = 32;
+    private static final int              TEXT_DRAW_OFFSET_X        = 113;
+    private static final int              TEXT_DRAW_OFFSET_Y        = 12;
+    private static final int              RECIPE_QUEUE_OFFSET_X     = 8;
+    private static final int              RECIPE_QUEUE_OFFSET_Y     = 8;
 
-    private final GuiScrollbar scrollbar = new GuiScrollbar();
+    private final GuiScrollbar          scrollbar = new GuiScrollbar();
     private final TileFactoryController factory;
 
     public GuiFactoryController(TileFactoryController factory, EntityPlayer player) {
@@ -49,6 +49,28 @@ public class GuiFactoryController extends GuiContainerBase<ContainerFactoryContr
         this.factory = factory;
         this.xSize = 280;
         this.ySize = 213;
+    }
+
+    private static int drawBlueprintInfo(int offsetX, int y, FontRenderer fr, DynamicMachine machine, boolean formed) {
+        String drawnHead;
+        int offsetY = y;
+
+        if (machine != null) {
+            drawnHead = I18n.format("gui.controller.blueprint", "");
+            List<String> out = fr.listFormattedStringToWidth(machine.getLocalizedName(), MathHelper.floor(135 * (1 / GuiFactoryController.FONT_SCALE)));
+            fr.drawStringWithShadow(drawnHead, offsetX, offsetY, 0xFFFFFF);
+            for (String draw : out) {
+                offsetY += 10;
+                fr.drawStringWithShadow(draw, offsetX, offsetY, 0xFFFFFF);
+            }
+            offsetY += 15;
+        } else if (!formed) {
+            drawnHead = I18n.format("gui.controller.blueprint", I18n.format("gui.controller.blueprint.none"));
+            fr.drawStringWithShadow(drawnHead, offsetX, offsetY, 0xFFFFFF);
+            offsetY += 15;
+        }
+
+        return offsetY;
     }
 
     @Override
@@ -140,11 +162,11 @@ public class GuiFactoryController extends GuiContainerBase<ContainerFactoryContr
         if (parallelism > 1) {
             // Example: Thread #0 (Parallelism: 9)
             fr.drawString(threadName +
-                            " (" + I18n.format("gui.controller.parallelism", parallelism) + ')',
-                    offsetX, offsetY, 0x222222);
+                    " (" + I18n.format("gui.controller.parallelism", parallelism) + ')',
+                offsetX, offsetY, 0x222222);
         } else {
             fr.drawString(threadName,
-                    offsetX, offsetY, 0x222222);
+                offsetX, offsetY, 0x222222);
         }
         offsetY += 12;
 
@@ -157,8 +179,8 @@ public class GuiFactoryController extends GuiContainerBase<ContainerFactoryContr
         if (activeRecipe != null && activeRecipe.getTotalTick() > 0) {
             int progress = (activeRecipe.getTick() * 100) / activeRecipe.getTotalTick();
             fr.drawString(I18n.format("gui.controller.status.crafting.progress",
-                            progress + "%"),
-                    offsetX, offsetY, 0x222222);
+                    progress + "%"),
+                offsetX, offsetY, 0x222222);
         }
 
         GlStateManager.popMatrix();
@@ -213,10 +235,10 @@ public class GuiFactoryController extends GuiContainerBase<ContainerFactoryContr
         float searchUsedTimeCache = TileMultiblockMachineController.searchUsedTimeCache;
         String workMode = TileMultiblockMachineController.workModeCache.getDisplayName();
         fr.drawStringWithShadow(String.format("Avg: %sμs/t (Search: %sms), WorkMode: %s",
-                        usedTimeCache,
-                        MiscUtils.formatFloat(searchUsedTimeCache / 1000F, 2),
-                        workMode),
-                offsetX, offsetY, 0xFFFFFF
+                usedTimeCache,
+                MiscUtils.formatFloat(searchUsedTimeCache / 1000F, 2),
+                workMode),
+            offsetX, offsetY, 0xFFFFFF
         );
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -248,7 +270,7 @@ public class GuiFactoryController extends GuiContainerBase<ContainerFactoryContr
         }
         fr.drawStringWithShadow(I18n.format("gui.factory.threads",
                 factory.getFactoryRecipeThreadList().size(), factory.getMaxThreads()),
-                offsetX, offsetY, 0xFFFFFF);
+            offsetX, offsetY, 0xFFFFFF);
         return offsetY + 10;
     }
 
@@ -328,28 +350,6 @@ public class GuiFactoryController extends GuiContainerBase<ContainerFactoryContr
                 fr.drawStringWithShadow(s, offsetX, offsetY, 0xFFFFFF);
             }
         }
-        return offsetY;
-    }
-
-    private static int drawBlueprintInfo(int offsetX, int y, FontRenderer fr, DynamicMachine machine, boolean formed) {
-        String drawnHead;
-        int offsetY = y;
-
-        if (machine != null) {
-            drawnHead = I18n.format("gui.controller.blueprint", "");
-            List<String> out = fr.listFormattedStringToWidth(machine.getLocalizedName(), MathHelper.floor(135 * (1 / GuiFactoryController.FONT_SCALE)));
-            fr.drawStringWithShadow(drawnHead, offsetX, offsetY, 0xFFFFFF);
-            for (String draw : out) {
-                offsetY += 10;
-                fr.drawStringWithShadow(draw, offsetX, offsetY, 0xFFFFFF);
-            }
-            offsetY += 15;
-        } else if (!formed) {
-            drawnHead = I18n.format("gui.controller.blueprint", I18n.format("gui.controller.blueprint.none"));
-            fr.drawStringWithShadow(drawnHead, offsetX, offsetY, 0xFFFFFF);
-            offsetY += 15;
-        }
-
         return offsetY;
     }
 

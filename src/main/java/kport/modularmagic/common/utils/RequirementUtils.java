@@ -41,7 +41,9 @@ public class RequirementUtils {
     public static int getRequiredPositiveInt(JsonObject json, String key, String requirement) {
         if (json.has(key) && json.get(key).isJsonPrimitive() && json.getAsJsonPrimitive(key).isNumber()) {
             int i = json.getAsJsonPrimitive(key).getAsInt();
-            if (i > 0) return i;
+            if (i > 0) {
+                return i;
+            }
         }
         throw new JsonParseException("The component '" + requirement + "' expects a '" + key + "' positive integer entry !");
     }
@@ -49,7 +51,9 @@ public class RequirementUtils {
     public static double getRequiredPositiveDouble(JsonObject json, String key, String requirement) {
         if (json.has(key) && json.get(key).isJsonPrimitive() && json.getAsJsonPrimitive(key).isNumber()) {
             double d = json.getAsJsonPrimitive(key).getAsInt();
-            if (d > 0) return d;
+            if (d > 0) {
+                return d;
+            }
         }
         throw new JsonParseException("The component '" + requirement + "' expects a '" + key + "' positive double entry !");
     }
@@ -57,7 +61,9 @@ public class RequirementUtils {
     public static float getRequiredPositiveFloat(JsonObject json, String key, String requirement) {
         if (json.has(key) && json.get(key).isJsonPrimitive() && json.getAsJsonPrimitive(key).isNumber()) {
             float f = json.getAsJsonPrimitive(key).getAsInt();
-            if (f > 0) return f;
+            if (f > 0) {
+                return f;
+            }
         }
         throw new JsonParseException("The component '" + requirement + "' expects a '" + key + "' positive float entry !");
     }
@@ -122,22 +128,31 @@ public class RequirementUtils {
     public static Aspect getAspect(JsonObject json, String key, String requirement) {
         String s = getRequiredString(json, key, requirement);
         Aspect aspect = Aspect.getAspect(s);
-        if (aspect != null) return aspect;
-        else throw new JsonParseException("Invalid aspect name : " + s);
+        if (aspect != null) {
+            return aspect;
+        } else {
+            throw new JsonParseException("Invalid aspect name : " + s);
+        }
     }
 
     public static IAuraType getAuraType(JsonObject json, String key, String requirement) {
         String s = getRequiredString(json, key, requirement);
         IAuraType aura = NaturesAuraAPI.AURA_TYPES.get(new ResourceLocation(s));
-        if (aura != null) return aura;
-        else throw new JsonParseException("Invalid aura type : " + s);
+        if (aura != null) {
+            return aura;
+        } else {
+            throw new JsonParseException("Invalid aura type : " + s);
+        }
     }
 
     public static IConstellation getConstellation(JsonObject json, String key, String requirement) {
         String s = getRequiredString(json, key, requirement);
         IConstellation constellation = ConstellationRegistry.getConstellationByName("astralsorcery.constellation." + s);
-        if (constellation != null) return constellation;
-        else throw new JsonParseException("Invalid constellation name : " + s);
+        if (constellation != null) {
+            return constellation;
+        } else {
+            throw new JsonParseException("Invalid constellation name : " + s);
+        }
     }
 
     public static EnumDemonWillType getWillType(JsonObject json, String key, String requirement) {
@@ -160,7 +175,10 @@ public class RequirementUtils {
                 willType = EnumDemonWillType.VENGEFUL;
                 break;
         }
-        if (willType != null) return willType;
-        else throw new JsonParseException("Invalid demon will type name : " + s);
+        if (willType != null) {
+            return willType;
+        } else {
+            throw new JsonParseException("Invalid demon will type name : " + s);
+        }
     }
 }

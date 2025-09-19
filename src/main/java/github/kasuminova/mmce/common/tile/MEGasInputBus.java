@@ -11,6 +11,7 @@ import com.mekeng.github.common.me.data.impl.AEGasStack;
 import com.mekeng.github.common.me.inventory.impl.GasInventory;
 import github.kasuminova.mmce.common.tile.base.MEGasBus;
 import github.kasuminova.mmce.common.util.IExtendedGasHandler;
+import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.crafting.ComponentType;
 import hellfirepvp.modularmachinery.common.lib.ComponentTypesMM;
 import hellfirepvp.modularmachinery.common.lib.ItemsMM;
@@ -24,7 +25,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public class MEGasInputBus extends MEGasBus {
+public class MEGasInputBus extends MEGasBus implements SettingsTransfer {
+
+    private static final String CONFIG_TAG_KEY = "config";
+
     private final GasInventory config = new GasInventory(MEGasBus.TANK_SLOT_AMOUNT, this);
 
     @Override
@@ -35,13 +39,13 @@ public class MEGasInputBus extends MEGasBus {
     @Override
     public void readCustomNBT(final NBTTagCompound compound) {
         super.readCustomNBT(compound);
-        config.load(compound.getCompoundTag("config"));
+        config.load(compound.getCompoundTag(CONFIG_TAG_KEY));
     }
 
     @Override
     public void writeCustomNBT(final NBTTagCompound compound) {
         super.writeCustomNBT(compound);
-        compound.setTag("config", config.save());
+        compound.setTag(CONFIG_TAG_KEY, config.save());
         upgrades.writeToNBT(compound, "upgrades");
     }
 
@@ -196,7 +200,7 @@ public class MEGasInputBus extends MEGasBus {
 
     @Override
     public void markNoUpdate() {
-        if (proxy.isActive() && needsUpdate()) {
+        if (needsUpdate()) {
             try {
                 proxy.getTick().alertDevice(proxy.getNode());
             } catch (GridAccessException e) {
@@ -205,5 +209,22 @@ public class MEGasInputBus extends MEGasBus {
         }
 
         super.markNoUpdate();
+    }
+
+    @Override
+    public NBTTagCompound downloadSettings() {
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setTag(CONFIG_TAG_KEY, config.save());
+        return tag;
+    }
+
+    @Override
+    public void uploadSettings(NBTTagCompound settings) {
+        config.load(settings.getCompoundTag(CONFIG_TAG_KEY));
+        try {
+            proxy.getTick().alertDevice(proxy.getNode());
+        } catch (GridAccessException e) {
+            ModularMachinery.log.warn("Error while uploading settings", e);
+        }
     }
 }

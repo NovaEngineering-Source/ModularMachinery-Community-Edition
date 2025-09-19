@@ -10,10 +10,32 @@ package hellfirepvp.modularmachinery.common.registry;
 
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.crafting.ComponentType;
-import hellfirepvp.modularmachinery.common.crafting.component.*;
+import hellfirepvp.modularmachinery.common.crafting.component.ComponentEnergy;
+import hellfirepvp.modularmachinery.common.crafting.component.ComponentFluid;
+import hellfirepvp.modularmachinery.common.crafting.component.ComponentGas;
+import hellfirepvp.modularmachinery.common.crafting.component.ComponentItem;
+import hellfirepvp.modularmachinery.common.crafting.component.ComponentItemFluid;
+import hellfirepvp.modularmachinery.common.crafting.component.ComponentParallelController;
+import hellfirepvp.modularmachinery.common.crafting.component.ComponentSmartInterface;
+import hellfirepvp.modularmachinery.common.crafting.component.ComponentUpgradeBus;
 import net.minecraft.util.ResourceLocation;
 
-import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.*;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.COMPONENT_ENERGY;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.COMPONENT_FLUID;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.COMPONENT_GAS;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.COMPONENT_ITEM;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.COMPONENT_PARALLEL_CONTROLLER;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.COMPONENT_SMART_INTERFACE;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.COMPONENT_UPGRADE_BUS;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.KEY_COMPONENT_ENERGY;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.KEY_COMPONENT_FLUID;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.KEY_COMPONENT_GAS;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.KEY_COMPONENT_ITEM;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.KEY_COMPONENT_ITEM_FLUID;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.KEY_COMPONENT_PARALLEL_CONTROLLER;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.KEY_COMPONENT_SMART_INTERFACE;
+import static hellfirepvp.modularmachinery.common.lib.ComponentTypesMM.KEY_COMPONENT_UPGRADE_BUS;
 
 /**
  * This class is part of the Modular Machinery Mod

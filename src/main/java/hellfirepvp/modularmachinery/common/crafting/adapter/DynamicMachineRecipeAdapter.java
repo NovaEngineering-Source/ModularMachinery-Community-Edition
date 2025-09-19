@@ -51,9 +51,9 @@ public class DynamicMachineRecipeAdapter extends RecipeAdapter {
         List<MachineRecipe> newRecipeList = new ArrayList<>();
         for (MachineRecipe recipe : RecipeRegistry.getRecipesFor(this.originalMachine)) {
             MachineRecipe newRecipe = recipe.copy(
-                    (res) -> new ResourceLocation(ModularMachinery.MODID, res.getPath() + ".copy." + newIdentifier + "_" + incId),
-                    owningMachineName,
-                    modifiers);
+                (res) -> new ResourceLocation(ModularMachinery.MODID, res.getPath() + ".copy." + newIdentifier + "_" + incId),
+                owningMachineName,
+                modifiers);
             newRecipeList.add(newRecipe);
         }
 

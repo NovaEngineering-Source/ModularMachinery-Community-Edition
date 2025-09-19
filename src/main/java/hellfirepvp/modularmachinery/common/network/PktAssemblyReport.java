@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PktAssemblyReport implements IMessage, IMessageHandler<PktAssemblyReport, IMessage> {
-    private List<List<ItemStack>> itemStackIngList = new ArrayList<>();
+    private List<List<ItemStack>>  itemStackIngList  = new ArrayList<>();
     private List<List<FluidStack>> fluidStackIngList = new ArrayList<>();
 
     public PktAssemblyReport() {
@@ -32,6 +32,64 @@ public class PktAssemblyReport implements IMessage, IMessageHandler<PktAssemblyR
     public PktAssemblyReport(final List<List<ItemStack>> itemStackIngList, final List<List<FluidStack>> fluidStackIngList) {
         this.itemStackIngList = itemStackIngList;
         this.fluidStackIngList = fluidStackIngList;
+    }
+
+    private static void sendItemStackListMessage(final List<List<ItemStack>> itemStackIngList, final EntityPlayer player) {
+        for (final List<ItemStack> stackList : itemStackIngList) {
+            if (stackList.isEmpty()) {
+                continue;
+            }
+
+            if (stackList.size() == 1) {
+                ItemStack stack = stackList.get(0);
+                player.sendMessage(new TextComponentString(itemStackToString(stack)));
+                continue;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < stackList.size(); i++) {
+                final ItemStack stack = stackList.get(i);
+
+                sb.append(itemStackToString(stack));
+                if (i + 1 < stackList.size()) {
+                    sb.append(" ").append(I18n.format("message.assembly.tip.or")).append(" ");
+                }
+            }
+            player.sendMessage(new TextComponentString(sb.toString()));
+        }
+    }
+
+    private static void sendFluidStackListMessage(final List<List<FluidStack>> fluidStackIngList, final EntityPlayer player) {
+        for (final List<FluidStack> stackList : fluidStackIngList) {
+            if (stackList.isEmpty()) {
+                continue;
+            }
+
+            if (stackList.size() == 1) {
+                FluidStack stack = stackList.get(0);
+                player.sendMessage(new TextComponentString(fluidStackToString(stack)));
+                continue;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < stackList.size(); i++) {
+                final FluidStack stack = stackList.get(i);
+
+                sb.append(fluidStackToString(stack));
+                if (i + 1 < stackList.size()) {
+                    sb.append(" ").append(I18n.format("message.assembly.tip.or")).append(" ");
+                }
+            }
+            player.sendMessage(new TextComponentString(sb.toString()));
+        }
+    }
+
+    private static String itemStackToString(ItemStack stack) {
+        return stack.getCount() + "x " + stack.getDisplayName();
+    }
+
+    private static String fluidStackToString(FluidStack stack) {
+        return stack.amount + "mb " + stack.getLocalizedName();
     }
 
     @Override
@@ -133,63 +191,5 @@ public class PktAssemblyReport implements IMessage, IMessageHandler<PktAssemblyR
         sendFluidStackListMessage(fluidStackIngList, player);
 
         return null;
-    }
-
-    private static void sendItemStackListMessage(final List<List<ItemStack>> itemStackIngList, final EntityPlayer player) {
-        for (final List<ItemStack> stackList : itemStackIngList) {
-            if (stackList.isEmpty()) {
-                continue;
-            }
-
-            if (stackList.size() == 1) {
-                ItemStack stack = stackList.get(0);
-                player.sendMessage(new TextComponentString(itemStackToString(stack)));
-                continue;
-            }
-
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < stackList.size(); i++) {
-                final ItemStack stack = stackList.get(i);
-
-                sb.append(itemStackToString(stack));
-                if (i + 1 < stackList.size()) {
-                    sb.append(" ").append(I18n.format("message.assembly.tip.or")).append(" ");
-                }
-            }
-            player.sendMessage(new TextComponentString(sb.toString()));
-        }
-    }
-
-    private static void sendFluidStackListMessage(final List<List<FluidStack>> fluidStackIngList, final EntityPlayer player) {
-        for (final List<FluidStack> stackList : fluidStackIngList) {
-            if (stackList.isEmpty()) {
-                continue;
-            }
-
-            if (stackList.size() == 1) {
-                FluidStack stack = stackList.get(0);
-                player.sendMessage(new TextComponentString(fluidStackToString(stack)));
-                continue;
-            }
-
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < stackList.size(); i++) {
-                final FluidStack stack = stackList.get(i);
-
-                sb.append(fluidStackToString(stack));
-                if (i + 1 < stackList.size()) {
-                    sb.append(" ").append(I18n.format("message.assembly.tip.or")).append(" ");
-                }
-            }
-            player.sendMessage(new TextComponentString(sb.toString()));
-        }
-    }
-
-    private static String itemStackToString(ItemStack stack) {
-        return stack.getCount() + "x " + stack.getDisplayName();
-    }
-
-    private static String fluidStackToString(FluidStack stack) {
-        return stack.amount + "mb " + stack.getLocalizedName();
     }
 }

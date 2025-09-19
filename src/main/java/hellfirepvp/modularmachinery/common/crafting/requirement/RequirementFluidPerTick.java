@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class RequirementFluidPerTick extends ComponentRequirement.PerTickParallelizable<FluidStack, RequirementTypeFluidPerTick>
-        implements ComponentRequirement.Parallelizable {
+    implements ComponentRequirement.Parallelizable {
 
     public final FluidStack required;
 
@@ -40,7 +40,7 @@ public class RequirementFluidPerTick extends ComponentRequirement.PerTickParalle
         MachineComponent<?> cmp = component.component();
         ComponentType cmpType = cmp.getComponentType();
         return (cmpType.equals(ComponentTypesMM.COMPONENT_FLUID) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS))
-                && cmp.ioType == actionType;
+            && cmp.ioType == actionType;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class RequirementFluidPerTick extends ComponentRequirement.PerTickParalle
     public String getMissingComponentErrorMessage(IOType ioType) {
         ResourceLocation compKey = this.requirementType.getRegistryName();
         return String.format("component.missing.%s.%s.%s",
-                compKey.getNamespace(), compKey.getPath(), ioType.name().toLowerCase());
+            compKey.getNamespace(), compKey.getPath(), ioType.name().toLowerCase());
     }
 
     @Override

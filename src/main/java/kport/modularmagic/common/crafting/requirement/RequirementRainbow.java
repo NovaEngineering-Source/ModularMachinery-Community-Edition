@@ -29,8 +29,8 @@ public class RequirementRainbow extends ComponentRequirement.PerTickMultiCompone
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cpn = component.getComponent();
         return cpn.getContainerProvider() instanceof TileRainbowProvider &&
-                cpn.getComponentType() instanceof ComponentRainbow &&
-                cpn.ioType == getActionType();
+            cpn.getComponentType() instanceof ComponentRainbow &&
+            cpn.ioType == getActionType();
     }
 
     @Nonnull

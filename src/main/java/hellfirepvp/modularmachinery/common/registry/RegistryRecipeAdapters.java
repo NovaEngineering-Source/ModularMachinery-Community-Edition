@@ -10,9 +10,9 @@ package hellfirepvp.modularmachinery.common.registry;
 
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.base.Mods;
-import hellfirepvp.modularmachinery.common.crafting.adapter.ic2.AdapterIC2Compressor;
 import hellfirepvp.modularmachinery.common.crafting.adapter.AdapterMinecraftFurnace;
 import hellfirepvp.modularmachinery.common.crafting.adapter.RecipeAdapter;
+import hellfirepvp.modularmachinery.common.crafting.adapter.ic2.AdapterIC2Compressor;
 import hellfirepvp.modularmachinery.common.crafting.adapter.ic2.AdapterIC2Macerator;
 import hellfirepvp.modularmachinery.common.crafting.adapter.nco.AdapterNCOAlloyFurnace;
 import hellfirepvp.modularmachinery.common.crafting.adapter.nco.AdapterNCOChemicalReactor;
@@ -21,6 +21,7 @@ import hellfirepvp.modularmachinery.common.crafting.adapter.nco.AdapterNCOMelter
 import hellfirepvp.modularmachinery.common.crafting.adapter.tc6.AdapterTC6InfusionMatrix;
 import hellfirepvp.modularmachinery.common.crafting.adapter.tconstruct.AdapterSmelteryAlloyRecipe;
 import hellfirepvp.modularmachinery.common.crafting.adapter.tconstruct.AdapterSmelteryMeltingRecipe;
+import hellfirepvp.modularmachinery.common.crafting.adapter.te5.InsolatorRecipeAdapter;
 
 import static hellfirepvp.modularmachinery.common.lib.RecipeAdaptersMM.MINECRAFT_FURNACE;
 
@@ -52,8 +53,12 @@ public class RegistryRecipeAdapters {
             registerAdapter(new AdapterSmelteryMeltingRecipe());
             registerAdapter(new AdapterSmelteryAlloyRecipe());
         }
-        if(Mods.TC6.isPresent()){
+        if (Mods.TC6.isPresent()) {
             registerAdapter(new AdapterTC6InfusionMatrix());
+        }
+        if (Mods.THERMAL_EXPANSION.isPresent()) {
+            registerAdapter(new InsolatorRecipeAdapter(false));
+            registerAdapter(new InsolatorRecipeAdapter(true));
         }
     }
 

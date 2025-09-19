@@ -9,7 +9,13 @@
 package hellfirepvp.modularmachinery.common.util.nbt;
 
 import com.google.common.collect.Lists;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTPrimitive;
+import net.minecraft.nbt.NBTTagByteArray;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagIntArray;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -37,22 +43,22 @@ public class NBTMatchingHelper {
     private static boolean matchBase(NBTBase matchBase, NBTBase matchStack) {
         if (matchBase instanceof NBTComparableNumber) {
             return (matchStack instanceof NBTPrimitive) &&
-                    ((NBTComparableNumber) matchBase).test((NBTPrimitive) matchStack);
+                ((NBTComparableNumber) matchBase).test((NBTPrimitive) matchStack);
         } else if (matchBase instanceof NBTPatternString) {
             return (matchStack instanceof NBTTagString) &&
-                    ((NBTPatternString) matchBase).testString(((NBTTagString) matchStack).getString());
+                ((NBTPatternString) matchBase).testString(((NBTTagString) matchStack).getString());
         } else if (matchBase instanceof NBTTagCompound) {
             return (matchStack instanceof NBTTagCompound) &&
-                    matchCompound((NBTTagCompound) matchBase, (NBTTagCompound) matchStack);
+                matchCompound((NBTTagCompound) matchBase, (NBTTagCompound) matchStack);
         } else if (matchBase instanceof NBTTagList) {
             return (matchStack instanceof NBTTagList) &&
-                    matchList((NBTTagList) matchBase, (NBTTagList) matchStack);
+                matchList((NBTTagList) matchBase, (NBTTagList) matchStack);
         } else if (matchBase instanceof NBTTagByteArray) {
             return (matchStack instanceof NBTTagByteArray) &&
-                    Arrays.equals(((NBTTagByteArray) matchBase).getByteArray(), ((NBTTagByteArray) matchStack).getByteArray());
+                Arrays.equals(((NBTTagByteArray) matchBase).getByteArray(), ((NBTTagByteArray) matchStack).getByteArray());
         } else if (matchBase instanceof NBTTagIntArray) {
             return (matchStack instanceof NBTTagIntArray) &&
-                    Arrays.equals(((NBTTagIntArray) matchBase).getIntArray(), ((NBTTagIntArray) matchStack).getIntArray());
+                Arrays.equals(((NBTTagIntArray) matchBase).getIntArray(), ((NBTTagIntArray) matchStack).getIntArray());
         }
         return matchBase.equals(matchStack);
     }

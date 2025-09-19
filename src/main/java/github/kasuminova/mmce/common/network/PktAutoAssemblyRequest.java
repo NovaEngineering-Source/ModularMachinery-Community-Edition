@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 public class PktAutoAssemblyRequest implements IMessage, IMessageHandler<PktAutoAssemblyRequest, IMessage> {
 
     protected BlockPos pos;
-    protected short dynamicPatternSize;
+    protected short    dynamicPatternSize;
 
     public PktAutoAssemblyRequest() {
     }
@@ -21,6 +21,11 @@ public class PktAutoAssemblyRequest implements IMessage, IMessageHandler<PktAuto
     public PktAutoAssemblyRequest(final BlockPos pos, final short dynamicPatternSize) {
         this.pos = pos;
         this.dynamicPatternSize = dynamicPatternSize;
+    }
+
+    private static boolean isOutOfRange(final EntityPlayer player, final BlockPos target) {
+        BlockPos playerPos = player.getPosition();
+        return target.getDistance(playerPos.getX(), playerPos.getY(), playerPos.getZ()) >= 8.0D;
     }
 
     @Override
@@ -47,11 +52,6 @@ public class PktAutoAssemblyRequest implements IMessage, IMessageHandler<PktAuto
 
         AssemblyEventHandler.INSTANCE.processAutoAssembly(player, player.getHeldItem(EnumHand.MAIN_HAND), target, patternSize);
         return null;
-    }
-
-    private static boolean isOutOfRange(final EntityPlayer player, final BlockPos target) {
-        BlockPos playerPos = player.getPosition();
-        return target.getDistance(playerPos.getX(), playerPos.getY(), playerPos.getZ()) >= 8.0D;
     }
 
 }

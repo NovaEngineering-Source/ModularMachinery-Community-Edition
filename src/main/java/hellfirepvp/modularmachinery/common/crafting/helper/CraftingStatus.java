@@ -8,12 +8,12 @@ import java.util.Objects;
 
 public class CraftingStatus {
 
-    public static final CraftingStatus SUCCESS = new CraftingStatus(TileMultiblockMachineController.Type.CRAFTING, "");
-    public static final CraftingStatus MISSING_STRUCTURE = new CraftingStatus(TileMultiblockMachineController.Type.MISSING_STRUCTURE, "");
-    public static final CraftingStatus CHUNK_UNLOADED = new CraftingStatus(TileMultiblockMachineController.Type.CHUNK_UNLOADED, "");
-    public static final CraftingStatus IDLE = new CraftingStatus(TileMultiblockMachineController.Type.IDLE, "");
-    private final TileMachineController.Type status;
-    private String unlocalizedMessage;
+    public static final CraftingStatus             SUCCESS           = new CraftingStatus(TileMultiblockMachineController.Type.CRAFTING, "");
+    public static final CraftingStatus             MISSING_STRUCTURE = new CraftingStatus(TileMultiblockMachineController.Type.MISSING_STRUCTURE, "");
+    public static final CraftingStatus             CHUNK_UNLOADED    = new CraftingStatus(TileMultiblockMachineController.Type.CHUNK_UNLOADED, "");
+    public static final CraftingStatus             IDLE              = new CraftingStatus(TileMultiblockMachineController.Type.IDLE, "");
+    private final       TileMachineController.Type status;
+    private             String                     unlocalizedMessage;
 
     public CraftingStatus(TileMachineController.Type status, String unlocalizedMessage) {
         this.status = status;
@@ -63,8 +63,12 @@ public class CraftingStatus {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof final CraftingStatus another)) return false;
-        if (status != another.status) return false;
+        if (!(obj instanceof final CraftingStatus another)) {
+            return false;
+        }
+        if (status != another.status) {
+            return false;
+        }
         return unlocalizedMessage.equals(another.unlocalizedMessage);
     }
 

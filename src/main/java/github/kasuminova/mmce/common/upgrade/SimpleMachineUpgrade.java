@@ -18,9 +18,9 @@ import java.util.List;
 @ZenRegister
 @ZenClass("mods.modularmachinery.SimpleMachineUpgrade")
 public class SimpleMachineUpgrade extends MachineUpgrade {
-    private final List<String> descriptions = new ArrayList<>();
-    private IFunction<SimpleMachineUpgrade, String[]> busGuiDescriptionHandler = null;
-    private NBTTagCompound customData = new NBTTagCompound();
+    private final List<String>                              descriptions             = new ArrayList<>();
+    private       IFunction<SimpleMachineUpgrade, String[]> busGuiDescriptionHandler = null;
+    private       NBTTagCompound                            customData               = new NBTTagCompound();
 
     public SimpleMachineUpgrade(final UpgradeType type) {
         super(type);

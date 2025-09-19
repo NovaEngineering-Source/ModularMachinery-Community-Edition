@@ -16,7 +16,7 @@ import java.util.List;
 public class Column extends WidgetContainer {
     protected final List<DynamicWidget> widgets = new ArrayList<>();
 
-    protected boolean leftAligned = true;
+    protected boolean leftAligned  = true;
     protected boolean rightAligned = false;
 
     @Override
@@ -321,18 +321,19 @@ public class Column extends WidgetContainer {
     @Override
     public int getHeight() {
         int height = 0;
+        int absWidgetMaxHeight = 0;
         for (final DynamicWidget widget : widgets) {
             if (widget.isDisabled()) {
                 continue;
             }
             int widgetHeight = widget.getMarginUp() + widget.getHeight() + widget.getMarginDown();
             if (widget.isUseAbsPos()) {
-                height = Math.max(height, widgetHeight);
+                absWidgetMaxHeight = Math.max(widgetHeight + widget.getAbsY(), absWidgetMaxHeight);
                 continue;
             }
             height += widgetHeight;
         }
-        return height;
+        return Math.max(height, absWidgetMaxHeight);
     }
 
     @Override

@@ -137,7 +137,7 @@ public class GuiMachineController extends GuiContainerBase<ContainerController> 
         if (activeRecipe != null) {
             if (activeRecipe.getTotalTick() > 0) {
                 int progress = (activeRecipe.getTick() * 100) / activeRecipe.getTotalTick();
-                String progressStr = I18n.format("gui.controller.status.crafting.progress",  progress + "%");
+                String progressStr = I18n.format("gui.controller.status.crafting.progress", progress + "%");
                 fr.drawStringWithShadow(progressStr, offsetX, offsetY, 0xFFFFFF);
                 offsetY += 15;
             }
@@ -158,13 +158,13 @@ public class GuiMachineController extends GuiContainerBase<ContainerController> 
         float searchUsedTimeCache = TileMultiblockMachineController.searchUsedTimeCache;
         String workMode = TileMultiblockMachineController.workModeCache.getDisplayName();
         out = fr.listFormattedStringToWidth(
-                String.format(
-                        "Avg: %sμs/t (Search: %sms), WorkMode: %s", 
-                        usedTimeCache, 
-                        MiscUtils.formatFloat(searchUsedTimeCache / 1000F, 2), 
-                        workMode
-                ),
-                MathHelper.floor(135 * (1 / scale))
+            String.format(
+                "Avg: %sμs/t (Search: %sms), WorkMode: %s",
+                usedTimeCache,
+                MiscUtils.formatFloat(searchUsedTimeCache / 1000F, 2),
+                workMode
+            ),
+            MathHelper.floor(135 * (1 / scale))
         );
         for (String draw : out) {
             offsetY += 10;

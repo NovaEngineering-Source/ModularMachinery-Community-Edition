@@ -1,0 +1,12 @@
+{
+  "package": "github.kasuminova.mmce.mixin.ae2.nae2",
+  "refmap": "mixins.mmce.refmap.json",
+  "target": "@env(DEFAULT)",
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+  ],
+  "mixins": [
+    "MixinContainerPatternMultiTool"
+  ]
+}

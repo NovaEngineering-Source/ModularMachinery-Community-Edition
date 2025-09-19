@@ -15,10 +15,10 @@ import java.util.function.IntConsumer;
 
 @SuppressWarnings("unused")
 public class MultiGasTank implements IExtendedGasHandler {
-    private final GasStack[] contents;
+    private final GasStack[]    contents;
     private final GasTankInfo[] props;
-    private int capacity;
-    private IntConsumer onSlotChanged = null;
+    private       int           capacity;
+    private       IntConsumer   onSlotChanged = null;
 
     public MultiGasTank(int capacity, int tankCount) {
         this.capacity = capacity;
@@ -210,10 +210,10 @@ public class MultiGasTank implements IExtendedGasHandler {
         }
 
         GasStack toDrain = Arrays.stream(contents)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .map(GasStack::copy)
-                .orElse(null);
+                                 .filter(Objects::nonNull)
+                                 .findFirst()
+                                 .map(GasStack::copy)
+                                 .orElse(null);
 
         if (toDrain == null) {
             return null;

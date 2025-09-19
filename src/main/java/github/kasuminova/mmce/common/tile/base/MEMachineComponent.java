@@ -12,13 +12,14 @@ import appeng.me.helpers.AENetworkProxy;
 import appeng.me.helpers.IGridProxyable;
 import appeng.me.helpers.MachineSource;
 import appeng.util.Platform;
+import github.kasuminova.mmce.common.util.Sides;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.tiles.base.MachineComponentTile;
 import hellfirepvp.modularmachinery.common.tiles.base.SelectiveUpdateTileEntity;
 import hellfirepvp.modularmachinery.common.tiles.base.TileColorableMachineComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,7 +27,7 @@ import javax.annotation.Nullable;
 public abstract class MEMachineComponent extends TileColorableMachineComponent implements SelectiveUpdateTileEntity, MachineComponentTile, IActionHost, IGridProxyable {
 
     protected final AENetworkProxy proxy = new AENetworkProxy(this, "aeProxy", getVisualItemStack(), true);
-    protected final IActionSource source;
+    protected final IActionSource  source;
 
     public MEMachineComponent() {
         this.source = new MachineSource(this);
@@ -39,7 +40,7 @@ public abstract class MEMachineComponent extends TileColorableMachineComponent i
     @Override
     public void readCustomNBT(final NBTTagCompound compound) {
         super.readCustomNBT(compound);
-        if (FMLCommonHandler.instance().getEffectiveSide().isServer()) {
+        if (!world.isRemote) {
             try {
                 proxy.readFromNBT(compound);
             } catch (IllegalStateException e) {
@@ -47,6 +48,11 @@ public abstract class MEMachineComponent extends TileColorableMachineComponent i
                 ModularMachinery.log.warn(e);
             }
         }
+    }
+
+    @Override
+    protected void setWorldCreate(@Nonnull final World worldIn) {
+        setWorld(worldIn);
     }
 
     @Override
@@ -123,9 +129,7 @@ public abstract class MEMachineComponent extends TileColorableMachineComponent i
     @Override
     public void validate() {
         super.validate();
-        if (!getWorld().isRemote) {
-            ModularMachinery.EXECUTE_MANAGER.addSyncTask(proxy::onReady);
-        }
+        Sides.SERVER.runIfPresent(() -> ModularMachinery.EXECUTE_MANAGER.addSyncTask(proxy::onReady));
     }
 
 }

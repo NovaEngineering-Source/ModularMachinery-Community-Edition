@@ -1,7 +1,11 @@
 package kport.modularmagic.common.crafting.requirement;
 
 import com.google.common.collect.Lists;
-import hellfirepvp.modularmachinery.common.crafting.helper.*;
+import hellfirepvp.modularmachinery.common.crafting.helper.ComponentOutputRestrictor;
+import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
+import hellfirepvp.modularmachinery.common.crafting.helper.CraftCheck;
+import hellfirepvp.modularmachinery.common.crafting.helper.ProcessingComponent;
+import hellfirepvp.modularmachinery.common.crafting.helper.RecipeCraftingContext;
 import hellfirepvp.modularmachinery.common.lib.RegistriesMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
@@ -33,8 +37,8 @@ public class RequirementGrid extends ComponentRequirement.PerTick<Grid, Requirem
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.getComponent();
         return cmp.getComponentType() instanceof ComponentGrid &&
-                cmp instanceof MachineComponentGridProvider &&
-                cmp.ioType == getActionType();
+            cmp instanceof MachineComponentGridProvider &&
+            cmp.ioType == getActionType();
     }
 
     @Nonnull

@@ -13,13 +13,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class PreviewPanels {
+
     protected static final Cache<DynamicMachine, MachineStructurePreviewPanel> PANEL_CACHE = CacheBuilder.newBuilder()
-            .maximumSize(20)
-            .expireAfterAccess(60, TimeUnit.SECONDS)
-            .removalListener((RemovalListener<DynamicMachine, MachineStructurePreviewPanel>) notification -> {
-                notification.getValue().onGuiEvent(new WorldRendererCacheCleanEvent(null));
-            })
-            .build();
+                                                                                                         .maximumSize(10)
+                                                                                                         .expireAfterAccess(60, TimeUnit.SECONDS)
+                                                                                                         .removalListener((RemovalListener<DynamicMachine, MachineStructurePreviewPanel>) notification -> {
+                                                                                                             notification.getValue().onGuiEvent(new WorldRendererCacheCleanEvent(null));
+                                                                                                         })
+                                                                                                         .build();
 
     public static MachineStructurePreviewPanel getPanel(final DynamicMachine machine, final WidgetGui widgetGui) {
         try {
@@ -35,4 +36,5 @@ public class PreviewPanels {
         panel.initWidget(widgetGui);
         return panel;
     }
+
 }

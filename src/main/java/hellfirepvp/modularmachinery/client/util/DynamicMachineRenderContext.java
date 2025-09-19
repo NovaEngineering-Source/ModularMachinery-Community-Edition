@@ -28,7 +28,11 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -39,15 +43,15 @@ import java.util.*;
  */
 public class DynamicMachineRenderContext {
 
-    private final DynamicMachine machine;
+    private final DynamicMachine         machine;
     private final BlockArrayRenderHelper render;
-    private final BlockArray pattern;
-    private final BlockPos moveOffset;
-    private int dynamicPatternSize;
+    private final BlockArray             pattern;
+    private final BlockPos               moveOffset;
+    private       int                    dynamicPatternSize;
 
-    private boolean render3D = true;
-    private int renderSlice = 0;
-    private float scale = 1F;
+    private boolean render3D    = true;
+    private int     renderSlice = 0;
+    private float   scale       = 1F;
 
     private long shiftSnap = -1;
 
@@ -64,9 +68,9 @@ public class DynamicMachineRenderContext {
         Vec3i min = copy.getMin();
         Vec3i max = copy.getMax();
         this.moveOffset = new BlockPos(
-                (min.getX() + (max.getX() - min.getX()) / 2) * -1,
-                -min.getY(),
-                (min.getZ() + (max.getZ() - min.getZ()) / 2) * -1
+            (min.getX() + (max.getX() - min.getX()) / 2) * -1,
+            -min.getY(),
+            (min.getZ() + (max.getZ() - min.getZ()) / 2) * -1
         );
 
         copy = new BlockArray(copy, moveOffset);
@@ -76,6 +80,70 @@ public class DynamicMachineRenderContext {
 
         this.pattern = copy;
         this.render = new BlockArrayRenderHelper(copy);
+    }
+
+    private static void addControllerToBlockArray(DynamicMachine machine, BlockArray copy, Vec3i moveOffset) {
+        // Factory Only
+        if (machine.isHasFactory() && machine.isFactoryOnly()) {
+            BlockFactoryController factory = BlockFactoryController.getControllerWithMachine(machine);
+            if (factory == null) {
+                factory = BlocksMM.blockFactoryController;
+            }
+            copy.addBlock(new BlockPos(moveOffset), new BlockArray.BlockInformation(
+                Collections.singletonList(new IBlockStateDescriptor(factory.getDefaultState()))));
+            return;
+        }
+
+        List<IBlockStateDescriptor> descriptors = new ArrayList<>();
+
+        // Controller
+        BlockController ctrl = BlockController.getControllerWithMachine(machine);
+        if (ctrl == null) {
+            ctrl = BlocksMM.blockController;
+        }
+        descriptors.add(new IBlockStateDescriptor(ctrl.getDefaultState()));
+
+        // Factory
+        if (machine.isHasFactory() || Config.enableFactoryControllerByDefault) {
+            BlockFactoryController factory = BlockFactoryController.getControllerWithMachine(machine);
+            if (factory == null) {
+                factory = BlocksMM.blockFactoryController;
+            }
+            descriptors.add(new IBlockStateDescriptor(factory.getDefaultState()));
+        }
+
+        copy.addBlock(new BlockPos(moveOffset), new BlockArray.BlockInformation(descriptors));
+    }
+
+    public static void addReplacementToBlockArray(
+        DynamicMachine.ModifierReplacementMap replacementMap,
+        BlockArray blockArray,
+        Vec3i moveOffset) {
+        for (Map.Entry<BlockPos, List<BlockArray.BlockInformation>> entry : replacementMap.entrySet()) {
+            BlockPos pos = entry.getKey().add(moveOffset);
+
+            List<BlockArray.BlockInformation> informationList = entry.getValue();
+            for (BlockArray.BlockInformation info : informationList) {
+                Map<BlockPos, BlockArray.BlockInformation> pattern = blockArray.getPattern();
+                if (pattern.containsKey(pos)) {
+                    // Clone the block info, we don't want to modify the canonical instance.
+                    BlockArray.BlockInformation newInfo = pattern.get(pos).copy();
+                    newInfo.addMatchingStates(info.getMatchingStates());
+                    blockArray.addBlock(pos, newInfo);
+                } else {
+                    blockArray.addBlock(pos, info);
+                }
+            }
+        }
+    }
+
+    public static DynamicMachineRenderContext createContext(DynamicMachine machine) {
+        return new DynamicMachineRenderContext(machine);
+    }
+
+    public static DynamicMachineRenderContext createContext(final DynamicMachine machine,
+                                                            final int dynamicPatternSize) {
+        return new DynamicMachineRenderContext(machine, machine.getPattern(), dynamicPatternSize);
     }
 
     private BlockArray buildDynamicPattern(final DynamicMachine machine, BlockArray copy) {
@@ -88,70 +156,14 @@ public class DynamicMachineRenderContext {
 
             for (final DynamicPattern pattern : dynamicPatterns.values()) {
                 pattern.addPatternToBlockArray(
-                        copy,
-                        Math.min(Math.max(pattern.getMinSize(), dynamicPatternSize), pattern.getMaxSize()),
-                        pattern.getFaces().iterator().next(),
-                        EnumFacing.NORTH);
+                    copy,
+                    Math.min(Math.max(pattern.getMinSize(), dynamicPatternSize), pattern.getMaxSize()),
+                    pattern.getFaces().iterator().next(),
+                    EnumFacing.NORTH);
             }
         }
 
         return copy;
-    }
-
-    private static void addControllerToBlockArray(DynamicMachine machine, BlockArray copy, Vec3i moveOffset) {
-        // Factory Only
-        if (machine.isHasFactory() && machine.isFactoryOnly()) {
-            BlockFactoryController factory = BlockFactoryController.getControllerWithMachine(machine);
-            if (factory == null) factory = BlocksMM.blockFactoryController;
-            copy.addBlock(new BlockPos(moveOffset), new BlockArray.BlockInformation(
-                    Collections.singletonList(new IBlockStateDescriptor(factory.getDefaultState()))));
-            return;
-        }
-
-        List<IBlockStateDescriptor> descriptors = new ArrayList<>();
-
-        // Controller
-        BlockController ctrl = BlockController.getControllerWithMachine(machine);
-        if (ctrl == null) ctrl = BlocksMM.blockController;
-        descriptors.add(new IBlockStateDescriptor(ctrl.getDefaultState()));
-
-        // Factory
-        if (machine.isHasFactory() || Config.enableFactoryControllerByDefault) {
-            BlockFactoryController factory = BlockFactoryController.getControllerWithMachine(machine);
-            if (factory == null) factory = BlocksMM.blockFactoryController;
-            descriptors.add(new IBlockStateDescriptor(factory.getDefaultState()));
-        }
-
-        copy.addBlock(new BlockPos(moveOffset), new BlockArray.BlockInformation(descriptors));
-    }
-
-    public static void addReplacementToBlockArray(
-            DynamicMachine.ModifierReplacementMap replacementMap,
-            BlockArray blockArray,
-            Vec3i moveOffset) {
-        for (Map.Entry<BlockPos, List<BlockArray.BlockInformation>> entry : replacementMap.entrySet()) {
-            BlockPos pos = entry.getKey().add(moveOffset);
-
-            List<BlockArray.BlockInformation> informationList = entry.getValue();
-            for (BlockArray.BlockInformation info : informationList) {
-                Map<BlockPos, BlockArray.BlockInformation> pattern = blockArray.getPattern();
-                if (pattern.containsKey(pos)) {
-                    pattern.get(pos).addMatchingStates(info.matchingStates);
-                } else {
-                    pattern.put(pos, info);
-                }
-            }
-        }
-    }
-
-    public static DynamicMachineRenderContext createContext(DynamicMachine machine) {
-        return new DynamicMachineRenderContext(machine);
-    }
-
-    public static DynamicMachineRenderContext createContext(final DynamicMachine machine,
-                                                            final int dynamicPatternSize)
-    {
-        return new DynamicMachineRenderContext(machine, machine.getPattern(), dynamicPatternSize);
     }
 
     BlockArrayRenderHelper getRender() {
@@ -174,12 +186,12 @@ public class DynamicMachineRenderContext {
         return shiftSnap;
     }
 
-    public void snapSamples() {
-        this.shiftSnap = ClientScheduler.getClientTick();
-    }
-
     public void setShiftSnap(final long shiftSnap) {
         this.shiftSnap = shiftSnap;
+    }
+
+    public void snapSamples() {
+        this.shiftSnap = ClientScheduler.getClientTick();
     }
 
     public void releaseSamples() {
@@ -192,7 +204,9 @@ public class DynamicMachineRenderContext {
     }
 
     public void setTo2D() {
-        if (!render3D) return;
+        if (!render3D) {
+            return;
+        }
         render3D = false;
         renderSlice = render.getBlocks().getMin().getY();
         render.resetRotation2D();
@@ -200,7 +214,9 @@ public class DynamicMachineRenderContext {
     }
 
     public void setTo3D() {
-        if (render3D) return;
+        if (render3D) {
+            return;
+        }
         render3D = true;
         renderSlice = 0;
         render.resetRotation();

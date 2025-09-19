@@ -27,13 +27,11 @@ public class EntityCamera extends Entity {
         this.prevRotationPitch = this.rotationPitch;
         double d0 = this.prevRotationYaw - yaw;
 
-        if (d0 < -180.0D)
-        {
+        if (d0 < -180.0D) {
             this.prevRotationYaw += 360.0F;
         }
 
-        if (d0 >= 180.0D)
-        {
+        if (d0 >= 180.0D) {
             this.prevRotationYaw -= 360.0F;
         }
 

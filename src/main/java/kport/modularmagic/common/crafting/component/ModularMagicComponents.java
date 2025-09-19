@@ -9,16 +9,16 @@ import java.util.ArrayList;
 
 public class ModularMagicComponents {
 
-    public static final ResourceLocation KEY_COMPONENT_ASPECT = new ResourceLocation(ModularMachinery.MODID, "aspect");
-    public static final ResourceLocation KEY_COMPONENT_AURA = new ResourceLocation(ModularMachinery.MODID, "aura");
+    public static final ResourceLocation KEY_COMPONENT_ASPECT        = new ResourceLocation(ModularMachinery.MODID, "aspect");
+    public static final ResourceLocation KEY_COMPONENT_AURA          = new ResourceLocation(ModularMachinery.MODID, "aura");
     public static final ResourceLocation KEY_COMPONENT_CONSTELLATION = new ResourceLocation(ModularMachinery.MODID, "constellation");
-    public static final ResourceLocation KEY_COMPONENT_GRID = new ResourceLocation(ModularMachinery.MODID, "grid");
-    public static final ResourceLocation KEY_COMPONENT_LIFE_ESSENCE = new ResourceLocation(ModularMachinery.MODID, "lifeessence");
-    public static final ResourceLocation KEY_COMPONENT_RAINBOW = new ResourceLocation(ModularMachinery.MODID, "rainbow");
-    public static final ResourceLocation KEY_COMPONENT_STARLIGHT = new ResourceLocation(ModularMachinery.MODID, "starlight");
-    public static final ResourceLocation KEY_COMPONENT_WILL = new ResourceLocation(ModularMachinery.MODID, "will");
-    public static final ResourceLocation KEY_COMPONENT_MANA = new ResourceLocation(ModularMachinery.MODID, "mana");
-    public static final ResourceLocation KEY_COMPONENT_IMPETUS = new ResourceLocation(ModularMachinery.MODID, "impetus");
+    public static final ResourceLocation KEY_COMPONENT_GRID          = new ResourceLocation(ModularMachinery.MODID, "grid");
+    public static final ResourceLocation KEY_COMPONENT_LIFE_ESSENCE  = new ResourceLocation(ModularMachinery.MODID, "lifeessence");
+    public static final ResourceLocation KEY_COMPONENT_RAINBOW       = new ResourceLocation(ModularMachinery.MODID, "rainbow");
+    public static final ResourceLocation KEY_COMPONENT_STARLIGHT     = new ResourceLocation(ModularMachinery.MODID, "starlight");
+    public static final ResourceLocation KEY_COMPONENT_WILL          = new ResourceLocation(ModularMachinery.MODID, "will");
+    public static final ResourceLocation KEY_COMPONENT_MANA          = new ResourceLocation(ModularMachinery.MODID, "mana");
+    public static final ResourceLocation KEY_COMPONENT_IMPETUS       = new ResourceLocation(ModularMachinery.MODID, "impetus");
 
     public static final ArrayList<ComponentType> COMPONENTS = new ArrayList<>();
 

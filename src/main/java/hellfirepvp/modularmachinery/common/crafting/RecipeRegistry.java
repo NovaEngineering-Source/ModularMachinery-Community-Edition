@@ -16,7 +16,6 @@ import hellfirepvp.modularmachinery.common.crafting.adapter.RecipeAdapterAccesso
 import hellfirepvp.modularmachinery.common.data.DataLoadProfiler;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.RecipeAdapterBuilder;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
@@ -25,7 +24,14 @@ import net.minecraftforge.fml.common.ProgressManager;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -37,12 +43,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RecipeRegistry {
 
-    private static final RecipeRegistry INSTANCE = new RecipeRegistry();
-    private static final Map<ResourceLocation, TreeMap<Integer, TreeSet<MachineRecipe>>> REGISTRY_RECIPE_BY_MACHINE = new Object2ObjectOpenHashMap<>();
-    private static final Map<ResourceLocation, MachineRecipe> RECIPE_REGISTRY = new Object2ObjectOpenHashMap<>();
+    private static final RecipeRegistry                                                  INSTANCE                   = new RecipeRegistry();
+    private static final Map<ResourceLocation, TreeMap<Integer, TreeSet<MachineRecipe>>> REGISTRY_RECIPE_BY_MACHINE = new HashMap<>();
+    private static final Map<ResourceLocation, MachineRecipe>                            RECIPE_REGISTRY            = new HashMap<>();
 
-    private final List<PreparedRecipe> earlyRecipes = new ArrayList<>();
-    private final List<RecipeAdapterBuilder> earlyRecipeAdapters = new ArrayList<>();
+    private final List<PreparedRecipe>       earlyRecipes        = new LinkedList<>();
+    private final List<RecipeAdapterBuilder> earlyRecipeAdapters = new LinkedList<>();
 
     private RecipeRegistry() {
     }

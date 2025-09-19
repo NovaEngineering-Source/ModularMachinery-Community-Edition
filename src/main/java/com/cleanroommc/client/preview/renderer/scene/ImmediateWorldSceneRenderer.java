@@ -5,13 +5,13 @@ import com.cleanroommc.client.util.world.LRDummyWorld;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 
 /**
  * Created with IntelliJ IDEA.
+ *
  * @Author: KilaBash
  * @Date: 2021/8/24
  * @Description: Real-time rendering renderer.

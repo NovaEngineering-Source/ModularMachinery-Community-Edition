@@ -12,8 +12,9 @@ public class GridHelper<T extends Grid> implements IIngredientHelper<T> {
     @Override
     public T getMatch(Iterable<T> ingredients, T ingredientToMatch) {
         for (T grid : ingredients) {
-            if (grid.getPower() == ingredientToMatch.getPower())
+            if (grid.getPower() == ingredientToMatch.getPower()) {
                 return grid;
+            }
         }
         return null;
     }

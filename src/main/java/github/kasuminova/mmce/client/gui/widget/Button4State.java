@@ -3,10 +3,12 @@ package github.kasuminova.mmce.client.gui.widget;
 import github.kasuminova.mmce.client.gui.util.MousePos;
 import github.kasuminova.mmce.client.gui.util.RenderPos;
 import github.kasuminova.mmce.client.gui.util.RenderSize;
+import github.kasuminova.mmce.client.gui.util.TextureProperties;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetGui;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Inherits the normal button with an additional press state.
@@ -14,36 +16,28 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class Button4State extends Button {
 
-    protected int mouseDownTextureX = 0;
-    protected int mouseDownTextureY = 0;
+    protected TextureProperties mouseDownTexture = TextureProperties.EMPTY;
 
     protected boolean mouseDown = false;
 
     @Override
     public void render(final WidgetGui gui, final RenderSize renderSize, final RenderPos renderPos, final MousePos mousePos) {
-        if (!isVisible() || textureLocation == null) {
+        if (!isVisible()) {
             return;
         }
-
-        int texX;
-        int texY;
-
         if (isUnavailable()) {
-            texX = unavailableTextureX;
-            texY = unavailableTextureY;
-        } else if (mouseDown) {
-            texX = mouseDownTextureX;
-            texY = mouseDownTextureY;
-        } else if (isMouseOver(mousePos)) {
-            texX = hoveredTextureX;
-            texY = hoveredTextureY;
-        } else {
-            texX = textureX;
-            texY = textureY;
+            unavailableTexture.render(textureLocation, renderPos, renderSize, gui);
+            return;
         }
-
-        gui.getGui().mc.getTextureManager().bindTexture(textureLocation);
-        gui.getGui().drawTexturedModalRect(renderPos.posX(), renderPos.posY(), texX, texY, width, height);
+        if (mouseDown) {
+            mouseDownTexture.render(textureLocation, renderPos, renderSize, gui);
+            return;
+        }
+        if (isMouseOver(mousePos)) {
+            hoveredTexture.render(textureLocation, renderPos, renderSize, gui);
+            return;
+        }
+        texture.render(textureLocation, renderPos, renderSize, gui);
     }
 
     @Override
@@ -75,27 +69,21 @@ public class Button4State extends Button {
         return super.getHoverTooltips(widgetGui, mousePos);
     }
 
-    public Button4State setMouseDownTextureXY(final int mouseDownTextureX, final int mouseDownTextureY) {
-        this.mouseDownTextureX = mouseDownTextureX;
-        this.mouseDownTextureY = mouseDownTextureY;
+    public Button4State setMouseDownTexture(final int mouseDownTextureX, final int mouseDownTextureY) {
+        return setMouseDownTexture(TextureProperties.of(mouseDownTextureX, mouseDownTextureY));
+    }
+
+    public TextureProperties getMouseDownTexture() {
+        return mouseDownTexture;
+    }
+
+    public Button4State setMouseDownTexture(final TextureProperties mouseDownTexture) {
+        this.mouseDownTexture = Optional.ofNullable(mouseDownTexture).orElse(TextureProperties.EMPTY);
         return this;
     }
 
-    public int getMouseDownTextureX() {
-        return mouseDownTextureX;
+    public boolean isMouseDown() {
+        return mouseDown;
     }
 
-    public Button4State setMouseDownTextureX(final int mouseDownTextureX) {
-        this.mouseDownTextureX = mouseDownTextureX;
-        return this;
-    }
-
-    public int getMouseDownTextureY() {
-        return mouseDownTextureY;
-    }
-
-    public Button4State setMouseDownTextureY(final int mouseDownTextureY) {
-        this.mouseDownTextureY = mouseDownTextureY;
-        return this;
-    }
 }

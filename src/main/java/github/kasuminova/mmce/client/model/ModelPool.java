@@ -16,10 +16,10 @@ public class ModelPool {
 
     private final MachineControllerModel original;
 
-    private final Map<MachineControllerModel, GeoModel> renderInstMap = new ConcurrentHashMap<>();
-    private final Queue<MachineControllerModel> renderInstPool = new ArrayBlockingQueue<>(POOL_LIMIT);
-    private StaticModelBones staticModelBones = null;
-    private ModelBufferSize modelBufferSize = null;
+    private final Map<MachineControllerModel, GeoModel> renderInstMap    = new ConcurrentHashMap<>();
+    private final Queue<MachineControllerModel>         renderInstPool   = new ArrayBlockingQueue<>(POOL_LIMIT);
+    private       StaticModelBones                      staticModelBones = null;
+    private       ModelBufferSize                       modelBufferSize  = null;
 
     public ModelPool(final MachineControllerModel original) {
         this.original = original;

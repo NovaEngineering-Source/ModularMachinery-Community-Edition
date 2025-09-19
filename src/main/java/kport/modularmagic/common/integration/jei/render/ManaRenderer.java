@@ -25,7 +25,9 @@ public class ManaRenderer implements IIngredientRenderer<Mana> {
 
     @Override
     public void render(Minecraft minecraft, int xPosition, int yPosition, @Nullable Mana ingredient) {
-        if (ingredient == null) return;
+        if (ingredient == null) {
+            return;
+        }
         GlStateManager.enableDepth();
         RenderHelper.enableGUIStandardItemLighting();
 
@@ -39,8 +41,9 @@ public class ManaRenderer implements IIngredientRenderer<Mana> {
 
         int manaPercentage = Math.max(0, (int) ((double) ingredient.manaAmount() / (double) 10000 * 61));
 
-        if (manaPercentage == 0 && ingredient.manaAmount() > 0)
+        if (manaPercentage == 0 && ingredient.manaAmount() > 0) {
             manaPercentage = 1;
+        }
 
         manaBarFilled.build().draw(minecraft, xPosition + 1, yPosition + 1);
 

@@ -3,10 +3,10 @@ package github.kasuminova.mmce.client.gui.widget;
 import github.kasuminova.mmce.client.gui.util.MousePos;
 import github.kasuminova.mmce.client.gui.util.RenderPos;
 import github.kasuminova.mmce.client.gui.util.RenderSize;
+import github.kasuminova.mmce.client.gui.util.TextureProperties;
 import github.kasuminova.mmce.client.gui.widget.base.WidgetGui;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 
 /**
  * Inherits the 4 states of the button with the addition of a persistent press state.
@@ -14,39 +14,32 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class Button5State extends Button4State {
 
-    protected int clickedTextureX = 0;
-    protected int clickedTextureY = 0;
+    protected TextureProperties clickedTexture = TextureProperties.EMPTY;
 
     protected boolean clicked = false;
 
     @Override
     public void render(final WidgetGui gui, final RenderSize renderSize, final RenderPos renderPos, final MousePos mousePos) {
-        if (!isVisible() || textureLocation == null) {
+        if (!isVisible()) {
             return;
         }
-
-        int texX;
-        int texY;
-
         if (isUnavailable()) {
-            texX = unavailableTextureX;
-            texY = unavailableTextureY;
-        } else if (clicked) {
-            texX = clickedTextureX;
-            texY = clickedTextureY;
-        } else if (mouseDown) {
-            texX = mouseDownTextureX;
-            texY = mouseDownTextureY;
-        } else if (isMouseOver(mousePos)) {
-            texX = hoveredTextureX;
-            texY = hoveredTextureY;
-        } else {
-            texX = textureX;
-            texY = textureY;
+            unavailableTexture.render(textureLocation, renderPos, renderSize, gui);
+            return;
         }
-
-        gui.getGui().mc.getTextureManager().bindTexture(textureLocation);
-        gui.getGui().drawTexturedModalRect(renderPos.posX(), renderPos.posY(), texX, texY, width, height);
+        if (clicked) {
+            clickedTexture.render(textureLocation, renderPos, renderSize, gui);
+            return;
+        }
+        if (mouseDown) {
+            mouseDownTexture.render(textureLocation, renderPos, renderSize, gui);
+            return;
+        }
+        if (isMouseOver(mousePos)) {
+            hoveredTexture.render(textureLocation, renderPos, renderSize, gui);
+            return;
+        }
+        texture.render(textureLocation, renderPos, renderSize, gui);
     }
 
     @Override
@@ -63,27 +56,17 @@ public class Button5State extends Button4State {
         return false;
     }
 
-    public Button5State setClickedTextureXY(final int clickedTextureX, final int clickedTextureY) {
-        this.clickedTextureX = clickedTextureX;
-        this.clickedTextureY = clickedTextureY;
-        return this;
+    public Button5State setClickedTexture(final int clickedTextureX, final int clickedTextureY) {
+        return setClickedTexture(TextureProperties.of(clickedTextureX, clickedTextureY));
     }
 
-    public int getClickedTextureX() {
-        return clickedTextureX;
+    public TextureProperties getClickedTexture() {
+        return clickedTexture;
     }
 
-    public Button5State setClickedTextureX(final int clickedTextureX) {
-        this.clickedTextureX = clickedTextureX;
-        return this;
-    }
-
-    public int getClickedTextureY() {
-        return clickedTextureY;
-    }
-
-    public Button5State setClickedTextureY(final int clickedTextureY) {
-        this.clickedTextureY = clickedTextureY;
+    public Button5State setClickedTexture(final TextureProperties clickedTexture) {
+        this.clickedTexture = Optional.ofNullable(clickedTexture).orElse(TextureProperties.EMPTY);
+        ;
         return this;
     }
 

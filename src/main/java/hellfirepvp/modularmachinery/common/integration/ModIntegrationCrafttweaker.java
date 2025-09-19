@@ -13,6 +13,7 @@ import github.kasuminova.mmce.client.model.DynamicMachineModelRegistry;
 import github.kasuminova.mmce.client.resource.GeoModelExternalLoader;
 import github.kasuminova.mmce.common.concurrent.RecipeCraftingContextPool;
 import github.kasuminova.mmce.common.upgrade.registry.RegistryUpgrade;
+import github.kasuminova.mmce.common.util.Sides;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import hellfirepvp.modularmachinery.client.ClientProxy;
 import hellfirepvp.modularmachinery.common.base.Mods;
@@ -25,7 +26,9 @@ import hellfirepvp.modularmachinery.common.lib.RegistriesMM;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
 import hellfirepvp.modularmachinery.common.machine.MachineRegistry;
 import hellfirepvp.modularmachinery.common.machine.factory.FactoryRecipeThread;
+import hellfirepvp.modularmachinery.common.util.BlockArray;
 import hellfirepvp.modularmachinery.common.util.BlockArrayCache;
+import hellfirepvp.modularmachinery.common.util.IBlockStateDescriptor;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -67,12 +70,12 @@ public class ModIntegrationCrafttweaker {
         RegistryUpgrade.clearAll();
 
         sender.sendMessage(new TextComponentTranslation(
-                "message.cleared.recipes", RecipeRegistry.registeredRecipeCount()));
+            "message.cleared.recipes", RecipeRegistry.registeredRecipeCount()));
         RecipeRegistry.getRegistry().clearAllRecipes();
         // Reset RecipeAdapterIncId
         RegistriesMM.ADAPTER_REGISTRY.getValuesCollection().forEach(RecipeAdapter::resetIncId);
 
-        if (FMLCommonHandler.instance().getSide().isClient() && Mods.GECKOLIB.isPresent()) {
+        if (Sides.isClient() && Mods.GECKOLIB.isPresent()) {
             DynamicMachineModelRegistry.INSTANCE.onReload();
         }
 
@@ -83,12 +86,15 @@ public class ModIntegrationCrafttweaker {
             loadedMachine.getModifiers().clear();
             loadedMachine.getMultiBlockModifiers().clear();
         }
+        // Clear Pool
+        IBlockStateDescriptor.clearPool();
+        BlockArray.BlockInformation.clearPool();
         // Reload JSON Machine
         MachineRegistry.preloadMachines();
         // Reload All Machine
         MachineRegistry.reloadMachine(MachineRegistry.loadMachines(null));
         sender.sendMessage(new TextComponentTranslation(
-                "message.reloaded.machines", MachineRegistry.getLoadedMachines().size()));
+            "message.reloaded.machines", MachineRegistry.getLoadedMachines().size()));
     }
 
     @SubscribeEvent
@@ -100,12 +106,12 @@ public class ModIntegrationCrafttweaker {
 
         MachineRegistry.reloadMachine(MachineBuilder.WAIT_FOR_LOAD);
 
-        if (FMLCommonHandler.instance().getSide().isClient() && Mods.GECKOLIB.isPresent()) {
+        if (Sides.isClient() && Mods.GECKOLIB.isPresent()) {
             ClientProxy.clientScheduler.addRunnable(GeoModelExternalLoader.INSTANCE::onReload, 0);
         }
 
         CompletableFuture<Void> future = CompletableFuture.runAsync(() ->
-                BlockArrayCache.buildCache(MachineRegistry.getLoadedMachines()));
+            BlockArrayCache.buildCache(MachineRegistry.getLoadedMachines()));
 
         MachineModifier.loadAll();
         MMEvents.registryAll();
@@ -129,7 +135,7 @@ public class ModIntegrationCrafttweaker {
         }
 
         sender.sendMessage(new TextComponentTranslation(
-                "message.reloaded.recipes", RecipeRegistry.registeredRecipeCount()));
+            "message.reloaded.recipes", RecipeRegistry.registeredRecipeCount()));
 
         sender.sendMessage(new TextComponentTranslation("message.reloaded"));
     }

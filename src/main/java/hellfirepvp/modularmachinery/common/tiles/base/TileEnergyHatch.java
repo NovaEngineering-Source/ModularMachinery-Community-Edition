@@ -34,7 +34,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static hellfirepvp.modularmachinery.common.block.prop.EnergyHatchData.*;
+import static hellfirepvp.modularmachinery.common.block.prop.EnergyHatchData.delayedEnergyCoreSearch;
+import static hellfirepvp.modularmachinery.common.block.prop.EnergyHatchData.energyCoreSearchDelay;
+import static hellfirepvp.modularmachinery.common.block.prop.EnergyHatchData.maxEnergyCoreSearchDelay;
+import static hellfirepvp.modularmachinery.common.block.prop.EnergyHatchData.searchRange;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -46,22 +49,21 @@ import static hellfirepvp.modularmachinery.common.block.prop.EnergyHatchData.*;
 @Optional.Interface(iface = "cofh.redstoneflux.api.IEnergyStorage", modid = "redstoneflux")
 @Optional.Interface(iface = "mcjty.lib.api.power.IBigPower", modid = "theoneprobe")
 public abstract class TileEnergyHatch extends TileColorableMachineComponent implements
-        ITickable,
-        IEnergyStorage,
-        IEnergyHandlerAsync,
-        MachineComponentTile,
-        cofh.redstoneflux.api.IEnergyStorage,
-        SelectiveUpdateTileEntity,
-        IBigPower {
+    ITickable,
+    IEnergyStorage,
+    IEnergyHandlerAsync,
+    MachineComponentTile,
+    cofh.redstoneflux.api.IEnergyStorage,
+    SelectiveUpdateTileEntity,
+    IBigPower {
 
-    protected final AtomicLong energy = new AtomicLong();
-    protected EnergyHatchData size;
-    protected BlockPos foundCore = null;
-    protected int energyCoreSearchFailedCount = 0;
-    private GTEnergyContainer energyContainer;
-    private int prevRedstoneLevel = 0;
-
-    protected boolean tickedOnce = false;
+    protected final AtomicLong        energy                      = new AtomicLong();
+    protected       EnergyHatchData   size;
+    protected       BlockPos          foundCore                   = null;
+    protected       int               energyCoreSearchFailedCount = 0;
+    protected       boolean           tickedOnce                  = false;
+    private         GTEnergyContainer energyContainer;
+    private         int               prevRedstoneLevel           = 0;
 
     public TileEnergyHatch() {
     }
@@ -69,6 +71,15 @@ public abstract class TileEnergyHatch extends TileColorableMachineComponent impl
     public TileEnergyHatch(EnergyHatchData size, IOType ioType) {
         this.size = size;
         this.energyContainer = new GTEnergyContainer(this, ioType);
+    }
+
+    @Optional.Method(modid = "gregtech")
+    private static Capability<?> getGTEnergyCapability() {
+        return GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER;
+    }
+
+    protected static int convertDownEnergy(long energy) {
+        return energy >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) energy;
     }
 
     @Override
@@ -115,17 +126,8 @@ public abstract class TileEnergyHatch extends TileColorableMachineComponent impl
 
     protected int currentFoundCoreDelay() {
         return energyCoreSearchDelay + (delayedEnergyCoreSearch
-                ? (Math.min(energyCoreSearchFailedCount * 20, maxEnergyCoreSearchDelay - energyCoreSearchDelay))
-                : 0);
-    }
-
-    @Optional.Method(modid = "gregtech")
-    private static Capability<?> getGTEnergyCapability() {
-        return GregtechCapabilities.CAPABILITY_ENERGY_CONTAINER;
-    }
-
-    protected static int convertDownEnergy(long energy) {
-        return energy >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) energy;
+            ? (Math.min(energyCoreSearchFailedCount * 20, maxEnergyCoreSearchDelay - energyCoreSearchDelay))
+            : 0);
     }
 
     @Override

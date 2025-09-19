@@ -29,17 +29,17 @@ public class ControllerModelRenderManager {
     private static final ReusableVBOUploader VBO_UPLOADER = new ReusableVBOUploader();
 
     // RenderType -> TextureLocation -> Light -> Buffers.
-    private final Map<RenderType, Map<ResourceLocation, Int2ObjectMap<List<BufferBuilder>>>> buffers = new EnumMap<>(RenderType.class);
-    private final Map<Object, Action> reinitializeCallback = new Reference2ObjectOpenHashMap<>();
+    private final Map<RenderType, Map<ResourceLocation, Int2ObjectMap<List<BufferBuilder>>>> buffers              = new EnumMap<>(RenderType.class);
+    private final Map<Object, Action>                                                        reinitializeCallback = new Reference2ObjectOpenHashMap<>();
 
     private final Set<TileMultiblockMachineController> toRender = new ReferenceOpenHashSet<>();
-    private final Set<TileMultiblockMachineController> alive = new ReferenceOpenHashSet<>();
+    private final Set<TileMultiblockMachineController> alive    = new ReferenceOpenHashSet<>();
 
     public void addBuffer(int light, RenderType type, ResourceLocation textureGroup, BufferBuilder buffer) {
         buffers.computeIfAbsent(type, t -> new Object2ObjectOpenHashMap<>())
-                .computeIfAbsent(textureGroup, t -> new Int2ObjectOpenHashMap<>())
-                .computeIfAbsent(light, t -> new ObjectArrayList<>())
-                .add(buffer);
+               .computeIfAbsent(textureGroup, t -> new Int2ObjectOpenHashMap<>())
+               .computeIfAbsent(light, t -> new ObjectArrayList<>())
+               .add(buffer);
     }
 
     public void addReinitializeCallback(Object key, Action action) {

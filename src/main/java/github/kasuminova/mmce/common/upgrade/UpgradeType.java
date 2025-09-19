@@ -10,12 +10,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class UpgradeType {
-    private final Set<DynamicMachine> compatibleMachines = new HashSet<>();
+    private final Set<DynamicMachine> compatibleMachines   = new HashSet<>();
     private final Set<DynamicMachine> incompatibleMachines = new HashSet<>();
-    private final String name;
-    private final String localizedName;
-    private final float level;
-    private final int maxStackSize;
+    private final String              name;
+    private final String              localizedName;
+    private final float               level;
+    private final int                 maxStackSize;
 
     public UpgradeType(final String name, final String localizedName, final float level, final int maxStackSize) {
         this.name = name;

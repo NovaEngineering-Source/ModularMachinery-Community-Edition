@@ -34,8 +34,8 @@ import java.util.List;
 @Deprecated
 public class HybridFluidRenderer<T extends HybridFluid> implements IIngredientRenderer<T> {
 
-    private FluidStackRenderer fluidStackRenderer = null;
-    private IIngredientRenderer gasRenderer = null;
+    private FluidStackRenderer  fluidStackRenderer = null;
+    private IIngredientRenderer gasRenderer        = null;
 
     @Override
     public void render(@Nonnull Minecraft minecraft, int xPosition, int yPosition, @Nullable T ingredient) {

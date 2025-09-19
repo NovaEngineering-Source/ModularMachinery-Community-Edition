@@ -5,7 +5,7 @@ import WayofTime.bloodmagic.soul.EnumDemonWillType;
 public class DemonWill {
 
     private EnumDemonWillType willType;
-    private double willAmount;
+    private double            willAmount;
 
     public DemonWill(EnumDemonWillType willType, double willAmount) {
         this.willType = willType;

@@ -7,13 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DynamicMachineModelRegistry {
-    public static final DynamicMachineModelRegistry INSTANCE = new DynamicMachineModelRegistry();
+    public static final DynamicMachineModelRegistry                 INSTANCE             = new DynamicMachineModelRegistry();
+    private final       Map<String, MachineControllerModel>         machineModelRegistry = new HashMap<>();
+    private final       Map<DynamicMachine, MachineControllerModel> machineDefaultModel  = new HashMap<>();
 
     private DynamicMachineModelRegistry() {
     }
-
-    private final Map<String, MachineControllerModel> machineModelRegistry = new HashMap<>();
-    private final Map<DynamicMachine, MachineControllerModel> machineDefaultModel = new HashMap<>();
 
     public void registerMachineModel(String modelName, MachineControllerModel model) {
         machineModelRegistry.put(modelName, model);

@@ -18,7 +18,11 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
@@ -69,7 +73,7 @@ public abstract class BlockBus extends BlockMachineComponent implements BlockCus
     public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, ITooltipFlag advanced) {
         ItemBusSize size = ItemBusSize.values()[MathHelper.clamp(stack.getMetadata(), 0, ItemBusSize.values().length - 1)];
         tooltip.add(TextFormatting.GRAY + (size.getSlotCount() == 1 ?
-                I18n.format("tooltip.itembus.slot") : I18n.format("tooltip.itembus.slots", size.getSlotCount())));
+            I18n.format("tooltip.itembus.slot") : I18n.format("tooltip.itembus.slots", size.getSlotCount())));
     }
 
     @Override

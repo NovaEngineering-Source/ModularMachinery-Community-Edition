@@ -2,7 +2,11 @@ package kport.modularmagic.common.crafting.requirement;
 
 import WayofTime.bloodmagic.soul.EnumDemonWillType;
 import hellfirepvp.modularmachinery.ModularMachinery;
-import hellfirepvp.modularmachinery.common.crafting.helper.*;
+import hellfirepvp.modularmachinery.common.crafting.helper.ComponentOutputRestrictor;
+import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
+import hellfirepvp.modularmachinery.common.crafting.helper.CraftCheck;
+import hellfirepvp.modularmachinery.common.crafting.helper.ProcessingComponent;
+import hellfirepvp.modularmachinery.common.crafting.helper.RecipeCraftingContext;
 import hellfirepvp.modularmachinery.common.lib.RegistriesMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
@@ -22,10 +26,10 @@ import java.util.List;
 
 public class RequirementWill extends ComponentRequirement<DemonWill, RequirementTypeWill> implements Asyncable {
 
-    public double willAmount;
+    public double            willAmount;
     public EnumDemonWillType willType;
-    public double min;
-    public double max;
+    public double            min;
+    public double            max;
 
     public RequirementWill(IOType actionType, double willRequired, EnumDemonWillType willType, double min, double max) {
         super((RequirementTypeWill) RegistriesMM.REQUIREMENT_TYPE_REGISTRY.getValue(ModularMagicRequirements.KEY_REQUIREMENT_WILL), actionType);
@@ -39,8 +43,8 @@ public class RequirementWill extends ComponentRequirement<DemonWill, Requirement
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cpn = component.getComponent();
         return cpn.getContainerProvider() instanceof TileWillProvider &&
-                cpn.getComponentType() instanceof ComponentWill &&
-                cpn.ioType == getActionType();
+            cpn.getComponentType() instanceof ComponentWill &&
+            cpn.ioType == getActionType();
     }
 
     @Override

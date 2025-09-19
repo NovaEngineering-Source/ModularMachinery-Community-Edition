@@ -34,7 +34,9 @@ import java.util.stream.Collectors;
 public class SelectionBoxRenderHelper {
     @SubscribeEvent
     public void onRenderLast(RenderWorldLastEvent event) {
-        if (Minecraft.getMinecraft().player == null) return;
+        if (Minecraft.getMinecraft().player == null) {
+            return;
+        }
 
         ItemStack held = Minecraft.getMinecraft().player.getHeldItemMainhand();
         if (held.isEmpty()) {
@@ -44,8 +46,8 @@ public class SelectionBoxRenderHelper {
             PlayerStructureSelectionHelper.StructureSelection sel = PlayerStructureSelectionHelper.clientSelection;
             if (sel != null) {
                 List<BlockPos> toRender = sel.getSelectedPositions().stream()
-                        .filter((pos) -> pos.distanceSq(Minecraft.getMinecraft().player.getPosition()) <= 1024)
-                        .collect(Collectors.toList());
+                                             .filter((pos) -> pos.distanceSq(Minecraft.getMinecraft().player.getPosition()) <= 1024)
+                                             .collect(Collectors.toList());
                 RenderingUtils.drawWhiteOutlineCubes(toRender, event.getPartialTicks());
             }
         }
@@ -57,8 +59,8 @@ public class SelectionBoxRenderHelper {
     public void onRightClick(PlayerInteractEvent event) {
         if (event.getEntityPlayer().equals(Minecraft.getMinecraft().player) &&
             (event instanceof PlayerInteractEvent.RightClickBlock ||
-             event instanceof PlayerInteractEvent.RightClickEmpty ||
-             event instanceof PlayerInteractEvent.RightClickItem)) {
+                event instanceof PlayerInteractEvent.RightClickEmpty ||
+                event instanceof PlayerInteractEvent.RightClickItem)) {
             if (ClientProxy.renderHelper.placePreview()) {
                 if (event.isCancelable()) {
                     event.setCanceled(true);

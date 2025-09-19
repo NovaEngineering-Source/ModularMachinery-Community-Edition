@@ -19,12 +19,12 @@ import net.minecraft.nbt.NBTTagCompound;
  */
 public class CraftCheck {
 
-    private static final CraftCheck SUCCESS = new CraftCheck(ResultType.SUCCESS, "");
+    private static final CraftCheck SUCCESS         = new CraftCheck(ResultType.SUCCESS, "");
     private static final CraftCheck PARTIAL_SUCCESS = new CraftCheck(ResultType.PARTIAL_SUCCESS, "");
-    private static final CraftCheck INVALID_SKIP = new CraftCheck(ResultType.INVALID_SKIP, "");
+    private static final CraftCheck INVALID_SKIP    = new CraftCheck(ResultType.INVALID_SKIP, "");
 
     private final ResultType type;
-    private final String unlocalizedMessage;
+    private final String     unlocalizedMessage;
 
     protected CraftCheck(ResultType type, String unlocalizedMessage) {
         this.type = type;

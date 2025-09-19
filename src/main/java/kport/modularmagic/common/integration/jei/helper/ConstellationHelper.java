@@ -11,8 +11,9 @@ public class ConstellationHelper<T extends Constellation> implements IIngredient
     @Override
     public T getMatch(Iterable<T> ingredients, T ingredientToMatch) {
         for (T constellation : ingredients) {
-            if (constellation.getConstellation() == ingredientToMatch.getConstellation())
+            if (constellation.getConstellation() == ingredientToMatch.getConstellation()) {
                 return constellation;
+            }
         }
         return null;
     }

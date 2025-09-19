@@ -14,7 +14,7 @@ public enum UpgradeBusData implements IStringSerializable {
     ;
 
     private final int defaultMaxUpgradeSlot;
-    private int maxUpgradeSlot;
+    private       int maxUpgradeSlot;
 
     UpgradeBusData(int defaultMaxUpgradeSlot) {
         this.defaultMaxUpgradeSlot = defaultMaxUpgradeSlot;
@@ -23,8 +23,8 @@ public enum UpgradeBusData implements IStringSerializable {
     public static void loadFromConfig(Configuration cfg) {
         for (UpgradeBusData data : values()) {
             data.maxUpgradeSlot = cfg.getInt("max-upgrade_slot", "upgrade-bus." + data.getName(),
-                    data.defaultMaxUpgradeSlot, 1, 18,
-                    "Defines the max upgrade slot for the upgrade bus.");
+                data.defaultMaxUpgradeSlot, 1, 18,
+                "Defines the max upgrade slot for the upgrade bus.");
         }
     }
 

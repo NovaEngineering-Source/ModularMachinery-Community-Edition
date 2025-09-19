@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 public class ReusableVBOUploader extends WorldVertexBufferUploader {
-    
+
     protected ByteBuffer buffer = null;
 
     @Override

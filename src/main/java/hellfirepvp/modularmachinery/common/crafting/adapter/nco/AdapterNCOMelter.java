@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AdapterNCOMelter extends AdapterNCOMachine {
-    public static final int WORK_TIME = 800;
+    public static final int WORK_TIME         = 800;
     public static final int BASE_ENERGY_USAGE = 40;
 
     public AdapterNCOMelter() {
@@ -48,9 +48,9 @@ public class AdapterNCOMelter extends AdapterNCOMachine {
 
         for (BasicRecipe basicRecipe : recipeList) {
             MachineRecipe recipe = createRecipeShell(new ResourceLocation("nuclearcraft", "melter_" + incId),
-                    owningMachineName, (int) basicRecipe.getBaseProcessTime(Math.round(RecipeModifier.applyModifiers(
-                            modifiers, RequirementTypesMM.REQUIREMENT_DURATION, IOType.INPUT, WORK_TIME, false))),
-                    incId, false
+                owningMachineName, (int) basicRecipe.getBaseProcessTime(Math.round(RecipeModifier.applyModifiers(
+                    modifiers, RequirementTypesMM.REQUIREMENT_DURATION, IOType.INPUT, WORK_TIME, false))),
+                incId, false
             );
 
             // Item Input
@@ -104,7 +104,7 @@ public class AdapterNCOMelter extends AdapterNCOMachine {
 
             // Energy Input
             recipe.addRequirement(new RequirementEnergy(IOType.INPUT, Math.round(RecipeModifier.applyModifiers(
-                    modifiers, RequirementTypesMM.REQUIREMENT_ENERGY, IOType.INPUT, BASE_ENERGY_USAGE, false)))
+                modifiers, RequirementTypesMM.REQUIREMENT_ENERGY, IOType.INPUT, BASE_ENERGY_USAGE, false)))
             );
 
             machineRecipeList.add(recipe);

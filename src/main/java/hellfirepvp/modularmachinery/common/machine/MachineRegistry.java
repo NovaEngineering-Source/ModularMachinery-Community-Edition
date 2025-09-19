@@ -21,7 +21,13 @@ import stanhebben.zenscript.annotations.ZenMethod;
 
 import javax.annotation.Nullable;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -34,10 +40,10 @@ import java.util.*;
 @ZenClass("mods.modularmachinery.MachineRegistry")
 public class MachineRegistry implements Iterable<DynamicMachine> {
 
-    private static final MachineRegistry INSTANCE = new MachineRegistry();
+    private static final MachineRegistry                                      INSTANCE                = new MachineRegistry();
     //Type: <MachineName, <Machine, JSONString>>
     private static final Map<ResourceLocation, Tuple<DynamicMachine, String>> WAIT_FOR_LOAD_MACHINERY = new HashMap<>();
-    private static final Map<ResourceLocation, DynamicMachine> LOADED_MACHINERY = new HashMap<>();
+    private static final Map<ResourceLocation, DynamicMachine>                LOADED_MACHINERY        = new HashMap<>();
 
     private MachineRegistry() {
     }
@@ -163,7 +169,9 @@ public class MachineRegistry implements Iterable<DynamicMachine> {
 
     @Nullable
     public DynamicMachine getMachine(@Nullable ResourceLocation name) {
-        if (name == null) return null;
+        if (name == null) {
+            return null;
+        }
         return LOADED_MACHINERY.get(name);
     }
 

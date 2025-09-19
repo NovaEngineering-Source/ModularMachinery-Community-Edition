@@ -7,7 +7,7 @@ public class AspectProviderCopy {
     private final TileJarFillable original;
 
     private Aspect aspect;
-    private int amount;
+    private int    amount;
 
     public AspectProviderCopy(TileJarFillable jar) {
         this.original = jar;

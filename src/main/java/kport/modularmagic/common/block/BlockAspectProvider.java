@@ -8,7 +8,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Optional;
@@ -35,8 +39,9 @@ public abstract class BlockAspectProvider extends BlockMachineComponent implemen
     @Optional.Method(modid = "thaumcraft")
     public boolean applyLabel(EntityPlayer player, BlockPos pos, EnumFacing enumFacing, ItemStack labelstack) {
         TileEntity te = player.world.getTileEntity(pos);
-        if (enumFacing == EnumFacing.DOWN || enumFacing == EnumFacing.UP)
+        if (enumFacing == EnumFacing.DOWN || enumFacing == EnumFacing.UP) {
             return false;
+        }
 
         if (te instanceof TileJarFillable && ((TileJarFillable) te).aspectFilter == null) {
             if (((TileJarFillable) te).amount == 0 && ((IEssentiaContainerItem) labelstack.getItem()).getAspects(labelstack) == null) {

@@ -26,7 +26,7 @@ import java.util.List;
 
 public class RequirementLifeEssence extends ComponentRequirement.PerTickParallelizable<LifeEssence, RequirementTypeLifeEssence> {
 
-    public int essenceAmount;
+    public int     essenceAmount;
     public boolean perTick;
 
     public RequirementLifeEssence(IOType actionType, int essenceAmount, boolean perTick) {
@@ -49,8 +49,8 @@ public class RequirementLifeEssence extends ComponentRequirement.PerTickParallel
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.getComponent();
         return cmp.getComponentType() instanceof ComponentLifeEssence &&
-                cmp instanceof MachineComponentLifeEssenceProvider &&
-                cmp.ioType == getActionType();
+            cmp instanceof MachineComponentLifeEssenceProvider &&
+            cmp.ioType == getActionType();
     }
 
     @Nonnull
@@ -60,9 +60,9 @@ public class RequirementLifeEssence extends ComponentRequirement.PerTickParallel
         List<ProcessingComponent<?>> list = new ArrayList<>();
         for (final ProcessingComponent<?> component : components) {
             list.add(new ProcessingComponent<>((
-                    MachineComponent<Object>) component.component(),
-                    new LifeEssenceProviderCopy(((LifeEssenceProviderCopy) component.providedComponent()).getOriginal()),
-                    component.tag())
+                MachineComponent<Object>) component.component(),
+                new LifeEssenceProviderCopy(((LifeEssenceProviderCopy) component.providedComponent()).getOriginal()),
+                component.tag())
             );
         }
         return list;

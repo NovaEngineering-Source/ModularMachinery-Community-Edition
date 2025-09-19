@@ -27,14 +27,21 @@ import java.util.function.Predicate;
 @SideOnly(Side.CLIENT)
 public class TrackedDummyWorld extends DummyWorld {
 
-    public final Set<BlockPos> renderedBlocks = new HashSet<>();
-    private Predicate<BlockPos> renderFilter;
-    private BiFunction<BlockPos, IBlockState, IBlockState> hookBlockState;
-    private BiFunction<BlockPos, TileEntity, TileEntity> hookTileEntity;
-    public final World proxyWorld;
+    public final  Set<BlockPos>                                  renderedBlocks = new HashSet<>();
+    public final  World                                          proxyWorld;
+    private final Vector3f                                       minPos         = new Vector3f(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+    private final Vector3f                                       maxPos         = new Vector3f(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+    private       Predicate<BlockPos>                            renderFilter;
+    private       BiFunction<BlockPos, IBlockState, IBlockState> hookBlockState;
+    private       BiFunction<BlockPos, TileEntity, TileEntity>   hookTileEntity;
 
-    private final Vector3f minPos = new Vector3f(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
-    private final Vector3f maxPos = new Vector3f(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+    public TrackedDummyWorld() {
+        proxyWorld = null;
+    }
+
+    public TrackedDummyWorld(World world) {
+        proxyWorld = world;
+    }
 
     public void setRenderFilter(Predicate<BlockPos> renderFilter) {
         this.renderFilter = renderFilter;
@@ -48,21 +55,14 @@ public class TrackedDummyWorld extends DummyWorld {
         this.hookTileEntity = hookTileEntity;
     }
 
-    public TrackedDummyWorld(){
-        proxyWorld = null;
-    }
-
-    public TrackedDummyWorld(World world){
-        proxyWorld = world;
-    }
-
     public void addBlocks(Map<BlockPos, BlockInfo> renderedBlocks) {
         renderedBlocks.forEach(this::addBlock);
     }
 
     public void addBlock(BlockPos pos, BlockInfo blockInfo) {
-        if (blockInfo.getBlockState().getBlock() == Blocks.AIR)
+        if (blockInfo.getBlockState().getBlock() == Blocks.AIR) {
             return;
+        }
         this.renderedBlocks.add(pos);
         blockInfo.apply(this, pos);
     }
@@ -73,8 +73,9 @@ public class TrackedDummyWorld extends DummyWorld {
 
     @Override
     public TileEntity getTileEntity(@Nonnull BlockPos pos) {
-        if (renderFilter != null && !renderFilter.test(pos))
+        if (renderFilter != null && !renderFilter.test(pos)) {
             return null;
+        }
         TileEntity tileEntity = proxyWorld != null ? proxyWorld.getTileEntity(pos) : super.getTileEntity(pos);
         if (hookTileEntity != null) {
             return hookTileEntity.apply(pos, tileEntity);
@@ -85,9 +86,10 @@ public class TrackedDummyWorld extends DummyWorld {
     @Nonnull
     @Override
     public IBlockState getBlockState(@Nonnull BlockPos pos) {
-        if (renderFilter != null && !renderFilter.test(pos))
+        if (renderFilter != null && !renderFilter.test(pos)) {
             return Blocks.AIR.getDefaultState(); //return air if not rendering this block
-        IBlockState blockState =  proxyWorld != null ? proxyWorld.getBlockState(pos) : super.getBlockState(pos);
+        }
+        IBlockState blockState = proxyWorld != null ? proxyWorld.getBlockState(pos) : super.getBlockState(pos);
         if (hookBlockState != null) {
             return hookBlockState.apply(pos, blockState);
         }

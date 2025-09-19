@@ -20,15 +20,17 @@ public class RegistrationEvent {
 
     @SubscribeEvent
     public static void onItemRegister(RegistryEvent.Register<Item> event) {
-        for (Item block : ModularMagicItems.ITEMS)
+        for (Item block : ModularMagicItems.ITEMS) {
             event.getRegistry().register(block);
+        }
     }
 
     @SubscribeEvent
     public static void registerItemModels(ModelRegistryEvent event) {
         for (Item item : ModularMagicItems.ITEMS) {
-            if (item instanceof ItemDynamicColor)
+            if (item instanceof ItemDynamicColor) {
                 ModularMagicItems.COLOR_ITEMS.add((ItemDynamicColor) item);
+            }
 
             if (item instanceof final ItemBlock itemBlock) {
                 Block block = itemBlock.getBlock();

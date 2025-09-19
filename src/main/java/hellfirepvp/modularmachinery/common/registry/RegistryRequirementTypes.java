@@ -10,10 +10,39 @@ package hellfirepvp.modularmachinery.common.registry;
 
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.base.Mods;
-import hellfirepvp.modularmachinery.common.crafting.requirement.type.*;
+import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementDuration;
+import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementType;
+import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementTypeEnergy;
+import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementTypeFluid;
+import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementTypeFluidPerTick;
+import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementTypeGas;
+import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementTypeGasPerTick;
+import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementTypeIngredientArray;
+import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementTypeInterfaceNumInput;
+import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementTypeItem;
+import hellfirepvp.modularmachinery.common.crafting.requirement.type.RequirementTypeItemDurability;
 import net.minecraft.util.ResourceLocation;
 
-import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.*;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.KEY_INTERFACE_NUMBER_INPUT;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.KEY_REQUIREMENT_DURATION;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.KEY_REQUIREMENT_ENERGY;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.KEY_REQUIREMENT_FLUID;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.KEY_REQUIREMENT_FLUID_PERTICK;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.KEY_REQUIREMENT_GAS;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.KEY_REQUIREMENT_GAS_PERTICK;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.KEY_REQUIREMENT_INGREDIENT_ARRAY;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.KEY_REQUIREMENT_ITEM;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.KEY_REQUIREMENT_ITEM_DURABILITY;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.REQUIREMENT_DURATION;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.REQUIREMENT_ENERGY;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.REQUIREMENT_FLUID;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.REQUIREMENT_FLUID_PERTICK;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.REQUIREMENT_GAS;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.REQUIREMENT_GAS_PERTICK;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.REQUIREMENT_INGREDIENT_ARRAY;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.REQUIREMENT_INTERFACE_NUMBER_INPUT;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.REQUIREMENT_ITEM;
+import static hellfirepvp.modularmachinery.common.lib.RequirementTypesMM.REQUIREMENT_ITEM_DURABILITY;
 
 /**
  * This class is part of the Modular Machinery Mod

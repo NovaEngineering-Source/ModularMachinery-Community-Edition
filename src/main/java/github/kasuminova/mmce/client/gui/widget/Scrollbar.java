@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public class Scrollbar extends DynamicWidget {
-    public static final int DEFAULT_SCROLL_WIDTH = 6;
+    public static final int DEFAULT_SCROLL_WIDTH  = 6;
     public static final int DEFAULT_SCROLL_HEIGHT = 27;
 
     public static final int DEFAULT_TEXTURE_X = 0;
@@ -24,8 +24,8 @@ public class Scrollbar extends DynamicWidget {
 
     protected final Button4State scroll = new Button4State();
 
-    protected int maxScroll = 0;
-    protected int minScroll = 0;
+    protected int maxScroll     = 0;
+    protected int minScroll     = 0;
     protected int currentScroll = 0;
 
     protected int scrollUnit = DEFAULT_SCROLL_UNIT;
@@ -52,9 +52,9 @@ public class Scrollbar extends DynamicWidget {
         } else {
             int offsetY = (this.currentScroll - this.minScroll) * (height - scrollHeight) / this.getRange();
             scroll.render(gui,
-                    new RenderSize(scrollWidth, scrollHeight),
-                    renderPos.add(new RenderPos(0, offsetY)),
-                    mousePos.relativeTo(new RenderPos(0, offsetY)));
+                new RenderSize(scrollWidth, scrollHeight),
+                renderPos.add(new RenderPos(0, offsetY)),
+                mousePos.relativeTo(new RenderPos(0, offsetY)));
         }
     }
 

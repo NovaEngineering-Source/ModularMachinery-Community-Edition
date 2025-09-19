@@ -22,14 +22,14 @@ import java.util.List;
 
 public class GuiContainerParallelController extends GuiContainerBase<ContainerParallelController> {
     private final TileParallelController parallelCtrlInterface;
-    private final List<GuiButton> buttons = new ArrayList<>();
-    private GuiButton increment_1;
-    private GuiButton increment_10;
-    private GuiButton increment_100;
-    private GuiButton decrement_1;
-    private GuiButton decrement_10;
-    private GuiButton decrement_100;
-    private GuiTextField textField;
+    private final List<GuiButton>        buttons = new ArrayList<>();
+    private       GuiButton              increment_1;
+    private       GuiButton              increment_10;
+    private       GuiButton              increment_100;
+    private       GuiButton              decrement_1;
+    private       GuiButton              decrement_10;
+    private       GuiButton              decrement_100;
+    private       GuiTextField           textField;
 
     public GuiContainerParallelController(TileParallelController te, EntityPlayer opening) {
         super(new ContainerParallelController(te, opening));
@@ -102,7 +102,7 @@ public class GuiContainerParallelController extends GuiContainerBase<ContainerPa
         if (increment_1.mousePressed(mc, mouseX, mouseY)) {
             if (maxCanIncrement >= 1) {
                 ModularMachinery.NET_CHANNEL.sendToServer(
-                        new PktParallelControllerUpdate(parallelism + 1)
+                    new PktParallelControllerUpdate(parallelism + 1)
                 );
             }
             increment_1.playPressSound(soundHandler);
@@ -111,11 +111,11 @@ public class GuiContainerParallelController extends GuiContainerBase<ContainerPa
         if (increment_10.mousePressed(mc, mouseX, mouseY)) {
             if (maxCanIncrement >= 10) {
                 ModularMachinery.NET_CHANNEL.sendToServer(
-                        new PktParallelControllerUpdate(parallelism + 10)
+                    new PktParallelControllerUpdate(parallelism + 10)
                 );
             } else {
                 ModularMachinery.NET_CHANNEL.sendToServer(
-                        new PktParallelControllerUpdate(maxParallelism)
+                    new PktParallelControllerUpdate(maxParallelism)
                 );
             }
             increment_10.playPressSound(soundHandler);
@@ -124,11 +124,11 @@ public class GuiContainerParallelController extends GuiContainerBase<ContainerPa
         if (increment_100.mousePressed(mc, mouseX, mouseY)) {
             if (maxCanIncrement >= 100) {
                 ModularMachinery.NET_CHANNEL.sendToServer(
-                        new PktParallelControllerUpdate(parallelism + 100)
+                    new PktParallelControllerUpdate(parallelism + 100)
                 );
             } else {
                 ModularMachinery.NET_CHANNEL.sendToServer(
-                        new PktParallelControllerUpdate(maxParallelism)
+                    new PktParallelControllerUpdate(maxParallelism)
                 );
             }
             increment_100.playPressSound(soundHandler);
@@ -137,7 +137,7 @@ public class GuiContainerParallelController extends GuiContainerBase<ContainerPa
         int maxCanDecrement = Math.max(0, parallelism - 1);
         if (decrement_1.mousePressed(mc, mouseX, mouseY)) {
             ModularMachinery.NET_CHANNEL.sendToServer(
-                    new PktParallelControllerUpdate(Math.max(0, parallelism - 1))
+                new PktParallelControllerUpdate(Math.max(0, parallelism - 1))
             );
             decrement_1.playPressSound(soundHandler);
             return;
@@ -145,11 +145,11 @@ public class GuiContainerParallelController extends GuiContainerBase<ContainerPa
         if (decrement_10.mousePressed(mc, mouseX, mouseY)) {
             if (maxCanDecrement >= 10) {
                 ModularMachinery.NET_CHANNEL.sendToServer(
-                        new PktParallelControllerUpdate(parallelism - 10)
+                    new PktParallelControllerUpdate(parallelism - 10)
                 );
             } else {
                 ModularMachinery.NET_CHANNEL.sendToServer(
-                        new PktParallelControllerUpdate(0)
+                    new PktParallelControllerUpdate(0)
                 );
             }
             decrement_10.playPressSound(soundHandler);
@@ -158,11 +158,11 @@ public class GuiContainerParallelController extends GuiContainerBase<ContainerPa
         if (decrement_100.mousePressed(mc, mouseX, mouseY)) {
             if (maxCanDecrement >= 100) {
                 ModularMachinery.NET_CHANNEL.sendToServer(
-                        new PktParallelControllerUpdate(parallelism - 100)
+                    new PktParallelControllerUpdate(parallelism - 100)
                 );
             } else {
                 ModularMachinery.NET_CHANNEL.sendToServer(
-                        new PktParallelControllerUpdate(0)
+                    new PktParallelControllerUpdate(0)
                 );
             }
             decrement_100.playPressSound(soundHandler);
@@ -201,23 +201,23 @@ public class GuiContainerParallelController extends GuiContainerBase<ContainerPa
         textField.setMaxStringLength(10);
 
         decrement_1 = new GuiButton(1, this.width / 2 - 81, this.height / 2 - 57, 30, 20,
-                "-1");
+            "-1");
         buttons.add(decrement_1);
         decrement_10 = new GuiButton(2, this.width / 2 - 16, this.height / 2 - 57, 30, 20,
-                "-10");
+            "-10");
         buttons.add(decrement_10);
         decrement_100 = new GuiButton(3, this.width / 2 + 51, this.height / 2 - 57, 30, 20,
-                "-100");
+            "-100");
         buttons.add(decrement_100);
 
         increment_1 = new GuiButton(4, this.width / 2 - 81, this.height / 2 - 23, 30, 20,
-                "+1");
+            "+1");
         buttons.add(increment_1);
         increment_10 = new GuiButton(5, this.width / 2 - 16, this.height / 2 - 23, 30, 20,
-                "+10");
+            "+10");
         buttons.add(increment_10);
         increment_100 = new GuiButton(6, this.width / 2 + 51, this.height / 2 - 23, 30, 20,
-                "+100");
+            "+100");
         buttons.add(increment_100);
     }
 }

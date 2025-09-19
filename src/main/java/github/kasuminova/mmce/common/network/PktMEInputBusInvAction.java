@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class PktMEInputBusInvAction implements IMessage, IMessageHandler<PktMEInputBusInvAction, IMessage> {
     private int addAmount = 0;
-    private int slotID = 0;
+    private int slotID    = 0;
 
     public PktMEInputBusInvAction() {
     }

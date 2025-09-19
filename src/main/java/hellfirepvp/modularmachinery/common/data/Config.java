@@ -19,6 +19,7 @@ import hellfirepvp.modularmachinery.common.integration.ModIntegrationTOP;
 import hellfirepvp.modularmachinery.common.machine.RecipeFailureActions;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import ink.ikx.mmce.core.AssemblyConfig;
+import kport.modularmagic.common.tile.TileManaProvider;
 import net.minecraftforge.common.config.Configuration;
 
 import java.io.File;
@@ -31,21 +32,21 @@ import java.io.File;
  * Date: 26.06.2017 / 22:34
  */
 public class Config {
-    public static boolean mocCompatibleMode = false;
-    public static boolean onlyOneMachineController = false;
-    public static boolean disableMocDeprecatedTip = false;
+    public static boolean mocCompatibleMode                  = false;
+    public static boolean onlyOneMachineController           = false;
+    public static boolean disableMocDeprecatedTip            = false;
     public static boolean machineParallelizeEnabledByDefault = true;
-    public static boolean recipeParallelizeEnabledByDefault = true;
-    public static boolean enableFluxNetworksIntegration = true;
-    public static boolean enableFactoryControllerByDefault = false;
-    public static boolean controllerOutputComparatorSignal = true;
-    public static boolean asyncControllerModelRender = true;
-    public static boolean enableDurationMultiplier = true;
-    public static int machineColor;
-    public static int maxMachineParallelism = 2048;
-    public static int defaultFactoryMaxThread = 20;
+    public static boolean recipeParallelizeEnabledByDefault  = true;
+    public static boolean enableFluxNetworksIntegration      = true;
+    public static boolean enableFactoryControllerByDefault   = false;
+    public static boolean controllerOutputComparatorSignal   = true;
+    public static boolean asyncControllerModelRender         = true;
+    public static boolean enableDurationMultiplier           = true;
+    public static int     machineColor;
+    public static int     maxMachineParallelism              = 2048;
+    public static int     defaultFactoryMaxThread            = 20;
 
-    private static File lastReadFile;
+    private static File          lastReadFile;
     private static Configuration lastReadConfig;
 
     public static void loadFrom(File file) {
@@ -71,6 +72,9 @@ public class Config {
         if (Mods.TOP.isPresent()) {
             ModIntegrationTOP.loadFromConfig(lastReadConfig);
         }
+        if (Mods.BOTANIA.isPresent()) {
+            TileManaProvider.loadFromConfig(lastReadConfig);
+        }
 
         String strColor = lastReadConfig.getString("general-casing-color", "general", "FFFFFF", "Defines the _default_ color for machine casings as items or blocks. (Hex color without alpha) Has to be defined both server and clientside!");
         int col = 0xff921e; //TODO uh
@@ -84,39 +88,39 @@ public class Config {
         // General
         machineColor = col;
         onlyOneMachineController = lastReadConfig.getBoolean("only-one-machine-controller", "general", false,
-                "When enabled, Modules no longer register a separate controller for each machine, and the modular-controller-compatible-mode option is turned off.");
+            "When enabled, Modules no longer register a separate controller for each machine, and the modular-controller-compatible-mode option is turned off.");
         enableDurationMultiplier = lastReadConfig.getBoolean("enable-duration-multiplier", "general", false,
-                "If enabled, and the RecipeModifier modifies the recipe duration, certain requirements (e.g., energy) will change over time.");
+            "If enabled, and the RecipeModifier modifies the recipe duration, certain requirements (e.g., energy) will change over time.");
 
         // Client
         asyncControllerModelRender = lastReadConfig.getBoolean("async-controller-model-render", "client", false,
-                "(Experimental) Customizing the model with a multi-threaded rendering controller helps improve rendering performance, but puts more strain on the CPU and memory, and performs poorly on low-configuration devices.");
+            "(Experimental) Customizing the model with a multi-threaded rendering controller helps improve rendering performance, but puts more strain on the CPU and memory, and performs poorly on low-configuration devices.");
 
         // Modular Controller Merge Support
         mocCompatibleMode = lastReadConfig.getBoolean(
-                "modular-controller-compatible-mode", "general", false,
-                "When enabled, the mod registers a controller block under the name modularcontroller to prevent incompatibility with older saves.");
+            "modular-controller-compatible-mode", "general", false,
+            "When enabled, the mod registers a controller block under the name modularcontroller to prevent incompatibility with older saves.");
         disableMocDeprecatedTip = lastReadConfig.getBoolean(
-                "disable-moc-deprecated-tip", "general", false,
-                "Disable the ModularController is deprecated tooltip.");
+            "disable-moc-deprecated-tip", "general", false,
+            "Disable the ModularController is deprecated tooltip.");
 
         // FluxNetworks Integration
         enableFluxNetworksIntegration = lastReadConfig.getBoolean("enable-fluxnetworks-integration", "general", true,
-                "When enabled, allows you to use the flux network to transfer larger amounts of energy than 2147483647.");
+            "When enabled, allows you to use the flux network to transfer larger amounts of energy than 2147483647.");
 
         // Parallelize Feature
         machineParallelizeEnabledByDefault = lastReadConfig.getBoolean("machine-parallelize-enabled-bydefault",
-                "parallel-controller", true, "Whether the machine parallel recipe processing is enabled by default.");
+            "parallel-controller", true, "Whether the machine parallel recipe processing is enabled by default.");
         recipeParallelizeEnabledByDefault = lastReadConfig.getBoolean("recipe-parallelize-enabled-bydefault",
-                "parallel-controller", true, "Whether parallel recipe processing is enabled by default.");
+            "parallel-controller", true, "Whether parallel recipe processing is enabled by default.");
         maxMachineParallelism = lastReadConfig.getInt("max-machine-parallelism", "parallel-controller",
-                2048, 1, Integer.MAX_VALUE, "The default max number of parallelism for a machine.");
+            2048, 1, Integer.MAX_VALUE, "The default max number of parallelism for a machine.");
 
         // Factory System
         enableFactoryControllerByDefault = lastReadConfig.getBoolean("enable-factory-controller-bydefault",
-                "factory-system", false, "If enabled, the mod will register the factory system controller for all machines by default.");
+            "factory-system", false, "If enabled, the mod will register the factory system controller for all machines by default.");
         defaultFactoryMaxThread = lastReadConfig.getInt("default-factory-max-thread", "factory-system",
-                10, 1, 100,
-                "Sets the maximum number of threads in the factory system by default.");
+            10, 1, 100,
+            "Sets the maximum number of threads in the factory system by default.");
     }
 }

@@ -46,7 +46,7 @@ public class DataLoadProfiler {
 
     public static class StatusLine {
         private final List<Status> lineComponents = new LinkedList<>();
-        private final String name;
+        private final String       name;
 
         public StatusLine(String name) {
             this.name = name;
@@ -67,7 +67,7 @@ public class DataLoadProfiler {
     public static class Status {
 
         private final String name;
-        private int counter = 0;
+        private       int    counter = 0;
 
         public Status(String name) {
             this.name = name;

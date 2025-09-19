@@ -32,7 +32,7 @@ public class BlockFactoryController extends BlockController {
         this();
         this.parentMachine = parentMachine;
         setRegistryName(new ResourceLocation(
-                ModularMachinery.MODID, parentMachine.getRegistryName().getPath() + "_factory_controller")
+            ModularMachinery.MODID, parentMachine.getRegistryName().getPath() + "_factory_controller")
         );
     }
 

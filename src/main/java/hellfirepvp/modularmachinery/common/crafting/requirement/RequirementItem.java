@@ -9,6 +9,7 @@
 package hellfirepvp.modularmachinery.common.crafting.requirement;
 
 import com.google.common.collect.Lists;
+import github.kasuminova.mmce.common.concurrent.Sync;
 import github.kasuminova.mmce.common.helper.AdvancedItemChecker;
 import github.kasuminova.mmce.common.helper.AdvancedItemModifier;
 import hellfirepvp.modularmachinery.common.crafting.ComponentType;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -49,7 +51,7 @@ import java.util.Random;
  * Date: 24.02.2018 / 12:35
  */
 public class RequirementItem extends ComponentRequirement.MultiCompParallelizable<ItemStack, RequirementTypeItem>
-        implements ComponentRequirement.ChancedRequirement, ComponentRequirement.Parallelizable, Asyncable {
+    implements ComponentRequirement.ChancedRequirement, ComponentRequirement.Parallelizable, Asyncable {
     public static final Random RD = new Random();
 
     public final ItemRequirementType requirementType;
@@ -57,7 +59,7 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
     public final ItemStack required;
 
     public final String oreDictName;
-    public final int oreDictItemAmount;
+    public final int    oreDictItemAmount;
 
     public final int fuelBurntime;
 
@@ -67,11 +69,11 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
 
     public List<IngredientItemStack> cachedJEIIORequirementList = null;
 
-    public NBTTagCompound tag = null;
+    public NBTTagCompound tag               = null;
     public NBTTagCompound previewDisplayTag = null;
 
     public AdvancedItemChecker itemChecker = null;
-    public float chance = 1F;
+    public float               chance      = 1F;
 
     public int minAmount = 1;
     public int maxAmount = 1;
@@ -221,7 +223,7 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
     public String getMissingComponentErrorMessage(IOType ioType) {
         ResourceLocation compKey = this.getRequirementType().getRegistryName();
         return String.format("component.missing.%s.%s.%s",
-                compKey.getNamespace(), compKey.getPath(), ioType.name().toLowerCase());
+            compKey.getNamespace(), compKey.getPath(), ioType.name().toLowerCase());
     }
 
     @Override
@@ -229,7 +231,7 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
         MachineComponent<?> cmp = component.component();
         ComponentType cmpType = cmp.getComponentType();
         return (cmpType.equals(ComponentTypesMM.COMPONENT_ITEM) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS))
-               && cmp.ioType == actionType;
+            && cmp.ioType == actionType;
     }
 
     @Override
@@ -281,8 +283,7 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
                                  final RecipeCraftingContext context,
                                  final int maxMultiplier,
                                  final List<AdvancedItemModifier> itemModifiers,
-                                 final ResultChance chance)
-    {
+                                 final ResultChance chance) {
         List<IItemHandlerModifiable> handlers = new ArrayList<>();
         for (ProcessingComponent<?> component : components) {
             IItemHandlerModifiable providedComponent = (IItemHandlerModifiable) component.getProvidedComponent();
@@ -311,9 +312,8 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
                                final RecipeCraftingContext context,
                                final int maxMultiplier,
                                final List<AdvancedItemModifier> itemModifiers,
-                               final ResultChance chance)
-    {
-        int consumed = 0;
+                               final ResultChance chance) {
+        final AtomicInteger consumed = new AtomicInteger();
         int toConsume = applyModifierAmount(context, chance != ResultChance.GUARANTEED || minAmount != maxAmount);
 
         int maxConsume = toConsume * maxMultiplier;
@@ -369,48 +369,53 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
             return maxMultiplier;
         }
 
+        final ItemStack finalStack = stack;
+        final int finalMaxConsume = maxConsume;
         switch (this.requirementType) {
             case ITEMSTACKS -> {
                 for (final IItemHandlerModifiable handler : handlers) {
-                    stack.setCount(maxConsume - consumed);
-                    if (itemChecker != null) {
-                        consumed += ItemUtils.consumeAll(handler, stack, itemChecker, context.getMachineController());
-                    } else {
-                        consumed += ItemUtils.consumeAll(handler, stack, tag);
-                    }
-                    if (consumed >= maxConsume) {
+                    stack.setCount(maxConsume - consumed.get());
+                    Sync.executeSyncIfPresent(handler, () -> {
+                        if (itemChecker != null) {
+                            consumed.addAndGet(ItemUtils.consumeAll(handler, finalStack, itemChecker, context.getMachineController()));
+                        } else {
+                            consumed.addAndGet(ItemUtils.consumeAll(handler, finalStack, tag));
+                        }
+                    });
+                    if (consumed.get() >= maxConsume) {
                         break;
                     }
                 }
             }
             case OREDICT -> {
                 for (final IItemHandlerModifiable handler : handlers) {
-                    if (itemChecker != null) {
-                        consumed += ItemUtils.consumeAll(handler, oreDictName, maxConsume - consumed, itemChecker, context.getMachineController());
-                    } else {
-                        consumed += ItemUtils.consumeAll(handler, oreDictName, maxConsume - consumed, tag);
-                    }
-                    if (consumed >= maxConsume) {
+                    Sync.executeSyncIfPresent(handler, () -> {
+                        if (itemChecker != null) {
+                            consumed.addAndGet(ItemUtils.consumeAll(handler, oreDictName, finalMaxConsume - consumed.get(), itemChecker, context.getMachineController()));
+                        } else {
+                            consumed.addAndGet(ItemUtils.consumeAll(handler, oreDictName, finalMaxConsume - consumed.get(), tag));
+                        }
+                    });
+                    if (consumed.get() >= maxConsume) {
                         break;
                     }
                 }
             }
         }
 
-        return consumed / toConsume;
+        return consumed.get() / toConsume;
     }
 
     public int insertAllItems(final List<IItemHandlerModifiable> handlers,
                               final RecipeCraftingContext context,
                               final int maxMultiplier,
                               final List<AdvancedItemModifier> itemModifiers,
-                              final ResultChance chance)
-    {
+                              final ResultChance chance) {
         if (fuelBurntime > 0 && oreDictName == null && required.isEmpty()) {
             throw new IllegalStateException("Invalid item output!");
         }
 
-        int inserted = 0;
+        final AtomicInteger inserted = new AtomicInteger();
         int toInsert = applyModifierAmount(context, chance != ResultChance.GUARANTEED || minAmount != maxAmount);
 
         if (toInsert <= 0) {
@@ -442,15 +447,14 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
 
         int maxInsert = toInsert * maxMultiplier;
         for (final IItemHandlerModifiable handler : handlers) {
-            synchronized (handler) {
-                inserted += ItemUtils.insertAll(stack, handler, maxInsert - inserted);
-            }
-            if (inserted >= maxInsert) {
+            final ItemStack finalStack = stack;
+            Sync.executeSyncIfPresent(handler, () -> inserted.addAndGet(ItemUtils.insertAll(finalStack, handler, maxInsert - inserted.get())));
+            if (inserted.get() >= maxInsert) {
                 break;
             }
         }
 
-        return inserted / toInsert;
+        return inserted.get() / toInsert;
     }
 
     public IngredientItemStack asIngredientItemStack(ItemStack stack) {

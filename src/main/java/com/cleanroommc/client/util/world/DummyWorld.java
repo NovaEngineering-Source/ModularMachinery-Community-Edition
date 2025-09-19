@@ -1,25 +1,35 @@
 package com.cleanroommc.client.util.world;
 
+import hellfirepvp.modularmachinery.ModularMachinery;
+import hellfirepvp.modularmachinery.common.base.Mods;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.*;
+import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.world.GameType;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldProviderSurface;
+import net.minecraft.world.WorldSettings;
+import net.minecraft.world.WorldType;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.common.Optional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+@SuppressWarnings("MethodMayBeStatic")
 public class DummyWorld extends World {
 
     private static final WorldSettings DEFAULT_SETTINGS = new WorldSettings(1L, GameType.SURVIVAL, true, false, WorldType.DEFAULT);
 
+    @SuppressWarnings("deprecation")
     public DummyWorld() {
-        super(new DummySaveHandler(), new WorldInfo(DEFAULT_SETTINGS, "DummyServer"), new WorldProviderSurface(), new Profiler(), false);
+        super(new DummySaveHandler(), new WorldInfo(DEFAULT_SETTINGS, "DummyServer"), new WorldProviderSurface(), new Profiler(), true);
         // Guarantee the dimension ID was not reset by the provider
         this.provider.setDimension(Integer.MAX_VALUE - 1024);
         int providerDim = this.provider.getDimension();
@@ -29,7 +39,15 @@ public class DummyWorld extends World {
         this.calculateInitialSkylight();
         this.calculateInitialWeather();
         this.getWorldBorder().setSize(30000000);
-        ObfuscationReflectionHelper.setPrivateValue(World.class, this, null, "field_72994_J");
+        try {
+            ObfuscationReflectionHelper.setPrivateValue(World.class, this, null, ModularMachinery.isRunningInDevEnvironment() ? "lightUpdateBlockList" : "field_72994_J");
+            // De-allocate alfheim lighting engine
+            if (Mods.ALFHEIM.isPresent()) {
+                ObfuscationReflectionHelper.setPrivateValue(World.class, this, null, "alfheim$lightingEngine");
+            }
+        } catch (Throwable e) {
+            ModularMachinery.log.warn("Failed to de-allocate lightUpdateBlockList!", e);
+        }
     }
 
     @Override
@@ -86,7 +104,26 @@ public class DummyWorld extends World {
 
     @Override
     // De-allocated lightUpdateBlockList, default return
-    public boolean checkLightFor(EnumSkyBlock lightType, BlockPos pos) {
+    public boolean checkLightFor(@Nonnull EnumSkyBlock lightType, @Nonnull BlockPos pos) {
         return true;
     }
+
+    @Nonnull
+    @Override
+    @Optional.Method(modid = "alfheim")
+    public World init() {
+        return this;
+    }
+
+    @Override
+    @Optional.Method(modid = "alfheim")
+    public int getLightFromNeighborsFor(EnumSkyBlock type, BlockPos pos) {
+        return 15;
+    }
+
+    @Optional.Method(modid = "alfheim")
+    public int alfheim$getLight(BlockPos pos, boolean checkNeighbors) {
+        return 15;
+    }
+
 }

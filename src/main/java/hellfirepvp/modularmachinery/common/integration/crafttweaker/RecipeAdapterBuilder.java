@@ -16,7 +16,7 @@ import java.util.List;
 @ZenClass("mods.modularmachinery.RecipeAdapterBuilder")
 public class RecipeAdapterBuilder extends RecipePrimer {
     protected final List<RecipeModifier> modifiers = new LinkedList<>();
-    protected final ResourceLocation parentMachineName;
+    protected final ResourceLocation     parentMachineName;
 
     private RecipeAdapterBuilder(ResourceLocation machineName, ResourceLocation parentMachineName) {
         super(null, machineName, 0, 0, false);

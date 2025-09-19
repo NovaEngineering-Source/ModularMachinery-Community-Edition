@@ -18,8 +18,17 @@ import crafttweaker.api.liquid.ILiquidStack;
 import crafttweaker.api.minecraft.CraftTweakerMC;
 import crafttweaker.api.oredict.IOreDictEntry;
 import github.kasuminova.mmce.common.event.Phase;
+import github.kasuminova.mmce.common.event.recipe.FactoryRecipeFailureEvent;
+import github.kasuminova.mmce.common.event.recipe.FactoryRecipeFinishEvent;
+import github.kasuminova.mmce.common.event.recipe.FactoryRecipeStartEvent;
+import github.kasuminova.mmce.common.event.recipe.FactoryRecipeTickEvent;
+import github.kasuminova.mmce.common.event.recipe.RecipeCheckEvent;
+import github.kasuminova.mmce.common.event.recipe.RecipeEvent;
+import github.kasuminova.mmce.common.event.recipe.RecipeFailureEvent;
+import github.kasuminova.mmce.common.event.recipe.RecipeFinishEvent;
+import github.kasuminova.mmce.common.event.recipe.RecipeStartEvent;
+import github.kasuminova.mmce.common.event.recipe.RecipeTickEvent;
 import github.kasuminova.mmce.common.event.machine.IEventHandler;
-import github.kasuminova.mmce.common.event.recipe.*;
 import github.kasuminova.mmce.common.integration.Logger;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import hellfirepvp.modularmachinery.common.base.Mods;
@@ -27,7 +36,15 @@ import hellfirepvp.modularmachinery.common.crafting.PreparedRecipe;
 import hellfirepvp.modularmachinery.common.crafting.RecipeRegistry;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentRequirement;
 import hellfirepvp.modularmachinery.common.crafting.helper.ComponentSelectorTag;
-import hellfirepvp.modularmachinery.common.crafting.requirement.*;
+import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementCatalyst;
+import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementEnergy;
+import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementFluid;
+import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementFluidPerTick;
+import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementGas;
+import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementGasPerTick;
+import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementIngredientArray;
+import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementInterfaceNumInput;
+import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementItem;
 import hellfirepvp.modularmachinery.common.data.Config;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.helper.AdvancedItemCheckerCT;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.helper.AdvancedItemModifierCT;
@@ -47,7 +64,12 @@ import net.minecraftforge.fml.common.Optional;
 import stanhebben.zenscript.annotations.ZenClass;
 import stanhebben.zenscript.annotations.ZenMethod;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -65,14 +87,15 @@ public class RecipePrimer implements PreparedRecipe {
     private final int tickTime, priority;
     private final boolean doesVoidPerTick;
 
-    private final List<ComponentRequirement<?, ?>> components = new LinkedList<>();
-    private final List<Action> needAfterInitActions = new LinkedList<>();
-    private final List<String> toolTipList = new ArrayList<>();
-    private final Map<Class<?>, List<IEventHandler<RecipeEvent>>> recipeEventHandlers = new HashMap<>();
+    private final List<ComponentRequirement<?, ?>>                components           = new LinkedList<>();
+    private final List<Action>                                    needAfterInitActions = new LinkedList<>();
+    private final List<String>                                    toolTipList          = new ArrayList<>();
+    private final Map<Class<?>, List<IEventHandler<RecipeEvent>>> recipeEventHandlers  = new HashMap<>();
 
-    private boolean parallelized = Config.recipeParallelizeEnabledByDefault;
-    private int maxThreads = -1;
-    private String threadName = "";
+    private boolean                    parallelized  = Config.recipeParallelizeEnabledByDefault;
+    private boolean                    loadJEI       = true;
+    private int                        maxThreads    = -1;
+    private String                     threadName    = "";
     private ComponentRequirement<?, ?> lastComponent = null;
 
     public RecipePrimer(ResourceLocation registryName, ResourceLocation owningMachine, int tickTime, int configuredPriority, boolean doesVoidPerTick) {
@@ -90,12 +113,6 @@ public class RecipePrimer implements PreparedRecipe {
         } else {
             Logger.warn("Target " + lastComponent.getClass() + " cannot be parallelized!");
         }
-        return this;
-    }
-
-    @ZenMethod
-    public RecipePrimer setParallelized(boolean isParallelized) {
-        this.parallelized = isParallelized;
         return this;
     }
 
@@ -250,34 +267,12 @@ public class RecipePrimer implements PreparedRecipe {
         return addSmartInterfaceDataInput(typeStr, value, value);
     }
 
-    /**
-     * 设置此配方在工厂中同时运行的数量是否不超过指定数值。
-     */
-    @ZenMethod
-    public RecipePrimer setMaxThreads(int maxThreads) {
-        this.maxThreads = maxThreads;
-        return this;
-    }
-
-    /**
-     * 设置此配方只能被指定的核心线程执行。
-     *
-     * @param name 线程名
-     */
-    @ZenMethod
-    public RecipePrimer setThreadName(String name) {
-        this.threadName = name == null ? "" : name;
-        return this;
-    }
-
-    //----------------------------------------------------------------------------------------------
-    // EventHandlers
-    //----------------------------------------------------------------------------------------------
-
     @ZenMethod
     public RecipePrimer addPreCheckHandler(crafttweaker.util.IEventHandler<RecipeCheckEvent> handler) {
         addRecipeEventHandler(RecipeCheckEvent.class, event -> {
-            if (event.phase != Phase.START) return;
+            if (event.phase != Phase.START) {
+                return;
+            }
             handler.handle(event);
         });
         return this;
@@ -286,7 +281,9 @@ public class RecipePrimer implements PreparedRecipe {
     @ZenMethod
     public RecipePrimer addPostCheckHandler(crafttweaker.util.IEventHandler<RecipeCheckEvent> handler) {
         addRecipeEventHandler(RecipeCheckEvent.class, event -> {
-            if (event.phase != Phase.END) return;
+            if (event.phase != Phase.END) {
+                return;
+            }
             handler.handle(event);
         });
         return this;
@@ -300,6 +297,10 @@ public class RecipePrimer implements PreparedRecipe {
         return this;
     }
 
+    //----------------------------------------------------------------------------------------------
+    // EventHandlers
+    //----------------------------------------------------------------------------------------------
+
     @ZenMethod
     public RecipePrimer addStartHandler(crafttweaker.util.IEventHandler<RecipeStartEvent> handler) {
         addRecipeEventHandler(RecipeStartEvent.class, handler::handle);
@@ -309,7 +310,9 @@ public class RecipePrimer implements PreparedRecipe {
     @ZenMethod
     public RecipePrimer addPreTickHandler(crafttweaker.util.IEventHandler<RecipeTickEvent> handler) {
         addRecipeEventHandler(RecipeTickEvent.class, event -> {
-            if (event.phase != Phase.START) return;
+            if (event.phase != Phase.START) {
+                return;
+            }
             handler.handle(event);
         });
         return this;
@@ -318,7 +321,9 @@ public class RecipePrimer implements PreparedRecipe {
     @ZenMethod
     public RecipePrimer addPostTickHandler(crafttweaker.util.IEventHandler<RecipeTickEvent> handler) {
         addRecipeEventHandler(RecipeTickEvent.class, event -> {
-            if (event.phase != Phase.END) return;
+            if (event.phase != Phase.END) {
+                return;
+            }
             handler.handle(event);
         });
         return this;
@@ -376,7 +381,6 @@ public class RecipePrimer implements PreparedRecipe {
         return this;
     }
 
-    @SuppressWarnings("unchecked")
     private <H extends RecipeEvent> void addRecipeEventHandler(Class<H> hClass, IEventHandler<H> handler) {
         recipeEventHandlers.putIfAbsent(hClass, new ArrayList<>());
         recipeEventHandlers.get(hClass).add((IEventHandler<RecipeEvent>) handler);
@@ -388,8 +392,8 @@ public class RecipePrimer implements PreparedRecipe {
     @ZenMethod
     public RecipePrimer addInput(IIngredient input) {
         if (input instanceof IItemStack ||
-                input instanceof IOreDictEntry ||
-                input instanceof IngredientStack && input.getInternal() instanceof IOreDictEntry) {
+            input instanceof IOreDictEntry ||
+            input instanceof IngredientStack && input.getInternal() instanceof IOreDictEntry) {
             addItemInput(input);
         } else if (input instanceof ILiquidStack liquidStack) {
             addFluidInput(liquidStack);
@@ -411,8 +415,8 @@ public class RecipePrimer implements PreparedRecipe {
     @ZenMethod
     public RecipePrimer addOutput(IIngredient output) {
         if (output instanceof IItemStack ||
-                output instanceof IOreDictEntry ||
-                output instanceof IngredientStack && output.getInternal() instanceof IOreDictEntry) {
+            output instanceof IOreDictEntry ||
+            output instanceof IngredientStack && output.getInternal() instanceof IOreDictEntry) {
             addItemOutput(output);
         } else if (output instanceof ILiquidStack) {
             addFluidOutput((ILiquidStack) output);
@@ -568,8 +572,6 @@ public class RecipePrimer implements PreparedRecipe {
         return this;
     }
 
-    // Gas Per Tick Input / Output
-
     @ZenMethod
     @Optional.Method(modid = "mekanism")
     public RecipePrimer addGasPerTickInput(IGasStack gasStack) {
@@ -593,6 +595,8 @@ public class RecipePrimer implements PreparedRecipe {
         return this;
     }
 
+    // Gas Per Tick Input / Output
+
     @ZenMethod
     @Optional.Method(modid = "mekanism")
     public RecipePrimer addGasPerTickOutputs(IGasStack... gasStacks) {
@@ -608,11 +612,11 @@ public class RecipePrimer implements PreparedRecipe {
     @ZenMethod
     public RecipePrimer addItemInput(IIngredient input) {
         if (input instanceof IItemStack) {
-            requireFuel(IOType.INPUT, (IItemStack) input);
+            requireItem(IOType.INPUT, (IItemStack) input);
         } else if (input instanceof IOreDictEntry) {
-            requireFuel(IOType.INPUT, ((IOreDictEntry) input).getName(), 1);
+            requireItem(IOType.INPUT, ((IOreDictEntry) input).getName(), 1);
         } else if (input instanceof IngredientStack && input.getInternal() instanceof IOreDictEntry) {
-            requireFuel(IOType.INPUT, ((IOreDictEntry) input.getInternal()).getName(), input.getAmount());
+            requireItem(IOType.INPUT, ((IOreDictEntry) input.getInternal()).getName(), input.getAmount());
         } else {
             Logger.error(String.format("[ModularMachinery] Invalid input type %s(%s)! Ignored.", input, input.getClass()));
         }
@@ -623,7 +627,7 @@ public class RecipePrimer implements PreparedRecipe {
     @Deprecated
     @ZenMethod
     public RecipePrimer addItemInput(IOreDictEntry oreDict, int amount) {
-        requireFuel(IOType.INPUT, oreDict.getName(), amount);
+        requireItem(IOType.INPUT, oreDict.getName(), amount);
         Logger.warn(String.format("[ModularMachinery] Deprecated method " +
                         "`addItemInput(<ore:%s>, %s)`! Consider using `addItemInput(<ore:%s> * %s)`",
                 oreDict.getName(), amount, oreDict.getName(), amount)
@@ -669,11 +673,11 @@ public class RecipePrimer implements PreparedRecipe {
     @ZenMethod
     public RecipePrimer addItemOutput(IIngredient output) {
         if (output instanceof IItemStack) {
-            requireFuel(IOType.OUTPUT, (IItemStack) output);
+            requireItem(IOType.OUTPUT, (IItemStack) output);
         } else if (output instanceof IOreDictEntry) {
-            requireFuel(IOType.OUTPUT, ((IOreDictEntry) output).getName(), 1);
+            requireItem(IOType.OUTPUT, ((IOreDictEntry) output).getName(), 1);
         } else if (output instanceof IngredientStack && output.getInternal() instanceof IOreDictEntry) {
-            requireFuel(IOType.OUTPUT, ((IOreDictEntry) output.getInternal()).getName(), output.getAmount());
+            requireItem(IOType.OUTPUT, ((IOreDictEntry) output.getInternal()).getName(), output.getAmount());
         } else {
             Logger.error(String.format("[ModularMachinery] Invalid output type %s(%s)! Ignored.", output, output.getClass()));
         }
@@ -684,7 +688,7 @@ public class RecipePrimer implements PreparedRecipe {
     @Deprecated
     @ZenMethod
     public RecipePrimer addItemOutput(IOreDictEntry oreDict, int amount) {
-        requireFuel(IOType.OUTPUT, oreDict.getName(), amount);
+        requireItem(IOType.OUTPUT, oreDict.getName(), amount);
         Logger.warn(String.format("[ModularMachinery] Deprecated method " +
                         "`addItemOutput(<ore:%s>, %s)`! Consider using `addItemOutput(<ore:%s> * %s)`",
                 oreDict.getName(), amount, oreDict.getName(), amount)
@@ -788,7 +792,7 @@ public class RecipePrimer implements PreparedRecipe {
         appendComponent(new RequirementItem(IOType.INPUT, requiredTotalBurnTime));
     }
 
-    private void requireFuel(IOType ioType, IItemStack stack) {
+    private void requireItem(IOType ioType, IItemStack stack) {
         ItemStack mcStack = CraftTweakerMC.getItemStack(stack);
         if (mcStack.isEmpty()) {
             Logger.error("[ModularMachinery] ItemStack not found/unknown item: " + stack.toString());
@@ -802,7 +806,7 @@ public class RecipePrimer implements PreparedRecipe {
         appendComponent(ri);
     }
 
-    private void requireFuel(IOType ioType, String oreDictName, int amount) {
+    private void requireItem(IOType ioType, String oreDictName, int amount) {
         appendComponent(new RequirementItem(ioType, oreDictName, amount));
     }
 
@@ -863,10 +867,6 @@ public class RecipePrimer implements PreparedRecipe {
         RecipeRegistry.getRegistry().registerRecipeEarly(this);
     }
 
-    //----------------------------------------------------------------------------------------------
-    // lingering stats
-    //----------------------------------------------------------------------------------------------
-
     @Override
     public String getFilePath() {
         return "";
@@ -886,6 +886,10 @@ public class RecipePrimer implements PreparedRecipe {
     public ResourceLocation getParentMachineName() {
         return machineName;
     }
+
+    //----------------------------------------------------------------------------------------------
+    // lingering stats
+    //----------------------------------------------------------------------------------------------
 
     @Override
     public int getTotalProcessingTickTime() {
@@ -922,9 +926,24 @@ public class RecipePrimer implements PreparedRecipe {
         return parallelized;
     }
 
+    @ZenMethod
+    public RecipePrimer setParallelized(boolean isParallelized) {
+        this.parallelized = isParallelized;
+        return this;
+    }
+
     @Override
     public int getMaxThreads() {
         return maxThreads;
+    }
+
+    /**
+     * 设置此配方在工厂中同时运行的数量是否不超过指定数值。
+     */
+    @ZenMethod
+    public RecipePrimer setMaxThreads(int maxThreads) {
+        this.maxThreads = maxThreads;
+        return this;
     }
 
     @Override
@@ -932,10 +951,36 @@ public class RecipePrimer implements PreparedRecipe {
         return threadName;
     }
 
+    /**
+     * 设置此配方只能被指定的核心线程执行。
+     *
+     * @param name 线程名
+     */
+    @ZenMethod
+    public RecipePrimer setThreadName(String name) {
+        this.threadName = name == null ? "" : name;
+        return this;
+    }
+
     @Override
     public void loadNeedAfterInitActions() {
         for (Action needAfterInitAction : needAfterInitActions) {
             needAfterInitAction.doAction();
         }
+    }
+
+    @Override
+    public boolean getLoadJEI() {
+        return loadJEI;
+    }
+
+    /**
+     * <p>设置为false时不再为JEI注册对应配方</p>
+     * <p>默认情况在为true</p>
+     */
+    @ZenMethod
+    public RecipePrimer setLoadJEI(boolean load) {
+        this.loadJEI = load;
+        return this;
     }
 }

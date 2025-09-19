@@ -16,10 +16,10 @@ public class BlockInfo {
 
     public static final BlockInfo EMPTY = new BlockInfo(Blocks.AIR);
 
-    private final IBlockState blockState;
-    private TileEntity tileEntity;
-    private final ItemStack itemStack;
-    private NBTTagCompound teTag;
+    private final IBlockState    blockState;
+    private final ItemStack      itemStack;
+    private       TileEntity     tileEntity;
+    private       NBTTagCompound teTag;
 
     public BlockInfo(Block block) {
         this(block.getDefaultState());
@@ -52,12 +52,9 @@ public class BlockInfo {
                     return new BlockInfo(state, tileEntity);
                 }
             }
-        } catch (Exception ignored){ }
+        } catch (Exception ignored) {
+        }
         return new BlockInfo(state);
-    }
-
-    public void setTileEntity(TileEntity tileEntity) {
-        this.tileEntity = tileEntity;
     }
 
     public IBlockState getBlockState() {
@@ -66,6 +63,10 @@ public class BlockInfo {
 
     public TileEntity getTileEntity() {
         return tileEntity;
+    }
+
+    public void setTileEntity(TileEntity tileEntity) {
+        this.tileEntity = tileEntity;
     }
 
     public ItemStack getItemStackForm() {

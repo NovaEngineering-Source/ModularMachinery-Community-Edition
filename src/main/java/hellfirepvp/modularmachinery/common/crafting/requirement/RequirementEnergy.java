@@ -39,7 +39,7 @@ import java.util.List;
  * Date: 24.02.2018 / 12:26
  */
 public class RequirementEnergy extends ComponentRequirement.PerTickParallelizable<Long, RequirementTypeEnergy>
-        implements ComponentRequirement.Parallelizable, Asyncable {
+    implements ComponentRequirement.Parallelizable, Asyncable {
 
     public final long requirementPerTick;
 
@@ -69,7 +69,7 @@ public class RequirementEnergy extends ComponentRequirement.PerTickParallelizabl
     public String getMissingComponentErrorMessage(IOType ioType) {
         ResourceLocation compKey = this.requirementType.getRegistryName();
         return String.format("component.missing.%s.%s.%s",
-                compKey.getNamespace(), compKey.getPath(), ioType.name().toLowerCase());
+            compKey.getNamespace(), compKey.getPath(), ioType.name().toLowerCase());
     }
 
     public long getRequiredEnergyPerTick() {
@@ -85,9 +85,9 @@ public class RequirementEnergy extends ComponentRequirement.PerTickParallelizabl
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.component();
         return cmp.getComponentType().equals(ComponentTypesMM.COMPONENT_ENERGY) &&
-                cmp.getContainerProvider() instanceof IEnergyHandler &&
-                cmp instanceof MachineComponent.EnergyHatch &&
-                cmp.ioType == this.actionType;
+            cmp.getContainerProvider() instanceof IEnergyHandler &&
+            cmp instanceof MachineComponent.EnergyHatch &&
+            cmp.ioType == this.actionType;
     }
 
     @Nonnull
@@ -107,9 +107,9 @@ public class RequirementEnergy extends ComponentRequirement.PerTickParallelizabl
         List<ProcessingComponent<?>> list = new ArrayList<>();
         for (ProcessingComponent<?> component : components) {
             ProcessingComponent<Object> objectProcessingComponent = new ProcessingComponent<>(
-                    (MachineComponent<Object>) component.component(),
-                    new IEnergyHandlerImpl((IEnergyHandler) component.getProvidedComponent()),
-                    component.getTag());
+                (MachineComponent<Object>) component.component(),
+                new IEnergyHandlerImpl((IEnergyHandler) component.getProvidedComponent()),
+                component.getTag());
             list.add(objectProcessingComponent);
         }
         return list;
@@ -132,9 +132,7 @@ public class RequirementEnergy extends ComponentRequirement.PerTickParallelizabl
     private CraftCheck doEnergyIO(final List<ProcessingComponent<?>> components,
                                   final RecipeCraftingContext context,
                                   final float durationMultiplier,
-                                  final boolean simulate)
-
-    {
+                                  final boolean simulate) {
         float maxMultiplier = parallelism * durationMultiplier;
         float mul = doEnergyIOInternal(components, context, maxMultiplier, simulate);
         if (mul < maxMultiplier) {
@@ -154,8 +152,7 @@ public class RequirementEnergy extends ComponentRequirement.PerTickParallelizabl
     private float doEnergyIOInternal(final List<ProcessingComponent<?>> components,
                                      final RecipeCraftingContext context,
                                      final float maxMultiplier,
-                                     final boolean simulate)
-    {
+                                     final boolean simulate) {
         long required = (long) RecipeModifier.applyModifiers(context, this, (double) this.requirementPerTick, false);
         long maxRequired = (long) (required * maxMultiplier);
 
@@ -182,8 +179,7 @@ public class RequirementEnergy extends ComponentRequirement.PerTickParallelizabl
                                         final double total,
                                         final long required,
                                         final float multiplier,
-                                        final boolean simulate)
-    {
+                                        final boolean simulate) {
         double maxRequired = total;
         switch (actionType) {
             case INPUT -> {

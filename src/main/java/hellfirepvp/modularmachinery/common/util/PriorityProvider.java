@@ -24,7 +24,7 @@ import java.util.function.Function;
  */
 public class PriorityProvider<T> implements Iterable<T> {
 
-    private final Collection<T> backingList;
+    private final Collection<T>              backingList;
     private final Function<Collection<T>, T> priorityFunction;
 
     public PriorityProvider(Collection<T> backingList, Function<Collection<T>, T> priorityProvider) {
@@ -39,9 +39,9 @@ public class PriorityProvider<T> implements Iterable<T> {
 
     private static class PriorityIterator<T> implements Iterator<T> {
 
-        private final Collection<T> backingList;
+        private final Collection<T>              backingList;
         private final Function<Collection<T>, T> priorityFunction;
-        private boolean prioritized = true;
+        private       boolean                    prioritized = true;
 
         private PriorityIterator(Collection<T> backingList, Function<Collection<T>, T> priorityProvider) {
             this.backingList = backingList;

@@ -1,11 +1,16 @@
 package github.kasuminova.mmce.common.block.appeng;
 
+import appeng.api.implementations.items.IMemoryCard;
+import appeng.api.implementations.items.MemoryCardMessages;
+import github.kasuminova.mmce.common.tile.SettingsTransfer;
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.block.BlockMachineComponent;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
@@ -47,5 +52,26 @@ public abstract class BlockMEMachineComponent extends BlockMachineComponent {
     @SideOnly(Side.CLIENT)
     public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT;
+    }
+
+    protected boolean handleSettingsTransfer(@Nonnull SettingsTransfer settingsProvider, @Nonnull IMemoryCard memoryCard, @Nonnull EntityPlayer player, @Nonnull ItemStack heldItem) {
+        if (player.isSneaking()) {
+            NBTTagCompound tag = settingsProvider.downloadSettings();
+            if (tag != null) {
+                memoryCard.setMemoryCardContents(heldItem, getTranslationKey(), tag);
+                return true;
+            }
+        } else {
+            String savedName = memoryCard.getSettingsName(heldItem);
+            NBTTagCompound tag = memoryCard.getData(heldItem);
+            if (getTranslationKey().equals(savedName)) {
+                settingsProvider.uploadSettings(tag);
+                memoryCard.notifyUser(player, MemoryCardMessages.SETTINGS_LOADED);
+                return true;
+            } else {
+                memoryCard.notifyUser(player, MemoryCardMessages.INVALID_MACHINE);
+            }
+        }
+        return false;
     }
 }

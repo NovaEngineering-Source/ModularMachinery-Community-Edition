@@ -23,26 +23,66 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class GuiContainerUpgradeBus extends GuiContainerBase<ContainerUpgradeBus> {
-    public static final ResourceLocation TEXTURES_UPGRADE_BUS = new ResourceLocation(ModularMachinery.MODID, "textures/gui/guiupgradebus.png");
-
-    private static final int SCROLLBAR_TOP = 17;
-    private static final int SCROLLBAR_LEFT = 156;
-    private static final int SCROLLBAR_HEIGHT = 106;
-    private static final int TEXT_DRAW_OFFSET_X = 92;
-    private static final int TEXT_DRAW_OFFSET_Y = 23;
-
-    public static final double FONT_SCALE = 0.72;
-    public static final int SLOT_START_X = 8;
-    public static final int SLOT_START_Y = 17;
-    public static final int MAX_DESC_LINES = 15;
-
-    private final GuiScrollbar scrollbar = new GuiScrollbar();
-    private final TileUpgradeBus upgradeBus;
+    public static final  ResourceLocation TEXTURES_UPGRADE_BUS = new ResourceLocation(ModularMachinery.MODID, "textures/gui/guiupgradebus.png");
+    public static final  double           FONT_SCALE           = 0.72;
+    public static final  int              SLOT_START_X         = 8;
+    public static final  int              SLOT_START_Y         = 17;
+    public static final  int              MAX_DESC_LINES       = 15;
+    private static final int              SCROLLBAR_TOP        = 17;
+    private static final int              SCROLLBAR_LEFT       = 156;
+    private static final int              SCROLLBAR_HEIGHT     = 106;
+    private static final int              TEXT_DRAW_OFFSET_X   = 92;
+    private static final int              TEXT_DRAW_OFFSET_Y   = 23;
+    private final        GuiScrollbar     scrollbar            = new GuiScrollbar();
+    private final        TileUpgradeBus   upgradeBus;
 
     public GuiContainerUpgradeBus(final TileUpgradeBus upgradeBus, final EntityPlayer player) {
         super(new ContainerUpgradeBus(upgradeBus, player));
         this.upgradeBus = upgradeBus;
         this.ySize = 213;
+    }
+
+    private static void collectBoundedMachineDescriptions(final List<String> desc,
+                                                          final Map<BlockPos, DynamicMachine> boundedMachine,
+                                                          final Map<UpgradeType, List<MachineUpgrade>> founded) {
+        if (boundedMachine.isEmpty()) {
+            desc.add(I18n.format("gui.upgradebus.bounded.empty"));
+            return;
+        } else {
+            desc.add(I18n.format("gui.upgradebus.bounded", boundedMachine.size()));
+        }
+
+        boundedMachine.forEach((pos, machine) -> {
+            desc.add(String.format("%s (%s)", machine.getLocalizedName(), MiscUtils.posToString(pos)));
+            founded.forEach((type, upgrades) -> {
+                for (final MachineUpgrade upgrade : upgrades) {
+                    if (type.isCompatible(machine)) {
+                        return;
+                    }
+
+                    desc.add("   " + I18n.format(
+                        "gui.upgradebus.incompatible", upgrade.getType().getLocalizedName()));
+                }
+            });
+        });
+        desc.add("");
+    }
+
+    private static void collectUpgradeDescriptions(final TileUpgradeBus.UpgradeBusProvider component, final List<String> desc, final Map<UpgradeType, List<MachineUpgrade>> founded) {
+        founded.values().forEach(upgrades -> upgrades.forEach(upgrade -> {
+            upgrade.readNBT(component.getUpgradeCustomData(upgrade));
+
+            int stackSize = upgrade.getStackSize();
+            desc.add(stackSize + "x " + upgrade.getType().getLocalizedName());
+
+            List<String> busDesc = upgrade.getBusGUIDescriptions();
+            if (busDesc.isEmpty()) {
+                return;
+            }
+
+            desc.addAll(busDesc);
+            desc.add("");
+        }));
     }
 
     @Override
@@ -68,8 +108,8 @@ public class GuiContainerUpgradeBus extends GuiContainerBase<ContainerUpgradeBus
 
         //noinspection SimplifyStreamApiCallChains
         List<String> wrappedDesc = description.stream()
-                .flatMap(s -> fr.listFormattedStringToWidth(s, (int) (89 * (1 / FONT_SCALE))).stream())
-                .collect(Collectors.toList());
+                                              .flatMap(s -> fr.listFormattedStringToWidth(s, (int) (89 * (1 / FONT_SCALE))).stream())
+                                              .collect(Collectors.toList());
         updateScrollbar(x, y, Math.max(0, wrappedDesc.size() - MAX_DESC_LINES));
 
         int offsetY = TEXT_DRAW_OFFSET_Y;
@@ -80,49 +120,6 @@ public class GuiContainerUpgradeBus extends GuiContainerBase<ContainerUpgradeBus
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.popMatrix();
-    }
-
-    private static void collectBoundedMachineDescriptions(final List<String> desc,
-                                                          final Map<BlockPos, DynamicMachine> boundedMachine,
-                                                          final Map<UpgradeType, List<MachineUpgrade>> founded) {
-        if (boundedMachine.isEmpty()) {
-            desc.add(I18n.format("gui.upgradebus.bounded.empty"));
-            return;
-        } else {
-            desc.add(I18n.format("gui.upgradebus.bounded", boundedMachine.size()));
-        }
-
-        boundedMachine.forEach((pos, machine) -> {
-            desc.add(String.format("%s (%s)", machine.getLocalizedName(), MiscUtils.posToString(pos)));
-            founded.forEach((type, upgrades) -> {
-                for (final MachineUpgrade upgrade : upgrades) {
-                    if (type.isCompatible(machine)) {
-                        return;
-                    }
-
-                    desc.add("   " + I18n.format(
-                            "gui.upgradebus.incompatible", upgrade.getType().getLocalizedName()));
-                }
-            });
-        });
-        desc.add("");
-    }
-
-    private static void collectUpgradeDescriptions(final TileUpgradeBus.UpgradeBusProvider component, final List<String> desc, final Map<UpgradeType, List<MachineUpgrade>> founded) {
-        founded.values().forEach(upgrades -> upgrades.forEach(upgrade -> {
-            upgrade.readNBT(component.getUpgradeCustomData(upgrade));
-
-            int stackSize = upgrade.getStackSize();
-            desc.add(stackSize + "x " + upgrade.getType().getLocalizedName());
-
-            List<String> busDesc = upgrade.getBusGUIDescriptions();
-            if (busDesc.isEmpty()) {
-                return;
-            }
-
-            desc.addAll(busDesc);
-            desc.add("");
-        }));
     }
 
     @Override
@@ -149,7 +146,7 @@ public class GuiContainerUpgradeBus extends GuiContainerBase<ContainerUpgradeBus
 
     public void updateScrollbar(int displayX, int displayY, int range) {
         scrollbar.setLeft(SCROLLBAR_LEFT + displayX).setTop(SCROLLBAR_TOP + displayY).setHeight(SCROLLBAR_HEIGHT)
-                .setRange(0, range, 1);
+                 .setRange(0, range, 1);
     }
 
     @Override

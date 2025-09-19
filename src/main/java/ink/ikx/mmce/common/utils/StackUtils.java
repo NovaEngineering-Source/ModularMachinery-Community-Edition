@@ -16,7 +16,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.*;
+import net.minecraftforge.fluids.BlockFluidBase;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.IFluidBlock;
+import net.minecraftforge.fluids.UniversalBucket;
 
 import java.util.List;
 
@@ -67,8 +71,9 @@ public class StackUtils {
 
     public static int getIndex(List<ItemStack> stacks, ItemStack stack) {
         for (int i = 0; i < stacks.size(); i++) {
-            if (stacks.get(i).isItemEqual(stack))
+            if (stacks.get(i).isItemEqual(stack)) {
                 return i;
+            }
         }
         return -1;
     }
@@ -76,18 +81,24 @@ public class StackUtils {
     public static ItemStack hasStack(ItemStack stack, List<ItemStack> stacks, boolean isRemove) {
         for (ItemStack stackInSlot : stacks) {
             ItemStack copy = stackInSlot.copy();
-            if (stackInSlot.isEmpty()) continue;
+            if (stackInSlot.isEmpty()) {
+                continue;
+            }
             if (FluidUtils.areFluidHandler(stack, stackInSlot)) {
                 if (FluidUtils.equalsFluidFromStack(stackInSlot, stack)) {
                     if (stackInSlot.getItem() instanceof ItemBucket || stackInSlot.getItem() instanceof UniversalBucket) {
-                        if (isRemove) stackInSlot.shrink(stack.getCount());
+                        if (isRemove) {
+                            stackInSlot.shrink(stack.getCount());
+                        }
                         return copy;
                     }
                     return ItemStack.EMPTY;
                 }
             } else if (stackInSlot.isItemEqual(stack)) {
                 if (stackInSlot.getCount() >= stack.getCount()) {
-                    if (isRemove) stackInSlot.shrink(stack.getCount());
+                    if (isRemove) {
+                        stackInSlot.shrink(stack.getCount());
+                    }
                     return copy;
                 }
             }

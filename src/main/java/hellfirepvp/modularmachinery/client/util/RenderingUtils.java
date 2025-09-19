@@ -12,7 +12,11 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -92,9 +96,9 @@ public class RenderingUtils {
         }
 
         vb.sortVertexData(
-                (float) TileEntityRendererDispatcher.staticPlayerX,
-                (float) TileEntityRendererDispatcher.staticPlayerY,
-                (float) TileEntityRendererDispatcher.staticPlayerZ);
+            (float) TileEntityRendererDispatcher.staticPlayerX,
+            (float) TileEntityRendererDispatcher.staticPlayerY,
+            (float) TileEntityRendererDispatcher.staticPlayerZ);
         tes.draw();
 
         GlStateManager.enableCull();
@@ -114,8 +118,9 @@ public class RenderingUtils {
             int esWidth = 0;
             for (Tuple<ItemStack, String> toolTip : tooltipData) {
                 int width = fr.getStringWidth(toolTip.getSecond()) + 17;
-                if (width > esWidth)
+                if (width > esWidth) {
                     esWidth = width;
+                }
             }
             ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
             if (x + 15 + esWidth > sr.getScaledWidth()) {
@@ -144,19 +149,19 @@ public class RenderingUtils {
             float z = 300F;
 
             GlStateManager.disableDepth();
-            drawGradientRect(pX - 3,           pY - 4, z,                 pX + esWidth + 3, pY - 3,                 color, colorFade);
-            drawGradientRect(pX - 3,           pY + sumLineHeight + 3, z, pX + esWidth + 3, pY + sumLineHeight + 4, color, colorFade);
-            drawGradientRect(pX - 3,           pY - 3, z,                 pX + esWidth + 3, pY + sumLineHeight + 3, color, colorFade);
-            drawGradientRect(pX - 4,           pY - 3, z,                 pX - 3,           pY + sumLineHeight + 3, color, colorFade);
-            drawGradientRect(pX + esWidth + 3, pY - 3, z,                 pX + esWidth + 4, pY + sumLineHeight + 3, color, colorFade);
+            drawGradientRect(pX - 3, pY - 4, z, pX + esWidth + 3, pY - 3, color, colorFade);
+            drawGradientRect(pX - 3, pY + sumLineHeight + 3, z, pX + esWidth + 3, pY + sumLineHeight + 4, color, colorFade);
+            drawGradientRect(pX - 3, pY - 3, z, pX + esWidth + 3, pY + sumLineHeight + 3, color, colorFade);
+            drawGradientRect(pX - 4, pY - 3, z, pX - 3, pY + sumLineHeight + 3, color, colorFade);
+            drawGradientRect(pX + esWidth + 3, pY - 3, z, pX + esWidth + 4, pY + sumLineHeight + 3, color, colorFade);
 
             int rgb = color.getRGB();
             int col = (rgb & 0x00FFFFFF) | rgb & 0xFF000000;
             Color colOp = new Color(col);
-            drawGradientRect(pX - 3,           pY - 3 + 1, z,              pX - 3 + 1,       pY + sumLineHeight + 3 - 1, color, colOp);
-            drawGradientRect(pX + esWidth + 2, pY - 3 + 1, z,              pX + esWidth + 3, pY + sumLineHeight + 3 - 1, color, colOp);
-            drawGradientRect(pX - 3,           pY - 3, z,                  pX + esWidth + 3, pY - 3 + 1,                 colOp, colOp);
-            drawGradientRect(pX - 3,           pY + sumLineHeight + 2, z,  pX + esWidth + 3, pY + sumLineHeight + 3,     color, color);
+            drawGradientRect(pX - 3, pY - 3 + 1, z, pX - 3 + 1, pY + sumLineHeight + 3 - 1, color, colOp);
+            drawGradientRect(pX + esWidth + 2, pY - 3 + 1, z, pX + esWidth + 3, pY + sumLineHeight + 3 - 1, color, colOp);
+            drawGradientRect(pX - 3, pY - 3, z, pX + esWidth + 3, pY - 3 + 1, colOp, colOp);
+            drawGradientRect(pX - 3, pY + sumLineHeight + 2, z, pX + esWidth + 3, pY + sumLineHeight + 3, color, color);
 
             for (Tuple<ItemStack, String> stackDesc : tooltipData) {
                 if (!stackDesc.getFirst().isEmpty()) {
@@ -193,15 +198,17 @@ public class RenderingUtils {
     public static void renderTooltip(int x, int y, List<String> tooltipData, Color color, Color colorFade, Color strColor, FontRenderer fontRenderer) {
         Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         boolean lighting = GL11.glGetBoolean(GL11.GL_LIGHTING);
-        if (lighting)
+        if (lighting) {
             RenderHelper.disableStandardItemLighting();
+        }
 
         if (!tooltipData.isEmpty()) {
             int esWidth = 0;
             for (String toolTip : tooltipData) {
                 int width = fontRenderer.getStringWidth(toolTip);
-                if (width > esWidth)
+                if (width > esWidth) {
                     esWidth = width;
+                }
             }
             ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
             if (x + 15 + esWidth > sr.getScaledWidth()) {
@@ -209,8 +216,9 @@ public class RenderingUtils {
             }
 
             int sumLineHeight = 8;
-            if (tooltipData.size() > 1)
+            if (tooltipData.size() > 1) {
                 sumLineHeight += 2 + (tooltipData.size() - 1) * 10;
+            }
 
 
             if (y + sumLineHeight > sr.getScaledHeight()) {
@@ -241,16 +249,18 @@ public class RenderingUtils {
             for (int i = 0; i < tooltipData.size(); ++i) {
                 String str = tooltipData.get(i);
                 fontRenderer.drawStringWithShadow(str, pX, pY, strColor.getRGB());
-                if (i == 0)
+                if (i == 0) {
                     pY += 2;
+                }
                 pY += 10;
             }
             GlStateManager.color(1F, 1F, 1F, 1F);
             GlStateManager.enableDepth();
         }
 
-        if (lighting)
+        if (lighting) {
             RenderHelper.enableStandardItemLighting();
+        }
         GlStateManager.color(1F, 1F, 1F, 1F);
         Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
     }

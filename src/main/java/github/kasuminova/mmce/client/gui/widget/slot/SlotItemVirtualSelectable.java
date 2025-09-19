@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 public class SlotItemVirtualSelectable extends SlotItemVirtual {
 
     protected Consumer<SlotItemVirtualSelectable> onClickedListener = null;
-    protected boolean clicked = false;
+    protected boolean                             clicked           = false;
 
     public SlotItemVirtualSelectable() {
     }

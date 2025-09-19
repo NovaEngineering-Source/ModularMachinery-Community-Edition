@@ -22,9 +22,9 @@ public class BloomGeoModelRenderer implements IRenderSetup, IBloomEffect {
     public static final BloomGeoModelRenderer INSTANCE = new BloomGeoModelRenderer();
 
     protected final Set<TileMultiblockMachineController> controllers = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    
+
     protected boolean initialized = false;
-    
+
     protected boolean postProcessing = false;
 
     public void registerGlobal(final TileMultiblockMachineController ctrl) {

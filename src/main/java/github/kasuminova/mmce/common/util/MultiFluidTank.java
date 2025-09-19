@@ -1,5 +1,6 @@
 package github.kasuminova.mmce.common.util;
 
+import hellfirepvp.modularmachinery.common.util.HybridFluidUtils;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -10,10 +11,12 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
-public class MultiFluidTank implements IFluidHandler {
-    private final FluidStack[] contents;
+public class MultiFluidTank implements IFluidHandler, IOneToOneFluidHandler {
+    private final FluidStack[]           contents;
     private final IFluidTankProperties[] props;
-    private int capacity;
+    private       int                    capacity;
+
+    private boolean oneToOne;
 
     public MultiFluidTank(int capacity, int tankCount) {
         this.capacity = capacity;
@@ -49,6 +52,10 @@ public class MultiFluidTank implements IFluidHandler {
                 contents[i] = stack.copy();
             }
         }
+
+        if (from instanceof IOneToOneFluidHandler oneToOneHandler) {
+            this.oneToOne = oneToOneHandler.isOneFluidOneSlot();
+        }
     }
 
     public int getCapacity() {
@@ -58,6 +65,11 @@ public class MultiFluidTank implements IFluidHandler {
     public MultiFluidTank setCapacity(final int capacity) {
         this.capacity = capacity;
         return this;
+    }
+
+    @Override
+    public boolean isOneFluidOneSlot() {
+        return oneToOne;
     }
 
     @Override
@@ -72,6 +84,11 @@ public class MultiFluidTank implements IFluidHandler {
         }
 
         final FluidStack insert = fluid.copy();
+
+        int foundSlot = HybridFluidUtils.findSlotWithFluid(this, props, fluid);
+        if (foundSlot >= 0) {
+            return fill(foundSlot, insert, doFill);
+        }
 
         int totalFillAmount = 0;
         for (int i = 0; i < contents.length; i++) {
@@ -151,7 +168,7 @@ public class MultiFluidTank implements IFluidHandler {
             int drained = drainedStack.amount;
             totalDrainAmount += drained;
 
-            if (drained >= res.amount) {
+            if (drained >= res.amount || oneToOne) {
                 break;
             }
             res.amount -= drained;
@@ -198,10 +215,10 @@ public class MultiFluidTank implements IFluidHandler {
         }
 
         FluidStack toDrain = Arrays.stream(contents)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .map(FluidStack::copy)
-                .orElse(null);
+                                   .filter(Objects::nonNull)
+                                   .findFirst()
+                                   .map(FluidStack::copy)
+                                   .orElse(null);
 
         if (toDrain == null) {
             return null;

@@ -10,9 +10,7 @@ package hellfirepvp.modularmachinery.common.crafting.requirement.type;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementFluid;
 import hellfirepvp.modularmachinery.common.crafting.requirement.RequirementGas;
-import hellfirepvp.modularmachinery.common.lib.RequirementTypesMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import mekanism.api.gas.Gas;
 import mekanism.api.gas.GasRegistry;
@@ -46,11 +44,11 @@ public class RequirementTypeGas extends RequirementType<Object, RequirementGas> 
     @Optional.Method(modid = "mekanism")
     private RequirementGas provideMekGasComponent(IOType machineIoType, JsonObject requirement) {
         if (!requirement.has("gas") || !requirement.get("gas").isJsonPrimitive() ||
-                !requirement.get("gas").getAsJsonPrimitive().isString()) {
+            !requirement.get("gas").getAsJsonPrimitive().isString()) {
             throw new JsonParseException("The ComponentType 'gas' expects an 'gas'-entry that defines the type of gas!");
         }
         if (!requirement.has("amount") || !requirement.get("amount").isJsonPrimitive() ||
-                !requirement.get("amount").getAsJsonPrimitive().isNumber()) {
+            !requirement.get("amount").getAsJsonPrimitive().isNumber()) {
             throw new JsonParseException("The ComponentType 'gas' expects an 'amount'-entry that defines the type of gas!");
         }
         String gasName = requirement.getAsJsonPrimitive("gas").getAsString();

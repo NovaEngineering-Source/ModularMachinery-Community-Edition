@@ -8,12 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SpecialItemBlockProxyRegistry {
-    public static final SpecialItemBlockProxyRegistry INSTANCE = new SpecialItemBlockProxyRegistry();
+    public static final SpecialItemBlockProxyRegistry      INSTANCE      = new SpecialItemBlockProxyRegistry();
+    private final       Map<String, SpecialItemBlockProxy> proxyRegistry = new HashMap<>();
 
     private SpecialItemBlockProxyRegistry() {
     }
-
-    private final Map<String, SpecialItemBlockProxy> proxyRegistry = new HashMap<>();
 
     public Map<String, SpecialItemBlockProxy> getRegistry() {
         return Collections.unmodifiableMap(proxyRegistry);

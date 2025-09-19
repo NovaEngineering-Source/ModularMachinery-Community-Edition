@@ -31,16 +31,16 @@ import java.util.List;
 public abstract class ComponentRequirement<T, V extends RequirementType<T, ? extends ComponentRequirement<T, V>>> {
 
     public static final int PRIORITY_WEIGHT_ENERGY = 50_000_000;
-    public static final int PRIORITY_WEIGHT_FLUID = 100;
-    public static final int PRIORITY_WEIGHT_ITEM = 50_000;
+    public static final int PRIORITY_WEIGHT_FLUID  = 100;
+    public static final int PRIORITY_WEIGHT_ITEM   = 50_000;
 
-    public final V requirementType;
-    protected final IOType actionType;
-    protected ComponentSelectorTag tag = null;
+    public final    V                    requirementType;
+    protected final IOType               actionType;
+    protected       ComponentSelectorTag tag = null;
 
-    protected boolean triggered = false;
+    protected boolean triggered         = false;
     protected boolean triggerRepeatable = false;
-    protected int triggerTime = 0;
+    protected int     triggerTime       = 0;
 
     protected boolean ignoreOutputCheck = false;
 
@@ -296,6 +296,8 @@ public abstract class ComponentRequirement<T, V extends RequirementType<T, ? ext
                               final RecipeCraftingContext context,
                               final int maxParallelism);
 
+        int getParallelism();
+
         /**
          * <p>
          * 设置该需求的并行数，检查需求或工作时应当严格遵守该并行数量，不得自行增加或减少并行数。
@@ -308,15 +310,13 @@ public abstract class ComponentRequirement<T, V extends RequirementType<T, ? ext
          */
         void setParallelism(int parallelism);
 
-        int getParallelism();
+        boolean isParallelizeUnaffected();
 
         /**
          * <p>设置该并行类型是否不受并行数影响（即并行数始终为 1）。</p>
          * <p>Sets whether this parallel type is independent of the number of parallels (i.e., the number of parallels is always 1).</p>
          */
         void setParallelizeUnaffected(boolean unaffected);
-
-        boolean isParallelizeUnaffected();
     }
 
     /**
@@ -429,8 +429,8 @@ public abstract class ComponentRequirement<T, V extends RequirementType<T, ? ext
     }
 
     public abstract static class MultiComponentRequirement<T, V extends RequirementType<T, ? extends ComponentRequirement<T, V>>>
-            extends ComponentRequirement<T, V>
-            implements MultiComponent {
+        extends ComponentRequirement<T, V>
+        implements MultiComponent {
 
         public MultiComponentRequirement(final V requirementType, final IOType actionType) {
             super(requirementType, actionType);
@@ -444,10 +444,10 @@ public abstract class ComponentRequirement<T, V extends RequirementType<T, ? ext
     }
 
     public abstract static class MultiCompParallelizable<T, V extends RequirementType<T, ? extends ComponentRequirement<T, V>>>
-            extends MultiComponentRequirement<T, V>
-            implements Parallelizable {
+        extends MultiComponentRequirement<T, V>
+        implements Parallelizable {
 
-        protected int parallelism = 1;
+        protected int     parallelism           = 1;
         protected boolean parallelizeUnaffected = false;
 
         public MultiCompParallelizable(final V requirementType, final IOType actionType) {
@@ -464,16 +464,16 @@ public abstract class ComponentRequirement<T, V extends RequirementType<T, ? ext
         }
 
         @Override
+        public boolean isParallelizeUnaffected() {
+            return parallelizeUnaffected;
+        }
+
+        @Override
         public void setParallelizeUnaffected(boolean unaffected) {
             this.parallelizeUnaffected = unaffected;
             if (parallelizeUnaffected) {
                 this.parallelism = 1;
             }
-        }
-
-        @Override
-        public boolean isParallelizeUnaffected() {
-            return parallelizeUnaffected;
         }
 
         @Override
@@ -490,7 +490,7 @@ public abstract class ComponentRequirement<T, V extends RequirementType<T, ? ext
     }
 
     public abstract static class PerTick<T, V extends RequirementType<T, ? extends PerTick<T, V>>>
-            extends ComponentRequirement<T, V> {
+        extends ComponentRequirement<T, V> {
 
         public PerTick(V requirementType, IOType actionType) {
             super(requirementType, actionType);
@@ -522,8 +522,8 @@ public abstract class ComponentRequirement<T, V extends RequirementType<T, ? ext
     }
 
     public abstract static class PerTickMultiComponent<T, V extends RequirementType<T, ? extends PerTick<T, V>>>
-            extends PerTick<T, V>
-            implements MultiComponent {
+        extends PerTick<T, V>
+        implements MultiComponent {
 
         public PerTickMultiComponent(final V requirementType, final IOType actionType) {
             super(requirementType, actionType);
@@ -554,10 +554,10 @@ public abstract class ComponentRequirement<T, V extends RequirementType<T, ? ext
     }
 
     public abstract static class PerTickParallelizable<T, V extends RequirementType<T, ? extends PerTick<T, V>>>
-            extends PerTickMultiComponent<T, V>
-            implements Parallelizable {
+        extends PerTickMultiComponent<T, V>
+        implements Parallelizable {
 
-        protected int parallelism = 1;
+        protected int     parallelism           = 1;
         protected boolean parallelizeUnaffected = false;
 
         public PerTickParallelizable(final V requirementType, final IOType actionType) {
@@ -574,16 +574,16 @@ public abstract class ComponentRequirement<T, V extends RequirementType<T, ? ext
         }
 
         @Override
+        public boolean isParallelizeUnaffected() {
+            return parallelizeUnaffected;
+        }
+
+        @Override
         public void setParallelizeUnaffected(boolean unaffected) {
             this.parallelizeUnaffected = unaffected;
             if (parallelizeUnaffected) {
                 this.parallelism = 1;
             }
-        }
-
-        @Override
-        public boolean isParallelizeUnaffected() {
-            return parallelizeUnaffected;
         }
 
         @Override

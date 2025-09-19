@@ -54,11 +54,11 @@ public class GuiBlueprintScreenJEI extends GuiScreenDynamic {
         this.guiTop = guiTop;
     }
 
-    public void setWidgetController(final WidgetController widgetController) {
-        this.widgetController = widgetController;
-    }
-
     public WidgetController getWidgetController() {
         return widgetController;
+    }
+
+    public void setWidgetController(final WidgetController widgetController) {
+        this.widgetController = widgetController;
     }
 }

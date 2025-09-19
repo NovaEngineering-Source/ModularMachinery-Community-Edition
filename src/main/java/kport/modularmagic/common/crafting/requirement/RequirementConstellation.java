@@ -35,8 +35,8 @@ public class RequirementConstellation extends ComponentRequirement.MultiComponen
     public boolean isValidComponent(ProcessingComponent<?> component, RecipeCraftingContext ctx) {
         MachineComponent<?> cmp = component.getComponent();
         return cmp.getComponentType() instanceof ComponentConstellation &&
-                cmp instanceof MachineComponentConstellationProvider &&
-                cmp.ioType == getActionType();
+            cmp instanceof MachineComponentConstellationProvider &&
+            cmp.ioType == getActionType();
     }
 
     @Nonnull

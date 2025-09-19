@@ -14,10 +14,10 @@ import stanhebben.zenscript.annotations.ZenSetter;
 @ZenRegister
 @ZenClass("mods.modularmachinery.SmartInterfaceData")
 public class SmartInterfaceData {
-    private final BlockPos pos;
+    private final BlockPos         pos;
     private final ResourceLocation parent;
-    private final String type;
-    private float value = 0;
+    private final String           type;
+    private       float            value = 0;
 
     public SmartInterfaceData(BlockPos pos, ResourceLocation parent, String type) {
         this.pos = pos;
@@ -32,6 +32,14 @@ public class SmartInterfaceData {
         this.value = value;
     }
 
+    public static SmartInterfaceData deserialize(NBTTagCompound compound) {
+        return new SmartInterfaceData(
+            BlockPos.fromLong(compound.getLong("pos")),
+            new ResourceLocation(compound.getString("parent")),
+            compound.getString("type"),
+            compound.getFloat("value"));
+    }
+
     public BlockPos getPos() {
         return pos;
     }
@@ -44,7 +52,6 @@ public class SmartInterfaceData {
     public IBlockPos getIPos() {
         return CraftTweakerMC.getIBlockPos(pos);
     }
-
 
     public ResourceLocation getParent() {
         return parent;
@@ -90,13 +97,5 @@ public class SmartInterfaceData {
         compound.setFloat("value", value);
 
         return compound;
-    }
-
-    public static SmartInterfaceData deserialize(NBTTagCompound compound) {
-        return new SmartInterfaceData(
-                BlockPos.fromLong(compound.getLong("pos")),
-                new ResourceLocation(compound.getString("parent")),
-                compound.getString("type"),
-                compound.getFloat("value"));
     }
 }

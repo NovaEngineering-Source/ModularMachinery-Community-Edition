@@ -1,15 +1,13 @@
 package github.kasuminova.mmce.common.util;
 
 import github.kasuminova.mmce.common.util.concurrent.ActionExecutor;
-
-import java.util.ArrayDeque;
-import java.util.Deque;
+import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
 
 public class TimeRecorder {
-    private final Deque<Integer> usedTimeList = new ArrayDeque<>(100 + 2);
-    private final Deque<Integer> searchUsedTimeList = new ArrayDeque<>(20 + 2);
-    private int usedTimeCache = 0;
-    private int searchUsedTimeCache = 0;
+    private final IntArrayFIFOQueue usedTimeList        = new IntArrayFIFOQueue();
+    private final IntArrayFIFOQueue searchUsedTimeList  = new IntArrayFIFOQueue();
+    private       int               usedTimeCache       = 0;
+    private       int               searchUsedTimeCache = 0;
 
     public void updateUsedTime(ActionExecutor executor) {
         addUsedTime(executor == null ? 0 : executor.usedTime);
@@ -17,39 +15,36 @@ public class TimeRecorder {
 
     public void incrementUsedTime(int add) {
         usedTimeCache += add;
-        Integer first = usedTimeList.getFirst();
-        if (first != null) {
-            usedTimeList.removeFirst();
-            usedTimeList.addFirst(first + add);
+
+        if (!usedTimeList.isEmpty()) {
+            usedTimeList.enqueueFirst(usedTimeList.dequeueInt() + add);
         } else {
-            usedTimeList.addFirst(add);
+            usedTimeList.enqueueFirst(add);
         }
     }
 
     public void addUsedTime(int time) {
         usedTimeCache += time;
-        usedTimeList.addFirst(time);
+        usedTimeList.enqueueFirst(time);
         if (usedTimeList.size() > 100) {
-            usedTimeCache -= usedTimeList.pollLast();
+            usedTimeCache -= usedTimeList.dequeueLastInt();
         }
     }
 
     public void addRecipeResearchUsedTime(int time) {
         searchUsedTimeCache += time;
-        searchUsedTimeList.addFirst(time);
+        searchUsedTimeList.enqueueFirst(time);
         if (searchUsedTimeList.size() > 20) {
-            searchUsedTimeCache -= searchUsedTimeList.pollLast();
+            searchUsedTimeCache -= searchUsedTimeList.dequeueLastInt();
         }
     }
 
     public void incrementRecipeResearchUsedTime(int add) {
         searchUsedTimeCache += add;
-        Integer first = searchUsedTimeList.getFirst();
-        if (first != null) {
-            searchUsedTimeList.removeFirst();
-            searchUsedTimeList.addFirst(first + add);
+        if (!searchUsedTimeList.isEmpty()) {
+            searchUsedTimeList.enqueueFirst(searchUsedTimeList.dequeueInt() + add);
         } else {
-            searchUsedTimeList.addFirst(add);
+            searchUsedTimeList.enqueueFirst(add);
         }
     }
 
@@ -66,4 +61,5 @@ public class TimeRecorder {
         }
         return searchUsedTimeCache / searchUsedTimeList.size();
     }
+
 }

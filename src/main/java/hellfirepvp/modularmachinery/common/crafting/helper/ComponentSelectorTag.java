@@ -36,8 +36,12 @@ public record ComponentSelectorTag(String tag) {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ComponentSelectorTag another = (ComponentSelectorTag) o;
         return tag.equals(another.tag);
     }

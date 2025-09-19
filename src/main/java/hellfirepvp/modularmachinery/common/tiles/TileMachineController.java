@@ -13,14 +13,17 @@ import github.kasuminova.mmce.common.event.recipe.RecipeFailureEvent;
 import github.kasuminova.mmce.common.event.recipe.RecipeFinishEvent;
 import github.kasuminova.mmce.common.event.recipe.RecipeStartEvent;
 import github.kasuminova.mmce.common.event.recipe.RecipeTickEvent;
-import github.kasuminova.mmce.common.util.concurrent.ActionExecutor;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.block.BlockController;
 import hellfirepvp.modularmachinery.common.crafting.ActiveMachineRecipe;
 import hellfirepvp.modularmachinery.common.crafting.MachineRecipe;
 import hellfirepvp.modularmachinery.common.crafting.helper.CraftingStatus;
 import hellfirepvp.modularmachinery.common.crafting.helper.RecipeCraftingContext;
-import hellfirepvp.modularmachinery.common.machine.*;
+import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
+import hellfirepvp.modularmachinery.common.machine.MachineRecipeThread;
+import hellfirepvp.modularmachinery.common.machine.MachineRegistry;
+import hellfirepvp.modularmachinery.common.machine.RecipeThread;
+import hellfirepvp.modularmachinery.common.machine.TaggedPositionBlockArray;
 import hellfirepvp.modularmachinery.common.modifier.RecipeModifier;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
 import hellfirepvp.modularmachinery.common.util.BlockArrayCache;
@@ -37,8 +40,8 @@ import java.util.concurrent.TimeUnit;
  * <p>Completely refactored community edition mechanical controller with powerful asynchronous logic and extremely low performance consumption.</p>
  */
 public class TileMachineController extends TileMultiblockMachineController {
-    private MachineRecipeThread recipeThread = new MachineRecipeThread(this);
-    private BlockController parentController = null;
+    private MachineRecipeThread recipeThread     = new MachineRecipeThread(this);
+    private BlockController     parentController = null;
 
     private boolean redstoneEffected = false;
 
@@ -101,13 +104,11 @@ public class TileMachineController extends TileMultiblockMachineController {
                 }
             }
             case SYNC -> {
-                tickExecutor = new ActionExecutor(() -> {
-                    if (doAsyncStep()) {
-                        return;
-                    }
-                    doSyncStep(false);
-                });
-                tickExecutor.run();
+                tickExecutor = null;
+                if (doAsyncStep()) {
+                    return;
+                }
+                doSyncStep(false);
             }
         }
     }
@@ -286,7 +287,7 @@ public class TileMachineController extends TileMultiblockMachineController {
 
         MachineRecipe recipe = activeRecipe.getRecipe();
         RecipeFailureEvent event = new RecipeFailureEvent(
-                this, recipeThread, recipeThread.getStatus().getUnlocMessage(), recipe.doesCancelRecipeOnPerTickFailure());
+            this, recipeThread, recipeThread.getStatus().getUnlocMessage(), recipe.doesCancelRecipeOnPerTickFailure());
         event.postEvent();
 
         return event.isDestructRecipe();
@@ -307,7 +308,9 @@ public class TileMachineController extends TileMultiblockMachineController {
     @Override
     protected void checkAllPatterns() {
         for (DynamicMachine machine : MachineRegistry.getRegistry()) {
-            if (machine.isRequiresBlueprint() || machine.isFactoryOnly()) continue;
+            if (machine.isRequiresBlueprint() || machine.isFactoryOnly()) {
+                continue;
+            }
             TaggedPositionBlockArray pattern = BlockArrayCache.getBlockArrayCache(machine.getPattern(), controllerRotation);
             if (matchesRotation(pattern, machine, controllerRotation)) {
                 onStructureFormed();
@@ -372,8 +375,7 @@ public class TileMachineController extends TileMultiblockMachineController {
     }
 
     @Override
-    protected void resetMachine(boolean clearData) {
-        super.resetMachine(clearData);
+    protected void resetRecipe() {
         this.recipeThread.setActiveRecipe(null).setContext(null).getSemiPermanentModifiers().clear();
     }
 

@@ -17,19 +17,10 @@ public enum RecipeFailureActions {
     STILL("still"),
     DECREASE("decrease");
 
-    @ZenGetter("name")
-    public String getName() {
-        return name;
-    }
-
-    private final String name;
-
-    RecipeFailureActions(String name) {
-        this.name = name;
-    }
-
-    public static final RecipeFailureActions[] VALUES = RecipeFailureActions.values();
-    public static final HashMap<String, RecipeFailureActions> NAME_MAP;
+    public static final  RecipeFailureActions[]                      VALUES                   = RecipeFailureActions.values();
+    public static final  HashMap<String, RecipeFailureActions>       NAME_MAP;
+    private static final Map<ResourceLocation, RecipeFailureActions> REGISTRY_FAILURE_ACTIONS = new HashMap<>();
+    private static       RecipeFailureActions                        defaultAction            = RecipeFailureActions.STILL;
 
     static {
         NAME_MAP = new HashMap<>(VALUES.length);
@@ -38,14 +29,17 @@ public enum RecipeFailureActions {
         }
     }
 
-    private static final Map<ResourceLocation, RecipeFailureActions> REGISTRY_FAILURE_ACTIONS = new HashMap<>();
-    private static RecipeFailureActions defaultAction = RecipeFailureActions.STILL;
+    private final String name;
+
+    RecipeFailureActions(String name) {
+        this.name = name;
+    }
 
     public static void loadFromConfig(Configuration cfg) {
         defaultAction = RecipeFailureActions.NAME_MAP.get(
-                cfg.getString(
-                        "default-failure-actions", "general", "still",
-                        "Define what action is used when a recipe failed to run. [actions: reset, still, decrease]"));
+            cfg.getString(
+                "default-failure-actions", "general", "still",
+                "Define what action is used when a recipe failed to run. [actions: reset, still, decrease]"));
         if (defaultAction == null) {
             defaultAction = RecipeFailureActions.NAME_MAP.get("still");
         }
@@ -54,7 +48,9 @@ public enum RecipeFailureActions {
     @ZenMethod
     public static RecipeFailureActions getFailureAction(String key) {
         RecipeFailureActions actions = NAME_MAP.get(key);
-        if (actions != null) return actions;
+        if (actions != null) {
+            return actions;
+        }
 
         return defaultAction;
     }
@@ -62,5 +58,10 @@ public enum RecipeFailureActions {
     @ZenMethod
     public static RecipeFailureActions getDefaultAction() {
         return defaultAction;
+    }
+
+    @ZenGetter("name")
+    public String getName() {
+        return name;
     }
 }

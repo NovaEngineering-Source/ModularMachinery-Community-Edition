@@ -15,7 +15,11 @@ import hellfirepvp.modularmachinery.common.machine.MachineComponent;
 import hellfirepvp.modularmachinery.common.util.HybridGasTank;
 import hellfirepvp.modularmachinery.common.util.HybridTank;
 import hellfirepvp.modularmachinery.common.util.RedstoneHelper;
-import mekanism.api.gas.*;
+import mekanism.api.gas.Gas;
+import mekanism.api.gas.GasStack;
+import mekanism.api.gas.GasTankInfo;
+import mekanism.api.gas.IGasHandler;
+import mekanism.api.gas.ITubeConnection;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.MathHelper;
@@ -34,16 +38,16 @@ import javax.annotation.Nullable;
  * Date: 07.07.2017 / 17:51
  */
 @Optional.InterfaceList({
-        @Optional.Interface(modid = "mekanism", iface = "mekanism.api.gas.IGasHandler"),
-        @Optional.Interface(modid = "mekanism", iface = "mekanism.api.gas.ITubeConnection")
+    @Optional.Interface(modid = "mekanism", iface = "mekanism.api.gas.IGasHandler"),
+    @Optional.Interface(modid = "mekanism", iface = "mekanism.api.gas.ITubeConnection")
 })
 @SuppressWarnings("deprecation")
 public abstract class TileFluidTank extends TileColorableMachineComponent implements MachineComponentTile, IGasHandler, ITubeConnection, SelectiveUpdateTileEntity {
 
-    private HybridTank tank;
-    private IOType ioType;
+    private HybridTank     tank;
+    private IOType         ioType;
     private FluidHatchSize hatchSize;
-    private int prevRedstoneLevel = 0;
+    private int            prevRedstoneLevel = 0;
 
     public TileFluidTank() {
     }

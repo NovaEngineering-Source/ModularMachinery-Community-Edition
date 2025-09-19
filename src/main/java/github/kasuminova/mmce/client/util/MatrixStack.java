@@ -10,10 +10,10 @@ import javax.vecmath.Vector3f;
 import java.util.ArrayDeque;
 
 public class MatrixStack {
-    private final ArrayDeque<Matrix4f> model = new ArrayDeque<>();
+    private final ArrayDeque<Matrix4f> model  = new ArrayDeque<>();
     private final ArrayDeque<Matrix3f> normal = new ArrayDeque<>();
 
-    private final Matrix4f tempModelMatrix = new Matrix4f();
+    private final Matrix4f tempModelMatrix  = new Matrix4f();
     private final Matrix3f tempNormalMatrix = new Matrix3f();
 
     public MatrixStack() {

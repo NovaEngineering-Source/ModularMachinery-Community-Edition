@@ -22,7 +22,7 @@ import java.util.Map;
 
 public abstract class ContainerMEGasBus extends ContainerUpgradeable implements IGasSyncContainer {
     protected final GasSyncHelper tankSync;
-    private final MEGasBus owner;
+    private final   MEGasBus      owner;
 
     @GuiSync(7)
     public int capacityUpgrades = 0;
@@ -58,8 +58,8 @@ public abstract class ContainerMEGasBus extends ContainerUpgradeable implements 
         final IItemHandler upgrades = this.getUpgradeable().getInventoryByName("upgrades");
         for (int i = 0; i < availableUpgrades(); i++) {
             this.addSlotToContainer(
-                    (new SlotRestrictedInput(SlotRestrictedInput.PlacableItemType.UPGRADES, upgrades, i, 187, 8 + (18 * i), this.getInventoryPlayer()))
-                            .setNotDraggable());
+                (new SlotRestrictedInput(SlotRestrictedInput.PlacableItemType.UPGRADES, upgrades, i, 187, 8 + (18 * i), this.getInventoryPlayer()))
+                    .setNotDraggable());
         }
     }
 
@@ -85,7 +85,7 @@ public abstract class ContainerMEGasBus extends ContainerUpgradeable implements 
         if (Platform.isClient() && field.equals("capacityUpgrades")) {
             this.capacityUpgrades = (int) newValue;
             this.owner.getTanks().setCap(
-                    (int) (Math.pow(4, this.capacityUpgrades + 1) * (MEFluidBus.TANK_DEFAULT_CAPACITY / 4))
+                (int) (Math.pow(4, this.capacityUpgrades + 1) * (MEFluidBus.TANK_DEFAULT_CAPACITY / 4))
             );
         }
     }

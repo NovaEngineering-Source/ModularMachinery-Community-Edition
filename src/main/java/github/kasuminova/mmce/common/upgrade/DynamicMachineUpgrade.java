@@ -5,9 +5,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public abstract class DynamicMachineUpgrade extends MachineUpgrade {
-    protected int busInventoryIndex = -1;
-    protected boolean valid = true;
-    protected ItemStack parentStack = ItemStack.EMPTY;
+    protected int       busInventoryIndex = -1;
+    protected boolean   valid             = true;
+    protected ItemStack parentStack       = ItemStack.EMPTY;
 
     public DynamicMachineUpgrade(final UpgradeType type) {
         super(type);

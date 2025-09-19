@@ -28,7 +28,7 @@ import java.io.IOException;
  */
 public class GuiScreenBlueprint extends GuiScreenDynamic {
     public static final ResourceLocation GUI_TEXTURE =
-            new ResourceLocation(ModularMachinery.MODID, "textures/gui/guiblueprint_new.png");
+        new ResourceLocation(ModularMachinery.MODID, "textures/gui/guiblueprint_new.png");
 
     public static final int X_SIZE = 184;
     public static final int Y_SIZE = 220;

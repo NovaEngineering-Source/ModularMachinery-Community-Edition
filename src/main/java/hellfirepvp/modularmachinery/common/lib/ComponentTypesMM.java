@@ -21,14 +21,14 @@ import net.minecraft.util.ResourceLocation;
  */
 public class ComponentTypesMM {
 
-    public static final ResourceLocation KEY_COMPONENT_ITEM = new ResourceLocation(ModularMachinery.MODID, "item");
-    public static final ResourceLocation KEY_COMPONENT_FLUID = new ResourceLocation(ModularMachinery.MODID, "fluid");
-    public static final ResourceLocation KEY_COMPONENT_ITEM_FLUID = new ResourceLocation(ModularMachinery.MODID, "item_fluid");
-    public static final ResourceLocation KEY_COMPONENT_GAS = new ResourceLocation(ModularMachinery.MODID, "gas");
-    public static final ResourceLocation KEY_COMPONENT_ENERGY = new ResourceLocation(ModularMachinery.MODID, "energy");
-    public static final ResourceLocation KEY_COMPONENT_SMART_INTERFACE = new ResourceLocation(ModularMachinery.MODID, "interface_number");
+    public static final ResourceLocation KEY_COMPONENT_ITEM                = new ResourceLocation(ModularMachinery.MODID, "item");
+    public static final ResourceLocation KEY_COMPONENT_FLUID               = new ResourceLocation(ModularMachinery.MODID, "fluid");
+    public static final ResourceLocation KEY_COMPONENT_ITEM_FLUID          = new ResourceLocation(ModularMachinery.MODID, "item_fluid");
+    public static final ResourceLocation KEY_COMPONENT_GAS                 = new ResourceLocation(ModularMachinery.MODID, "gas");
+    public static final ResourceLocation KEY_COMPONENT_ENERGY              = new ResourceLocation(ModularMachinery.MODID, "energy");
+    public static final ResourceLocation KEY_COMPONENT_SMART_INTERFACE     = new ResourceLocation(ModularMachinery.MODID, "interface_number");
     public static final ResourceLocation KEY_COMPONENT_PARALLEL_CONTROLLER = new ResourceLocation(ModularMachinery.MODID, "parallel_controller");
-    public static final ResourceLocation KEY_COMPONENT_UPGRADE_BUS = new ResourceLocation(ModularMachinery.MODID, "upgrade");
+    public static final ResourceLocation KEY_COMPONENT_UPGRADE_BUS         = new ResourceLocation(ModularMachinery.MODID, "upgrade");
 
     public static ComponentType COMPONENT_ITEM;
     public static ComponentType COMPONENT_FLUID;

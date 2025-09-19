@@ -24,7 +24,13 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -35,17 +41,17 @@ import java.util.*;
  */
 public class MachineLoader {
 
-    public static final Map<String, BlockArray.BlockInformation> VARIABLE_CONTEXT = new HashMap<>();
-    private static final Gson GSON = new GsonBuilder()
-            .registerTypeHierarchyAdapter(DynamicMachine.class, new DynamicMachine.MachineDeserializer())
-            .registerTypeHierarchyAdapter(BlockInformationVariable.class, new BlockInformationVariable.Deserializer())
-            .registerTypeHierarchyAdapter(SingleBlockModifierReplacement.class, new SingleBlockModifierReplacement.Deserializer())
-            .registerTypeHierarchyAdapter(RecipeModifier.class, new RecipeModifier.Deserializer())
-            .create();
-    private static final Gson PRELOAD_GSON = new GsonBuilder()
-            .registerTypeHierarchyAdapter(DynamicMachine.class, new DynamicMachinePreDeserializer())
-            .create();
-    private static Map<String, Exception> failedAttempts = new HashMap<>();
+    public static final  Map<String, BlockArray.BlockInformation> VARIABLE_CONTEXT = new HashMap<>();
+    private static final Gson                                     GSON             = new GsonBuilder()
+        .registerTypeHierarchyAdapter(DynamicMachine.class, new DynamicMachine.MachineDeserializer())
+        .registerTypeHierarchyAdapter(BlockInformationVariable.class, new BlockInformationVariable.Deserializer())
+        .registerTypeHierarchyAdapter(SingleBlockModifierReplacement.class, new SingleBlockModifierReplacement.Deserializer())
+        .registerTypeHierarchyAdapter(RecipeModifier.class, new RecipeModifier.Deserializer())
+        .create();
+    private static final Gson                                     PRELOAD_GSON     = new GsonBuilder()
+        .registerTypeHierarchyAdapter(DynamicMachine.class, new DynamicMachinePreDeserializer())
+        .create();
+    private static       Map<String, Exception>                   failedAttempts   = new HashMap<>();
 
     public static Map<FileType, List<File>> discoverDirectory(File directory) {
         Map<FileType, List<File>> candidates = new EnumMap<>(FileType.class);

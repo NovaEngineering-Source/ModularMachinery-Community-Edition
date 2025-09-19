@@ -9,10 +9,17 @@
 package hellfirepvp.modularmachinery.common.machine;
 
 import com.google.common.collect.Lists;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import crafttweaker.util.IEventHandler;
 import github.kasuminova.mmce.common.concurrent.RecipeCraftingContextPool;
 import github.kasuminova.mmce.common.event.machine.IEventHandler;
 import github.kasuminova.mmce.common.event.machine.MachineEvent;
+import github.kasuminova.mmce.common.util.BlockPos2ValueMap;
 import github.kasuminova.mmce.common.util.DynamicPattern;
 import hellfirepvp.modularmachinery.common.crafting.ActiveMachineRecipe;
 import hellfirepvp.modularmachinery.common.crafting.MachineRecipe;
@@ -38,7 +45,16 @@ import net.minecraft.util.math.BlockPos;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * This class is part of the Modular Machinery Mod
@@ -48,12 +64,12 @@ import java.util.*;
  * Date: 27.06.2017 / 13:57
  */
 public class DynamicMachine extends AbstractMachine {
-    private final Map<BlockPos, List<SingleBlockModifierReplacement>> modifiers = new HashMap<>();
-    private final List<MultiBlockModifierReplacement> multiBlockModifiers = new ArrayList<>();
+    private final Map<BlockPos, List<SingleBlockModifierReplacement>> modifiers           = new BlockPos2ValueMap<>();
+    private final List<MultiBlockModifierReplacement>                 multiBlockModifiers = new ArrayList<>();
 
     private final Map<Class<?>, List<IEventHandler<MachineEvent>>> machineEventHandlers = new HashMap<>();
 
-    private final TaggedPositionBlockArray pattern = new TaggedPositionBlockArray();
+    private final TaggedPositionBlockArray    pattern         = new TaggedPositionBlockArray();
     private final Map<String, DynamicPattern> dynamicPatterns = new HashMap<>();
 
     // TODO: Remove this
@@ -178,7 +194,7 @@ public class DynamicMachine extends AbstractMachine {
     }
 
     public RecipeCraftingContext createContext(ActiveMachineRecipe recipe,
-            TileMultiblockMachineController ctrl) {
+                                               TileMultiblockMachineController ctrl) {
         if (!recipe.getRecipe().getOwningMachineIdentifier().equals(registryName)) {
             throw new IllegalArgumentException("Tried to create context for a recipe that doesn't belong to the referenced machine!");
         }
@@ -312,79 +328,6 @@ public class DynamicMachine extends AbstractMachine {
             }
         }
 
-        @Override
-        public DynamicMachine deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            JsonObject root = json.getAsJsonObject();
-            String registryName = JsonUtils.getString(root, "registryname", "");
-            if (registryName.isEmpty()) {
-                registryName = JsonUtils.getString(root, "registryName", "");
-                if (registryName.isEmpty()) {
-                    throw new JsonParseException("Invalid/Missing 'registryname' !");
-                }
-            }
-            String localized = JsonUtils.getString(root, "localizedname", "");
-            if (localized.isEmpty()) {
-                throw new JsonParseException("Invalid/Missing 'localizedname' !");
-            }
-            JsonArray parts = JsonUtils.getJsonArray(root, "parts", new JsonArray());
-            if (parts.size() == 0) {
-                throw new JsonParseException("Empty/Missing 'parts'!");
-            }
-            DynamicMachine machine = new DynamicMachine(registryName);
-            machine.setLocalizedName(localized);
-            // Failure Action
-            if (root.has("failure-action")) {
-                machine.setFailureAction(DynamicMachinePreDeserializer.getFailureActions(root));
-            }
-
-            // Requires Blueprint
-            if (root.has("requires-blueprint")) {
-                machine.setRequiresBlueprint(DynamicMachinePreDeserializer.getRequireBlueprint(root));
-            }
-
-            // Color
-            if (root.has("color")) {
-                machine.setDefinedColor(DynamicMachinePreDeserializer.getColor(root));
-            }
-
-            // Has Factory
-            if (root.has("has-factory")) {
-                machine.setHasFactory(DynamicMachinePreDeserializer.getHasFactory(root));
-            }
-
-            // Factory Only
-            if (root.has("factory-only")) {
-                machine.setFactoryOnly(DynamicMachinePreDeserializer.getFactoryOnly(root));
-            }
-
-            // Hide Components When Formed
-            if (root.has("hide-components-when-formed")) {
-                machine.setHideComponentsWhenFormed(getHideComponentsWhenFormed(root));
-            }
-
-            // Controller Bounding Box
-            if (root.has("controller-bounding-box")) {
-                setControllerBoundingBox(root, machine);
-            }
-
-            // Parts
-            addParts(parts, machine.pattern);
-            // Remove Controller Position
-            machine.pattern.getPattern().remove(new BlockPos(0, 0, 0));
-
-            // Modifiers
-            if (root.has("modifiers")) {
-                addModifiers(context, root, machine);
-            }
-
-            // DynamicPatterns
-            if (root.has("dynamic-patterns")) {
-                addDynamicPatterns(root, machine);
-            }
-
-            return machine;
-        }
-
         private static void addDynamicPatterns(final JsonObject root, final DynamicMachine machine) {
             JsonArray patterns = JsonUtils.getJsonArray(root, "dynamic-patterns", new JsonArray());
             if (patterns.size() == 0) {
@@ -495,7 +438,7 @@ public class DynamicMachine extends AbstractMachine {
                     faces.add(EnumFacing.valueOf(face.toUpperCase()));
                 } catch (IllegalArgumentException e) {
                     throw new JsonParseException(
-                            "Invalid facing '" + face + "'! Expect: 'up', 'down', 'north', 'south', 'west', 'east' !");
+                        "Invalid facing '" + face + "'! Expect: 'up', 'down', 'north', 'south', 'west', 'east' !");
                 }
             }
 
@@ -629,7 +572,7 @@ public class DynamicMachine extends AbstractMachine {
                         String prim = p.getAsString();
                         BlockArray.BlockInformation descr = MachineLoader.VARIABLE_CONTEXT.get(prim);
                         if (descr != null) {
-                            descriptors.addAll(descr.copy().matchingStates);
+                            descriptors.addAll(descr.copy().getMatchingStates());
                         } else {
                             descriptors.add(BlockArray.BlockInformation.getDescriptor(prim));
                         }
@@ -657,13 +600,86 @@ public class DynamicMachine extends AbstractMachine {
                 throw new JsonParseException("Invalid 'controllerBoundingBox'!");
             }
             machine.setControllerBoundingBox(new AxisAlignedBB(
-                    boundingBox.get(0).getAsDouble(),
-                    boundingBox.get(1).getAsDouble(),
-                    boundingBox.get(2).getAsDouble(),
-                    boundingBox.get(3).getAsDouble(),
-                    boundingBox.get(4).getAsDouble(),
-                    boundingBox.get(5).getAsDouble()
+                boundingBox.get(0).getAsDouble(),
+                boundingBox.get(1).getAsDouble(),
+                boundingBox.get(2).getAsDouble(),
+                boundingBox.get(3).getAsDouble(),
+                boundingBox.get(4).getAsDouble(),
+                boundingBox.get(5).getAsDouble()
             ));
+        }
+
+        @Override
+        public DynamicMachine deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            JsonObject root = json.getAsJsonObject();
+            String registryName = JsonUtils.getString(root, "registryname", "");
+            if (registryName.isEmpty()) {
+                registryName = JsonUtils.getString(root, "registryName", "");
+                if (registryName.isEmpty()) {
+                    throw new JsonParseException("Invalid/Missing 'registryname' !");
+                }
+            }
+            String localized = JsonUtils.getString(root, "localizedname", "");
+            if (localized.isEmpty()) {
+                throw new JsonParseException("Invalid/Missing 'localizedname' !");
+            }
+            JsonArray parts = JsonUtils.getJsonArray(root, "parts", new JsonArray());
+            if (parts.size() == 0) {
+                throw new JsonParseException("Empty/Missing 'parts'!");
+            }
+            DynamicMachine machine = new DynamicMachine(registryName);
+            machine.setLocalizedName(localized);
+            // Failure Action
+            if (root.has("failure-action")) {
+                machine.setFailureAction(DynamicMachinePreDeserializer.getFailureActions(root));
+            }
+
+            // Requires Blueprint
+            if (root.has("requires-blueprint")) {
+                machine.setRequiresBlueprint(DynamicMachinePreDeserializer.getRequireBlueprint(root));
+            }
+
+            // Color
+            if (root.has("color")) {
+                machine.setDefinedColor(DynamicMachinePreDeserializer.getColor(root));
+            }
+
+            // Has Factory
+            if (root.has("has-factory")) {
+                machine.setHasFactory(DynamicMachinePreDeserializer.getHasFactory(root));
+            }
+
+            // Factory Only
+            if (root.has("factory-only")) {
+                machine.setFactoryOnly(DynamicMachinePreDeserializer.getFactoryOnly(root));
+            }
+
+            // Hide Components When Formed
+            if (root.has("hide-components-when-formed")) {
+                machine.setHideComponentsWhenFormed(getHideComponentsWhenFormed(root));
+            }
+
+            // Controller Bounding Box
+            if (root.has("controller-bounding-box")) {
+                setControllerBoundingBox(root, machine);
+            }
+
+            // Parts
+            addParts(parts, machine.pattern);
+            // Remove Controller Position
+            machine.pattern.getPattern().remove(new BlockPos(0, 0, 0));
+
+            // Modifiers
+            if (root.has("modifiers")) {
+                addModifiers(context, root, machine);
+            }
+
+            // DynamicPatterns
+            if (root.has("dynamic-patterns")) {
+                addDynamicPatterns(root, machine);
+            }
+
+            return machine;
         }
     }
 

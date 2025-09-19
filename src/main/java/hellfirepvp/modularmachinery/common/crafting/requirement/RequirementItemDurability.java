@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class RequirementItemDurability extends ComponentRequirement.MultiCompParallelizable<ItemStack, RequirementTypeItemDurability>
-        implements ComponentRequirement.ChancedRequirement, ComponentRequirement.Parallelizable, Asyncable {
+    implements ComponentRequirement.ChancedRequirement, ComponentRequirement.Parallelizable, Asyncable {
 
     public RequirementItemDurability(final RequirementTypeItemDurability requirementType, final IOType actionType) {
         super(requirementType, actionType);
@@ -30,7 +30,7 @@ public class RequirementItemDurability extends ComponentRequirement.MultiCompPar
         MachineComponent<?> cmp = component.component();
         ComponentType cmpType = cmp.getComponentType();
         return (cmpType.equals(ComponentTypesMM.COMPONENT_ITEM) || cmpType.equals(ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS))
-               && cmp.ioType == actionType;
+            && cmp.ioType == actionType;
     }
 
     @Override

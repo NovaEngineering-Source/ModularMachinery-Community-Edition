@@ -11,11 +11,11 @@ import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineContr
 
 public class RecipeSearchTask extends TimeRecordingTask<RecipeCraftingContext> {
     protected final TileMultiblockMachineController controller;
-    protected final DynamicMachine currentMachine;
-    protected final int maxParallelism;
-    protected final Iterable<MachineRecipe> recipeList;
-    protected CraftingStatus status = CraftingStatus.IDLE;
-    private final RecipeThread thread;
+    protected final DynamicMachine                  currentMachine;
+    protected final int                             maxParallelism;
+    protected final Iterable<MachineRecipe>         recipeList;
+    private final   RecipeThread                    thread;
+    protected       CraftingStatus                  status = CraftingStatus.IDLE;
 
     public RecipeSearchTask(TileMultiblockMachineController controller, DynamicMachine currentMachine, int maxParallelism, Iterable<MachineRecipe> recipeList, final RecipeThread thread) {
         this.controller = controller;
@@ -28,7 +28,9 @@ public class RecipeSearchTask extends TimeRecordingTask<RecipeCraftingContext> {
     @Override
     protected RecipeCraftingContext computeTask() {
         DynamicMachine foundMachine = controller.getFoundMachine();
-        if (foundMachine == null) return null;
+        if (foundMachine == null) {
+            return null;
+        }
 
         MachineRecipe highestValidity = null;
         RecipeCraftingContext.CraftingCheckResult highestValidityResult = null;
@@ -46,21 +48,23 @@ public class RecipeSearchTask extends TimeRecordingTask<RecipeCraftingContext> {
                     return null;
                 }
                 return context;
-            } else if (highestValidity == null ||
-                    (result.getValidity() >= 0.5F && result.getValidity() > validity)) {
+            }
+
+            if (highestValidity == null || result.getValidity() > validity) {
                 highestValidity = recipe;
                 highestValidityResult = result;
                 validity = result.getValidity();
             }
+
             RecipeCraftingContextPool.returnCtx(context);
         }
 
         if (highestValidity != null) {
             status = CraftingStatus.failure(
-                    highestValidityResult.getFirstErrorMessage(""));
+                highestValidityResult.getFirstErrorMessage(""));
         } else {
             status = CraftingStatus.failure(
-                    TileMultiblockMachineController.Type.NO_RECIPE.getUnlocalizedDescription());
+                TileMultiblockMachineController.Type.NO_RECIPE.getUnlocalizedDescription());
         }
 
         return null;

@@ -20,9 +20,9 @@ import net.minecraft.util.math.MathHelper;
  * Date: 09.07.2017 / 17:37
  */
 public abstract class TileItemBus extends TileInventory implements SelectiveUpdateTileEntity {
-    protected int successCounter = 0;
-    protected boolean inventoryChanged = false;
-    private ItemBusSize size;
+    protected int         successCounter   = 0;
+    protected boolean     inventoryChanged = false;
+    private   ItemBusSize size;
 
     public TileItemBus() {
     }

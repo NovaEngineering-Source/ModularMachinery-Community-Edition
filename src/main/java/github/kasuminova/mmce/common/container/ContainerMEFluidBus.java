@@ -22,9 +22,9 @@ import java.util.Map;
 
 public abstract class ContainerMEFluidBus extends ContainerUpgradeable implements IFluidSyncContainer {
     protected final FluidSyncHelper tankSync;
-    private final MEFluidBus owner;
+    private final   MEFluidBus      owner;
     @GuiSync(7)
-    public int capacityUpgrades = 0;
+    public          int             capacityUpgrades = 0;
 
     public ContainerMEFluidBus(final InventoryPlayer ip, final MEFluidBus te) {
         super(ip, te);
@@ -57,8 +57,8 @@ public abstract class ContainerMEFluidBus extends ContainerUpgradeable implement
         final IItemHandler upgrades = this.getUpgradeable().getInventoryByName("upgrades");
         for (int i = 0; i < availableUpgrades(); i++) {
             this.addSlotToContainer(
-                    (new SlotRestrictedInput(SlotRestrictedInput.PlacableItemType.UPGRADES, upgrades, i, 187, 8 + (18 * i), this.getInventoryPlayer()))
-                            .setNotDraggable());
+                (new SlotRestrictedInput(SlotRestrictedInput.PlacableItemType.UPGRADES, upgrades, i, 187, 8 + (18 * i), this.getInventoryPlayer()))
+                    .setNotDraggable());
         }
     }
 
@@ -84,7 +84,7 @@ public abstract class ContainerMEFluidBus extends ContainerUpgradeable implement
         if (Platform.isClient() && field.equals("capacityUpgrades")) {
             this.capacityUpgrades = (int) newValue;
             ((AEFluidInventoryUpgradeable) this.owner.getTanks()).setCapacity(
-                    (int) (Math.pow(4, this.capacityUpgrades + 1) * (MEFluidBus.TANK_DEFAULT_CAPACITY / 4)));
+                (int) (Math.pow(4, this.capacityUpgrades + 1) * (MEFluidBus.TANK_DEFAULT_CAPACITY / 4)));
         }
     }
 

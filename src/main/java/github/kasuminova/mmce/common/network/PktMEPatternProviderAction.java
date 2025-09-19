@@ -42,6 +42,7 @@ public class PktMEPatternProviderAction implements IMessage, IMessageHandler<Pkt
                 case ENABLE_BLOCKING_MODE -> provider.setWorkMode(MEPatternProvider.WorkModeSetting.BLOCKING_MODE);
                 case ENABLE_DEFAULT_MODE -> provider.setWorkMode(MEPatternProvider.WorkModeSetting.DEFAULT);
                 case ENABLE_CRAFTING_LOCK_MODE -> provider.setWorkMode(MEPatternProvider.WorkModeSetting.CRAFTING_LOCK_MODE);
+                case ENABLE_ENHANCED_BLOCKING_MODE -> provider.setWorkMode(MEPatternProvider.WorkModeSetting.ENHANCED_BLOCKING_MODE);
                 case RETURN_ITEMS -> provider.returnItemsScheduled();
             }
         });
@@ -52,6 +53,7 @@ public class PktMEPatternProviderAction implements IMessage, IMessageHandler<Pkt
         ENABLE_BLOCKING_MODE,
         ENABLE_DEFAULT_MODE,
         ENABLE_CRAFTING_LOCK_MODE,
+        ENABLE_ENHANCED_BLOCKING_MODE,
         RETURN_ITEMS,
     }
 

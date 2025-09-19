@@ -18,14 +18,13 @@ public class RecipeCraftingContextPool {
 
     @Nonnull
     public static RecipeCraftingContext borrowCtx(@Nonnull final ActiveMachineRecipe activeRecipe,
-                                                  @Nonnull final TileMultiblockMachineController ctrl)
-    {
+                                                  @Nonnull final TileMultiblockMachineController ctrl) {
         if (POOL.isEmpty()) {
             return new RecipeCraftingContext(reloadCounter, activeRecipe, ctrl);
         }
 
         Queue<RecipeCraftingContext> queue = POOL.computeIfAbsent(
-                activeRecipe.getRecipe().getRegistryName(), q -> new ConcurrentLinkedQueue<>());
+            activeRecipe.getRecipe().getRegistryName(), q -> new ConcurrentLinkedQueue<>());
 
         RecipeCraftingContext ctx;
         if ((ctx = queue.poll()) != null) {
@@ -40,7 +39,7 @@ public class RecipeCraftingContextPool {
             return;
         }
         POOL.computeIfAbsent(ctx.getParentRecipe().getRegistryName(), q -> new ConcurrentLinkedQueue<>())
-                .offer(ctx.resetAll());
+            .offer(ctx.resetAll());
     }
 
     public static void onReload() {

@@ -30,7 +30,7 @@ public class TileEntitySynchronized extends TileEntity {
     protected boolean requireUpdateComparatorLevel = false;
 
     private boolean inUpdateTask = false;
-    private boolean inMarkTask = false;
+    private boolean inMarkTask   = false;
 
     private long lastUpdateTick = 0;
 

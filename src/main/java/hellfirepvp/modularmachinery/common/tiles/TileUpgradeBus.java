@@ -5,6 +5,7 @@ import github.kasuminova.mmce.common.upgrade.DynamicMachineUpgrade;
 import github.kasuminova.mmce.common.upgrade.MachineUpgrade;
 import github.kasuminova.mmce.common.upgrade.UpgradeType;
 import github.kasuminova.mmce.common.upgrade.registry.RegistryUpgrade;
+import github.kasuminova.mmce.common.util.BlockPos2ValueMap;
 import hellfirepvp.modularmachinery.common.crafting.ComponentType;
 import hellfirepvp.modularmachinery.common.lib.ComponentTypesMM;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
@@ -31,16 +32,20 @@ import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class TileUpgradeBus extends TileEntityRestrictedTick implements MachineComponentTile, SelectiveUpdateTileEntity {
-    private final UpgradeBusProvider provider = new UpgradeBusProvider();
-    private final Map<BlockPos, DynamicMachine> boundedMachine = new HashMap<>();
+    private final UpgradeBusProvider            provider       = new UpgradeBusProvider();
+    private final Map<BlockPos, DynamicMachine> boundedMachine = new BlockPos2ValueMap<>();
 
     private final Int2ObjectMap<List<DynamicMachineUpgrade>> foundDynamicUpgrades = new Int2ObjectOpenHashMap<>();
-    private final Map<UpgradeType, MachineUpgrade> foundUpgrades = new HashMap<>();
+    private final Map<UpgradeType, MachineUpgrade>           foundUpgrades        = new HashMap<>();
 
     private NBTTagCompound upgradeCustomData = new NBTTagCompound();
 
@@ -124,10 +129,10 @@ public class TileUpgradeBus extends TileEntityRestrictedTick implements MachineC
 
     public void updateDynamicUpgrades(final List<MachineUpgrade> upgrades, final ItemStack parentStack, final int slotID) {
         foundDynamicUpgrades.put(slotID, upgrades.stream()
-                .filter(DynamicMachineUpgrade.class::isInstance)
-                .map(DynamicMachineUpgrade.class::cast)
-                .map(dynamicUpgrade -> dynamicUpgrade.setParentBus(this).setParentStack(parentStack).setBusInventoryIndex(slotID))
-                .collect(Collectors.toCollection(LinkedList::new)));
+                                                 .filter(DynamicMachineUpgrade.class::isInstance)
+                                                 .map(DynamicMachineUpgrade.class::cast)
+                                                 .map(dynamicUpgrade -> dynamicUpgrade.setParentBus(this).setParentStack(parentStack).setBusInventoryIndex(slotID))
+                                                 .collect(Collectors.toCollection(LinkedList::new)));
     }
 
     public void updateUpgrades(final List<MachineUpgrade> upgrades, final ItemStack parentStack) {
