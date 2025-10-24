@@ -21,6 +21,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -238,6 +239,31 @@ public class ItemUtils {
             return 0;
         }
         return damageAllInternal(handler, contents, amount, damagePerUse);
+    }
+
+    public static boolean hasDamageableEntry(final String oreDictName) {
+        if (oreDictName == null || oreDictName.isEmpty()) {
+            return false;
+        }
+        NonNullList<ItemStack> entries = OreDictionary.getOres(oreDictName);
+        for (ItemStack entry : entries) {
+            if (entry.isEmpty()) {
+                continue;
+            }
+            if (entry.isItemStackDamageable()) {
+                return true;
+            }
+            if (entry.getItemDamage() == OreDictionary.WILDCARD_VALUE && entry.getItem().getCreativeTab() != null) {
+                NonNullList<ItemStack> subItems = NonNullList.create();
+                entry.getItem().getSubItems(entry.getItem().getCreativeTab(), subItems);
+                for (ItemStack subEntry : subItems) {
+                    if (!subEntry.isEmpty() && subEntry.isItemStackDamageable()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public static int insertAll(@Nonnull ItemStack stack, IItemHandlerModifiable handler, int maxInsert) {

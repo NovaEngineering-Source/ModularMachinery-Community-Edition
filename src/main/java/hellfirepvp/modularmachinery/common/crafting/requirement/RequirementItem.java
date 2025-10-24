@@ -124,6 +124,14 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
         this.consumeDurability = Math.max(0, durability);
     }
 
+    public boolean supportsDurability() {
+        return switch (this.requirementType) {
+            case ITEMSTACKS -> !this.required.isEmpty() && this.required.isItemStackDamageable();
+            case OREDICT -> ItemUtils.hasDamageableEntry(this.oreDictName);
+            default -> false;
+        };
+    }
+
     @Override
     public int getSortingWeight() {
         return PRIORITY_WEIGHT_ITEM;

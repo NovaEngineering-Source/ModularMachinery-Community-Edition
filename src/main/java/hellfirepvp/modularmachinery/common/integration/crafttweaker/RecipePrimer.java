@@ -202,10 +202,17 @@ public class RecipePrimer implements PreparedRecipe {
                 CraftTweakerAPI.logWarning("[ModularMachinery] consumeDurability(int) only can be applied to item inputs!");
                 return this;
             }
+            int safeDurability = durability;
             if (durability < 0) {
                 CraftTweakerAPI.logWarning("[ModularMachinery] consumeDurability(int) requires a non-negative durability value!");
+                safeDurability = 0;
             }
-            reqItem.setConsumeDurability(durability);
+            if (safeDurability > 0 && !reqItem.supportsDurability()) {
+                CraftTweakerAPI.logWarning("[ModularMachinery] consumeDurability(int) only applies to items with durability; a component will be ignored.");
+                reqItem.setConsumeDurability(0);
+                return this;
+            }
+            reqItem.setConsumeDurability(safeDurability);
         } else {
             CraftTweakerAPI.logWarning("[ModularMachinery] consumeDurability(int) only can be applied to `Item`!");
         }
