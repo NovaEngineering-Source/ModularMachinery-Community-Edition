@@ -196,6 +196,50 @@ public class ItemUtils {
         return consumeAllInternal(handler, contents, amount);
     }
 
+    public static int damageAll(IItemHandlerModifiable handler, ItemStack toDamage, int amount, int damagePerUse, AdvancedItemChecker itemChecker, TileMultiblockMachineController controller) {
+        if (amount <= 0 || damagePerUse <= 0) {
+            return 0;
+        }
+        Int2ObjectMap<ItemStack> contents = findItemsIndexedInInventory(handler, toDamage, false, itemChecker, controller);
+        if (contents.isEmpty()) {
+            return 0;
+        }
+        return damageAllInternal(handler, contents, amount, damagePerUse);
+    }
+
+    public static int damageAll(IItemHandlerModifiable handler, ItemStack toDamage, int amount, int damagePerUse, @Nullable NBTTagCompound matchNBTTag) {
+        if (amount <= 0 || damagePerUse <= 0) {
+            return 0;
+        }
+        Int2ObjectMap<ItemStack> contents = findItemsIndexedInInventory(handler, toDamage, false, matchNBTTag);
+        if (contents.isEmpty()) {
+            return 0;
+        }
+        return damageAllInternal(handler, contents, amount, damagePerUse);
+    }
+
+    public static int damageAll(IItemHandlerModifiable handler, String oreName, int amount, int damagePerUse, AdvancedItemChecker itemChecker, TileMultiblockMachineController controller) {
+        if (amount <= 0 || damagePerUse <= 0) {
+            return 0;
+        }
+        Int2ObjectMap<ItemStack> contents = findItemsIndexedInInventoryOreDict(handler, oreName, itemChecker, controller);
+        if (contents.isEmpty()) {
+            return 0;
+        }
+        return damageAllInternal(handler, contents, amount, damagePerUse);
+    }
+
+    public static int damageAll(IItemHandlerModifiable handler, String oreName, int amount, int damagePerUse, @Nullable NBTTagCompound matchNBTTag) {
+        if (amount <= 0 || damagePerUse <= 0) {
+            return 0;
+        }
+        Int2ObjectMap<ItemStack> contents = findItemsIndexedInInventoryOreDict(handler, oreName, matchNBTTag);
+        if (contents.isEmpty()) {
+            return 0;
+        }
+        return damageAllInternal(handler, contents, amount, damagePerUse);
+    }
+
     public static int insertAll(@Nonnull ItemStack stack, IItemHandlerModifiable handler, int maxInsert) {
         if (stack.getCount() <= 0) {
             return 0;
@@ -252,6 +296,41 @@ public class ItemUtils {
         }
 
         return cAmt;
+    }
+
+    private static int damageAllInternal(IItemHandlerModifiable handler, Int2ObjectMap<ItemStack> contents, int maxOperations, int damagePerUse) {
+        int operations = 0;
+        if (damagePerUse <= 0) {
+            return 0;
+        }
+        for (final Int2ObjectMap.Entry<ItemStack> content : contents.int2ObjectEntrySet()) {
+            int slot = content.getIntKey();
+            ItemStack stack = content.getValue();
+            if (stack.isEmpty() || !stack.isItemStackDamageable() || stack.getMaxDamage() <= 0) {
+                continue;
+            }
+
+            while (operations < maxOperations && !stack.isEmpty()) {
+                int newDamage = stack.getItemDamage() + damagePerUse;
+                if (newDamage >= stack.getMaxDamage()) {
+                    stack.shrink(1);
+                    if (!stack.isEmpty()) {
+                        stack.setItemDamage(0);
+                    }
+                } else {
+                    stack.setItemDamage(newDamage);
+                }
+                operations++;
+            }
+
+            handler.setStackInSlot(slot, stack);
+
+            if (operations >= maxOperations) {
+                break;
+            }
+        }
+
+        return operations;
     }
 
     public static boolean stackEqualsNonNBT(@Nonnull ItemStack stack, @Nonnull ItemStack other) {

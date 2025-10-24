@@ -195,6 +195,23 @@ public class RecipePrimer implements PreparedRecipe {
         return this;
     }
 
+    @ZenMethod
+    public RecipePrimer consumeDurability(int durability) {
+        if (lastComponent instanceof RequirementItem reqItem) {
+            if (reqItem.getActionType() != IOType.INPUT) {
+                CraftTweakerAPI.logWarning("[ModularMachinery] consumeDurability(int) only can be applied to item inputs!");
+                return this;
+            }
+            if (durability < 0) {
+                CraftTweakerAPI.logWarning("[ModularMachinery] consumeDurability(int) requires a non-negative durability value!");
+            }
+            reqItem.setConsumeDurability(durability);
+        } else {
+            CraftTweakerAPI.logWarning("[ModularMachinery] consumeDurability(int) only can be applied to `Item`!");
+        }
+        return this;
+    }
+
     /**
      * <p>为某个输入或输出设置特定触发时间。</p>
      * <p>注意：如果设置了触发时间，则配方在其他时间不会触发任何消耗或产出动作。</p>

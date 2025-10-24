@@ -78,6 +78,8 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
     public int minAmount = 1;
     public int maxAmount = 1;
 
+    public int consumeDurability = 0;
+
     public RequirementItem(IOType ioType, ItemStack item) {
         super(RequirementTypesMM.REQUIREMENT_ITEM, ioType);
         this.requirementType = ItemRequirementType.ITEMSTACKS;
@@ -118,6 +120,10 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
         this.itemModifierList.add(itemModifier);
     }
 
+    public void setConsumeDurability(final int durability) {
+        this.consumeDurability = Math.max(0, durability);
+    }
+
     @Override
     public int getSortingWeight() {
         return PRIORITY_WEIGHT_ITEM;
@@ -156,6 +162,7 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
         if (this.previewDisplayTag != null) {
             item.previewDisplayTag = this.previewDisplayTag.copy();
         }
+        item.consumeDurability = this.consumeDurability;
         return item;
     }
 
@@ -371,6 +378,54 @@ public class RequirementItem extends ComponentRequirement.MultiCompParallelizabl
 
         final ItemStack finalStack = stack;
         final int finalMaxConsume = maxConsume;
+        if (consumeDurability > 0 && getActionType() == IOType.INPUT) {
+            final ItemStack referenceStack = finalStack.copy();
+            switch (this.requirementType) {
+                case ITEMSTACKS -> {
+                    for (final IItemHandlerModifiable handler : handlers) {
+                        Sync.executeSyncIfPresent(handler, () -> {
+                            final int remaining = finalMaxConsume - consumed.get();
+                            if (remaining <= 0) {
+                                return;
+                            }
+                            final int damaged;
+                            if (itemChecker != null) {
+                                damaged = ItemUtils.damageAll(handler, referenceStack, remaining, consumeDurability, itemChecker, context.getMachineController());
+                            } else {
+                                damaged = ItemUtils.damageAll(handler, referenceStack, remaining, consumeDurability, tag);
+                            }
+                            consumed.addAndGet(damaged);
+                        });
+                        if (consumed.get() >= maxConsume) {
+                            break;
+                        }
+                    }
+                }
+                case OREDICT -> {
+                    for (final IItemHandlerModifiable handler : handlers) {
+                        Sync.executeSyncIfPresent(handler, () -> {
+                            final int remaining = finalMaxConsume - consumed.get();
+                            if (remaining <= 0) {
+                                return;
+                            }
+                            final int damaged;
+                            if (itemChecker != null) {
+                                damaged = ItemUtils.damageAll(handler, oreDictName, remaining, consumeDurability, itemChecker, context.getMachineController());
+                            } else {
+                                damaged = ItemUtils.damageAll(handler, oreDictName, remaining, consumeDurability, tag);
+                            }
+                            consumed.addAndGet(damaged);
+                        });
+                        if (consumed.get() >= maxConsume) {
+                            break;
+                        }
+                    }
+                }
+                default -> {
+                }
+            }
+            return consumed.get() / toConsume;
+        }
         switch (this.requirementType) {
             case ITEMSTACKS -> {
                 for (final IItemHandlerModifiable handler : handlers) {
