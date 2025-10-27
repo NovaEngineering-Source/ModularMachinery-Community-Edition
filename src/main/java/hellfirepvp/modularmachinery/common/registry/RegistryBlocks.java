@@ -7,23 +7,8 @@
 
 package hellfirepvp.modularmachinery.common.registry;
 
-import github.kasuminova.mmce.common.block.appeng.BlockMEFluidInputBus;
-import github.kasuminova.mmce.common.block.appeng.BlockMEFluidOutputBus;
-import github.kasuminova.mmce.common.block.appeng.BlockMEGasInputBus;
-import github.kasuminova.mmce.common.block.appeng.BlockMEGasOutputBus;
-import github.kasuminova.mmce.common.block.appeng.BlockMEItemInputBus;
-import github.kasuminova.mmce.common.block.appeng.BlockMEItemOutputBus;
-import github.kasuminova.mmce.common.block.appeng.BlockMEMachineComponent;
-import github.kasuminova.mmce.common.block.appeng.BlockMEPatternMirrorImage;
-import github.kasuminova.mmce.common.block.appeng.BlockMEPatternProvider;
-import github.kasuminova.mmce.common.tile.MEFluidInputBus;
-import github.kasuminova.mmce.common.tile.MEFluidOutputBus;
-import github.kasuminova.mmce.common.tile.MEGasInputBus;
-import github.kasuminova.mmce.common.tile.MEGasOutputBus;
-import github.kasuminova.mmce.common.tile.MEItemInputBus;
-import github.kasuminova.mmce.common.tile.MEItemOutputBus;
-import github.kasuminova.mmce.common.tile.MEPatternMirrorImage;
-import github.kasuminova.mmce.common.tile.MEPatternProvider;
+import github.kasuminova.mmce.common.block.appeng.*;
+import github.kasuminova.mmce.common.tile.*;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.base.Mods;
@@ -168,6 +153,9 @@ public class RegistryBlocks {
 
     public static final  List<BlockDynamicColor> pendingIBlockColorBlocks = new LinkedList<>();
     private static final List<Block>             blockModelRegister       = new ArrayList<>();
+    public static Block meItemOutputBus64;
+    public static Block meItemOutputBus512;
+    public static Block meItemOutputBus8192;
 
     public static void initialize() {
         registerBlocks();
@@ -219,6 +207,12 @@ public class RegistryBlocks {
         if (Mods.AE2.isPresent()) {
             meItemOutputBus = prepareRegister(new BlockMEItemOutputBus());
             ItemsMM.meItemOutputBus = prepareItemBlockRegister(meItemOutputBus);
+            meItemOutputBus64 = prepareRegister(new BlockMEItemOutputBus64());
+            ItemsMM.meItemOutputBus64 = prepareItemBlockRegister(meItemOutputBus64);
+            meItemOutputBus512 = prepareRegister(new BlockMEItemOutputBus512());
+            ItemsMM.meItemOutputBus512 = prepareItemBlockRegister(meItemOutputBus512);
+            meItemOutputBus8192 = prepareRegister(new BlockMEItemOutputBus8192());
+            ItemsMM.meItemOutputBus8192 = prepareItemBlockRegister(meItemOutputBus8192);
             meItemInputBus = prepareRegister(new BlockMEItemInputBus());
             ItemsMM.meItemInputBus = prepareItemBlockRegister(meItemInputBus);
 
@@ -324,6 +318,9 @@ public class RegistryBlocks {
 
         if (Mods.AE2.isPresent()) {
             registerTileWithModID(MEItemOutputBus.class);
+            registerTileWithModID(MEItemOutputBus64.class);
+            registerTileWithModID(MEItemOutputBus512.class);
+            registerTileWithModID(MEItemOutputBus8192.class);
             registerTileWithModID(MEItemInputBus.class);
             registerTileWithModID(MEFluidOutputBus.class);
             registerTileWithModID(MEFluidInputBus.class);

@@ -9,11 +9,7 @@
 package hellfirepvp.modularmachinery;
 
 import github.kasuminova.mmce.common.concurrent.TaskExecutor;
-import github.kasuminova.mmce.common.network.PktAutoAssemblyRequest;
-import github.kasuminova.mmce.common.network.PktMEInputBusInvAction;
-import github.kasuminova.mmce.common.network.PktMEPatternProviderAction;
-import github.kasuminova.mmce.common.network.PktMEPatternProviderHandlerItems;
-import github.kasuminova.mmce.common.network.PktPerformanceReport;
+import github.kasuminova.mmce.common.network.*;
 import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.command.CommandGetBluePrint;
@@ -53,17 +49,17 @@ import org.apache.logging.log4j.Logger;
  * Date: 26.06.2017 / 20:26
  */
 @Mod(modid = ModularMachinery.MODID, name = ModularMachinery.NAME, version = ModularMachinery.VERSION,
-    dependencies = "required-after:forge@[14.21.0.2371,);" +
-        "required-after:crafttweaker@[4.0.4,);" +
-        "after:zenutils@[1.12.8,);" +
-        "after:jei@[4.13.1.222,);" +
-        "after:gregtech@[2.7.4-beta,);" +
-        "after:appliedenergistics2@[rv6-stable-7,);" +
-        "after:fluxnetworks@[4.1.0,);" +
-        "after:tconstruct@[1.12.2-2.12.0.157,);" +
-        "after:thermalexpansion@[5.5.0,);",
-    acceptedMinecraftVersions = "[1.12, 1.13)",
-    acceptableRemoteVersions = "[2.1.0, 2.3.0)"
+        dependencies = "required-after:forge@[14.21.0.2371,);" +
+                "required-after:crafttweaker@[4.0.4,);" +
+                "after:zenutils@[1.12.8,);" +
+                "after:jei@[4.13.1.222,);" +
+                "after:gregtech@[2.7.4-beta,);" +
+                "after:appliedenergistics2@[rv6-stable-7,);" +
+                "after:fluxnetworks@[4.1.0,);" +
+                "after:tconstruct@[1.12.2-2.12.0.157,);" +
+                "after:thermalexpansion@[5.5.0,);",
+        acceptedMinecraftVersions = "[1.12, 1.13)",
+        acceptableRemoteVersions = "[2.1.0, 2.3.0)"
 )
 public class ModularMachinery {
 
@@ -117,6 +113,7 @@ public class ModularMachinery {
         NET_CHANNEL.registerMessage(PktParallelControllerUpdate.class, PktParallelControllerUpdate.class, 102, Side.SERVER);
         if (Mods.AE2.isPresent()) {
             NET_CHANNEL.registerMessage(PktMEInputBusInvAction.class, PktMEInputBusInvAction.class, 103, Side.SERVER);
+            NET_CHANNEL.registerMessage(PktMEInputBusRecipeTransfer.class, PktMEInputBusRecipeTransfer.class, 107, Side.SERVER);
         }
         NET_CHANNEL.registerMessage(PktAutoAssemblyRequest.class, PktAutoAssemblyRequest.class, 104, Side.SERVER);
         if (Mods.AE2.isPresent()) {

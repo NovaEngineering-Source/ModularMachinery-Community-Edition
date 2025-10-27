@@ -2,7 +2,7 @@ package github.kasuminova.mmce.client.gui;
 
 import appeng.core.localization.GuiText;
 import github.kasuminova.mmce.common.container.ContainerMEItemOutputBus;
-import github.kasuminova.mmce.common.tile.MEItemOutputBus;
+import github.kasuminova.mmce.common.tile.base.MEItemBus;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,7 +12,7 @@ public class GuiMEItemOutputBus extends GuiMEItemBus {
     // For convenience, the Sky Chest resource was used :P
     private static final ResourceLocation TEXTURES_OUTPUT_BUS = new ResourceLocation("appliedenergistics2", "textures/guis/skychest.png");
 
-    public GuiMEItemOutputBus(final MEItemOutputBus te, final EntityPlayer player) {
+    public GuiMEItemOutputBus(final MEItemBus te, final EntityPlayer player) {
         super(new ContainerMEItemOutputBus(te, player));
         this.ySize = 195;
     }

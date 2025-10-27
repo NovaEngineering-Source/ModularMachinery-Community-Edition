@@ -9,6 +9,9 @@
 package hellfirepvp.modularmachinery.common.integration;
 
 import com.google.common.collect.Lists;
+import github.kasuminova.mmce.client.gui.GuiMEItemInputBus;
+import github.kasuminova.mmce.client.gui.integration.handler.MEInputGhostSlotHandler;
+import github.kasuminova.mmce.common.container.handler.MEInputRecipeTransferHandler;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.block.BlockController;
@@ -204,6 +207,14 @@ public class ModIntegrationJEI implements IModPlugin {
             registry.addRecipeCatalyst(stack, machineCategory);
         }
 
+        registry.addGhostIngredientHandler(GuiMEItemInputBus.class, new MEInputGhostSlotHandler());
+
+        // Only handle MM recipes
+        for (DynamicMachine machine : MachineRegistry.getRegistry()) {
+            String machineCategory = getCategoryStringFor(machine);
+            registry.getRecipeTransferRegistry().addRecipeTransferHandler(new MEInputRecipeTransferHandler(), machineCategory);
+        }
+
         for (DynamicMachine machine : MachineRegistry.getRegistry()) {
             PREVIEW_WRAPPERS.add(new StructurePreviewWrapper(machine));
         }
@@ -223,16 +234,16 @@ public class ModIntegrationJEI implements IModPlugin {
         }
 
         BlockController.MACHINE_CONTROLLERS.values().forEach(controller ->
-            registry.addRecipeCatalyst(new ItemStack(controller),
-                getCategoryStringFor(controller.getParentMachine()))
+                registry.addRecipeCatalyst(new ItemStack(controller),
+                        getCategoryStringFor(controller.getParentMachine()))
         );
         BlockController.MOC_MACHINE_CONTROLLERS.values().forEach(controller ->
-            registry.addRecipeCatalyst(new ItemStack(controller),
-                getCategoryStringFor(controller.getParentMachine()))
+                registry.addRecipeCatalyst(new ItemStack(controller),
+                        getCategoryStringFor(controller.getParentMachine()))
         );
         BlockFactoryController.FACTORY_CONTROLLERS.values().forEach(controller ->
-            registry.addRecipeCatalyst(new ItemStack(controller),
-                getCategoryStringFor(controller.getParentMachine()))
+                registry.addRecipeCatalyst(new ItemStack(controller),
+                        getCategoryStringFor(controller.getParentMachine()))
         );
     }
 

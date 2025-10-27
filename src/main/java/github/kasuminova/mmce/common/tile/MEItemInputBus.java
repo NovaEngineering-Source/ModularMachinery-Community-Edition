@@ -26,18 +26,17 @@ import java.util.concurrent.locks.ReadWriteLock;
 public class MEItemInputBus extends MEItemBus implements SettingsTransfer {
 
     private static final String CONFIG_TAG_KEY = "configInventory";
+    private static final Map<ItemStack, IAEItemStack> AE_STACK_CACHE = new WeakHashMap<>();
+    private IOInventory configInventory = buildConfigInventory();
 
-    // A simple cache for AEItemStack.
-    private static final Map<ItemStack, IAEItemStack> AE_STACK_CACHE  = new WeakHashMap<>();
-    private              IOInventory                  configInventory = buildConfigInventory();
+    private int lastProcessedSlot = -1;
 
     @Override
     public IOInventory buildInventory() {
         int size = 16;
         int[] slotIDs = new int[size];
-        for (int slotID = 0; slotID < size; slotID++) {
-            slotIDs[slotID] = slotID;
-        }
+        for (int i = 0; i < size; i++) slotIDs[i] = i;
+
         IOInventory inv = new IOInventory(this, slotIDs, new int[]{});
         inv.setStackLimit(Integer.MAX_VALUE, slotIDs);
         inv.setListener(slot -> {
@@ -55,17 +54,19 @@ public class MEItemInputBus extends MEItemBus implements SettingsTransfer {
 
     public IOInventory buildConfigInventory() {
         int size = 16;
-
         int[] slotIDs = new int[size];
-        for (int slotID = 0; slotID < size; slotID++) {
-            slotIDs[slotID] = slotID;
-        }
+        for (int i = 0; i < size; i++) slotIDs[i] = i;
+
         IOInventory inv = new IOInventory(this, new int[]{}, new int[]{});
         inv.setStackLimit(Integer.MAX_VALUE, slotIDs);
         inv.setMiscSlots(slotIDs);
+        // ✅ CRITICAL: Reset failure counter when config changes (zero overhead)
         inv.setListener(slot -> {
             synchronized (this) {
                 changedSlots[slot] = true;
+                if (failureCounter != null && slot < failureCounter.length) {
+                    failureCounter[slot] = 0;
+                }
             }
         });
         return inv;
@@ -74,7 +75,6 @@ public class MEItemInputBus extends MEItemBus implements SettingsTransfer {
     @Override
     public void readCustomNBT(final NBTTagCompound compound) {
         super.readCustomNBT(compound);
-
         if (compound.hasKey(CONFIG_TAG_KEY)) {
             readConfigInventoryNBT(compound.getCompoundTag(CONFIG_TAG_KEY));
         }
@@ -83,7 +83,6 @@ public class MEItemInputBus extends MEItemBus implements SettingsTransfer {
     @Override
     public void writeCustomNBT(final NBTTagCompound compound) {
         super.writeCustomNBT(compound);
-
         compound.setTag(CONFIG_TAG_KEY, configInventory.writeNBT());
     }
 
@@ -102,33 +101,33 @@ public class MEItemInputBus extends MEItemBus implements SettingsTransfer {
         };
     }
 
-    @Nonnull
+    // ✅ Optimal tick interval: responsive but efficient
     @Override
     public TickingRequest getTickingRequest(@Nonnull final IGridNode node) {
-        return new TickingRequest(10, 120, !needsUpdate(), true);
+        return new TickingRequest(20, 200, false, true);
     }
 
-    private boolean needsUpdate() {
-        for (int slot = 0; slot < configInventory.getSlots(); slot++) {
-            ItemStack cfgStack = configInventory.getStackInSlot(slot);
-            ItemStack invStack = inventory.getStackInSlot(slot);
+    // ✅ Thread-safe: process only one changed slot per tick
+    @Override
+    protected int[] getNeedUpdateSlots() {
+        boolean[] localChangedSlots;
+        synchronized (this) {
+            if (changedSlots == null) return new int[0];
+            localChangedSlots = changedSlots.clone();
+        }
 
-            if (cfgStack.isEmpty()) {
-                if (!invStack.isEmpty()) {
-                    return true;
-                }
-                continue;
-            }
+        int count = 0;
+        for (boolean changed : localChangedSlots) if (changed) count++;
+        if (count == 0) return new int[0];
 
-            if (invStack.isEmpty()) {
-                return true;
-            }
-
-            if (!ItemUtils.matchStacks(cfgStack, invStack) || invStack.getCount() != cfgStack.getCount()) {
-                return true;
+        for (int i = 0; i < localChangedSlots.length; i++) {
+            int checkSlot = (lastProcessedSlot + 1 + i) % localChangedSlots.length;
+            if (localChangedSlots[checkSlot]) {
+                lastProcessedSlot = checkSlot;
+                return new int[]{checkSlot};
             }
         }
-        return false;
+        return new int[0];
     }
 
     @Nonnull
@@ -140,36 +139,54 @@ public class MEItemInputBus extends MEItemBus implements SettingsTransfer {
 
         int[] needUpdateSlots = getNeedUpdateSlots();
         if (needUpdateSlots.length == 0) {
-            return TickRateModulation.SLOWER;
+            return TickRateModulation.IDLE;
         }
 
+        boolean successAtLeastOnce = false;
         ReadWriteLock rwLock = inventory.getRWLock();
 
         try {
             rwLock.writeLock().lock();
-
-            boolean successAtLeastOnce = false;
             inTick = true;
-            IMEMonitor<IAEItemStack> inv = proxy.getStorage().getInventory(channel);
+            IMEMonitor<IAEItemStack> aeInv = proxy.getStorage().getInventory(channel);
+
             for (final int slot : needUpdateSlots) {
-                changedSlots[slot] = false;
+                synchronized (this) {
+                    if (changedSlots != null && slot < changedSlots.length) {
+                        changedSlots[slot] = false;
+                    }
+                }
+
+                if (failureCounter[slot] > 20) {
+                    continue;
+                }
+
                 ItemStack cfgStack = configInventory.getStackInSlot(slot);
                 ItemStack invStack = inventory.getStackInSlot(slot);
 
                 if (cfgStack.isEmpty()) {
-                    if (invStack.isEmpty()) {
-                        continue;
+                    if (!invStack.isEmpty()) {
+                        ItemStack leftover = insertStackToAE(aeInv, invStack);
+                        inventory.setStackInSlot(slot, leftover);
+                        if (leftover.isEmpty()) {
+                            successAtLeastOnce = true;
+                            failureCounter[slot] = 0;
+                        } else {
+                            failureCounter[slot]++;
+                        }
                     }
-                    inventory.setStackInSlot(slot, insertStackToAE(inv, invStack));
                     continue;
                 }
 
                 if (!ItemUtils.matchStacks(cfgStack, invStack)) {
-                    if (invStack.isEmpty() || insertStackToAE(inv, invStack).isEmpty()) {
-                        ItemStack stack = extractStackFromAE(inv, cfgStack);
-                        inventory.setStackInSlot(slot, stack);
-                        if (!stack.isEmpty()) {
+                    if (invStack.isEmpty() || insertStackToAE(aeInv, invStack).isEmpty()) {
+                        ItemStack pulled = extractStackFromAE(aeInv, cfgStack);
+                        inventory.setStackInSlot(slot, pulled);
+                        if (!pulled.isEmpty()) {
                             successAtLeastOnce = true;
+                            failureCounter[slot] = 0;
+                        } else {
+                            failureCounter[slot]++;
                         }
                     }
                     continue;
@@ -180,68 +197,57 @@ public class MEItemInputBus extends MEItemBus implements SettingsTransfer {
                 }
 
                 if (cfgStack.getCount() > invStack.getCount()) {
-                    int countToReceive = cfgStack.getCount() - invStack.getCount();
-                    ItemStack stack = extractStackFromAE(inv, ItemUtils.copyStackWithSize(invStack, countToReceive));
-                    if (!stack.isEmpty()) {
-                        int newCount = invStack.getCount() + stack.getCount();
+                    int missing = cfgStack.getCount() - invStack.getCount();
+                    ItemStack pulled = extractStackFromAE(aeInv, ItemUtils.copyStackWithSize(invStack, missing));
+                    if (!pulled.isEmpty()) {
+                        int newCount = invStack.getCount() + pulled.getCount();
                         inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(invStack, newCount));
                         successAtLeastOnce = true;
                         failureCounter[slot] = 0;
                     } else {
-                        // If AE doesn't have enough item?
                         failureCounter[slot]++;
                     }
                 } else {
-                    int countToExtract = invStack.getCount() - cfgStack.getCount();
-                    ItemStack stack = insertStackToAE(inv, ItemUtils.copyStackWithSize(invStack, countToExtract));
-                    if (stack.isEmpty()) {
-                        inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(
-                            invStack, invStack.getCount() - countToExtract)
-                        );
+                    int excess = invStack.getCount() - cfgStack.getCount();
+                    ItemStack leftover = insertStackToAE(aeInv, ItemUtils.copyStackWithSize(invStack, excess));
+                    if (leftover.isEmpty()) {
+                        inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(invStack, cfgStack.getCount()));
                     } else {
-                        inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(
-                            invStack, invStack.getCount() - countToExtract + stack.getCount())
-                        );
+                        inventory.setStackInSlot(slot, ItemUtils.copyStackWithSize(invStack, cfgStack.getCount() + leftover.getCount()));
                     }
                     successAtLeastOnce = true;
+                    failureCounter[slot] = 0;
                 }
             }
 
-            inTick = false;
-            rwLock.writeLock().unlock();
-            return successAtLeastOnce ? TickRateModulation.FASTER : TickRateModulation.SLOWER;
+            return successAtLeastOnce ? TickRateModulation.FASTER : TickRateModulation.IDLE;
+
         } catch (GridAccessException e) {
-            inTick = false;
-            changedSlots = new boolean[changedSlots.length];
-            rwLock.writeLock().unlock();
+            // ✅ Null-safe reset
+            synchronized (this) {
+                if (changedSlots != null) {
+                    changedSlots = new boolean[changedSlots.length];
+                }
+            }
             return TickRateModulation.IDLE;
+        } finally {
+            inTick = false;
+            rwLock.writeLock().unlock();
         }
     }
 
     private ItemStack extractStackFromAE(final IMEMonitor<IAEItemStack> inv, final ItemStack stack) throws GridAccessException {
         IAEItemStack aeStack = createStack(stack);
-        if (aeStack == null) {
-            return ItemStack.EMPTY;
-        }
-
+        if (aeStack == null) return ItemStack.EMPTY;
         IAEItemStack extracted = Platform.poweredExtraction(proxy.getEnergy(), inv, aeStack, source);
-        if (extracted == null) {
-            return ItemStack.EMPTY;
-        }
-        return extracted.createItemStack();
+        return extracted == null ? ItemStack.EMPTY : extracted.createItemStack();
     }
 
     private ItemStack insertStackToAE(final IMEMonitor<IAEItemStack> inv, final ItemStack stack) throws GridAccessException {
         IAEItemStack aeStack = createStack(stack);
-        if (aeStack == null) {
-            return stack;
-        }
-
+        if (aeStack == null) return stack;
         IAEItemStack left = Platform.poweredInsert(proxy.getEnergy(), inv, aeStack, source);
-        if (left == null) {
-            return ItemStack.EMPTY;
-        }
-        return left.createItemStack();
+        return left == null ? ItemStack.EMPTY : left.createItemStack();
     }
 
     private IAEItemStack createStack(final ItemStack stack) {
@@ -253,18 +259,14 @@ public class MEItemInputBus extends MEItemBus implements SettingsTransfer {
         if (hasChangedSlots()) {
             try {
                 proxy.getTick().alertDevice(proxy.getNode());
-            } catch (GridAccessException e) {
-                // NO-OP
-            }
+            } catch (GridAccessException ignored) {}
         }
-
         super.markNoUpdate();
     }
 
     public boolean configInvHasItem() {
         for (int i = 0; i < configInventory.getSlots(); i++) {
-            ItemStack stack = configInventory.getStackInSlot(i);
-            if (!stack.isEmpty()) {
+            if (!configInventory.getStackInSlot(i).isEmpty()) {
                 return true;
             }
         }
@@ -273,16 +275,17 @@ public class MEItemInputBus extends MEItemBus implements SettingsTransfer {
 
     public void readConfigInventoryNBT(final NBTTagCompound compound) {
         configInventory = IOInventory.deserialize(this, compound);
+        // ✅ Apply same listener for NBT loading
         configInventory.setListener(slot -> {
             synchronized (this) {
                 changedSlots[slot] = true;
+                if (failureCounter != null && slot < failureCounter.length) {
+                    failureCounter[slot] = 0;
+                }
             }
         });
-
         int[] slotIDs = new int[configInventory.getSlots()];
-        for (int slotID = 0; slotID < slotIDs.length; slotID++) {
-            slotIDs[slotID] = slotID;
-        }
+        for (int i = 0; i < slotIDs.length; i++) slotIDs[i] = i;
         configInventory.setStackLimit(Integer.MAX_VALUE, slotIDs);
     }
 

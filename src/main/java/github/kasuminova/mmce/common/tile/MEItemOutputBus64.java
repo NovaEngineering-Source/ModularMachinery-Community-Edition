@@ -18,7 +18,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.concurrent.locks.ReadWriteLock;
 
-public class MEItemOutputBus extends MEItemBus {
+public class MEItemOutputBus64 extends MEItemBus {
 
     private int lastProcessedSlot = -1;
 
@@ -30,7 +30,7 @@ public class MEItemOutputBus extends MEItemBus {
             slotIDs[i] = i;
         }
         IOInventory inv = new IOInventory(this, new int[]{}, slotIDs);
-        inv.setStackLimit(Integer.MAX_VALUE, slotIDs);
+        inv.setStackLimit(64, slotIDs);
         inv.setListener(slot -> {
             synchronized (this) {
                 changedSlots[slot] = true;
@@ -41,7 +41,7 @@ public class MEItemOutputBus extends MEItemBus {
 
     @Override
     public ItemStack getVisualItemStack() {
-        return new ItemStack(ItemsMM.meItemOutputBus);
+        return new ItemStack(ItemsMM.meItemOutputBus64);
     }
 
     @Nullable
@@ -109,7 +109,6 @@ public class MEItemOutputBus extends MEItemBus {
                     }
                 }
 
-                // ✅ Gradual failure decay (key fix)
                 if (failureCounter[slot] > 0) {
                     failureCounter[slot]--;
                 }
@@ -153,7 +152,6 @@ public class MEItemOutputBus extends MEItemBus {
                     changedSlots = new boolean[changedSlots.length];
                 }
             }
-            // ✅ Enhanced error recovery: reset failure counters on grid exception
             for (int i = 0; i < failureCounter.length; i++) {
                 failureCounter[i] = 0;
             }
@@ -174,5 +172,17 @@ public class MEItemOutputBus extends MEItemBus {
             }
         }
         super.markNoUpdate();
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (inventory != null) {
+            int[] allSlots = new int[inventory.getSlots()];
+            for (int i = 0; i < allSlots.length; i++) {
+                allSlots[i] = i;
+            }
+            inventory.setStackLimit(64, allSlots);
+        }
     }
 }

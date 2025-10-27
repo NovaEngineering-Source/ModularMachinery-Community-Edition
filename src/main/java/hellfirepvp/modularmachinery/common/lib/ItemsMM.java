@@ -11,6 +11,7 @@ package hellfirepvp.modularmachinery.common.lib;
 import hellfirepvp.modularmachinery.common.item.ItemBlueprint;
 import hellfirepvp.modularmachinery.common.item.ItemConstructTool;
 import hellfirepvp.modularmachinery.common.item.ItemModularium;
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 
 /**
@@ -36,5 +37,7 @@ public class ItemsMM {
     public static Item meGasInputBus;
     public static Item mePatternProvider;
     public static Item mePatternMirrorImage;
-
+    public static Item meItemOutputBus64;
+    public static Item meItemOutputBus512;
+    public static Item meItemOutputBus8192;
 }

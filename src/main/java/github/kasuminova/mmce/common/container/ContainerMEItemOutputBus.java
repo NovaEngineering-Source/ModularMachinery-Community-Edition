@@ -2,14 +2,14 @@ package github.kasuminova.mmce.common.container;
 
 import appeng.container.AEBaseContainer;
 import appeng.container.slot.SlotDisabled;
-import github.kasuminova.mmce.common.tile.MEItemOutputBus;
+import github.kasuminova.mmce.common.tile.base.MEItemBus;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 public class ContainerMEItemOutputBus extends AEBaseContainer {
-    private final MEItemOutputBus owner;
+    private final MEItemBus owner;
 
-    public ContainerMEItemOutputBus(final MEItemOutputBus owner, final EntityPlayer player) {
+    public ContainerMEItemOutputBus(final MEItemBus owner, final EntityPlayer player) {
         super(player.inventory, owner);
         this.owner = owner;
 
@@ -23,7 +23,7 @@ public class ContainerMEItemOutputBus extends AEBaseContainer {
         }
     }
 
-    public MEItemOutputBus getOwner() {
+    public MEItemBus getOwner() {
         return owner;
     }
 }

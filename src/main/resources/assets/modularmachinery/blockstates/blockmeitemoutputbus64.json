@@ -1,0 +1,9 @@
+{
+  "defaults": {
+    "model": "modularmachinery:blockmeitemoutputbus"
+  },
+  "variants": {
+    "inventory": { "model": "modularmachinery:blockmeitemoutputbus" },
+    "normal": { "model": "modularmachinery:blockmeitemoutputbus"}
+  }
+}

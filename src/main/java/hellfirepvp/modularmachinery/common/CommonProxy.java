@@ -22,13 +22,8 @@ import github.kasuminova.mmce.common.handler.EventHandler;
 import github.kasuminova.mmce.common.handler.UpgradeEventHandler;
 import github.kasuminova.mmce.common.integration.ModIntegrationAE2;
 import github.kasuminova.mmce.common.integration.gregtech.ModIntegrationGTCEU;
-import github.kasuminova.mmce.common.tile.MEFluidInputBus;
-import github.kasuminova.mmce.common.tile.MEFluidOutputBus;
-import github.kasuminova.mmce.common.tile.MEGasInputBus;
-import github.kasuminova.mmce.common.tile.MEGasOutputBus;
-import github.kasuminova.mmce.common.tile.MEItemInputBus;
-import github.kasuminova.mmce.common.tile.MEItemOutputBus;
-import github.kasuminova.mmce.common.tile.MEPatternProvider;
+import github.kasuminova.mmce.common.tile.*;
+import github.kasuminova.mmce.common.tile.base.MEItemBus;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import github.kasuminova.mmce.common.world.MMWorldEventListener;
 import hellfirepvp.modularmachinery.ModularMachinery;
@@ -254,11 +249,24 @@ public class CommonProxy implements IGuiHandler {
             }
             case BLUEPRINT_PREVIEW -> {
             }
+
             case ME_ITEM_OUTPUT_BUS -> {
                 if (aeSecurityCheck(player, present)) {
                     return null;
                 }
-                return new ContainerMEItemOutputBus((MEItemOutputBus) present, player);
+                if (present instanceof MEItemOutputBus meBus) {
+                    return new ContainerMEItemOutputBus(meBus, player);
+                }
+                if (present instanceof MEItemOutputBus64 meBus64) {
+                    return new ContainerMEItemOutputBus(meBus64, player);
+                }
+                if (present instanceof MEItemOutputBus512 meBus512) {
+                    return new ContainerMEItemOutputBus(meBus512, player);
+                }
+                if (present instanceof MEItemOutputBus8192 meBus8192) {
+                    return new ContainerMEItemOutputBus(meBus8192, player);
+                }
+                return null;
             }
             case ME_ITEM_INPUT_BUS -> {
                 if (aeSecurityCheck(player, present)) {
@@ -324,7 +332,7 @@ public class CommonProxy implements IGuiHandler {
         PARALLEL_CONTROLLER(TileParallelController.class),
         UPGRADE_BUS(TileUpgradeBus.class),
         BLUEPRINT_PREVIEW(null),
-        ME_ITEM_OUTPUT_BUS(Mods.AE2.isPresent() ? MEItemOutputBus.class : null),
+        ME_ITEM_OUTPUT_BUS(Mods.AE2.isPresent() ? MEItemBus.class : null),
         ME_ITEM_INPUT_BUS(Mods.AE2.isPresent() ? MEItemInputBus.class : null),
         ME_FLUID_OUTPUT_BUS(Mods.AE2.isPresent() ? MEFluidOutputBus.class : null),
         ME_FLUID_INPUT_BUS(Mods.AE2.isPresent() ? MEFluidInputBus.class : null),

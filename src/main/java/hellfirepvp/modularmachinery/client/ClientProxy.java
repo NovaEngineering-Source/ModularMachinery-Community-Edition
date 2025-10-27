@@ -25,6 +25,7 @@ import github.kasuminova.mmce.common.tile.MEGasOutputBus;
 import github.kasuminova.mmce.common.tile.MEItemInputBus;
 import github.kasuminova.mmce.common.tile.MEItemOutputBus;
 import github.kasuminova.mmce.common.tile.MEPatternProvider;
+import github.kasuminova.mmce.common.tile.base.MEItemBus;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.client.gui.GuiContainerEnergyHatch;
 import hellfirepvp.modularmachinery.client.gui.GuiContainerFluidHatch;
@@ -316,7 +317,7 @@ public class ClientProxy extends CommonProxy {
                 if (!Mods.AE2.isPresent()) {
                     return null;
                 }
-                return new GuiMEItemOutputBus((MEItemOutputBus) present, player);
+                return new GuiMEItemOutputBus((MEItemBus) present, player);
             }
             case ME_ITEM_INPUT_BUS -> {
                 if (!Mods.AE2.isPresent()) {

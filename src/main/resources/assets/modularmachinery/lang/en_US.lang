@@ -384,6 +384,9 @@ tile.modularmachinery.blockupgradebus.super.name=§5Super Upgrade Bus
 tile.modularmachinery.blockupgradebus.ultimate.name=§eUltimate Upgrade Bus
 tile.modularmachinery.blockupgradebus.tip=Up to §a%s§7 different upgrades can be placed.
 
+tile.modularmachinery.blockmeitemoutputbus64.name=ME Machinery Item Output Bus 64
+tile.modularmachinery.blockmeitemoutputbus512.name=ME Machinery Item Output Bus 512
+tile.modularmachinery.blockmeitemoutputbus8192.name=ME Machinery Item Output Bus 8192
 tile.modularmachinery.blockmeitemoutputbus.name=ME Machinery Item Output Bus
 tile.modularmachinery.blockmeiteminputbus.name=ME Machinery Item Input Bus
 tile.modularmachinery.blockmefluidoutputbus.name=ME Machinery Fluid Output Bus
