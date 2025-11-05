@@ -102,9 +102,13 @@ public class MEItemOutputBus extends MEItemBus {
 
                     if (aeStack.getStackSize() != left.getStackSize()) {
                         successAtLeastOnce = true;
+                        failureCounter[slot] = 0;
+                    } else {
+                        failureCounter[slot] = Math.min(failureCounter[slot] + 1, 10);
                     }
                 } else {
                     successAtLeastOnce = true;
+                    failureCounter[slot] = 0;
                 }
             }
 
@@ -125,7 +129,6 @@ public class MEItemOutputBus extends MEItemBus {
             try {
                 proxy.getTick().alertDevice(proxy.getNode());
             } catch (GridAccessException e) {
-                // NO-OP
             }
         }
 
