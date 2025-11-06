@@ -8,13 +8,7 @@
 
 package hellfirepvp.modularmachinery.client;
 
-import github.kasuminova.mmce.client.gui.GuiMEFluidInputBus;
-import github.kasuminova.mmce.client.gui.GuiMEFluidOutputBus;
-import github.kasuminova.mmce.client.gui.GuiMEGasInputBus;
-import github.kasuminova.mmce.client.gui.GuiMEGasOutputBus;
-import github.kasuminova.mmce.client.gui.GuiMEItemInputBus;
-import github.kasuminova.mmce.client.gui.GuiMEItemOutputBus;
-import github.kasuminova.mmce.client.gui.GuiMEPatternProvider;
+import github.kasuminova.mmce.client.gui.*;
 import github.kasuminova.mmce.client.renderer.MachineControllerRenderer;
 import github.kasuminova.mmce.client.resource.GeoModelExternalLoader;
 import github.kasuminova.mmce.common.handler.ClientHandler;
@@ -25,6 +19,7 @@ import github.kasuminova.mmce.common.tile.MEGasOutputBus;
 import github.kasuminova.mmce.common.tile.MEItemInputBus;
 import github.kasuminova.mmce.common.tile.MEItemOutputBus;
 import github.kasuminova.mmce.common.tile.MEPatternProvider;
+import github.kasuminova.mmce.client.gui.GuiMEItemOutputBusStackSize;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.client.gui.GuiContainerEnergyHatch;
 import hellfirepvp.modularmachinery.client.gui.GuiContainerFluidHatch;
@@ -323,6 +318,9 @@ public class ClientProxy extends CommonProxy {
                     return null;
                 }
                 return new GuiMEItemInputBus((MEItemInputBus) present, player);
+            }
+            case ME_ITEM_OUTPUT_BUS_STACK_SIZE -> {
+                return new GuiMEItemOutputBusStackSize(player.inventory, (MEItemOutputBus) present);
             }
             case ME_FLUID_OUTPUT_BUS -> {
                 if (!Mods.AE2.isPresent()) {

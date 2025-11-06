@@ -13,12 +13,16 @@ import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
 import hellfirepvp.modularmachinery.common.util.IOInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.concurrent.locks.ReadWriteLock;
 
 public class MEItemOutputBus extends MEItemBus {
+
+    // Stack size configuration field
+    private int configuredStackSize = Integer.MAX_VALUE;
 
     @Override
     public IOInventory buildInventory() {
@@ -29,7 +33,7 @@ public class MEItemOutputBus extends MEItemBus {
             slotIDs[slotID] = slotID;
         }
         IOInventory inv = new IOInventory(this, new int[]{}, slotIDs);
-        inv.setStackLimit(Integer.MAX_VALUE, slotIDs);
+        inv.setStackLimit(this.configuredStackSize, slotIDs);
         inv.setListener(slot -> {
             synchronized (this) {
                 changedSlots[slot] = true;
@@ -130,5 +134,62 @@ public class MEItemOutputBus extends MEItemBus {
         }
 
         super.markNoUpdate();
+    }
+
+    // ==================== Stack Size Configuration Methods ====================
+
+    /**
+     * Gets the currently configured stack size limit for this Output Bus
+     * @return the configured stack size (minimum 1, maximum Integer.MAX_VALUE)
+     */
+    public int getConfiguredStackSize() {
+        return this.configuredStackSize;
+    }
+
+    /**
+     * Sets the stack size limit for all slots in this Output Bus
+     * @param size the new stack size limit (will be clamped to minimum 1)
+     */
+    public void setConfiguredStackSize(int size) {
+        // Clamp to valid range (minimum 1)
+        this.configuredStackSize = Math.max(1, size);
+        this.applyStackSizeToInventory();
+        this.markForUpdate();
+    }
+
+    /**
+     * Applies the configured stack size to the inventory
+     */
+    private void applyStackSizeToInventory() {
+        if (this.inventory != null) {
+            int[] slotIDs = new int[this.inventory.getSlots()];
+            for (int slotID = 0; slotID < slotIDs.length; slotID++) {
+                slotIDs[slotID] = slotID;
+            }
+            this.inventory.setStackLimit(this.configuredStackSize, slotIDs);
+        }
+    }
+
+    // ==================== NBT Serialization ====================
+
+    @Override
+    public void readCustomNBT(final NBTTagCompound compound) {
+        super.readCustomNBT(compound);
+
+        // Read configured stack size from NBT
+        if (compound.hasKey("configuredStackSize")) {
+            this.configuredStackSize = compound.getInteger("configuredStackSize");
+        }
+
+        // Apply stack size after reading
+        this.applyStackSizeToInventory();
+    }
+
+    @Override
+    public void writeCustomNBT(final NBTTagCompound compound) {
+        super.writeCustomNBT(compound);
+
+        // Write configured stack size to NBT
+        compound.setInteger("configuredStackSize", this.configuredStackSize);
     }
 }
