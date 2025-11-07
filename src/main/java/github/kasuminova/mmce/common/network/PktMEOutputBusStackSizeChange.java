@@ -1,9 +1,9 @@
 package github.kasuminova.mmce.common.network;
 
-import github.kasuminova.mmce.common.container.ContainerMEItemOutputBusStackSize;
+import github.kasuminova.mmce.common.tile.MEItemOutputBus;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.Container;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -11,8 +11,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 /**
  * Packet sent from client to server when the player changes the stack size value in the GUI.
- * Updates the CONTAINER's temporary stack size value, NOT the tile entity.
- * The actual tile entity is only updated when the GUI is closed.
+ * Updates the tile entity's stack size configuration directly.
  */
 public class PktMEOutputBusStackSizeChange implements IMessage, IMessageHandler<PktMEOutputBusStackSizeChange, IMessage> {
 
@@ -55,8 +54,7 @@ public class PktMEOutputBusStackSizeChange implements IMessage, IMessageHandler<
 
     /**
      * Handles the packet on the server side.
-     * Updates the container's temporary stack size value.
-     * Does NOT update the tile entity directly.
+     * Updates the tile entity's stack size configuration directly.
      */
     @Override
     public IMessage onMessage(final PktMEOutputBusStackSizeChange message, final MessageContext ctx) {
@@ -64,22 +62,24 @@ public class PktMEOutputBusStackSizeChange implements IMessage, IMessageHandler<
 
         // Schedule the action on the server thread
         player.getServerWorld().addScheduledTask(() -> {
-            // Get the player's currently open container
-            Container container = player.openContainer;
+            // Get the tile entity at the specified position
+            TileEntity te = player.world.getTileEntity(message.pos);
 
-            // Verify it's the stack size container
-            if (!(container instanceof ContainerMEItemOutputBusStackSize)) {
+            // Verify it's an ME Item Output Bus
+            if (!(te instanceof MEItemOutputBus)) {
                 return;
             }
 
-            ContainerMEItemOutputBusStackSize stackSizeContainer = (ContainerMEItemOutputBusStackSize) container;
+            MEItemOutputBus outputBus = (MEItemOutputBus) te;
 
             // Validate the stack size (minimum 1)
             int validatedStackSize = Math.max(1, message.stackSize);
 
-            // Update the container's temporary stack size value
-            // This will be synced to the client automatically via @GuiSync
-            stackSizeContainer.stackSize = validatedStackSize;
+            // Update the tile entity's stack size configuration
+            outputBus.setConfiguredStackSize(validatedStackSize);
+
+            // Mark the tile entity as dirty to ensure it saves
+            outputBus.markDirty();
         });
 
         return null;

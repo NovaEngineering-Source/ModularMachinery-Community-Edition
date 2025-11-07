@@ -8,6 +8,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.me.GridAccessException;
 import appeng.util.Platform;
 import github.kasuminova.mmce.common.tile.base.MEItemBus;
+import github.kasuminova.mmce.common.tile.SettingsTransfer;
 import hellfirepvp.modularmachinery.common.lib.ItemsMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
@@ -19,7 +20,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.concurrent.locks.ReadWriteLock;
 
-public class MEItemOutputBus extends MEItemBus {
+public class MEItemOutputBus extends MEItemBus implements SettingsTransfer {
 
     // Stack size configuration field
     private int configuredStackSize = Integer.MAX_VALUE;
@@ -192,4 +193,26 @@ public class MEItemOutputBus extends MEItemBus {
         // Write configured stack size to NBT
         compound.setInteger("configuredStackSize", this.configuredStackSize);
     }
+    // ==================== SettingsTransfer Interface ====================    // ADD FROM HERE
+
+    @Override
+    public NBTTagCompound downloadSettings() {
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setInteger("configuredStackSize", this.configuredStackSize);
+        return tag;
+    }
+
+    @Override
+    public void uploadSettings(NBTTagCompound settings) {
+        if (settings.hasKey("configuredStackSize")) {
+            setConfiguredStackSize(settings.getInteger("configuredStackSize"));
+
+            // Alert the ME network that settings changed
+            try {
+                proxy.getTick().alertDevice(proxy.getNode());
+            } catch (GridAccessException e) {
+                // NO-OP
+            }
+        }
+    }                                                                           // ADD TO HERE
 }
