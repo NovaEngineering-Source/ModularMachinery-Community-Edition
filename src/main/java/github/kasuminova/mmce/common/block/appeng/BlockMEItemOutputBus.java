@@ -23,7 +23,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockMEItemOutputBus extends BlockMEItemBus {
-
     @Override
     public boolean onBlockActivated(
             @Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull IBlockState state,
@@ -34,8 +33,6 @@ public class BlockMEItemOutputBus extends BlockMEItemBus {
             TileEntity te = worldIn.getTileEntity(pos);
             if (te instanceof MEItemOutputBus outputBus) {
                 ItemStack heldItem = playerIn.getHeldItem(hand);
-
-                // Check if player is holding a Memory Card
                 if (heldItem.getItem() instanceof IMemoryCard memoryCard) {
                     boolean handled = handleSettingsTransfer(outputBus, memoryCard, playerIn, heldItem);
                     if (handled) {
@@ -43,7 +40,6 @@ public class BlockMEItemOutputBus extends BlockMEItemBus {
                     }
                 }
 
-                // If not Memory Card or not handled, open the GUI
                 playerIn.openGui(ModularMachinery.MODID, CommonProxy.GuiType.ME_ITEM_OUTPUT_BUS.ordinal(), worldIn, pos.getX(), pos.getY(), pos.getZ());
             }
         }
@@ -90,9 +86,6 @@ public class BlockMEItemOutputBus extends BlockMEItemBus {
         IOInventory inventory = bus.getInternalInventory();
         NBTTagCompound tag = new NBTTagCompound();
         tag.setTag("inventory", inventory.writeNBT());
-        // NOTE: Stack size is NOT saved here - it resets to max int when broken
-        // This allows Output Buses to stack in player inventory
-
         dropped.setTagCompound(tag);
 
         for (int i = 0; i < inventory.getSlots(); i++) {
@@ -114,12 +107,8 @@ public class BlockMEItemOutputBus extends BlockMEItemBus {
 
         TileEntity te = worldIn.getTileEntity(pos);
         NBTTagCompound tag = stack.getTagCompound();
-        if (te instanceof MEItemOutputBus bus && tag != null) {
-            if (tag.hasKey("inventory")) {
-                bus.readInventoryNBT(tag.getCompoundTag("inventory"));
-            }
-            // NOTE: Stack size is NOT restored from item NBT
-            // It will default to Integer.MAX_VALUE when placed
+        if (te instanceof MEItemOutputBus && tag != null && tag.hasKey("inventory")) {
+            ((MEItemOutputBus) te).readInventoryNBT(tag.getCompoundTag("inventory"));
         }
     }
 }

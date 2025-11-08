@@ -8,7 +8,6 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.me.GridAccessException;
 import appeng.util.Platform;
 import github.kasuminova.mmce.common.tile.base.MEItemBus;
-import github.kasuminova.mmce.common.tile.SettingsTransfer;
 import hellfirepvp.modularmachinery.common.lib.ItemsMM;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
@@ -22,7 +21,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 public class MEItemOutputBus extends MEItemBus implements SettingsTransfer {
 
-    // Stack size configuration field
     private int configuredStackSize = Integer.MAX_VALUE;
 
     @Override
@@ -137,30 +135,16 @@ public class MEItemOutputBus extends MEItemBus implements SettingsTransfer {
         super.markNoUpdate();
     }
 
-    // ==================== Stack Size Configuration Methods ====================
-
-    /**
-     * Gets the currently configured stack size limit for this Output Bus
-     * @return the configured stack size (minimum 1, maximum Integer.MAX_VALUE)
-     */
     public int getConfiguredStackSize() {
         return this.configuredStackSize;
     }
 
-    /**
-     * Sets the stack size limit for all slots in this Output Bus
-     * @param size the new stack size limit (will be clamped to minimum 1)
-     */
     public void setConfiguredStackSize(int size) {
-        // Clamp to valid range (minimum 1)
         this.configuredStackSize = Math.max(1, size);
         this.applyStackSizeToInventory();
         this.markForUpdate();
     }
 
-    /**
-     * Applies the configured stack size to the inventory
-     */
     private void applyStackSizeToInventory() {
         if (this.inventory != null) {
             int[] slotIDs = new int[this.inventory.getSlots()];
@@ -171,18 +155,14 @@ public class MEItemOutputBus extends MEItemBus implements SettingsTransfer {
         }
     }
 
-    // ==================== NBT Serialization ====================
-
     @Override
     public void readCustomNBT(final NBTTagCompound compound) {
         super.readCustomNBT(compound);
 
-        // Read configured stack size from NBT
         if (compound.hasKey("configuredStackSize")) {
             this.configuredStackSize = compound.getInteger("configuredStackSize");
         }
 
-        // Apply stack size after reading
         this.applyStackSizeToInventory();
     }
 
@@ -190,10 +170,8 @@ public class MEItemOutputBus extends MEItemBus implements SettingsTransfer {
     public void writeCustomNBT(final NBTTagCompound compound) {
         super.writeCustomNBT(compound);
 
-        // Write configured stack size to NBT
         compound.setInteger("configuredStackSize", this.configuredStackSize);
     }
-    // ==================== SettingsTransfer Interface ====================    // ADD FROM HERE
 
     @Override
     public NBTTagCompound downloadSettings() {
@@ -207,12 +185,11 @@ public class MEItemOutputBus extends MEItemBus implements SettingsTransfer {
         if (settings.hasKey("configuredStackSize")) {
             setConfiguredStackSize(settings.getInteger("configuredStackSize"));
 
-            // Alert the ME network that settings changed
             try {
                 proxy.getTick().alertDevice(proxy.getNode());
             } catch (GridAccessException e) {
                 // NO-OP
             }
         }
-    }                                                                           // ADD TO HERE
+    }
 }

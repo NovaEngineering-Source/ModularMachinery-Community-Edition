@@ -32,7 +32,6 @@ import github.kasuminova.mmce.common.tile.MEItemOutputBus;
 import github.kasuminova.mmce.common.tile.MEPatternProvider;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import github.kasuminova.mmce.common.world.MMWorldEventListener;
-import github.kasuminova.mmce.client.gui.GuiMEItemOutputBusStackSize;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.container.ContainerController;

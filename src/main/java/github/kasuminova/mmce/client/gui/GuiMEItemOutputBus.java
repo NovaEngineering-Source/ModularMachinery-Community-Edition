@@ -13,12 +13,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
-
 import java.io.IOException;
-import java.util.List;
 
 public class GuiMEItemOutputBus extends GuiMEItemBus {
-    // For convenience, the Sky Chest resource was used :P
     private static final ResourceLocation TEXTURES_OUTPUT_BUS = new ResourceLocation("appliedenergistics2", "textures/guis/skychest.png");
 
     private CustomStackSizeButton stackSizeBtn;
@@ -34,11 +31,9 @@ public class GuiMEItemOutputBus extends GuiMEItemBus {
     public void initGui() {
         super.initGui();
 
-        // Add wrench button for stack size configuration
-        // Position: Left side, matching AE2's Partition Storage button position
         this.stackSizeBtn = new CustomStackSizeButton(
-                this.guiLeft - 18,          // Left side of GUI
-                this.guiTop + 8             // Top position
+                this.guiLeft - 18,
+                this.guiTop + 8
         );
         this.buttonList.add(this.stackSizeBtn);
     }
@@ -48,7 +43,6 @@ public class GuiMEItemOutputBus extends GuiMEItemBus {
         super.actionPerformed(btn);
 
         if (btn == this.stackSizeBtn) {
-            // Switch to stack size configuration GUI
             ModularMachinery.NET_CHANNEL.sendToServer(
                     new PktSwitchGuiMEOutputBus(this.outputBus.getPos(), 1)
             );
@@ -68,9 +62,6 @@ public class GuiMEItemOutputBus extends GuiMEItemBus {
         this.drawTexturedModalRect(offsetX, offsetY, 0, 0, this.xSize, this.ySize);
     }
 
-    /**
-     * Custom button that extends GuiImgButton but overrides the tooltip message
-     */
     private static class CustomStackSizeButton extends GuiImgButton {
         public CustomStackSizeButton(int x, int y) {
             super(x, y, Settings.ACTIONS, ActionItems.WRENCH);
@@ -78,9 +69,7 @@ public class GuiMEItemOutputBus extends GuiMEItemBus {
 
         @Override
         public String getMessage() {
-            // Return our custom tooltip instead of AE2's default
             return "Configure Stack Size";
         }
     }
-
 }
