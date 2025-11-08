@@ -129,6 +129,7 @@ public class MEItemOutputBus extends MEItemBus {
             try {
                 proxy.getTick().alertDevice(proxy.getNode());
             } catch (GridAccessException e) {
+                // NO-OP
             }
         }
 
