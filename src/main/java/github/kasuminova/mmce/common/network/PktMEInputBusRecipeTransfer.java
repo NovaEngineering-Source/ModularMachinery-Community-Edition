@@ -20,12 +20,12 @@ import java.util.List;
 
 public class PktMEInputBusRecipeTransfer implements IMessage, IMessageHandler<PktMEInputBusRecipeTransfer, IMessage> {
 
-    private ArrayList<ItemStack> inputs;
+    private List<ItemStack> inputs;
 
     public PktMEInputBusRecipeTransfer() {
     }
 
-    public PktMEInputBusRecipeTransfer(ArrayList<ItemStack> inputs) {
+    public PktMEInputBusRecipeTransfer(List<ItemStack> inputs) {
         this.inputs = inputs;
     }
 
@@ -60,20 +60,29 @@ public class PktMEInputBusRecipeTransfer implements IMessage, IMessageHandler<Pk
     public IMessage onMessage(PktMEInputBusRecipeTransfer message, MessageContext ctx) {
         final EntityPlayerMP player = ctx.getServerHandler().player;
         final Container container = player.openContainer;
-        ArrayList<ItemStack> inputs = message.inputs;
+        List<ItemStack> inputs = message.inputs;
         List<Slot> inventorySlots = container.inventorySlots;
-        ext:
         for (ItemStack input : inputs) {
-            for (Slot slot : inventorySlots) {
-                if (slot instanceof SlotFake slotFake) {
-                    if (!slotFake.getHasStack()) {
-                        slotFake.putStack(input.copy());
-                        continue ext;
-                    }
-                }
-            }
+            var slot = getAvailableSlot(input, inventorySlots);
+            if (slot != null)
+                slot.putStack(input.copy());
         }
 
         return null;
+    }
+
+    private SlotFake getAvailableSlot(ItemStack stack, List<Slot> slots) {
+        SlotFake emptySlot = null;
+        for (Slot slot : slots) {
+            if (slot instanceof SlotFake slotFake) {
+                var item = slotFake.getStack();
+                if (item.isEmpty()) {
+                    if (emptySlot == null) emptySlot = slotFake;
+                } else if (ItemStack.areItemStacksEqual(item, stack)) {
+                    return null;
+                }
+            }
+        }
+        return emptySlot;
     }
 }

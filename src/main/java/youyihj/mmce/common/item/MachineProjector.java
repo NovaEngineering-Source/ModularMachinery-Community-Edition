@@ -18,6 +18,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 import youyihj.mmce.common.preview.StructurePreviewHelper;
 
 import javax.annotation.Nonnull;
@@ -42,16 +43,14 @@ public class MachineProjector extends Item {
     public EnumActionResult onItemUse(@Nonnull EntityPlayer player, World worldIn, @Nonnull BlockPos pos, @Nonnull EnumHand hand, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ) {
         IBlockState blockState = worldIn.getBlockState(pos);
         Block block = blockState.getBlock();
-        if (block instanceof BlockController && worldIn.isRemote) {
-            BlockController controller = (BlockController) block;
+        if (block instanceof BlockController controller && worldIn.isRemote) {
             DynamicMachine machine = controller.getParentMachine();
             if (machine != null) {
                 StructurePreviewHelper.renderMachinePreview(machine, pos);
                 return EnumActionResult.SUCCESS;
             }
         }
-        if (block instanceof BlockFactoryController && worldIn.isRemote) {
-            BlockFactoryController controller = (BlockFactoryController) block;
+        if (block instanceof BlockFactoryController controller && worldIn.isRemote) {
             DynamicMachine machine = controller.getParentMachine();
             if (machine != null) {
                 StructurePreviewHelper.renderMachinePreview(machine, pos);
@@ -62,7 +61,7 @@ public class MachineProjector extends Item {
     }
 
     @Override
-    public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+    public void addInformation(@Nonnull ItemStack stack, @Nullable World worldIn, List<String> tooltip, @NotNull ITooltipFlag flagIn) {
         tooltip.add(I18n.format("tooltip.modularmachinery.machine_projector"));
     }
 }
