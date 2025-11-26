@@ -10,6 +10,7 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.transfer.RecipeTransferErrorInternal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 public class MEInputRecipeTransferHandler implements IRecipeTransferHandler<ContainerMEItemInputBus> {
 
+    @NotNull
     @Override
     public Class<ContainerMEItemInputBus> getContainerClass() {
         return ContainerMEItemInputBus.class;
@@ -24,7 +26,7 @@ public class MEInputRecipeTransferHandler implements IRecipeTransferHandler<Cont
 
     @Nullable
     @Override
-    public IRecipeTransferError transferRecipe(ContainerMEItemInputBus containerMEItemInputBus, IRecipeLayout recipeLayout, EntityPlayer entityPlayer, boolean maxTransfer, boolean doTransfer) {
+    public IRecipeTransferError transferRecipe(@NotNull ContainerMEItemInputBus containerMEItemInputBus, IRecipeLayout recipeLayout, @NotNull EntityPlayer entityPlayer, boolean maxTransfer, boolean doTransfer) {
         final String recipeType = recipeLayout.getRecipeCategory().getUid();
 
         // MM recipes are identified by this prefix

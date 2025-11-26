@@ -775,7 +775,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         }
         TileEntity te = getWorld().getTileEntity(realPos);
         MachineComponent<?> component;
-        if (!(te instanceof MachineComponentTile)) {
+        if (!(te instanceof MachineComponentTile mte)) {
             if (te == null) {
                 return;
             }
@@ -785,7 +785,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
             }
             component = proxiedComponent;
         } else {
-            component = ((MachineComponentTile) te).provideComponent();
+            component = mte.provideComponent();
         }
 
         ComponentSelectorTag tag = this.foundPattern.getTag(pos);

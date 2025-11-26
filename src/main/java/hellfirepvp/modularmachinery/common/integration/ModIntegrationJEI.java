@@ -9,8 +9,6 @@
 package hellfirepvp.modularmachinery.common.integration;
 
 import com.google.common.collect.Lists;
-import github.kasuminova.mmce.client.gui.GuiMEItemInputBus;
-import github.kasuminova.mmce.client.gui.integration.handler.MEInputGhostSlotHandler;
 import github.kasuminova.mmce.common.container.handler.MEInputRecipeTransferHandler;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.base.Mods;
@@ -50,6 +48,7 @@ import mezz.jei.input.InputHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Optional;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -159,7 +158,7 @@ public class ModIntegrationJEI implements IModPlugin {
      */
     @Override
     @Deprecated
-    public void registerIngredients(IModIngredientRegistration registry) {
+    public void registerIngredients(@NotNull IModIngredientRegistration registry) {
         try {
             registry.register(() -> HybridFluid.class, Lists.newArrayList(), new HybridStackHelper<>(), new HybridFluidRenderer<>());
             if (Mods.MEKANISM.isPresent()) {
@@ -206,8 +205,6 @@ public class ModIntegrationJEI implements IModPlugin {
             String machineCategory = getCategoryStringFor(machine);
             registry.addRecipeCatalyst(stack, machineCategory);
         }
-
-        registry.addGhostIngredientHandler(GuiMEItemInputBus.class, new MEInputGhostSlotHandler());
 
         // Only handle MM recipes
         for (DynamicMachine machine : MachineRegistry.getRegistry()) {
