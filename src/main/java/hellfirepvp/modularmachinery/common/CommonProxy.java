@@ -171,7 +171,7 @@ public class CommonProxy implements IGuiHandler {
         IntegrationTypeHelper.filterModIdRequirementTypes();
 
         if (Mods.TOP.isPresent()) {
-            ModIntegrationTOP.registerProvider();
+            ModIntegrationTOP.registerProviders();
             ModularMachinery.log.info("[ModularMachinery-CE] TheOneProbe integration is enabled! Stop looking at the dark controller gui!");
         }
         if (Mods.GREGTECHCEU.isPresent()) {
