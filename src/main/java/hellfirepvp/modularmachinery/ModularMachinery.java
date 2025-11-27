@@ -9,6 +9,7 @@
 package hellfirepvp.modularmachinery;
 
 import github.kasuminova.mmce.common.concurrent.TaskExecutor;
+import github.kasuminova.mmce.common.network.*;
 import github.kasuminova.mmce.common.network.PktAutoAssemblyRequest;
 import github.kasuminova.mmce.common.network.PktMEInputBusInvAction;
 import github.kasuminova.mmce.common.network.PktMEOutputBusStackSizeChange;
@@ -49,7 +50,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * This class is part of the Modular Machinery Mod
- * The complete source code for this mod can be found on github.
+ * The complete source code for this mod can be found on Github.
  * Class: ModularMachinery
  * Created by HellFirePvP
  * Date: 26.06.2017 / 20:26
@@ -119,6 +120,7 @@ public class ModularMachinery {
         NET_CHANNEL.registerMessage(PktParallelControllerUpdate.class, PktParallelControllerUpdate.class, 102, Side.SERVER);
         if (Mods.AE2.isPresent()) {
             NET_CHANNEL.registerMessage(PktMEInputBusInvAction.class, PktMEInputBusInvAction.class, 103, Side.SERVER);
+            NET_CHANNEL.registerMessage(PktMEInputBusRecipeTransfer.class, PktMEInputBusRecipeTransfer.class, 107, Side.SERVER);
         }
         NET_CHANNEL.registerMessage(PktAutoAssemblyRequest.class, PktAutoAssemblyRequest.class, 104, Side.SERVER);
         if (Mods.AE2.isPresent()) {

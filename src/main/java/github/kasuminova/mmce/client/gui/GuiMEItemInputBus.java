@@ -1,14 +1,24 @@
 package github.kasuminova.mmce.client.gui;
 
+import appeng.container.interfaces.IJEIGhostIngredients;
+import appeng.container.slot.IJEITargetSlot;
 import appeng.container.slot.SlotDisabled;
 import appeng.container.slot.SlotFake;
 import appeng.core.localization.GuiText;
+import appeng.core.sync.network.NetworkHandler;
+import appeng.core.sync.packets.PacketInventoryAction;
+import appeng.helpers.InventoryAction;
+import appeng.util.item.AEItemStack;
 import github.kasuminova.mmce.common.container.ContainerMEItemInputBus;
 import github.kasuminova.mmce.common.network.PktMEInputBusInvAction;
 import github.kasuminova.mmce.common.tile.MEItemInputBus;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.client.ClientProxy;
 import hellfirepvp.modularmachinery.common.util.MiscUtils;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
+import mezz.jei.api.gui.IGhostIngredientHandler;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -22,15 +32,18 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nonnull;
+import java.awt.Rectangle;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
-public class GuiMEItemInputBus extends GuiMEItemBus {
+public class GuiMEItemInputBus extends GuiMEItemBus implements IJEIGhostIngredients {
     private static final ResourceLocation TEXTURES_INPUT_BUS = new ResourceLocation(ModularMachinery.MODID, "textures/gui/meiteminputbus.png");
 
+    protected final Map<IGhostIngredientHandler.Target<?>, Object> mapTargetSlot = new Object2ObjectOpenHashMap<>();
     private int invActionAmount = 0;
 
     public GuiMEItemInputBus(final MEItemInputBus te, final EntityPlayer player) {
@@ -208,5 +221,64 @@ public class GuiMEItemInputBus extends GuiMEItemBus {
 
         this.drawHoveringText(tooltip, x, y, (font == null ? fontRenderer : font));
         GuiUtils.postItemToolTip();
+    }
+
+    // Code adapted from appeng.client.gui.implementations.GuiUpgradeable, full credits to the original author
+    @Override
+    public List<IGhostIngredientHandler.Target<?>> getPhantomTargets(Object ingredient) {
+        this.mapTargetSlot.clear();
+        if (ingredient instanceof ItemStack itemStack) {
+            List<IGhostIngredientHandler.Target<?>> targets = new ObjectArrayList<>();
+            List<IJEITargetSlot> slots = new ObjectArrayList<>();
+            if (!this.inventorySlots.inventorySlots.isEmpty()) {
+                for (Slot slot : this.inventorySlots.inventorySlots) {
+                    if (slot instanceof SlotFake && !itemStack.isEmpty()) {
+                        slots.add((IJEITargetSlot) slot);
+                    }
+                }
+            }
+
+            for (final IJEITargetSlot slot : slots) {
+                var targetItem = getObjectTarget(itemStack, slot);
+                targets.add(targetItem);
+                this.mapTargetSlot.putIfAbsent(targetItem, slot);
+            }
+
+            return targets;
+        } else {
+            return ObjectLists.emptyList();
+        }
+    }
+
+    private IGhostIngredientHandler.Target<Object> getObjectTarget(ItemStack itemStack, IJEITargetSlot slot) {
+        final GuiMEItemBus g = this;
+        return new IGhostIngredientHandler.Target<>() {
+            @Nonnull
+            public Rectangle getArea() {
+                if (slot instanceof SlotFake slotFake && slotFake.isSlotEnabled()) {
+                    return new Rectangle(g.getGuiLeft() + slotFake.xPos, g.getGuiTop() + slotFake.yPos, 16, 16);
+                }
+                return new Rectangle();
+            }
+
+            public void accept(@Nonnull Object ingredient) {
+                try {
+                    if (slot instanceof SlotFake && ((SlotFake) slot).isSlotEnabled()) {
+                        if (!itemStack.isEmpty()) {
+                            PacketInventoryAction p = new PacketInventoryAction(InventoryAction.PLACE_JEI_GHOST_ITEM, slot, AEItemStack.fromItemStack(itemStack));
+                            NetworkHandler.instance().sendToServer(p);
+                        }
+                    }
+                } catch (IOException ignored) {
+
+                }
+
+            }
+        };
+    }
+
+    @Override
+    public Map<IGhostIngredientHandler.Target<?>, Object> getFakeSlotTargetMap() {
+        return mapTargetSlot;
     }
 }

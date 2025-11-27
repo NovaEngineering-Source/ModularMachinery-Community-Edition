@@ -105,9 +105,13 @@ public class MEItemOutputBus extends MEItemBus implements SettingsTransfer {
 
                     if (aeStack.getStackSize() != left.getStackSize()) {
                         successAtLeastOnce = true;
+                        failureCounter[slot] = 0;
+                    } else {
+                        failureCounter[slot] = Math.min(failureCounter[slot] + 1, 10);
                     }
                 } else {
                     successAtLeastOnce = true;
+                    failureCounter[slot] = 0;
                 }
             }
 

@@ -1,6 +1,7 @@
 package github.kasuminova.mmce.common.world;
 
 import com.github.bsideup.jabel.Desugar;
+import com.mojang.realmsclient.util.Pair;
 import github.kasuminova.mmce.common.tile.MEPatternMirrorImage;
 import github.kasuminova.mmce.common.tile.MEPatternProvider;
 import github.kasuminova.mmce.common.util.concurrent.ExecuteGroup;
@@ -27,7 +28,7 @@ public class MachineComponentManager {
     }
 
     @Optional.Method(modid = "appliedenergistics2")
-    private static Object[] getResult(TileEntity component, World world) {
+    private static Pair<BlockPos, TileEntity> getResult(TileEntity component, World world) {
         BlockPos pos = component.getPos();
         TileEntity te = component;
 
@@ -40,7 +41,7 @@ public class MachineComponentManager {
                 }
             }
         }
-        return new Object[]{pos, te};
+        return Pair.of(pos, te);
     }
 
     public void addWorld(World world) {
@@ -64,9 +65,9 @@ public class MachineComponentManager {
         TileEntity te;
 
         if (Loader.isModLoaded("appliedenergistics2")) {
-            Object[] result = getResult(component, world);
-            pos = (BlockPos) result[0];
-            te = (TileEntity) result[1];
+            Pair<BlockPos, TileEntity> result = getResult(component, world);
+            pos = result.first();
+            te = result.second();
         } else {
             te = component;
             pos = component.getPos();
@@ -109,9 +110,9 @@ public class MachineComponentManager {
         TileEntity te;
 
         if (Loader.isModLoaded("appliedenergistics2")) {
-            Object[] result = getResult(component, world);
-            pos = (BlockPos) result[0];
-            te = (TileEntity) result[1];
+            Pair<BlockPos, TileEntity> result = getResult(component, world);
+            pos = result.first();
+            te = result.second();
         } else {
             te = component;
             pos = component.getPos();
