@@ -14,7 +14,7 @@ public abstract class AbstractMachine {
     @Nonnull
     protected final ResourceLocation registryName;
 
-    protected String localizedName = "";
+    protected String localizedName = null;
     protected String prefix        = "";
     protected int    definedColor  = Config.machineColor;
 

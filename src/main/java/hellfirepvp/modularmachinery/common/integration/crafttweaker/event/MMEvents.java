@@ -1,6 +1,5 @@
 package hellfirepvp.modularmachinery.common.integration.crafttweaker.event;
 
-import crafttweaker.CraftTweakerAPI;
 import crafttweaker.annotations.ZenRegister;
 import crafttweaker.util.IEventHandler;
 import github.kasuminova.mmce.common.event.Phase;
@@ -21,6 +20,7 @@ import github.kasuminova.mmce.common.event.recipe.RecipeFailureEvent;
 import github.kasuminova.mmce.common.event.recipe.RecipeFinishEvent;
 import github.kasuminova.mmce.common.event.recipe.RecipeStartEvent;
 import github.kasuminova.mmce.common.event.recipe.RecipeTickEvent;
+import github.kasuminova.mmce.common.integration.Logger;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.machine.DynamicMachine;
@@ -44,9 +44,9 @@ public class MMEvents {
         WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
-                machine.addMachineEventHandler(MachineStructureFormedEvent.class, function);
+                machine.addMachineEventHandler(MachineStructureFormedEvent.class, function::handle);
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -56,9 +56,9 @@ public class MMEvents {
         WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
-                machine.addMachineEventHandler(MachineStructureUpdateEvent.class, function);
+                machine.addMachineEventHandler(MachineStructureUpdateEvent.class, function::handle);
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -75,7 +75,7 @@ public class MMEvents {
                     function.handle(event);
                 });
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -92,7 +92,7 @@ public class MMEvents {
                     function.handle(event);
                 });
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -100,7 +100,7 @@ public class MMEvents {
     @ZenMethod
     @Deprecated
     public static void onMachineTick(String machineRegistryName, IEventHandler<MachineTickEvent> function) {
-        CraftTweakerAPI.logWarning("[ModularMachinery] Deprecated method onMachineTick()! Consider using onMachinePostTick()");
+        Logger.warn("Deprecated method onMachineTick()! Consider using onMachinePostTick()");
         onMachinePostTick(machineRegistryName, function);
     }
 
@@ -112,9 +112,9 @@ public class MMEvents {
         WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
-                machine.addMachineEventHandler(ControllerGUIRenderEvent.class, function);
+                machine.addMachineEventHandler(ControllerGUIRenderEvent.class, function::handle);
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -128,9 +128,9 @@ public class MMEvents {
         WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
-                machine.addMachineEventHandler(ControllerModelAnimationEvent.class, function);
+                machine.addMachineEventHandler(ControllerModelAnimationEvent.class, function::handle);
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -144,9 +144,9 @@ public class MMEvents {
         WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
-                machine.addMachineEventHandler(ControllerModelGetEvent.class, function);
+                machine.addMachineEventHandler(ControllerModelGetEvent.class, function::handle);
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }
@@ -156,9 +156,9 @@ public class MMEvents {
         WAIT_FOR_MODIFY.add(() -> {
             DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineRegistryName));
             if (machine != null) {
-                machine.addMachineEventHandler(SmartInterfaceUpdateEvent.class, function);
+                machine.addMachineEventHandler(SmartInterfaceUpdateEvent.class, function::handle);
             } else {
-                CraftTweakerAPI.logError("Could not find machine `" + machineRegistryName + "`!");
+                Logger.error("Could not find machine `" + machineRegistryName + "`!");
             }
         });
     }

@@ -29,6 +29,7 @@ import github.kasuminova.mmce.common.tile.MEGasOutputBus;
 import github.kasuminova.mmce.common.tile.MEItemInputBus;
 import github.kasuminova.mmce.common.tile.MEItemOutputBus;
 import github.kasuminova.mmce.common.tile.MEPatternProvider;
+import github.kasuminova.mmce.common.integration.groovyscript.GroovyMachine;
 import github.kasuminova.mmce.common.util.concurrent.Action;
 import github.kasuminova.mmce.common.world.MMWorldEventListener;
 import hellfirepvp.modularmachinery.ModularMachinery;
@@ -170,6 +171,10 @@ public class CommonProxy implements IGuiHandler {
         IntegrationTypeHelper.filterModIdComponents();
         IntegrationTypeHelper.filterModIdRequirementTypes();
 
+        if (Mods.GROOVYSCRIPT.isPresent()) {
+            // the pattern requires all mod block to be loaded
+            GroovyMachine.init();
+        }
         if (Mods.TOP.isPresent()) {
             ModIntegrationTOP.registerProviders();
             ModularMachinery.log.info("[ModularMachinery-CE] TheOneProbe integration is enabled! Stop looking at the dark controller gui!");
