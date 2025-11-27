@@ -8,13 +8,7 @@
 
 package hellfirepvp.modularmachinery.client;
 
-import github.kasuminova.mmce.client.gui.GuiMEFluidInputBus;
-import github.kasuminova.mmce.client.gui.GuiMEFluidOutputBus;
-import github.kasuminova.mmce.client.gui.GuiMEGasInputBus;
-import github.kasuminova.mmce.client.gui.GuiMEGasOutputBus;
-import github.kasuminova.mmce.client.gui.GuiMEItemInputBus;
-import github.kasuminova.mmce.client.gui.GuiMEItemOutputBus;
-import github.kasuminova.mmce.client.gui.GuiMEPatternProvider;
+import github.kasuminova.mmce.client.gui.*;
 import github.kasuminova.mmce.client.renderer.MachineControllerRenderer;
 import github.kasuminova.mmce.client.resource.GeoModelExternalLoader;
 import github.kasuminova.mmce.common.handler.ClientHandler;
@@ -118,13 +112,13 @@ public class ClientProxy extends CommonProxy {
             colors.registerBlockColorHandler(dynamicColor::getColorMultiplier, (Block) dynamicColor);
         }
         BlockController.MACHINE_CONTROLLERS.values().forEach(block ->
-            colors.registerBlockColorHandler(block::getColorMultiplier, block)
+                colors.registerBlockColorHandler(block::getColorMultiplier, block)
         );
         BlockController.MOC_MACHINE_CONTROLLERS.values().forEach(block ->
-            colors.registerBlockColorHandler(block::getColorMultiplier, block)
+                colors.registerBlockColorHandler(block::getColorMultiplier, block)
         );
         BlockFactoryController.FACTORY_CONTROLLERS.values().forEach(block ->
-            colors.registerBlockColorHandler(block::getColorMultiplier, block)
+                colors.registerBlockColorHandler(block::getColorMultiplier, block)
         );
     }
 
@@ -134,13 +128,13 @@ public class ClientProxy extends CommonProxy {
             colors.registerItemColorHandler(dynamicColor::getColorFromItemstack, (Item) dynamicColor);
         }
         BlockController.MACHINE_CONTROLLERS.values().forEach(block ->
-            colors.registerItemColorHandler(block::getColorFromItemstack, block)
+                colors.registerItemColorHandler(block::getColorFromItemstack, block)
         );
         BlockController.MOC_MACHINE_CONTROLLERS.values().forEach(block ->
-            colors.registerItemColorHandler(block::getColorFromItemstack, block)
+                colors.registerItemColorHandler(block::getColorFromItemstack, block)
         );
         BlockFactoryController.FACTORY_CONTROLLERS.values().forEach(block ->
-            colors.registerItemColorHandler(block::getColorFromItemstack, block)
+                colors.registerItemColorHandler(block::getColorFromItemstack, block)
         );
     }
 
@@ -150,11 +144,11 @@ public class ClientProxy extends CommonProxy {
         if (!list.isEmpty()) {
             for (ItemStack i : list) {
                 ModelLoader.setCustomModelResourceLocation(item, i.getItemDamage(),
-                    new ModelResourceLocation(ModularMachinery.MODID + ":" + name, "inventory"));
+                        new ModelResourceLocation(ModularMachinery.MODID + ":" + name, "inventory"));
             }
         } else {
             ModelLoader.setCustomModelResourceLocation(item, 0,
-                new ModelResourceLocation(ModularMachinery.MODID + ":" + name, "inventory"));
+                    new ModelResourceLocation(ModularMachinery.MODID + ":" + name, "inventory"));
         }
     }
 
@@ -199,12 +193,12 @@ public class ClientProxy extends CommonProxy {
                     String name = unlocName + "_" + ((BlockVariants) block).getBlockStateName(state);
                     ModelBakery.registerItemVariants(i, new ResourceLocation(ModularMachinery.MODID, name));
                     ModelLoader.setCustomModelResourceLocation(i, block.getMetaFromState(state),
-                        new ModelResourceLocation(ModularMachinery.MODID + ":" + name, "inventory"));
+                            new ModelResourceLocation(ModularMachinery.MODID + ":" + name, "inventory"));
                 }
             } else {
                 ModelBakery.registerItemVariants(i, new ResourceLocation(ModularMachinery.MODID, block.getClass().getSimpleName().toLowerCase()));
                 ModelLoader.setCustomModelResourceLocation(i, 0,
-                    new ModelResourceLocation(ModularMachinery.MODID + ":" + block.getClass().getSimpleName().toLowerCase(), "inventory"));
+                        new ModelResourceLocation(ModularMachinery.MODID + ":" + block.getClass().getSimpleName().toLowerCase(), "inventory"));
             }
         }
         for (Item item : itemModelsToRegister) {
@@ -324,6 +318,9 @@ public class ClientProxy extends CommonProxy {
                 }
                 return new GuiMEItemInputBus((MEItemInputBus) present, player);
             }
+            case ME_ITEM_OUTPUT_BUS_STACK_SIZE -> {
+                return new GuiMEItemOutputBusStackSize(player.inventory, (MEItemOutputBus) present);
+            }
             case ME_FLUID_OUTPUT_BUS -> {
                 if (!Mods.AE2.isPresent()) {
                     return null;
@@ -361,8 +358,6 @@ public class ClientProxy extends CommonProxy {
                 return new GuiContainerLifeEssence((TileLifeEssenceProvider) present, player);
             }
         }
-
         return null;
     }
-
 }
