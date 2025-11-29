@@ -25,6 +25,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.LinkedList;
@@ -43,24 +44,26 @@ public class BlockParallelController extends BlockMachineComponent implements Bl
     }
 
     @Override
-    public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+    public void addInformation(@NotNull ItemStack stack, @Nullable World worldIn, @NotNull List<String> tooltip, @NotNull ITooltipFlag flagIn) {
         super.addInformation(stack, worldIn, tooltip, flagIn);
         ParallelControllerData data = ParallelControllerData.values()[MathHelper.clamp(stack.getMetadata(), 0, ParallelControllerData.values().length - 1)];
         tooltip.add(I18n.format("tile.modularmachinery.blockparallelcontroller.tip", data.getMaxParallelism()));
     }
 
     @Override
-    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+    public void getSubBlocks(@NotNull CreativeTabs itemIn, @NotNull NonNullList<ItemStack> items) {
         for (ParallelControllerData size : ParallelControllerData.values()) {
             items.add(new ItemStack(this, 1, size.ordinal()));
         }
     }
 
+    @NotNull
     @Override
-    public EnumBlockRenderType getRenderType(IBlockState state) {
+    public EnumBlockRenderType getRenderType(@NotNull IBlockState state) {
         return EnumBlockRenderType.MODEL;
     }
 
+    @NotNull
     @Override
     @SideOnly(Side.CLIENT)
     public BlockRenderLayer getRenderLayer() {
@@ -68,7 +71,7 @@ public class BlockParallelController extends BlockMachineComponent implements Bl
     }
 
     @Override
-    public int damageDropped(IBlockState state) {
+    public int damageDropped(@NotNull IBlockState state) {
         return getMetaFromState(state);
     }
 
@@ -77,11 +80,13 @@ public class BlockParallelController extends BlockMachineComponent implements Bl
         return state.getValue(CONTROLLER_TYPE).ordinal();
     }
 
+    @NotNull
     @Override
     protected BlockStateContainer createBlockState() {
         return new BlockStateContainer(this, CONTROLLER_TYPE);
     }
 
+    @NotNull
     @Override
     public IBlockState getStateFromMeta(int meta) {
         return getDefaultState().withProperty(CONTROLLER_TYPE, ParallelControllerData.values()[meta]);
@@ -129,7 +134,7 @@ public class BlockParallelController extends BlockMachineComponent implements Bl
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World worldIn, @NotNull BlockPos pos, @NotNull IBlockState state, @NotNull EntityPlayer playerIn, @NotNull EnumHand hand, @NotNull EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (!worldIn.isRemote) {
             TileEntity te = worldIn.getTileEntity(pos);
             if (te instanceof TileParallelController) {

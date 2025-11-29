@@ -46,7 +46,7 @@ public abstract class RecipeThread {
         }
         if (activeRecipe != null && activeRecipe.getRecipe() == null) {
             activeRecipe = null;
-            ModularMachinery.log.info("Couldn't find recipe named " + recipeTag.getString("recipeName") + " for controller at " + factory.getPos());
+            ModularMachinery.log.info("Couldn't find recipe named {} for controller at {}", recipeTag.getString("recipeName"), factory.getPos());
         }
         return activeRecipe;
     }
@@ -142,6 +142,7 @@ public abstract class RecipeThread {
     }
 
     public void invalidate() {
+        if (context != null) context.setCrafting(false);
         setActiveRecipe(null).setContext(null);
         permanentModifiers.clear();
         semiPermanentModifiers.clear();
@@ -167,9 +168,8 @@ public abstract class RecipeThread {
     protected abstract void createRecipeSearchTask();
 
     public void flushContextModifier() {
-        if (context == null) {
-            return;
-        }
+        if (context == null) return;
+
         context.overrideModifier(MiscUtils.flatten(ctrl.getFoundModifiers().values()));
         context.addModifier(ctrl.getCustomModifiers().values());
         context.addModifier(semiPermanentModifiers.values());

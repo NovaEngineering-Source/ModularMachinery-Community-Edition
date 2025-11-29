@@ -5,6 +5,7 @@ import github.kasuminova.mmce.common.tile.MEPatternProvider;
 import github.kasuminova.mmce.common.util.InfItemFluidHandler;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mekanism.api.gas.GasStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -20,16 +21,15 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
 public class PktMEPatternProviderHandlerItems implements IMessage, IMessageHandler<PktMEPatternProviderHandlerItems, IMessage> {
 
-    private final List<ItemStack>  itemStackList  = new ArrayList<>();
-    private final List<FluidStack> fluidStackList = new ArrayList<>();
-    private final List<?>          gasStackList   = new ArrayList<>();
+    private final List<ItemStack>  itemStackList  = new ObjectArrayList<>();
+    private final List<FluidStack> fluidStackList = new ObjectArrayList<>();
+    private final List<?>          gasStackList   = new ObjectArrayList<>();
 
     public PktMEPatternProviderHandlerItems() {
     }
@@ -45,6 +45,19 @@ public class PktMEPatternProviderHandlerItems implements IMessage, IMessageHandl
         if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
             addGasToList(infHandler);
         }
+
+        for (var component : patternProvider.getCombinationComponents()) {
+            InfItemFluidHandler handler = (InfItemFluidHandler) component.getContainerProvider();
+            handler.getItemStackList().stream()
+                      .filter(stack -> !stack.isEmpty())
+                      .forEach(itemStackList::add);
+            handler.getFluidStackList().stream()
+                      .filter(Objects::nonNull)
+                      .forEach(fluidStackList::add);
+            if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
+                addGasToList(handler);
+            }
+        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -59,7 +72,6 @@ public class PktMEPatternProviderHandlerItems implements IMessage, IMessageHandl
         Minecraft.getMinecraft().addScheduledTask(() -> patternProvider.setStackList(itemStackList, fluidStackList, gasStackList));
     }
 
-    @SuppressWarnings("unchecked")
     @Optional.Method(modid = "mekanism")
     private void addGasToList(final InfItemFluidHandler infHandler) {
         List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;
@@ -88,7 +100,6 @@ public class PktMEPatternProviderHandlerItems implements IMessage, IMessageHandl
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Optional.Method(modid = "mekanism")
     private void fromBytesMekGas(final ByteBuf buf) {
         List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;
@@ -113,7 +124,6 @@ public class PktMEPatternProviderHandlerItems implements IMessage, IMessageHandl
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Optional.Method(modid = "mekanism")
     private void toBytesMekGas(final ByteBuf buf) {
         List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;

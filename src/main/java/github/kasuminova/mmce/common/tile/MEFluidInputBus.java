@@ -187,7 +187,17 @@ public class MEFluidInputBus extends MEFluidBus implements SettingsTransfer {
             public IFluidHandler getContainerProvider() {
                 return tanks;
             }
+
+            @Override
+            public long getGroupID() {
+                return getGroupId();
+            }
         };
+    }
+
+    @Override
+    public boolean canGroupInput() {
+        return true;
     }
 
     @Override

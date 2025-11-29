@@ -400,44 +400,50 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
 
     public void writeToNBT(final NBTTagCompound tag, final String subTagName) {
         NBTTagCompound subTag = new NBTTagCompound();
-        final NBTTagList fluidList = new NBTTagList();
-        fluidStackList.stream()
-                      .filter(Objects::nonNull)
-                      .map(fluidStack -> fluidStack.writeToNBT(new NBTTagCompound()))
-                      .forEach(fluidList::appendTag);
-        subTag.setTag("Fluids", fluidList);
+        if (!fluidStackList.isEmpty()) {
+            final NBTTagList fluidList = new NBTTagList();
+            fluidStackList.stream()
+                          .filter(Objects::nonNull)
+                          .map(fluidStack -> fluidStack.writeToNBT(new NBTTagCompound()))
+                          .forEach(fluidList::appendTag);
+            subTag.setTag("Fluids", fluidList);
+        }
 
-        final NBTTagList itemList = new NBTTagList();
-        itemStackList.stream()
-                     .filter(itemStack -> !itemStack.isEmpty())
-                     .map(ItemStackUtils::writeNBTOversize)
-                     .forEach(itemList::appendTag);
-        subTag.setTag("Items", itemList);
+        if (!itemStackList.isEmpty()) {
+            final NBTTagList itemList = new NBTTagList();
+            itemStackList.stream()
+                         .filter(itemStack -> !itemStack.isEmpty())
+                         .map(ItemStackUtils::writeNBTOversize)
+                         .forEach(itemList::appendTag);
+            subTag.setTag("Items", itemList);
+        }
 
         if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
             writeNBTMekGas(subTag);
         }
 
-        tag.setTag(subTagName, subTag);
+        if (!subTag.isEmpty()) tag.setTag(subTagName, subTag);
     }
 
     public void readFromNBT(final NBTTagCompound tag, final String subTagName) {
         NBTTagCompound subTag = tag.getCompoundTag(subTagName);
         fluidStackList.clear();
         final NBTTagList fluidList = subTag.getTagList("Fluids", Constants.NBT.TAG_COMPOUND);
-        IntStream.range(0, fluidList.tagCount())
-                 .mapToObj(fluidList::getCompoundTagAt)
-                 .map(FluidStack::loadFluidStackFromNBT)
-                 .filter(Objects::nonNull)
-                 .forEach(fluidStackList::add);
+        if (!fluidList.isEmpty())
+            IntStream.range(0, fluidList.tagCount())
+                     .mapToObj(fluidList::getCompoundTagAt)
+                     .map(FluidStack::loadFluidStackFromNBT)
+                     .filter(Objects::nonNull)
+                     .forEach(fluidStackList::add);
 
         itemStackList.clear();
         final NBTTagList itemList = subTag.getTagList("Items", Constants.NBT.TAG_COMPOUND);
-        IntStream.range(0, itemList.tagCount())
-                 .mapToObj(itemList::getCompoundTagAt)
-                 .map(ItemStackUtils::readNBTOversize)
-                 .filter(itemStack -> !itemStack.isEmpty())
-                 .forEach(itemStackList::add);
+        if (!itemList.isEmpty())
+            IntStream.range(0, itemList.tagCount())
+                     .mapToObj(itemList::getCompoundTagAt)
+                     .map(ItemStackUtils::readNBTOversize)
+                     .filter(itemStack -> !itemStack.isEmpty())
+                     .forEach(itemStackList::add);
 
         if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
             readFromNBTMekGas(subTag);
@@ -448,6 +454,7 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
 
     @Optional.Method(modid = "mekanism")
     public void writeNBTMekGas(final NBTTagCompound subTag) {
+        if (gasStackList.isEmpty()) return;
         List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;
         final NBTTagList gasList = new NBTTagList();
         gasStackList.stream()
@@ -462,6 +469,7 @@ public class InfItemFluidHandler implements IItemHandlerModifiable, IFluidHandle
         List<GasStack> gasStackList = (List<GasStack>) this.gasStackList;
         gasStackList.clear();
         final NBTTagList gasList = subTag.getTagList("Gases", Constants.NBT.TAG_COMPOUND);
+        if (gasList.isEmpty()) return;
         IntStream.range(0, gasList.tagCount())
                  .mapToObj(gasList::getCompoundTagAt)
                  .map(GasStack::readFromNBT)

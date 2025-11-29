@@ -1,9 +1,7 @@
 package github.kasuminova.mmce.common.tile;
 
+import github.kasuminova.mmce.common.tile.base.MachineCombinationComponent;
 import github.kasuminova.mmce.common.util.InfItemFluidHandler;
-import hellfirepvp.modularmachinery.common.crafting.ComponentType;
-import hellfirepvp.modularmachinery.common.lib.ComponentTypesMM;
-import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.machine.MachineComponent;
 import hellfirepvp.modularmachinery.common.tiles.base.MachineComponentTile;
 import hellfirepvp.modularmachinery.common.tiles.base.SelectiveUpdateTileEntity;
@@ -12,12 +10,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Collections;
 
-public class MEPatternMirrorImage extends TileColorableMachineComponent implements SelectiveUpdateTileEntity, MachineComponentTile {
+public class MEPatternMirrorImage extends TileColorableMachineComponent implements SelectiveUpdateTileEntity, MachineComponentTile, MachineCombinationComponent {
 
-    public BlockPos            providerPos;
+    public BlockPos providerPos;
     public InfItemFluidHandler handler;
 
     public MEPatternMirrorImage() {
@@ -29,27 +30,23 @@ public class MEPatternMirrorImage extends TileColorableMachineComponent implemen
     public MachineComponent<InfItemFluidHandler> provideComponent() {
         if (!this.world.isRemote && providerPos != null && ((WorldServer) this.world).getChunkProvider().chunkExists(providerPos.getX() >> 4, providerPos.getZ() >> 4)) {
             TileEntity tileEntity = this.world.getTileEntity(providerPos);
-            if (tileEntity instanceof MEPatternProvider) {
-                return new MachineComponent<>(IOType.INPUT) {
-                    public ComponentType getComponentType() {
-                        return ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS;
-                    }
-
-                    public InfItemFluidHandler getContainerProvider() {
-                        return ((MEPatternProvider) tileEntity).getInfHandler();
-                    }
-                };
+            if (tileEntity instanceof MEPatternProvider mep) {
+                return mep.provideComponent();
             }
         }
-        return new MachineComponent<>(IOType.INPUT) {
-            public ComponentType getComponentType() {
-                return ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS;
-            }
+        return null;
+    }
 
-            public InfItemFluidHandler getContainerProvider() {
-                return handler;
+    @NotNull
+    @Override
+    public Collection<MachineComponent<?>> provideComponents() {
+        if (!this.world.isRemote && providerPos != null && ((WorldServer) this.world).getChunkProvider().chunkExists(providerPos.getX() >> 4, providerPos.getZ() >> 4)) {
+            TileEntity tileEntity = this.world.getTileEntity(providerPos);
+            if (tileEntity instanceof MEPatternProvider mep) {
+                return mep.provideComponents();
             }
-        };
+        }
+        return Collections.emptyList();
     }
 
     @Override
