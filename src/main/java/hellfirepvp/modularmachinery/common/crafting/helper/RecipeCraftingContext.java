@@ -349,9 +349,9 @@ public class RecipeCraftingContext {
                     break;
                 }
             }
-            return requirementComponents.get(groupId);
+            g = requirementComponents.get(groupId);
         }
-        return g;
+        return g == null ? ObjectLists.emptyList() : g;
     }
 
     public void startCrafting() {
