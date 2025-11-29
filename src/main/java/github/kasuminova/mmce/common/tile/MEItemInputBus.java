@@ -99,7 +99,17 @@ public class MEItemInputBus extends MEItemBus implements SettingsTransfer {
             public IOInventory getContainerProvider() {
                 return inventory;
             }
+
+            @Override
+            public long getGroupID() {
+                return getGroupId();
+            }
         };
+    }
+
+    @Override
+    public boolean canGroupInput() {
+        return true;
     }
 
     @Nonnull

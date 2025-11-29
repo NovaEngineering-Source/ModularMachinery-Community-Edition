@@ -37,6 +37,7 @@ import hellfirepvp.modularmachinery.common.container.ContainerController;
 import hellfirepvp.modularmachinery.common.container.ContainerEnergyHatch;
 import hellfirepvp.modularmachinery.common.container.ContainerFactoryController;
 import hellfirepvp.modularmachinery.common.container.ContainerFluidHatch;
+import hellfirepvp.modularmachinery.common.container.ContainerGroupInputConfig;
 import hellfirepvp.modularmachinery.common.container.ContainerItemBus;
 import hellfirepvp.modularmachinery.common.container.ContainerParallelController;
 import hellfirepvp.modularmachinery.common.container.ContainerSmartInterface;
@@ -62,6 +63,7 @@ import hellfirepvp.modularmachinery.common.tiles.TileMachineController;
 import hellfirepvp.modularmachinery.common.tiles.TileParallelController;
 import hellfirepvp.modularmachinery.common.tiles.TileSmartInterface;
 import hellfirepvp.modularmachinery.common.tiles.TileUpgradeBus;
+import hellfirepvp.modularmachinery.common.tiles.base.MachineGroupInput;
 import hellfirepvp.modularmachinery.common.tiles.base.TileEnergyHatch;
 import hellfirepvp.modularmachinery.common.tiles.base.TileFluidTank;
 import hellfirepvp.modularmachinery.common.tiles.base.TileItemBus;
@@ -86,6 +88,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -126,6 +129,7 @@ public class CommonProxy implements IGuiHandler {
 
     public void preInit() {
         creativeTabModularMachinery = new CreativeTabs(ModularMachinery.MODID) {
+            @NotNull
             @Override
             public ItemStack createIcon() {
                 return new ItemStack(BlocksMM.blockController);
@@ -302,6 +306,11 @@ public class CommonProxy implements IGuiHandler {
                 }
                 return new ContainerLifeEssence((TileLifeEssenceProvider) present, player);
             }
+            case GUI_GROUP_INPUT_CONFIG -> {
+                if (present instanceof MachineGroupInput m && m.canGroupInput()) {
+                    return new ContainerGroupInputConfig(present, player);
+                }
+            }
         }
 
         return null;
@@ -332,6 +341,7 @@ public class CommonProxy implements IGuiHandler {
         ME_GAS_INPUT_BUS(Mods.AE2EL.isPresent() && Mods.MEKENG.isPresent() ? MEGasInputBus.class : null),
         ME_PATTERN_PROVIDER(Mods.AE2.isPresent() ? MEPatternProvider.class : null),
         GUI_ESSENCE_PROVIDER(Mods.BM2.isPresent() ? TileLifeEssenceProvider.class : null),
+        GUI_GROUP_INPUT_CONFIG(TileEntity.class)
         ;
 
         public final Class<? extends TileEntity> requiredTileEntity;

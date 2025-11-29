@@ -56,6 +56,13 @@ gui.upgradebus.bounded.empty=无绑定机械。
 gui.upgradebus.bounded=已绑定 %s 个机械
 gui.upgradebus.incompatible=§e警告：%s 与此机械不兼容。
 
+gui.groupinputconfig.title=组ID配置
+gui.groupinputconfig.tooltip=不同的组中，配方检查独立进行
+gui.groupinputconfig.value=当前ID：
+gui.groupinputconfig.enable=启用组
+gui.groupinputconfig.close=禁用组
+block.groupinput.tooltip=允许通过潜行 + 右键放置的方块修改组设置
+
 gui.meitemoutputbus.title=ME 机械物品输出总线
 gui.meiteminputbus.title=ME 机械物品输入总线
 
@@ -82,7 +89,8 @@ gui.mepatternprovider.default.desc=默认：供应器正常工作。
 gui.mepatternprovider.crafting_lock_mode.desc=合成锁定模式：只有当机器完成配方时才会继续存储物品。
 gui.mepatternprovider.blocking_mode.desc=阻挡模式：供应器内含有物品时不继续存储物品。
 gui.mepatternprovider.enhanced_blocking_mode.desc=强化阻挡模式：在阻挡模式的基础上，使当前配方仍然可以继续存储物品。
-gui.mepatternprovider.work_mode.desc=供应器工作模式（点击在四个模式中切换）：
+gui.mepatternprovider.isolation_input.desc=输入隔离模式：为每个样板槽位设置独立容器，配方检查时互相隔离，此时组设置将被忽略
+gui.mepatternprovider.work_mode.desc=供应器工作模式（点击在五个模式中切换）：
 gui.mepatternprovider.return_items=清空物品
 gui.mepatternprovider.return_items.desc=将供应器中的所有物品和流体返还给 ME 网络，这会重置合成锁定模式的状态。
 gui.mepatternprovider.nbt_stored=供应器已配置。

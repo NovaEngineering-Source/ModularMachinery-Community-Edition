@@ -182,6 +182,11 @@ public class MEGasInputBus extends MEGasBus implements SettingsTransfer {
         return Platform.poweredInsert(proxy.getEnergy(), inv, Objects.requireNonNull(AEGasStack.of(stack)), source);
     }
 
+    @Override
+    public boolean canGroupInput() {
+        return true;
+    }
+
     @Nullable
     @Override
     public MachineComponent<IExtendedGasHandler> provideComponent() {
@@ -194,6 +199,11 @@ public class MEGasInputBus extends MEGasBus implements SettingsTransfer {
             @Override
             public IExtendedGasHandler getContainerProvider() {
                 return handler;
+            }
+
+            @Override
+            public long getGroupID() {
+                return getGroupId();
             }
         };
     }

@@ -25,6 +25,7 @@ import github.kasuminova.mmce.common.helper.IDynamicPatternInfo;
 import github.kasuminova.mmce.common.helper.IMachineController;
 import github.kasuminova.mmce.common.machine.component.MachineComponentProxyRegistry;
 import github.kasuminova.mmce.common.tile.MEPatternProvider;
+import github.kasuminova.mmce.common.tile.base.MachineCombinationComponent;
 import github.kasuminova.mmce.common.upgrade.MachineUpgrade;
 import github.kasuminova.mmce.common.upgrade.UpgradeType;
 import github.kasuminova.mmce.common.util.DynamicPattern;
@@ -61,6 +62,10 @@ import hellfirepvp.modularmachinery.common.util.IOInventory;
 import hellfirepvp.modularmachinery.common.util.MiscUtils;
 import hellfirepvp.modularmachinery.common.util.SmartInterfaceData;
 import hellfirepvp.modularmachinery.common.util.SmartInterfaceType;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -98,7 +103,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -132,30 +136,30 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
     protected final Map<String, List<MachineUpgrade>>                       foundUpgrades            = new ConcurrentHashMap<>();
     protected final List<TileUpgradeBus.UpgradeBusProvider>                 foundUpgradeBuses        = new ArrayList<>();
     protected final List<TileParallelController.ParallelControllerProvider> foundParallelControllers = new ArrayList<>();
-    protected final Map<TileEntity, ProcessingComponent<?>>                 foundComponents          = new ConcurrentHashMap<>();
+    protected final Map<Long, Map<TileEntity, ProcessingComponent<?>>>   foundComponents          = new ConcurrentHashMap<>();
 
-    protected final TimeRecorder                          timeRecorder               = new TimeRecorder();
-    protected final Set<InfItemFluidHandler>              componentSet               = new HashSet<>();
-    protected       boolean                               searchRecipeImmediately    = false;
-    protected       EnumFacing                            controllerRotation         = null;
-    protected       DynamicMachine.ModifierReplacementMap foundReplacements          = null;
-    protected       IOInventory                           inventory;
-    protected       NBTTagCompound                        customData                 = new NBTTagCompound();
-    protected       DynamicMachine                        prevMachine                = null;
-    protected       DynamicMachine                        foundMachine               = null;
-    protected       DynamicMachine                        parentMachine              = null;
-    protected       TaggedPositionBlockArray              foundPattern               = null;
-    protected       Map<String, DynamicPattern.Status>    foundDynamicPatterns       = new HashMap<>();
-    protected       ActionExecutor                        tickExecutor               = null;
-    protected       WorkMode                              workMode                   = WorkMode.ASYNC;
-    protected       UUID                                  owner                      = null;
-    protected       int                                   structureCheckCounter      = 0;
-    protected       int                                   recipeResearchRetryCounter = 0;
-    protected       int                                   lastStrongPower            = -1;
-    protected       int                                   lastStructureCheckTick     = -1;
-    protected       long                                  executeGroupId             = -1;
-    protected       Object                                animationFactory           = null;
-    protected       boolean                               loaded                     = false;
+    protected final TimeRecorder                            timeRecorder               = new TimeRecorder();
+    protected final Long2ObjectMap<Set<InfItemFluidHandler>> componentSet              = new Long2ObjectOpenHashMap<>();
+    protected       boolean                                 searchRecipeImmediately    = false;
+    protected       EnumFacing                              controllerRotation         = null;
+    protected       DynamicMachine.ModifierReplacementMap   foundReplacements          = null;
+    protected       IOInventory                             inventory;
+    protected       NBTTagCompound                          customData                 = new NBTTagCompound();
+    protected       DynamicMachine                          prevMachine                = null;
+    protected       DynamicMachine                          foundMachine               = null;
+    protected       DynamicMachine                          parentMachine              = null;
+    protected       TaggedPositionBlockArray                foundPattern               = null;
+    protected       Map<String, DynamicPattern.Status>      foundDynamicPatterns       = new HashMap<>();
+    protected       ActionExecutor                          tickExecutor               = null;
+    protected       WorkMode                                workMode                   = WorkMode.ASYNC;
+    protected       UUID                                    owner                      = null;
+    protected       int                                     structureCheckCounter      = 0;
+    protected       int                                     recipeResearchRetryCounter = 0;
+    protected       int                                     lastStrongPower            = -1;
+    protected       int                                     lastStructureCheckTick     = -1;
+    protected       long                                    executeGroupId             = -1;
+    protected       Object                                  animationFactory           = null;
+    protected       boolean                                 loaded                     = false;
 
     public TileMultiblockMachineController() {
         this.inventory = buildInventory();
@@ -192,16 +196,22 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
             "When enabled, the controller sends the full NBT to the client at the start and completion of the recipe, which can be helpful for machinery where the client needs to perform special operations.");
     }
 
-    public <T> void addComponent(MachineComponent<T> component, @Nullable ComponentSelectorTag tag, TileEntity te, Map<TileEntity, ProcessingComponent<?>> components) {
+    public <T> void addComponent(MachineComponent<T> component, @Nullable ComponentSelectorTag tag, TileEntity te, Map<Long,Map<TileEntity, ProcessingComponent<?>>> components) {
         T handler = component.getContainerProvider();
         if (handler instanceof InfItemFluidHandler ifh) {
-            if (componentSet.contains(ifh)) {
+            Set<InfItemFluidHandler> s;
+            if ((s = componentSet.get(component.getGroupID())) != null && s.contains(ifh)) {
                 return;
             }
-            componentSet.add(ifh);
+            if (s != null) s.add(ifh);
+            else {
+                Set<InfItemFluidHandler> set = new ObjectOpenHashSet<>();
+                set.add(ifh);
+                componentSet.put(component.getGroupID(), set);
+            }
         }
         MachineComponentManager.INSTANCE.checkComponentShared(te, this);
-        components.put(te, new ProcessingComponent<>(component, handler, tag));
+        components.computeIfAbsent(component.getGroupID(), i -> new ConcurrentHashMap<>()).put(te, new ProcessingComponent<>(component, handler, tag));
     }
 
     @Override
@@ -734,7 +744,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
 
     protected void updateComponents() {
         if (this.foundMachine == null || this.foundPattern == null || this.controllerRotation == null || this.foundReplacements == null) {
-            this.foundComponents.forEach((te, component) -> MachineComponentManager.INSTANCE.removeOwner(te, this));
+            this.foundComponents.forEach((i, map) -> map.forEach((te,c) -> MachineComponentManager.INSTANCE.removeOwner(te, this)));
             this.foundComponents.clear();
             this.foundModifiers.clear();
             this.foundSmartInterfaces.clear();
@@ -748,11 +758,11 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
 
         this.foundUpgrades.clear();
         this.foundUpgradeBuses.clear();
-        this.foundComponents.forEach((te, component) -> MachineComponentManager.INSTANCE.removeOwner(te, this));
+        this.foundComponents.forEach((i, map) -> map.forEach((te,c) -> MachineComponentManager.INSTANCE.removeOwner(te, this)));
         this.foundComponents.clear();
         this.foundSmartInterfaces.clear();
         this.foundParallelControllers.clear();
-        Map<TileEntity, ProcessingComponent<?>> found = new HashMap<>();
+        Map<Long,Map<TileEntity, ProcessingComponent<?>>> found = new Long2ObjectOpenHashMap<>();
 
         componentSet.clear();
         this.foundPattern.getTileBlocksArray().forEach((pos, info) -> checkAndAddComponents(pos, getPos(), found));
@@ -767,15 +777,19 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         }
     }
 
-    private void checkAndAddComponents(final BlockPos pos, final BlockPos ctrlPos, final Map<TileEntity, ProcessingComponent<?>> found) {
+    private void checkAndAddComponents(final BlockPos pos, final BlockPos ctrlPos, final Map<Long,Map<TileEntity, ProcessingComponent<?>>> found) {
         BlockPos realPos = ctrlPos.add(pos);
 
         if (!getWorld().isBlockLoaded(realPos)) {
             return;
         }
         TileEntity te = getWorld().getTileEntity(realPos);
-        MachineComponent<?> component;
-        if (!(te instanceof MachineComponentTile mte)) {
+        List<MachineComponent<?>> components = new ObjectArrayList<>();
+        if (te instanceof MachineComponentTile mte) {
+            MachineComponent<?> pc;
+            if ((pc = mte.provideComponent()) != null)
+                components.add(pc);
+        } else {
             if (te == null) {
                 return;
             }
@@ -783,26 +797,32 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
             if (proxiedComponent == null) {
                 return;
             }
-            component = proxiedComponent;
-        } else {
-            component = mte.provideComponent();
+            components.add(proxiedComponent);
+        }
+
+        if (te instanceof MachineCombinationComponent mcc) {
+            components.addAll(mcc.provideComponents());
+        }
+
+        if (components.isEmpty()) {
+            return;
         }
 
         ComponentSelectorTag tag = this.foundPattern.getTag(pos);
-        if (component == null) {
-            return;
-        }
-        if (!component.isAsyncSupported()) {
-            workMode = WorkMode.SEMI_SYNC;
-        }
 
-        addComponent(component, tag, te, found);
-        if (component instanceof TileParallelController.ParallelControllerProvider) {
-            this.foundParallelControllers.add((TileParallelController.ParallelControllerProvider) component);
-            return;
+        for (var component : components) {
+            if (!component.isAsyncSupported()) {
+                workMode = WorkMode.SEMI_SYNC;
+            }
+
+            addComponent(component, tag, te, found);
+            if (component instanceof TileParallelController.ParallelControllerProvider p) {
+                this.foundParallelControllers.add(p);
+                return;
+            }
+            checkAndAddUpgradeBus(component);
+            checkAndAddSmartInterface(component, realPos);
         }
-        checkAndAddUpgradeBus(component);
-        checkAndAddSmartInterface(component, realPos);
     }
 
     public void checkAndAddUpgradeBus(final MachineComponent<?> component) {
@@ -1050,7 +1070,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         return foundParallelControllers;
     }
 
-    public Map<TileEntity, ProcessingComponent<?>> getFoundComponents() {
+    public Map<Long, Map<TileEntity, ProcessingComponent<?>>> getFoundComponents() {
         return foundComponents;
     }
 
@@ -1262,7 +1282,7 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
     public void invalidate() {
         super.invalidate();
         loaded = false;
-        foundComponents.forEach((te, component) -> MachineComponentManager.INSTANCE.removeOwner(te, this));
+        this.foundComponents.forEach((i, map) -> map.forEach((te,c) -> MachineComponentManager.INSTANCE.removeOwner(te, this)));
 
         if (getWorld().isRemote) {
             BlockModelHider.hideOrShowBlocks(this);
