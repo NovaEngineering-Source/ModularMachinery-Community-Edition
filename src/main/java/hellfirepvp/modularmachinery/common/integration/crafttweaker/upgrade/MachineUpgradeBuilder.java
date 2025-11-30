@@ -1,6 +1,6 @@
 package hellfirepvp.modularmachinery.common.integration.crafttweaker.upgrade;
 
-import crafttweaker.CraftTweakerAPI;
+import com.cleanroommc.groovyscript.api.GroovyBlacklist;
 import crafttweaker.annotations.ZenRegister;
 import github.kasuminova.mmce.common.event.Phase;
 import github.kasuminova.mmce.common.event.client.ControllerGUIRenderEvent;
@@ -18,6 +18,7 @@ import github.kasuminova.mmce.common.event.recipe.RecipeFailureEvent;
 import github.kasuminova.mmce.common.event.recipe.RecipeFinishEvent;
 import github.kasuminova.mmce.common.event.recipe.RecipeStartEvent;
 import github.kasuminova.mmce.common.event.recipe.RecipeTickEvent;
+import github.kasuminova.mmce.common.integration.Logger;
 import github.kasuminova.mmce.common.upgrade.SimpleMachineUpgrade;
 import github.kasuminova.mmce.common.upgrade.UpgradeType;
 import github.kasuminova.mmce.common.upgrade.registry.RegistryUpgrade;
@@ -36,6 +37,7 @@ import stanhebben.zenscript.annotations.ZenMethod;
 @ZenRegister
 @ZenClass("mods.modularmachinery.MachineUpgradeBuilder")
 public class MachineUpgradeBuilder {
+
     private final SimpleMachineUpgrade machineUpgrade;
 
     public MachineUpgradeBuilder(final SimpleMachineUpgrade machineUpgrade) {
@@ -54,7 +56,7 @@ public class MachineUpgradeBuilder {
     @ZenMethod
     public static MachineUpgradeBuilder newBuilder(String name, String localizedName, float level, int maxStack) {
         if (RegistryUpgrade.getUpgrade(name) != null) {
-            CraftTweakerAPI.logError("[ModularMachinery] Already registered SimpleMachineUpgrade " + name + '!');
+            Logger.error("Already registered SimpleMachineUpgrade " + name + '!');
             return null;
         }
         return new MachineUpgradeBuilder(new SimpleMachineUpgrade(new UpgradeType(name, localizedName, level, maxStack)));
@@ -95,7 +97,7 @@ public class MachineUpgradeBuilder {
             for (final String machineName : machineNames) {
                 DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineName));
                 if (machine == null) {
-                    CraftTweakerAPI.logError("Cloud not found machine " + machineName);
+                    Logger.error("Cloud not found machine " + machineName);
                     continue;
                 }
                 machineUpgrade.getType().addCompatibleMachine(machine);
@@ -115,7 +117,7 @@ public class MachineUpgradeBuilder {
             for (final String machineName : machineNames) {
                 DynamicMachine machine = MachineRegistry.getRegistry().getMachine(new ResourceLocation(ModularMachinery.MODID, machineName));
                 if (machine == null) {
-                    CraftTweakerAPI.logError("Cloud not found machine " + machineName);
+                    Logger.error("Cloud not found machine " + machineName);
                     continue;
                 }
                 machineUpgrade.getType().addIncompatibleMachine(machine);
@@ -168,7 +170,7 @@ public class MachineUpgradeBuilder {
     @Deprecated
     @ZenMethod
     public MachineUpgradeBuilder addRecipeCheckHandler(UpgradeEventHandlerCT handler) {
-        CraftTweakerAPI.logWarning("[ModularMachinery] Deprecated method addRecipeCheckHandler()! Consider using addPostRecipeCheckHandler()");
+        Logger.warn("Deprecated method addRecipeCheckHandler()! Consider using addPostRecipeCheckHandler()");
         addEventHandler(RecipeCheckEvent.class, handler);
         return this;
     }
@@ -224,7 +226,7 @@ public class MachineUpgradeBuilder {
     @ZenMethod
     @Deprecated
     public MachineUpgradeBuilder addRecipeTickHandler(UpgradeEventHandlerCT handler) {
-        CraftTweakerAPI.logWarning("[ModularMachinery] Deprecated method addTickHandler()! Consider using addPostTickHandler()");
+        Logger.warn("Deprecated method addTickHandler()! Consider using addPostTickHandler()");
         return addRecipePostTickHandler(handler);
     }
 
@@ -322,6 +324,7 @@ public class MachineUpgradeBuilder {
         return this;
     }
 
+    @GroovyBlacklist
     @ZenMethod
     public void buildAndRegister() {
         RegistryUpgrade.registerUpgrade(machineUpgrade.getType().getName(), machineUpgrade);
