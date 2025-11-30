@@ -1,5 +1,6 @@
 package com.cleanroommc.client.util.world;
 
+import dev.redstudio.alfheim.lighting.LightingEngine;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import net.minecraft.block.Block;
@@ -27,7 +28,6 @@ public class DummyWorld extends World {
 
     private static final WorldSettings DEFAULT_SETTINGS = new WorldSettings(1L, GameType.SURVIVAL, true, false, WorldType.DEFAULT);
 
-    @SuppressWarnings("deprecation")
     public DummyWorld() {
         super(new DummySaveHandler(), new WorldInfo(DEFAULT_SETTINGS, "DummyServer"), new WorldProviderSurface(), new Profiler(), true);
         // Guarantee the dimension ID was not reset by the provider
@@ -117,13 +117,19 @@ public class DummyWorld extends World {
 
     @Override
     @Optional.Method(modid = "alfheim")
-    public int getLightFromNeighborsFor(EnumSkyBlock type, BlockPos pos) {
+    public int getLightFromNeighborsFor(@Nonnull EnumSkyBlock type, @Nonnull BlockPos pos) {
         return 15;
     }
 
+    @SuppressWarnings("unused")
     @Optional.Method(modid = "alfheim")
     public int alfheim$getLight(BlockPos pos, boolean checkNeighbors) {
         return 15;
     }
 
+    @SuppressWarnings("unused")
+    @Optional.Method(modid = "alfheim")
+    public LightingEngine getAlfheim$lightingEngine() {
+        return null;
+    }
 }
