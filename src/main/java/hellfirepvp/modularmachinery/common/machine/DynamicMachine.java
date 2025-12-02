@@ -139,7 +139,6 @@ public class DynamicMachine extends AbstractMachine {
         return filtered;
     }
 
-    @SuppressWarnings("unchecked")
     public <H extends MachineEvent> void addMachineEventHandler(Class<H> hClass, IEventHandler<H> handler) {
         machineEventHandlers.putIfAbsent(hClass, new ArrayList<>());
         machineEventHandlers.get(hClass).add((IEventHandler<MachineEvent>) handler);

@@ -61,6 +61,7 @@ import hellfirepvp.modularmachinery.common.util.IOInventory;
 import hellfirepvp.modularmachinery.common.util.MiscUtils;
 import hellfirepvp.modularmachinery.common.util.SmartInterfaceData;
 import hellfirepvp.modularmachinery.common.util.SmartInterfaceType;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -1173,6 +1174,44 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
         return getBlocksInPatternInternal(state -> predicate.test(CraftTweakerMC.getBlockState(state)));
     }
 
+    @Override
+    public IBlockPos[] getBlockPosInPattern(IItemStack blockStack) {
+        if (foundPattern == null || blockStack == null) {
+            return new IBlockPos[0];
+        }
+        IBlockDefinition blockDef = blockStack.asBlock().getDefinition();
+        if (blockStack.getMetadata() == OreDictionary.WILDCARD_VALUE) {
+            return getBlockPosInPattern(blockDef.getDefaultState().matchBlock());
+        } else {
+            return getBlockPosInPattern(blockDef.getStateFromMeta(blockStack.getMetadata()));
+        }
+    }
+
+    @Override
+    public IBlockPos[] getBlockPosInPattern(IBlockStateMatcher blockStateMatcher) {
+        if (foundPattern == null) {
+            return new IBlockPos[0];
+        }
+        return getBlockPossInPatternInternal(state -> blockStateMatcher.matches(CraftTweakerMC.getBlockState(state)));
+    }
+
+    @Override
+    public IBlockPos[] getBlockPosInPattern(String blockName) {
+        if (foundPattern == null) {
+            return new IBlockPos[0];
+        }
+        List<IBlockState> applicable = BlockArray.BlockInformation.getDescriptor(blockName).getApplicable();
+        return getBlockPossInPatternInternal(applicable::contains);
+    }
+
+    @Override
+    public IBlockPos[] getBlockPosInPattern(IBlockStatePredicate predicate) {
+        if (foundPattern == null) {
+            return new IBlockPos[0];
+        }
+        return getBlockPossInPatternInternal(state -> predicate.test(CraftTweakerMC.getBlockState(state)));
+    }
+
     public int getBlocksInPatternInternal(final Predicate<IBlockState> predicate) {
         if (foundPattern == null) {
             return 0;
@@ -1189,6 +1228,24 @@ public abstract class TileMultiblockMachineController extends TileEntityRestrict
             }
         }
         return count;
+    }
+
+    public IBlockPos[] getBlockPossInPatternInternal(final Predicate<IBlockState> predicate) {
+        if (foundPattern == null) {
+            return new IBlockPos[0];
+        }
+        List<IBlockPos> poss = new ObjectArrayList<>();
+        for (final BlockPos pos : foundPattern.getPattern().keySet()) {
+            BlockPos realPos = getPos().add(pos.getX(), pos.getY(), pos.getZ());
+            IBlockState state = getWorld().getBlockState(realPos);
+            if (state.getBlock() == Blocks.AIR) {
+                continue;
+            }
+            if (predicate.test(state)) {
+                poss.add(CraftTweakerMC.getIBlockPos(pos));
+            }
+        }
+        return poss.toArray(new IBlockPos[0]);
     }
 
     @Nullable
