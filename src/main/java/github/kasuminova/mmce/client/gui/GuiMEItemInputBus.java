@@ -28,7 +28,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.client.config.GuiUtils;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import javax.annotation.Nonnull;
@@ -55,28 +54,31 @@ public class GuiMEItemInputBus extends GuiMEItemBus implements IJEIGhostIngredie
         tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action"));
         // Quite a sight, isn't it?
         // It was truly a beautiful sight...
+        final boolean shift = isShiftKeyDown();
+        final boolean ctrl = isCtrlKeyDown();
 
-        if (isShiftDown() && isControlDown()) {
+        if (shift && ctrl) {
             String keyCombination =
                     "SHIFT + CTRL";
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.multiply",
-                    keyCombination));
+                keyCombination));
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.divide",
-                    keyCombination));
+                keyCombination));
         } else {
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase.normal"));
-            tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease.normal"));
+            final int i = ctrl ? 100 : shift ? 10 : 1;
+            final String keyCombination = ctrl ? "CTRL" : shift ? "SHIFT" : null;
+            if (keyCombination != null) {
+                tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase",
+                    keyCombination, i));
+                tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease",
+                    keyCombination, i));
+            } else {
+                tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.increase.normal"));
+                tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.decrease.normal"));
+            }
         }
 
         return tooltip;
-    }
-
-    private static boolean isControlDown() {
-        return Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
-    }
-
-    private static boolean isShiftDown() {
-        return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
     }
 
     @Override
@@ -124,7 +126,10 @@ public class GuiMEItemInputBus extends GuiMEItemBus implements IJEIGhostIngredie
     }
 
     private int getUpdatedCount(boolean isScrollingUp, int currentAmount) {
-        if (isShiftDown() && isControlDown()) {
+        final boolean shift = isShiftKeyDown();
+        final boolean ctrl = isCtrlKeyDown();
+
+        if (shift && ctrl) {
             if (isScrollingUp) {
                 // Overflow protection
                 if (currentAmount <= Integer.MAX_VALUE / 2) {
@@ -135,14 +140,15 @@ public class GuiMEItemInputBus extends GuiMEItemBus implements IJEIGhostIngredie
                 return Math.max(1, currentAmount / 2);
             }
         } else {
+            int i = ctrl ? 100 : shift ? 10 : 1;
             if (isScrollingUp) {
                 // Overflow protection
                 if (currentAmount < Integer.MAX_VALUE) {
-                    return 1 + currentAmount;
+                    return i + currentAmount;
                 }
                 return Integer.MAX_VALUE;
             } else {
-                return Math.max(1, currentAmount - 1);
+                return Math.max(1, currentAmount - i);
             }
         }
     }

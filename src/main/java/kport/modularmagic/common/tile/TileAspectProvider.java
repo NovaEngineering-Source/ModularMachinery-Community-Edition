@@ -5,6 +5,7 @@ import hellfirepvp.modularmachinery.common.data.Config;
 import hellfirepvp.modularmachinery.common.machine.IOType;
 import hellfirepvp.modularmachinery.common.tiles.base.ColorableMachineTile;
 import hellfirepvp.modularmachinery.common.tiles.base.MachineComponentTile;
+import hellfirepvp.modularmachinery.common.tiles.base.MachineGroupInput;
 import kport.modularmagic.common.crafting.helper.AspectProviderCopy;
 import kport.modularmagic.common.tile.machinecomponent.MachineComponentAspectProvider;
 import net.minecraft.block.state.IBlockState;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.common.Optional;
+import org.jetbrains.annotations.NotNull;
 import thaumcraft.api.ThaumcraftApiHelper;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
@@ -124,6 +126,7 @@ public abstract class TileAspectProvider extends TileJarFillable implements Mach
         }
     }
 
+    @NotNull
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
         super.writeToNBT(nbt);
@@ -150,10 +153,71 @@ public abstract class TileAspectProvider extends TileJarFillable implements Mach
         this.color = nbt.hasKey("casingColor") ? nbt.getInteger("casingColor") : Config.machineColor;
     }
 
-    public static class Input extends TileAspectProvider {
+    public static class Input extends TileAspectProvider implements MachineGroupInput {
+
+        private int groupId;
+        private boolean isGroupInput;
+
         @Override
         public MachineComponentAspectProvider provideComponent() {
             return new MachineComponentAspectProvider(new AspectProviderCopy(this), IOType.INPUT);
+        }
+
+        @Override
+        public void setGroupId(int groupId) {
+            this.groupId = groupId;
+        }
+
+        @Override
+        public boolean canGroupInput() {
+            return true;
+        }
+
+        @Override
+        public boolean isGroupInput() {
+            return isGroupInput;
+        }
+
+        @Override
+        public void setGroupInput(boolean b) {
+            isGroupInput = b;
+        }
+
+        @Override
+        public int getGroupId() {
+            if (isGroupInput()) return groupId;
+            return -1;
+        }
+
+        @NotNull
+        @Override
+        public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+            super.writeToNBT(nbt);
+            nbt.setInteger("groupId", this.groupId);
+            nbt.setBoolean("isGroupInput", this.isGroupInput);
+            return nbt;
+        }
+
+        @Override
+        public void readFromNBT(NBTTagCompound nbt) {
+            super.readFromNBT(nbt);
+            groupId = nbt.getInteger("groupId");
+            isGroupInput = nbt.getBoolean("isGroupInput");
+        }
+
+        @Override
+        public NBTTagCompound writeSyncNBT(NBTTagCompound nbt) {
+            super.writeSyncNBT(nbt);
+            nbt.setInteger("groupId", this.groupId);
+            nbt.setBoolean("isGroupInput", this.isGroupInput);
+            return nbt;
+        }
+
+        @Override
+        public void readSyncNBT(NBTTagCompound nbt) {
+            super.readSyncNBT(nbt);
+            groupId = nbt.getInteger("groupId");
+            isGroupInput = nbt.getBoolean("isGroupInput");
         }
     }
 

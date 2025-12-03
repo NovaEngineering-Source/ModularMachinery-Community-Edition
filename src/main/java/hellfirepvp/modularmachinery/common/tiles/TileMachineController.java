@@ -223,7 +223,7 @@ public class TileMachineController extends TileMultiblockMachineController {
         if (ctx == null) {
             return;
         }
-        ctx.updateComponents(foundComponents.values());
+        ctx.updateComponents(foundComponents);
     }
 
     @Override

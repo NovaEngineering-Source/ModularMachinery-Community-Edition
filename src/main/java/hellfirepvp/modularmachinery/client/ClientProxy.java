@@ -22,6 +22,7 @@ import github.kasuminova.mmce.common.tile.MEPatternProvider;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.client.gui.GuiContainerEnergyHatch;
 import hellfirepvp.modularmachinery.client.gui.GuiContainerFluidHatch;
+import hellfirepvp.modularmachinery.client.gui.GuiContainerGroupInputConfig;
 import hellfirepvp.modularmachinery.client.gui.GuiContainerItemBus;
 import hellfirepvp.modularmachinery.client.gui.GuiContainerParallelController;
 import hellfirepvp.modularmachinery.client.gui.GuiContainerSmartInterface;
@@ -49,6 +50,7 @@ import hellfirepvp.modularmachinery.common.tiles.TileMachineController;
 import hellfirepvp.modularmachinery.common.tiles.TileParallelController;
 import hellfirepvp.modularmachinery.common.tiles.TileSmartInterface;
 import hellfirepvp.modularmachinery.common.tiles.TileUpgradeBus;
+import hellfirepvp.modularmachinery.common.tiles.base.MachineGroupInput;
 import hellfirepvp.modularmachinery.common.tiles.base.TileEnergyHatch;
 import hellfirepvp.modularmachinery.common.tiles.base.TileFluidTank;
 import hellfirepvp.modularmachinery.common.tiles.base.TileItemBus;
@@ -356,6 +358,11 @@ public class ClientProxy extends CommonProxy {
                     return null;
                 }
                 return new GuiContainerLifeEssence((TileLifeEssenceProvider) present, player);
+            }
+            case GUI_GROUP_INPUT_CONFIG -> {
+                if (present instanceof MachineGroupInput m && m.canGroupInput()) {
+                    return new GuiContainerGroupInputConfig(present, player);
+                }
             }
         }
         return null;

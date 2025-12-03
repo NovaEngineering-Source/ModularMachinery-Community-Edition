@@ -21,9 +21,16 @@ import net.minecraft.world.World;
  * Created by HellFirePvP
  * Date: 15.08.2017 / 16:20
  */
-public class TileColorableMachineComponent extends TileEntitySynchronized implements ColorableMachineTile {
+public class TileColorableMachineComponent extends TileEntitySynchronized implements ColorableMachineTile, MachineGroupInput {
 
     private int definedColor = Config.machineColor;
+    private int groupId;
+    private boolean isGroupInput;
+
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
+        markChunkDirty();
+    }
 
     @Override
     public int getMachineColor() {
@@ -60,6 +67,11 @@ public class TileColorableMachineComponent extends TileEntitySynchronized implem
                 }
             }, 0));
         }
+
+        if (canGroupInput()) {
+            groupId = compound.getInteger("groupId");
+            isGroupInput = compound.getBoolean("isGroupInput");
+        }
     }
 
     @Override
@@ -67,5 +79,32 @@ public class TileColorableMachineComponent extends TileEntitySynchronized implem
         super.writeCustomNBT(compound);
 
         compound.setInteger("casingColor", this.definedColor);
+        if (canGroupInput()) {
+            compound.setInteger("groupId", this.groupId);
+            compound.setBoolean("isGroupInput", this.isGroupInput);
+        }
     }
+
+    @Override
+    public boolean canGroupInput() {
+        return false;
+    }
+
+    @Override
+    public boolean isGroupInput() {
+        return isGroupInput;
+    }
+
+    @Override
+    public void setGroupInput(boolean b) {
+        isGroupInput = b;
+        markChunkDirty();
+    }
+
+    @Override
+    public int getGroupId() {
+        if (isGroupInput()) return groupId;
+        return -1;
+    }
+
 }

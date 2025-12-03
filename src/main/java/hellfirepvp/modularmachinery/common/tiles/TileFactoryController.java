@@ -540,7 +540,7 @@ public class TileFactoryController extends TileMultiblockMachineController {
             if (ctx == null) {
                 continue;
             }
-            ctx.updateComponents(foundComponents.values());
+            ctx.updateComponents(foundComponents);
         }
 
         for (final FactoryRecipeThread thread : coreRecipeThreads.values()) {
@@ -548,7 +548,7 @@ public class TileFactoryController extends TileMultiblockMachineController {
             if (ctx == null) {
                 continue;
             }
-            ctx.updateComponents(foundComponents.values());
+            ctx.updateComponents(foundComponents);
         }
     }
 

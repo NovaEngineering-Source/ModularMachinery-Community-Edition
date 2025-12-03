@@ -26,6 +26,7 @@ import hellfirepvp.modularmachinery.common.command.CommandSyntax;
 import hellfirepvp.modularmachinery.common.integration.crafttweaker.command.CommandCTReload;
 import hellfirepvp.modularmachinery.common.network.PktAssemblyReport;
 import hellfirepvp.modularmachinery.common.network.PktCopyToClipboard;
+import hellfirepvp.modularmachinery.common.network.PktGroupInputConfig;
 import hellfirepvp.modularmachinery.common.network.PktInteractFluidTankGui;
 import hellfirepvp.modularmachinery.common.network.PktParallelControllerUpdate;
 import hellfirepvp.modularmachinery.common.network.PktSmartInterfaceUpdate;
@@ -115,6 +116,7 @@ public class ModularMachinery {
             NET_CHANNEL.registerMessage(StarlightMessage.StarlightMessageHandler.class, StarlightMessage.class, 5, Side.CLIENT);
         }
 
+        NET_CHANNEL.registerMessage(PktGroupInputConfig.class, PktGroupInputConfig.class, 99, Side.SERVER);
         NET_CHANNEL.registerMessage(PktInteractFluidTankGui.class, PktInteractFluidTankGui.class, 100, Side.SERVER);
         NET_CHANNEL.registerMessage(PktSmartInterfaceUpdate.class, PktSmartInterfaceUpdate.class, 101, Side.SERVER);
         NET_CHANNEL.registerMessage(PktParallelControllerUpdate.class, PktParallelControllerUpdate.class, 102, Side.SERVER);

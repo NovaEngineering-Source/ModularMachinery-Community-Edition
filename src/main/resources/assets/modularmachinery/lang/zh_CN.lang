@@ -56,14 +56,22 @@ gui.upgradebus.bounded.empty=无绑定机械。
 gui.upgradebus.bounded=已绑定 %s 个机械
 gui.upgradebus.incompatible=§e警告：%s 与此机械不兼容。
 
+gui.groupinputconfig.title=组ID配置
+gui.groupinputconfig.tooltip=不同的组中，配方检查独立进行
+gui.groupinputconfig.value=当前ID：
+gui.groupinputconfig.enable=启用组
+gui.groupinputconfig.close=禁用组
+
 gui.meitemoutputbus.title=ME 机械物品输出总线
 gui.meiteminputbus.title=ME 机械物品输入总线
 
-gui.meiteminputbus.inv_action=使用滚轮和 SHIFT, CONTROL, ALT 组合键来修改标记物品的数量。
+gui.meiteminputbus.inv_action=使用滚轮，SHIFT和CONTROL组合键修改标记物品的数量。
 gui.meiteminputbus.inv_action.increase.normal=滚轮向上滚动增加 1 个物品数量。
 gui.meiteminputbus.inv_action.decrease.normal=滚轮向下滚动或右击物品减少 1 个物品数量。
-gui.meiteminputbus.inv_action.increase=滚轮向上滚动时，按 %s 组合键增加 %s 个物品数量。
-gui.meiteminputbus.inv_action.decrease=滚轮向下滚动时，按 %s 组合键减少 %s 个物品数量。
+gui.meiteminputbus.inv_action.increase=按下 %s 组合键时，滚轮向上滚动增加 %s 个物品数量。
+gui.meiteminputbus.inv_action.decrease=按下 %s 组合键时，滚轮向下滚动减少 %s 个物品数量。
+gui.meiteminputbus.inv_action.multiply=按下 %s 组合键时，滚轮向上滚动将物品数量翻倍。
+gui.meiteminputbus.inv_action.divide=按下 %s 组合键时，滚轮向下滚动将物品数量减半。
 gui.meiteminputbus.items_marked=已标记物品：%s
 gui.meitembus.item_cached=已缓存物品: %s
 gui.meitembus.nbt_stored=内部已存储物品。
@@ -82,7 +90,8 @@ gui.mepatternprovider.default.desc=默认：供应器正常工作。
 gui.mepatternprovider.crafting_lock_mode.desc=合成锁定模式：只有当机器完成配方时才会继续存储物品。
 gui.mepatternprovider.blocking_mode.desc=阻挡模式：供应器内含有物品时不继续存储物品。
 gui.mepatternprovider.enhanced_blocking_mode.desc=强化阻挡模式：在阻挡模式的基础上，使当前配方仍然可以继续存储物品。
-gui.mepatternprovider.work_mode.desc=供应器工作模式（点击在四个模式中切换）：
+gui.mepatternprovider.isolation_input.desc=输入隔离模式：为每个样板槽位设置独立容器，配方检查时互相隔离，此时组设置将被忽略
+gui.mepatternprovider.work_mode.desc=供应器工作模式（点击在五个模式中切换）：
 gui.mepatternprovider.return_items=清空物品
 gui.mepatternprovider.return_items.desc=将供应器中的所有物品和流体返还给 ME 网络，这会重置合成锁定模式的状态。
 gui.mepatternprovider.nbt_stored=供应器已配置。
@@ -247,6 +256,10 @@ tooltip.constructtool.creative=创造模式用机械结构到 JSON 转换工具
 
 tooltip.itembus.slot=1 格
 tooltip.itembus.slots=%s 格
+
+tooltip.mepatternmirrorimage=使用内存卡绑定对应的ME机械样板供应器
+
+tooltip.groupinput.block=在空手时通过潜行 + 右键放置的方块修改组设置
 
 tooltip.fluidhatch.empty=空
 tooltip.fluidhatch.fluid=[流体]
@@ -446,5 +459,3 @@ tile.modularmachinery.blockimpetusproviderinput.name=元动输入接口
 tile.modularmachinery.blockimpetusprovideroutput.name=元动输出接口
 
 tooltip.modularcontroller.machine_projector=蹲下时右击控制器以投影其机器的蓝图至世界。
-
-

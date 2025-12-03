@@ -3,10 +3,12 @@ package github.kasuminova.mmce.common.handler;
 import appeng.container.AEBaseContainer;
 import github.kasuminova.mmce.common.network.PktPerformanceReport;
 import hellfirepvp.modularmachinery.ModularMachinery;
+import hellfirepvp.modularmachinery.common.CommonProxy;
 import hellfirepvp.modularmachinery.common.base.Mods;
 import hellfirepvp.modularmachinery.common.block.BlockController;
 import hellfirepvp.modularmachinery.common.container.ContainerBase;
 import hellfirepvp.modularmachinery.common.item.ItemBlockController;
+import hellfirepvp.modularmachinery.common.tiles.base.MachineGroupInput;
 import hellfirepvp.modularmachinery.common.tiles.base.SelectiveUpdateTileEntity;
 import hellfirepvp.modularmachinery.common.tiles.base.TileEntitySynchronized;
 import hellfirepvp.modularmachinery.common.tiles.base.TileMultiblockMachineController;
@@ -16,6 +18,8 @@ import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -150,7 +154,29 @@ public class EventHandler {
                 event.setCanceled(true);
             }
         } catch (Exception e) {
-            ModularMachinery.log.warn("Invalid owner uuid " + ownerUUIDStr, e);
+            ModularMachinery.log.warn("Invalid owner uuid {}", ownerUUIDStr, e);
+        }
+    }
+
+    /**
+     * 打开用于配置MachineGroupInput的配置Gui
+     *
+     */
+    @SubscribeEvent
+    public void onBlockPlaced(PlayerInteractEvent.RightClickBlock event) {
+        var player = event.getEntityPlayer();
+        var pos = event.getPos();
+        var tile = event.getWorld().getTileEntity(pos);
+        if (player.isSneaking() && tile instanceof MachineGroupInput m && m.canGroupInput()) {
+            if (!player.getHeldItem(EnumHand.MAIN_HAND).isEmpty()
+                || !player.getHeldItem(EnumHand.OFF_HAND).isEmpty()) return;
+
+            if (!player.world.isRemote) {
+                player.openGui(ModularMachinery.instance, CommonProxy.GuiType.GUI_GROUP_INPUT_CONFIG.ordinal(), player.world, pos.getX(), pos.getY(), pos.getZ());
+            }
+
+            event.setCanceled(true);
+            event.setCancellationResult(EnumActionResult.SUCCESS);
         }
     }
 }
