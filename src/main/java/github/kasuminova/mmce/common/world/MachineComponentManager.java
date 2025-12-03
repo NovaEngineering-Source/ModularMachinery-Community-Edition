@@ -1,7 +1,6 @@
 package github.kasuminova.mmce.common.world;
 
 import com.github.bsideup.jabel.Desugar;
-import com.mojang.realmsclient.util.Pair;
 import github.kasuminova.mmce.common.tile.MEPatternMirrorImage;
 import github.kasuminova.mmce.common.tile.MEPatternProvider;
 import github.kasuminova.mmce.common.util.concurrent.ExecuteGroup;
@@ -14,6 +13,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Optional;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collections;
 import java.util.Map;
@@ -66,8 +66,8 @@ public class MachineComponentManager {
 
         if (Loader.isModLoaded("appliedenergistics2")) {
             Pair<BlockPos, TileEntity> result = getResult(component, world);
-            pos = result.first();
-            te = result.second();
+            pos = result.getLeft();
+            te = result.getRight();
         } else {
             te = component;
             pos = component.getPos();
@@ -77,7 +77,7 @@ public class MachineComponentManager {
 
         synchronized (te) {
             ComponentInfo info = posComponentMap.computeIfAbsent(pos, v -> new ComponentInfo(
-                te, pos, ReferenceSets.synchronize(new ReferenceOpenHashSet<>(Collections.singleton(ctrl)))));
+                    te, pos, ReferenceSets.synchronize(new ReferenceOpenHashSet<>(Collections.singleton(ctrl)))));
 
             if (!info.areTileEntityEquals(te)) {
                 ComponentInfo newInfo = new ComponentInfo(te, pos, ReferenceSets.synchronize(new ReferenceOpenHashSet<>(Collections.singleton(ctrl))));
@@ -95,10 +95,10 @@ public class MachineComponentManager {
             }
 
             long groupId = owners.stream()
-                                 .filter(owner -> owner.getExecuteGroupId() != -1)
-                                 .findFirst()
-                                 .map(TileMultiblockMachineController::getExecuteGroupId)
-                                 .orElse(ExecuteGroup.newGroupId());
+                    .filter(owner -> owner.getExecuteGroupId() != -1)
+                    .findFirst()
+                    .map(TileMultiblockMachineController::getExecuteGroupId)
+                    .orElse(ExecuteGroup.newGroupId());
 
             owners.forEach(owner -> owner.setExecuteGroupId(groupId));
         }
@@ -111,8 +111,8 @@ public class MachineComponentManager {
 
         if (Loader.isModLoaded("appliedenergistics2")) {
             Pair<BlockPos, TileEntity> result = getResult(component, world);
-            pos = result.first();
-            te = result.second();
+            pos = result.getLeft();
+            te = result.getRight();
         } else {
             te = component;
             pos = component.getPos();
