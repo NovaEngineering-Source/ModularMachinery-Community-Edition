@@ -56,7 +56,7 @@ public class TileMachineController extends TileMultiblockMachineController {
             this.controllerRotation = state.getValue(BlockController.FACING);
         } else {
             // wtf, where is the controller?
-            ModularMachinery.log.warn("Invalid controller block at " + getPos() + " !");
+            ModularMachinery.log.warn("Invalid controller block at {} !", getPos());
             controllerRotation = EnumFacing.NORTH;
         }
     }
@@ -244,7 +244,7 @@ public class TileMachineController extends TileMultiblockMachineController {
             this.controllerRotation = state.getValue(BlockController.FACING);
         } else {
             // wtf, where is the controller?
-            ModularMachinery.log.warn("Invalid controller block at " + getPos() + " !");
+            ModularMachinery.log.warn("Invalid controller block at {} !", getPos());
             controllerRotation = EnumFacing.NORTH;
         }
     }
@@ -406,7 +406,7 @@ public class TileMachineController extends TileMultiblockMachineController {
             if (parentMachine != null) {
                 parentController = BlockController.MACHINE_CONTROLLERS.get(parentMachine);
             } else {
-                ModularMachinery.log.info("Couldn't find machine named " + rl + " for controller at " + getPos());
+                ModularMachinery.log.info("Couldn't find machine named {} for controller at {}", rl, getPos());
             }
         }
 

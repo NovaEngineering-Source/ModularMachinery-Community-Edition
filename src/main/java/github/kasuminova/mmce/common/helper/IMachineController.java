@@ -309,6 +309,50 @@ public interface IMachineController {
     int getBlocksInPattern(final IBlockStatePredicate predicate);
 
     /**
+     * 获取控制器的结构中指定方块的所有坐标，只能在控制器成型时使用。<br/>
+     * 会过滤空气方块。<br/>
+     * 注意：此操作的性能开销稍大，通常情况下只建议在 {@link MachineStructureUpdateEvent} 事件触发时使用。
+     *
+     * @param blockStack 要判断的方块对应的物品，会被自动转换成对应的 IBlockState，如果转换出现问题会输出错误日志。
+     * @return 所有位置。
+     */
+    @ZenMethod
+    IBlockPos[] getBlockPosInPattern(final IItemStack blockStack);
+
+    /**
+     * 获取控制器的结构中指定方块的所有坐标，只能在控制器成型时使用。<br/>
+     * 会过滤空气方块。<br/>
+     * 注意：此操作的<strong>性能开销稍大</strong>，通常情况下只建议在 {@link MachineStructureUpdateEvent} 事件触发时使用。
+     *
+     * @param blockStateMatcher 要判断的方块对应的 IBlockStateMatcher
+     * @return 所有位置。
+     */
+    @ZenMethod
+    IBlockPos[] getBlockPosInPattern(final IBlockStateMatcher blockStateMatcher);
+
+    /**
+     * 获取控制器的结构中指定方块的所有坐标，只能在控制器成型时使用。<br/>
+     * 会过滤空气方块。<br/>
+     * 注意：此操作的<strong>性能开销稍大</strong>，通常情况下只建议在 {@link MachineStructureUpdateEvent} 事件触发时使用。
+     *
+     * @param blockName 要判断的方块对应的注册名，解析方式参考机械 JSON 文件的格式。
+     * @return 所有位置。
+     */
+    @ZenMethod
+    IBlockPos[] getBlockPosInPattern(final String blockName);
+
+    /**
+     * 获取控制器的结构中指定方块的所有坐标，只能在控制器成型时使用。<br/>
+     * 会过滤空气方块。<br/>
+     * 注意：此操作的<strong>性能开销稍大</strong>，通常情况下只建议在 {@link MachineStructureUpdateEvent} 事件触发时使用。
+     *
+     * @param predicate 自定义判断逻辑。
+     * @return 所有位置。
+     */
+    @ZenMethod
+    IBlockPos[] getBlockPosInPattern(final IBlockStatePredicate predicate);
+
+    /**
      * 获取控制器的拥有者，如果玩家不在线则返回 null。
      *
      * @return 玩家

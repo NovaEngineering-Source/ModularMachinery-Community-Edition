@@ -66,7 +66,7 @@ public class TileFactoryController extends TileMultiblockMachineController {
             controllerRotation = state.getValue(BlockController.FACING);
             parentMachine = parentController.getParentMachine();
         } else {
-            ModularMachinery.log.warn("Invalid factory controller block at " + getPos() + " !");
+            ModularMachinery.log.warn("Invalid factory controller block at {} !", getPos());
             controllerRotation = EnumFacing.NORTH;
         }
     }
@@ -569,7 +569,7 @@ public class TileFactoryController extends TileMultiblockMachineController {
             this.parentMachine = parentController.getParentMachine();
             this.controllerRotation = state.getValue(BlockController.FACING);
         } else {
-            ModularMachinery.log.warn("Invalid factory controller block at " + getPos() + " !");
+            ModularMachinery.log.warn("Invalid factory controller block at {} !", getPos());
             controllerRotation = EnumFacing.NORTH;
         }
     }
@@ -628,7 +628,7 @@ public class TileFactoryController extends TileMultiblockMachineController {
             if (parentMachine != null) {
                 parentController = BlockFactoryController.FACTORY_CONTROLLERS.get(parentMachine);
             } else {
-                ModularMachinery.log.info("Couldn't find machine named " + rl + " for controller at " + getPos());
+                ModularMachinery.log.info("Couldn't find machine named {} for controller at {}", rl, getPos());
             }
         }
         super.readMachineNBT(compound);
