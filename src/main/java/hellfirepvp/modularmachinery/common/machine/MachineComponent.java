@@ -41,6 +41,10 @@ public abstract class MachineComponent<T> {
 
     public abstract T getContainerProvider();
 
+    public long getGroupID() {
+        return -1;
+    }
+
     public abstract static class ItemBus extends MachineComponent<IItemHandlerModifiable> {
 
         public ItemBus(IOType ioType) {

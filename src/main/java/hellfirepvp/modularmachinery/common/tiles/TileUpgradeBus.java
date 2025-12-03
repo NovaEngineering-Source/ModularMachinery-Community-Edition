@@ -174,7 +174,6 @@ public class TileUpgradeBus extends TileEntityRestrictedTick implements MachineC
 
     @Nullable
     @Override
-    @SuppressWarnings("unchecked")
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return (T) inventory;

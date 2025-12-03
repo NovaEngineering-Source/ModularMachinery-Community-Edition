@@ -18,10 +18,12 @@ import github.kasuminova.mmce.common.tile.MEPatternProvider;
 import github.kasuminova.mmce.common.util.InfItemFluidHandler;
 import hellfirepvp.modularmachinery.ModularMachinery;
 import hellfirepvp.modularmachinery.common.base.Mods;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
@@ -38,7 +40,7 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
 
     protected final MEPatternProvider owner;
 
-    protected final PatternProviderIngredientList                     stackList       = new PatternProviderIngredientList();
+    protected final PatternProviderIngredientList stackList = new PatternProviderIngredientList();
     protected final ButtonElements<MEPatternProvider.WorkModeSetting> workModeSetting = new ButtonElements<>();
 
     public GuiMEPatternProvider(final MEPatternProvider owner, final EntityPlayer player) {
@@ -108,6 +110,7 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
             .addElement(MEPatternProvider.WorkModeSetting.CRAFTING_LOCK_MODE, TextureProperties.of(140 + 18 + 18, 196, 16, 16))
             // ButtonTexture 0
             .addElement(MEPatternProvider.WorkModeSetting.ENHANCED_BLOCKING_MODE, TextureProperties.of(140 - 18, 196, 16, 16))
+            .addElement(MEPatternProvider.WorkModeSetting.ISOLATION_INPUT, TextureProperties.of(140 - 18 - 18, 196, 16, 16))
             // ButtonTexture 5
             .setMouseDownTexture(140 + 18 + 18 + 18 + 18 + 18, 196)
             // ButtonTexture 5
@@ -127,6 +130,8 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
                     + I18n.format("gui.mepatternprovider.crafting_lock_mode.desc"));
                 tooltips.add((current == MEPatternProvider.WorkModeSetting.ENHANCED_BLOCKING_MODE ? I18n.format("gui.mepatternprovider.current") : "")
                     + I18n.format("gui.mepatternprovider.enhanced_blocking_mode.desc"));
+                tooltips.add((current == MEPatternProvider.WorkModeSetting.ISOLATION_INPUT ? I18n.format("gui.mepatternprovider.current") : "")
+                    + I18n.format("gui.mepatternprovider.isolation_input.desc"));
                 return tooltips;
             })
             .setOnClickedListener((btn) -> {
@@ -143,6 +148,8 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
                         ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_CRAFTING_LOCK_MODE));
                     case ENHANCED_BLOCKING_MODE ->
                         ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_ENHANCED_BLOCKING_MODE));
+                    case ISOLATION_INPUT ->
+                        ModularMachinery.NET_CHANNEL.sendToServer(new PktMEPatternProviderAction(PktMEPatternProviderAction.Action.ENABLE_ENHANCED_ISOLATION_INPUT));
                 }
             })
             .setWidthHeight(16, 16);
@@ -222,12 +229,25 @@ public class GuiMEPatternProvider extends AEBaseGuiContainerDynamic {
 
     public void updateGUIState() {
         InfItemFluidHandler infHandler = owner.getInfHandler();
-        stackList.setStackList(infHandler.getItemStackList(), infHandler.getFluidStackList(), infHandler.getGasStackList());
+
+        List<ItemStack> itemStacks = new ObjectArrayList<>(infHandler.getItemStackList());
+        List<FluidStack> fluids = new ObjectArrayList<>(infHandler.getFluidStackList());
+        List<Object> gass = new ObjectArrayList<>(infHandler.getGasStackList());
+
+        for (var component : owner.getCombinationComponents()) {
+            var h = (InfItemFluidHandler) component.getContainerProvider();
+            itemStacks.addAll(h.getItemStackList());
+            fluids.addAll(h.getFluidStackList());
+            gass.addAll(h.getGasStackList());
+        }
+
+        stackList.setStackList(itemStacks, fluids, gass);
         workModeSetting.setCurrentSelection(owner.getWorkMode());
     }
 
-    public void setStackList(final List<ItemStack> itemStackList, final List<FluidStack> fluidStackList, final List<?> gasStackList) {
-        stackList.setStackList(itemStackList, fluidStackList, gasStackList);
+    public void setStackList(final NBTTagCompound tagCompound) {
+        owner.readProviderHandlerNBT(tagCompound, true);
+        updateGUIState();
     }
 
 }
