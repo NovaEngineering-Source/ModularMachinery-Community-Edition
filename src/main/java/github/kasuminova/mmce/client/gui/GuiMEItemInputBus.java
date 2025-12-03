@@ -57,7 +57,8 @@ public class GuiMEItemInputBus extends GuiMEItemBus implements IJEIGhostIngredie
         // It was truly a beautiful sight...
 
         if (isShiftDown() && isControlDown()) {
-            String keyCombination = "SHIFT + CTRL";
+            String keyCombination =
+                    "SHIFT + CTRL";
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.multiply",
                     keyCombination));
             tooltip.add(TextFormatting.GRAY + I18n.format("gui.meiteminputbus.inv_action.divide",

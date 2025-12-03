@@ -17,6 +17,7 @@ import github.kasuminova.mmce.common.container.ContainerMEGasInputBus;
 import github.kasuminova.mmce.common.container.ContainerMEGasOutputBus;
 import github.kasuminova.mmce.common.container.ContainerMEItemInputBus;
 import github.kasuminova.mmce.common.container.ContainerMEItemOutputBus;
+import github.kasuminova.mmce.common.container.ContainerMEItemOutputBusStackSize;
 import github.kasuminova.mmce.common.container.ContainerMEPatternProvider;
 import github.kasuminova.mmce.common.handler.EventHandler;
 import github.kasuminova.mmce.common.handler.UpgradeEventHandler;
@@ -302,6 +303,12 @@ public class CommonProxy implements IGuiHandler {
                 }
                 return new ContainerLifeEssence((TileLifeEssenceProvider) present, player);
             }
+            case ME_ITEM_OUTPUT_BUS_STACK_SIZE -> {
+                if (aeSecurityCheck(player, present)) {
+                    return null;
+                }
+                return new ContainerMEItemOutputBusStackSize(player.inventory, (MEItemOutputBus) present);
+            }
         }
 
         return null;
@@ -325,6 +332,7 @@ public class CommonProxy implements IGuiHandler {
         UPGRADE_BUS(TileUpgradeBus.class),
         BLUEPRINT_PREVIEW(null),
         ME_ITEM_OUTPUT_BUS(Mods.AE2.isPresent() ? MEItemOutputBus.class : null),
+        ME_ITEM_OUTPUT_BUS_STACK_SIZE(Mods.AE2.isPresent() ? MEItemOutputBus.class : null),
         ME_ITEM_INPUT_BUS(Mods.AE2.isPresent() ? MEItemInputBus.class : null),
         ME_FLUID_OUTPUT_BUS(Mods.AE2.isPresent() ? MEFluidOutputBus.class : null),
         ME_FLUID_INPUT_BUS(Mods.AE2.isPresent() ? MEFluidInputBus.class : null),
