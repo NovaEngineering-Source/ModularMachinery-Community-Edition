@@ -138,6 +138,11 @@ public class TileItemInputBus extends TileItemBus implements MachineComponentTil
         return new IOInventory(tile, slots, new int[]{});
     }
 
+    @Override
+    public boolean canGroupInput() {
+        return true;
+    }
+
     @Nullable
     @Override
     public MachineComponent.ItemBus provideComponent() {
@@ -145,6 +150,11 @@ public class TileItemInputBus extends TileItemBus implements MachineComponentTil
             @Override
             public IOInventory getContainerProvider() {
                 return TileItemInputBus.this.inventory;
+            }
+
+            @Override
+            public long getGroupID() {
+                return getGroupId();
             }
         };
     }

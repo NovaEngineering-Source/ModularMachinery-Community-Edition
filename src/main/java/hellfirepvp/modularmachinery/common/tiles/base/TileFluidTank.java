@@ -89,7 +89,6 @@ public abstract class TileFluidTank extends TileColorableMachineComponent implem
 
     @Nullable
     @Override
-    @SuppressWarnings("unchecked")
     public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
         if (capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY) {
             return (T) tank;
@@ -140,6 +139,11 @@ public abstract class TileFluidTank extends TileColorableMachineComponent implem
         }
         super.markNoUpdate();
         this.requireUpdateComparatorLevel = false;
+    }
+
+    @Override
+    public boolean canGroupInput() {
+        return ioType == IOType.INPUT;
     }
 
     @Nullable

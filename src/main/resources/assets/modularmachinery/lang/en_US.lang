@@ -56,16 +56,22 @@ gui.upgradebus.bounded.empty=No binding machinery.
 gui.upgradebus.bounded=Bound %s machinery
 gui.upgradebus.incompatible=§eWarning: %s is not compatible with this machinery.
 
+gui.groupinputconfig.title=Group ID Settings
+gui.groupinputconfig.tooltip=In different groups, recipe checks are performed independently
+gui.groupinputconfig.value=Current ID:
+gui.groupinputconfig.enable=Enable Group
+gui.groupinputconfig.close=Disable Group
+
 gui.meitemoutputbus.title=ME Machinery Item Output Bus
 gui.meiteminputbus.title=ME Machinery Item Input Bus
 
 gui.meiteminputbus.inv_action=Use the scroll wheel and the SHIFT and CONTROL key combination to modify the number of marked items.
 gui.meiteminputbus.inv_action.increase.normal=Scroll the wheel up to increase the number of items by 1.
 gui.meiteminputbus.inv_action.decrease.normal=Scroll the wheel down or right-click on an item to decrease the number of items by 1.
-gui.meiteminputbus.inv_action.increase=Press the %s key combination to increase the number of %s items while the wheel is scrolling up.
-gui.meiteminputbus.inv_action.decrease=Press the %s key combination to decrease the number of %s items while the wheel is scrolling up.
-gui.meiteminputbus.inv_action.multiply=Press the %s key combination to double the number of items while the wheel is scrolling up.
-gui.meiteminputbus.inv_action.divide=Press the %s key combination to halve the number of items while the wheel is scrolling down.
+gui.meiteminputbus.inv_action.increase=The wheel is scrolling up to increase the number of %s items while press the %s key combination.
+gui.meiteminputbus.inv_action.decrease=The wheel is scrolling down to decrease the number of %s items while press the %s key combination.
+gui.meiteminputbus.inv_action.multiply=The wheel is scrolling up to double the number of items while press the %s key combination.
+gui.meiteminputbus.inv_action.divide=The wheel is scrolling down to halve the number of items while press the %s key combination.
 gui.meiteminputbus.items_marked=Items marked: %s
 gui.meitembus.item_cached=Items Cached: %s
 gui.meitembus.nbt_stored=Items have been stored internally.
@@ -84,7 +90,8 @@ gui.mepatternprovider.default.desc=Default: The provider works normally.
 gui.mepatternprovider.crafting_lock_mode.desc=Crafting Lock Mode: Items will only continue to be stored when the machine completes the recipe.
 gui.mepatternprovider.blocking_mode.desc=Blocking Mode: Items will not continue to be stored when there are items in the provider.
 gui.mepatternprovider.enhanced_blocking_mode.desc=Enhanced Blocking Mode: builds on the blocking mode so that the current recipe can still continue to store items.
-gui.mepatternprovider.work_mode.desc=Provider work mode (Click to switch between the 4 modes):
+gui.mepatternprovider.isolation_input.desc=Input Isolation Mode: Set up independent containers for each pattern slot, and recipe checks are isolated from each other, group settings will be ignored.
+gui.mepatternprovider.work_mode.desc=Provider work mode (Click to switch between the 5 modes):
 gui.mepatternprovider.return_items=Return Items
 gui.mepatternprovider.return_items.desc=Return all items and fluids in the provider to the ME network. This will reset the state of the Crafting Lock Mode.
 gui.mepatternprovider.nbt_stored=Provider Configured.
@@ -249,6 +256,10 @@ tooltip.constructtool.creative=Creative Structure-To-JSON Tool
 
 tooltip.itembus.slot=1 Slot
 tooltip.itembus.slots=%s Slots
+
+tooltip.mepatternmirrorimage=Use Memory Card to bind the corresponding ME Machinery Pattern Provider.
+
+tooltip.groupinput.block=Modify group settings by shift+right-clicking the block when empty-handed
 
 tooltip.fluidhatch.empty=Empty
 tooltip.fluidhatch.fluid=[Fluid]

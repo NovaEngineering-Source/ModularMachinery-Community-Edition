@@ -10,8 +10,10 @@ import appeng.fluids.helper.FluidSyncHelper;
 import appeng.helpers.InventoryAction;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.Platform;
+import github.kasuminova.mmce.common.network.PktMEPatternProviderHandlerItems;
 import github.kasuminova.mmce.common.tile.MEPatternProvider;
 import github.kasuminova.mmce.common.util.AEFluidInventoryUpgradeable;
+import hellfirepvp.modularmachinery.ModularMachinery;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IContainerListener;
@@ -32,6 +34,11 @@ public class ContainerMEPatternProvider extends AEBaseContainer implements IFlui
     public ContainerMEPatternProvider(final MEPatternProvider owner, final EntityPlayer player) {
         super(player.inventory, owner);
         this.owner = owner;
+
+        if (player instanceof EntityPlayerMP p) {
+            ModularMachinery.NET_CHANNEL.sendTo(new PktMEPatternProviderHandlerItems(owner), p);
+        }
+
         this.tankSync = new FluidSyncHelper(owner.getSubFluidHandler(), 0);
 
         this.bindPlayerInventory(getInventoryPlayer(), 0, 114);

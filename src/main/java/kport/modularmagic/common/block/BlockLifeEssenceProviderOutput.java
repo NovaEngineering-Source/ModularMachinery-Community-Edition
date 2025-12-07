@@ -18,6 +18,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
@@ -34,9 +35,9 @@ public class BlockLifeEssenceProviderOutput extends BlockMachineComponent {
     }
 
     @Override
-    public void breakBlock(World worldIn, BlockPos pos, IBlockState state) {
+    public void breakBlock(World worldIn, @NotNull BlockPos pos, @NotNull IBlockState state) {
         TileEntity te = worldIn.getTileEntity(pos);
-        if (te != null && te instanceof TileInventory) {
+        if (te instanceof TileInventory) {
             IOInventory inv = ((TileInventory) te).getInventory();
             for (int i = 0; i < inv.getSlots(); i++) {
                 ItemStack stack = inv.getStackInSlot(i);
@@ -50,21 +51,23 @@ public class BlockLifeEssenceProviderOutput extends BlockMachineComponent {
     }
 
     @Override
-    public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World worldIn, @NotNull BlockPos pos, @NotNull IBlockState state, @NotNull EntityPlayer playerIn, @NotNull EnumHand hand, @NotNull EnumFacing facing, float hitX, float hitY, float hitZ) {
         if (!worldIn.isRemote) {
             TileEntity te = worldIn.getTileEntity(pos);
-            if (te != null && te instanceof TileLifeEssenceProvider) {
+            if (te instanceof TileLifeEssenceProvider) {
                 playerIn.openGui(ModularMachinery.instance, CommonProxy.GuiType.GUI_ESSENCE_PROVIDER.ordinal(), worldIn, pos.getX(), pos.getY(), pos.getZ());
             }
         }
         return true;
     }
 
+    @NotNull
     @Override
-    public EnumBlockRenderType getRenderType(IBlockState state) {
+    public EnumBlockRenderType getRenderType(@NotNull IBlockState state) {
         return EnumBlockRenderType.MODEL;
     }
 
+    @NotNull
     @Override
     public BlockRenderLayer getRenderLayer() {
         return BlockRenderLayer.CUTOUT;
@@ -72,17 +75,17 @@ public class BlockLifeEssenceProviderOutput extends BlockMachineComponent {
 
     @Override
     public boolean hasTileEntity(IBlockState state) {
-        return true;
+        return super.hasTileEntity(state);
     }
 
 
     @Override
-    public boolean isOpaqueCube(IBlockState state) {
+    public boolean isOpaqueCube(@NotNull IBlockState state) {
         return false;
     }
 
     @Override
-    public boolean isFullCube(IBlockState state) {
+    public boolean isFullCube(@NotNull IBlockState state) {
         return false;
     }
 

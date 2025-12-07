@@ -42,6 +42,7 @@ import github.kasuminova.mmce.common.event.recipe.FactoryRecipeFinishEvent;
 import github.kasuminova.mmce.common.event.recipe.RecipeFinishEvent;
 import github.kasuminova.mmce.common.network.PktMEPatternProviderHandlerItems;
 import github.kasuminova.mmce.common.tile.base.MEMachineComponent;
+import github.kasuminova.mmce.common.tile.base.MachineCombinationComponent;
 import github.kasuminova.mmce.common.util.AEFluidInventoryUpgradeable;
 import github.kasuminova.mmce.common.util.InfItemFluidHandler;
 import github.kasuminova.mmce.common.util.PatternItemFilter;
@@ -76,34 +77,38 @@ import net.minecraftforge.items.IItemHandler;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-public class MEPatternProvider extends MEMachineComponent implements ICraftingProvider, IAEAppEngInventory, IAEFluidInventory, MachineComponentTileNotifiable, IInterfaceHost, ICustomNameObject {
+public class MEPatternProvider extends MEMachineComponent implements ICraftingProvider, IAEAppEngInventory, IAEFluidInventory, MachineComponentTileNotifiable, IInterfaceHost, ICustomNameObject , MachineCombinationComponent {
 
     public static final  int                           PATTERNS               = 36;
     public static final  int                           SUB_ITEM_HANDLER_SLOTS = 2;
     private static final ItemStack                     item                   = new ItemStack(ItemsMM.mePatternProvider);
     protected final      AppEngInternalInventory       subItemHandler         = new AppEngInternalInventory(this, SUB_ITEM_HANDLER_SLOTS);
     protected final      AEFluidInventoryUpgradeable   subFluidHandler        = new AEFluidInventoryUpgradeable(this, 1, Integer.MAX_VALUE);
-    protected final      InfItemFluidHandler           handler                = new InfItemFluidHandler(subItemHandler, subFluidHandler);
     protected final      AppEngInternalInventory       patterns               = new AppEngInternalInventory(this, PATTERNS, 1, PatternItemFilter.INSTANCE);
-    protected final      List<ICraftingPatternDetails> details                = new ObjectArrayList<>(PATTERNS);
+    protected final      ICraftingPatternDetails[]     details                = new ICraftingPatternDetails[PATTERNS];
     private final        DualityInterface              duality                = new DualityInterface(this.proxy, this);
     protected            WorkModeSetting               workMode               = WorkModeSetting.DEFAULT;
     protected volatile   boolean                       machineCompleted       = true;
     protected            boolean                       shouldReturnItems      = false;
-    protected            boolean                       handlerDirty           = false;
+    public               boolean                       handlerDirty           = false;
     protected            int                           currentPatternIdx      = -1;
     protected            ICraftingPatternDetails       currentPattern         = null;
     private              String                        customName;
     private              String                        machineName;
 
+    protected final      InfItemFluidHandler           handler                = new InfItemFluidHandler(subItemHandler, subFluidHandler);
+    protected final      List<MachineComponent<?>>     combinationComponents  = new ObjectArrayList<>();
+
     public MEPatternProvider() {
         // Initialize details...
-        IntStream.range(0, 36).<ICraftingPatternDetails>mapToObj(i -> null).forEach(details::add);
         // Set handler onChanged consumer...
         handler.setOnItemChanged(slot -> {
             handlerDirty = true;
@@ -119,11 +124,61 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
                 markChunkDirty();
             });
         }
+
+        for (int i = 0; i < PATTERNS; i++) {
+            combinationComponents.add(new MachineComponent<>(IOType.INPUT) {
+                private final InfItemFluidHandler handler = new InfItemFluidHandler(subItemHandler, subFluidHandler);
+                private final long groupId = getUniqueGroupID();
+
+                {
+                    handler.setOnItemChanged(slot -> {
+                        handlerDirty = true;
+                        markChunkDirty();
+                    });
+                    handler.setOnFluidChanged(slot -> {
+                        handlerDirty = true;
+                        markChunkDirty();
+                    });
+                    if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
+                        handler.setOnGasChanged(slot -> {
+                            handlerDirty = true;
+                            markChunkDirty();
+                        });
+                    }
+                }
+
+                @Override
+                public ComponentType getComponentType() {
+                    return ComponentTypesMM.COMPONENT_ITEM_FLUID_GAS;
+                }
+
+                @Override
+                public InfItemFluidHandler getContainerProvider() {
+                    return handler;
+                }
+
+                @Override
+                public long getGroupID() {
+                    return groupId;
+                }
+            });
+        }
+    }
+
+    public List<MachineComponent<?>> getCombinationComponents() {
+        return combinationComponents;
+    }
+
+    @Override
+    public boolean canGroupInput() {
+        return true;
     }
 
     @Nullable
     @Override
     public MachineComponent<InfItemFluidHandler> provideComponent() {
+        if (workMode ==  WorkModeSetting.ISOLATION_INPUT) return null;
+
         return new MachineComponent<>(IOType.INPUT) {
             @Override
             public ComponentType getComponentType() {
@@ -134,7 +189,20 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
             public InfItemFluidHandler getContainerProvider() {
                 return handler;
             }
+
+            @Override
+            public long getGroupID() {
+                return getGroupId();
+            }
         };
+    }
+
+    @Nonnull
+    @Override
+    public Collection<MachineComponent<?>> provideComponents() {
+        if (workMode ==  WorkModeSetting.ISOLATION_INPUT)
+            return combinationComponents;
+        return Collections.emptyList();
     }
 
     @MENetworkEventSubscribe
@@ -152,7 +220,7 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
         if (!proxy.isActive() || !proxy.isPowered()) {
             return;
         }
-        details.stream()
+        Arrays.stream(details)
                .filter(Objects::nonNull)
                .forEach(detail -> craftingTracker.addCraftingOption(this, detail));
     }
@@ -162,6 +230,17 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
         if (!acceptsPattern(patternDetails)) {
             return false;
         }
+
+        InfItemFluidHandler handler = null;
+        if (workMode == WorkModeSetting.ISOLATION_INPUT) {
+            for (var i = 0; i < details.length; i++) {
+                if (patternDetails.equals(details[i])) {
+                    handler = (InfItemFluidHandler) combinationComponents.get(i).getContainerProvider();
+                    break;
+                }
+            }
+        } else handler = this.handler;
+        if (handler == null) return false;
 
         int slots = table.getSizeInventory();
         for (int slot = 0; slot < slots; slot++) {
@@ -233,8 +312,8 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
         for (int i = 0; i < PATTERNS; i++) {
             refreshPattern(i);
         }
-        if (currentPatternIdx != -1 && currentPatternIdx < details.size()) {
-            setCurrentPattern(details.get(currentPatternIdx));
+        if (currentPatternIdx != -1 && currentPatternIdx < details.length) {
+            setCurrentPattern(details[currentPatternIdx]);
         }
         try {
             this.getProxy().getGrid().postEvent(new MENetworkCraftingPatternChange(this, this.getProxy().getNode()));
@@ -243,7 +322,7 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
     }
 
     protected void refreshPattern(final int slot) {
-        details.set(slot, null);
+        details[slot] = null;
 
         ItemStack pattern = patterns.getStackInSlot(slot);
         Item item = pattern.getItem();
@@ -253,7 +332,7 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
 
         ICraftingPatternDetails detail = patternItem.getPatternForItem(pattern, getWorld());
         if (detail != null && !detail.isCraftable()) {
-            details.set(slot, detail);
+            details[slot] = detail;
         }
 
         if (workMode == WorkModeSetting.ENHANCED_BLOCKING_MODE && slot == currentPatternIdx) {
@@ -273,58 +352,68 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
         }
     }
 
-    public void returnItems() {
+    private void returnItems() {
         if (!shouldReturnItems || !proxy.isActive() || !proxy.isPowered()) {
             return;
         }
         shouldReturnItems = false;
         machineCompleted = true;
 
-        try {
-            synchronized (handler) {
-                List<ItemStack> itemStackList = handler.getItemStackList();
-                List<FluidStack> fluidStackList = handler.getFluidStackList();
+        synchronized (handler) {
+            returnItem(handler);
+        }
 
-                IItemStorageChannel itemChannel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
-                IMEMonitor<IAEItemStack> itemInv = proxy.getStorage().getInventory(itemChannel);
-
-                for (int i = 0; i < itemStackList.size(); i++) {
-                    final ItemStack stack = itemStackList.get(i);
-                    if (stack.isEmpty()) {
-                        continue;
-                    }
-                    IAEItemStack notInserted = insertStackToAE(itemInv, itemChannel.createStack(stack));
-                    if (notInserted != null) {
-                        itemStackList.set(i, notInserted.createItemStack());
-                    } else {
-                        itemStackList.set(i, ItemStack.EMPTY);
-                    }
-                }
-
-                IFluidStorageChannel fluidChannel = AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class);
-                IMEMonitor<IAEFluidStack> fluidInv = proxy.getStorage().getInventory(fluidChannel);
-                for (int i = 0; i < fluidStackList.size(); i++) {
-                    final FluidStack stack = fluidStackList.get(i);
-                    if (stack == null) {
-                        continue;
-                    }
-                    IAEFluidStack notInserted = insertStackToAE(fluidInv, fluidChannel.createStack(stack));
-                    if (notInserted != null) {
-                        fluidStackList.set(i, notInserted.getFluidStack());
-                    } else {
-                        fluidStackList.set(i, null);
-                    }
-                }
-
-                if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
-                    returnGases();
-                }
+        for (var component : combinationComponents) {
+            synchronized (component.getContainerProvider()) {
+                returnItem((InfItemFluidHandler) component.getContainerProvider());
             }
-        } catch (GridAccessException ignored) {
         }
 
         handlerDirty = true;
         markChunkDirty();
+    }
+
+    private void returnItem(InfItemFluidHandler handler) {
+        try {
+            List<ItemStack> itemStackList = handler.getItemStackList();
+            List<FluidStack> fluidStackList = handler.getFluidStackList();
+
+            IItemStorageChannel itemChannel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
+            IMEMonitor<IAEItemStack> itemInv = proxy.getStorage().getInventory(itemChannel);
+
+            for (int i = 0; i < itemStackList.size(); i++) {
+                final ItemStack stack = itemStackList.get(i);
+                if (stack.isEmpty()) {
+                    continue;
+                }
+                IAEItemStack notInserted = insertStackToAE(itemInv, itemChannel.createStack(stack));
+                if (notInserted != null) {
+                    itemStackList.set(i, notInserted.createItemStack());
+                } else {
+                    itemStackList.set(i, ItemStack.EMPTY);
+                }
+            }
+
+            IFluidStorageChannel fluidChannel = AEApi.instance().storage().getStorageChannel(IFluidStorageChannel.class);
+            IMEMonitor<IAEFluidStack> fluidInv = proxy.getStorage().getInventory(fluidChannel);
+            for (int i = 0; i < fluidStackList.size(); i++) {
+                final FluidStack stack = fluidStackList.get(i);
+                if (stack == null) {
+                    continue;
+                }
+                IAEFluidStack notInserted = insertStackToAE(fluidInv, fluidChannel.createStack(stack));
+                if (notInserted != null) {
+                    fluidStackList.set(i, notInserted.getFluidStack());
+                } else {
+                    fluidStackList.set(i, null);
+                }
+            }
+
+            if (Mods.MEKANISM.isPresent() && Mods.MEKENG.isPresent()) {
+                returnGases();
+            }
+        } catch (GridAccessException ignored) {
+        }
     }
 
     @Optional.Method(modid = "mekeng")
@@ -363,7 +452,11 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
             resetCurrentPattern();
             return;
         }
-        currentPatternIdx = details.indexOf(pattern);
+        for (var i = 0; i < details.length; i++) {
+            if (pattern.equals(details[i])) {
+                currentPatternIdx = i;
+            }
+        }
         currentPattern = pattern;
     }
 
@@ -388,6 +481,10 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
     }
 
     public void setWorkMode(final WorkModeSetting workMode) {
+        if (this.workMode == WorkModeSetting.ISOLATION_INPUT
+            || workMode == WorkModeSetting.ISOLATION_INPUT) {
+            returnItemsScheduled();
+        }
         this.workMode = workMode;
         if (workMode != WorkModeSetting.CRAFTING_LOCK_MODE) {
             this.machineCompleted = true;
@@ -432,14 +529,36 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
     public void readProviderNBT(final NBTTagCompound compound) {
         subItemHandler.readFromNBT(compound, "subItemHandler");
         subFluidHandler.readFromNBT(compound, "subFluidHandler");
-        handler.readFromNBT(compound, "handler");
         patterns.readFromNBT(compound, "patterns");
-        workMode = WorkModeSetting.values()[compound.getByte("workMode")];
+
+        readProviderHandlerNBT(compound, false);
 
         if (compound.hasKey("currentPatternIdx") && workMode == WorkModeSetting.ENHANCED_BLOCKING_MODE) {
             currentPatternIdx = compound.getByte("currentPatternIdx");
         } else {
             resetCurrentPattern();
+        }
+    }
+
+    public void readProviderHandlerNBT(final NBTTagCompound compound, boolean allUp) {
+        workMode = WorkModeSetting.values()[compound.getByte("workMode")];
+        if (allUp) {
+            handler.readFromNBT(compound, "handler");
+            var nbt = compound.getCompoundTag("components");
+            for (var i = 0; i < combinationComponents.size(); i++) {
+                var handler = (InfItemFluidHandler) combinationComponents.get(i).getContainerProvider();
+                handler.readFromNBT(nbt, "handler#" + i);
+            }
+        } else {
+            if (workMode == WorkModeSetting.ISOLATION_INPUT && compound.hasKey("components")) {
+                var nbt = compound.getCompoundTag("components");
+                for (var i = 0; i < combinationComponents.size(); i++) {
+                    var subTagName = "handler#" + i;
+                    if (!nbt.hasKey(subTagName)) continue;
+                    var handler = (InfItemFluidHandler) combinationComponents.get(i).getContainerProvider();
+                    handler.readFromNBT(nbt, subTagName);
+                }
+            } else handler.readFromNBT(compound, "handler");
         }
     }
 
@@ -454,16 +573,28 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
     }
 
     public NBTTagCompound writeProviderNBT(final NBTTagCompound compound) {
-        handler.writeToNBT(compound, "handler");
         patterns.writeToNBT(compound, "patterns");
         subItemHandler.writeToNBT(compound, "subItemHandler");
         subFluidHandler.writeToNBT(compound, "subFluidHandler");
-        if (workMode != WorkModeSetting.DEFAULT) {
-            compound.setByte("workMode", (byte) workMode.ordinal());
-        }
         if (!handler.isEmpty() && currentPatternIdx != -1) {
             compound.setByte("currentPatternIdx", (byte) currentPatternIdx);
         }
+        return writeProviderHandlerNBT(compound);
+    }
+
+    public NBTTagCompound writeProviderHandlerNBT(final NBTTagCompound compound) {
+        if (workMode != WorkModeSetting.DEFAULT) {
+            compound.setByte("workMode", (byte) workMode.ordinal());
+        }
+        if (workMode == WorkModeSetting.ISOLATION_INPUT) {
+            var nbt = new NBTTagCompound();
+            for (var i = 0; i < combinationComponents.size(); i++) {
+                var handler = (InfItemFluidHandler) combinationComponents.get(i).getContainerProvider();
+                if (!handler.isEmpty()) handler.writeToNBT(nbt, "handler#" + i);
+            }
+            if (!nbt.isEmpty()) compound.setTag("components", nbt);
+        } else handler.writeToNBT(compound, "handler");
+
         return compound;
     }
 
@@ -644,11 +775,18 @@ public class MEPatternProvider extends MEMachineComponent implements ICraftingPr
         return this.duality.getConfigManager();
     }
 
+    @Override
+    public void invalidate() {
+        super.invalidate();
+        GROUP_ACQUIRER.addAndGet(-PATTERNS);
+    }
+
     public enum WorkModeSetting {
         DEFAULT,
         BLOCKING_MODE,
         CRAFTING_LOCK_MODE,
         ENHANCED_BLOCKING_MODE,
+        ISOLATION_INPUT
     }
 
 }
