@@ -67,7 +67,7 @@ import org.apache.logging.log4j.Logger;
                 "after:tconstruct@[1.12.2-2.12.0.157,);" +
                 "after:thermalexpansion@[5.5.0,);",
         acceptedMinecraftVersions = "[1.12, 1.13)",
-        acceptableRemoteVersions = "[2.1.0, 2.3.0)"
+        acceptableRemoteVersions = "[2.1.0, 2.4.0)"
 )
 public class ModularMachinery {
 
