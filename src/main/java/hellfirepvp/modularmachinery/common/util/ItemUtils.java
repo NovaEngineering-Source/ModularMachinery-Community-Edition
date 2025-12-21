@@ -273,7 +273,8 @@ public class ItemUtils {
 
         int inserted = 0;
         for (int i = 0; i < handler.getSlots(); i++) {
-            int maxStackSize = handler.getSlotLimit(i);
+            // 避免不可堆叠物品被叠加
+            int maxStackSize = Math.min(handler.getSlotLimit(i), stack.getMaxStackSize());
             ItemStack in = handler.getStackInSlot(i);
             int count = in.getCount();
             if (count >= maxStackSize) {
@@ -285,7 +286,8 @@ public class ItemUtils {
                 handler.setStackInSlot(i, copyStackWithSize(stack, toInsert));
                 inserted += toInsert;
             } else {
-                if (stackEqualsNonNBT(stack, in) && matchTags(stack, in)) {
+                // 不允许对不可堆叠物品进行合并
+                if (stack.isStackable() && stackEqualsNonNBT(stack, in) && matchTags(stack, in)) {
                     int toInsert = Math.min(maxInsert - inserted, maxStackSize - count);
                     handler.setStackInSlot(i, copyStackWithSize(stack, toInsert + count));
                     inserted += toInsert;
