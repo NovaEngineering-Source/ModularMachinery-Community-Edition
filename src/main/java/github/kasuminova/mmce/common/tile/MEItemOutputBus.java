@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 
 public class MEItemOutputBus extends MEItemBus implements SettingsTransfer {
 
-    private int configuredStackSize = Integer.MAX_VALUE;
+    private int configuredStackSize;
 
     @Override
     public IOInventory buildInventory() {
@@ -31,7 +31,8 @@ public class MEItemOutputBus extends MEItemBus implements SettingsTransfer {
         for (int slotID = 0; slotID < slotIDs.length; slotID++) {
             slotIDs[slotID] = slotID;
         }
-        IOInventory inv = new IOInventory(this, new int[]{}, slotIDs);
+        IOInventory inv = new IOInventory(this, new int[0], slotIDs);
+        configuredStackSize = Integer.MAX_VALUE;
         inv.setStackLimit(this.configuredStackSize, slotIDs);
         inv.setListener(slot -> {
             synchronized (this) {
