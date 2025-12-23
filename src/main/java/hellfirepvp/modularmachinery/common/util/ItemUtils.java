@@ -274,6 +274,9 @@ public class ItemUtils {
         int inserted = 0;
         for (int i = 0; i < handler.getSlots(); i++) {
             int maxStackSize = handler.getSlotLimit(i);
+            if (maxStackSize <= 64) {
+                maxStackSize = Math.min(maxStackSize, stack.getMaxStackSize());
+            }
             ItemStack in = handler.getStackInSlot(i);
             int count = in.getCount();
             if (count >= maxStackSize) {
@@ -543,7 +546,6 @@ public class ItemUtils {
     }
 
     @Nonnull
-    @SuppressWarnings("unchecked")
     public static List<ProcessingComponent<?>> copyItemHandlerComponents(final List<ProcessingComponent<?>> components) {
         List<ProcessingComponent<?>> list = new ArrayList<>();
         for (ProcessingComponent<?> component : components) {
@@ -568,7 +570,6 @@ public class ItemUtils {
     }
 
     @Nonnull
-    @SuppressWarnings("unchecked")
     public static List<ProcessingComponent<?>> fastCopyItemHandlerComponents(final List<ProcessingComponent<?>> components) {
         List<ProcessingComponent<?>> list = new ArrayList<>();
         for (ProcessingComponent<?> component : components) {

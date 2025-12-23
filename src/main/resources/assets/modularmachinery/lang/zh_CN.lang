@@ -75,6 +75,8 @@ gui.meiteminputbus.inv_action.divide=按下 %s 组合键时，滚轮向下滚动
 gui.meiteminputbus.items_marked=已标记物品：%s
 gui.meitembus.item_cached=已缓存物品: %s
 gui.meitembus.nbt_stored=内部已存储物品。
+gui.meitembus.stack_size.name=最大堆叠数量
+gui.meitembus.stack_size.config=配置最大堆叠数量
 
 gui.mefluidoutputbus.title=ME 机械流体输出总线
 gui.mefluidinputbus.title=ME 机械流体输入总线

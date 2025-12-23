@@ -5,13 +5,14 @@ import appeng.container.AEBaseContainer;
 import appeng.container.guisync.GuiSync;
 import github.kasuminova.mmce.common.tile.MEItemOutputBus;
 import net.minecraft.entity.player.InventoryPlayer;
+import org.jetbrains.annotations.NotNull;
 
 public class ContainerMEItemOutputBusStackSize extends AEBaseContainer {
 
     private final MEItemOutputBus outputBus;
 
     @GuiSync(0)
-    public int stackSize = Integer.MAX_VALUE;
+    public int stackSize;
 
     public ContainerMEItemOutputBusStackSize(final InventoryPlayer inventoryPlayer, final MEItemOutputBus outputBus) {
         super(inventoryPlayer, outputBus);
@@ -36,7 +37,7 @@ public class ContainerMEItemOutputBusStackSize extends AEBaseContainer {
     }
 
     @Override
-    public void onContainerClosed(net.minecraft.entity.player.EntityPlayer playerIn) {
+    public void onContainerClosed(@NotNull net.minecraft.entity.player.EntityPlayer playerIn) {
         super.onContainerClosed(playerIn);
 
         if (!playerIn.world.isRemote) {
