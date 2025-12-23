@@ -40,11 +40,9 @@ public class PktMEOutputBusStackSizeChange implements IMessage, IMessageHandler<
         player.getServerWorld().addScheduledTask(() -> {
             TileEntity te = player.world.getTileEntity(message.pos);
 
-            if (!(te instanceof MEItemOutputBus)) {
+            if (!(te instanceof MEItemOutputBus outputBus)) {
                 return;
             }
-
-            MEItemOutputBus outputBus = (MEItemOutputBus) te;
 
             int validatedStackSize = Math.max(1, message.stackSize);
 
