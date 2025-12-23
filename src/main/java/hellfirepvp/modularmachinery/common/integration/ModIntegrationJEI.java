@@ -206,10 +206,12 @@ public class ModIntegrationJEI implements IModPlugin {
             registry.addRecipeCatalyst(stack, machineCategory);
         }
 
-        // Only handle MM recipes
-        for (DynamicMachine machine : MachineRegistry.getRegistry()) {
-            String machineCategory = getCategoryStringFor(machine);
-            registry.getRecipeTransferRegistry().addRecipeTransferHandler(new MEInputRecipeTransferHandler(), machineCategory);
+        // 仅在 AE2 存在时注册转移处理器，避免类加载失败导致 JEI 插件注册中断
+        if (Mods.AE2.isPresent()) {
+            for (DynamicMachine machine : MachineRegistry.getRegistry()) {
+                String machineCategory = getCategoryStringFor(machine);
+                registry.getRecipeTransferRegistry().addRecipeTransferHandler(new MEInputRecipeTransferHandler(), machineCategory);
+            }
         }
 
         for (DynamicMachine machine : MachineRegistry.getRegistry()) {
