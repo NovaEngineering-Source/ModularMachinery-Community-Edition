@@ -75,6 +75,8 @@ gui.meiteminputbus.inv_action.divide=The wheel is scrolling down to halve the nu
 gui.meiteminputbus.items_marked=Items marked: %s
 gui.meitembus.item_cached=Items Cached: %s
 gui.meitembus.nbt_stored=Items have been stored internally.
+gui.meitembus.stack_size.name=Max Stack Size
+gui.meitembus.stack_size.config=Configure Max Stack Size
 
 gui.mefluidoutputbus.title=ME Machinery Fluid Output Bus
 gui.mefluidinputbus.title=ME Machinery Fluid Input Bus

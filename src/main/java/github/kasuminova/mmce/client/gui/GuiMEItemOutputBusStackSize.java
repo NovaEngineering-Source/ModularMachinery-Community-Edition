@@ -11,9 +11,11 @@ import hellfirepvp.modularmachinery.ModularMachinery;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import java.io.IOException;
@@ -64,7 +66,7 @@ public class GuiMEItemOutputBusStackSize extends AEBaseGui {
                     this.guiLeft + 154,
                     this.guiTop,
                     busIcon,
-                    "ME Machinery Item Output Bus",
+                    busIcon.getDisplayName(),
                     this.itemRender
             ));
         }
@@ -87,7 +89,7 @@ public class GuiMEItemOutputBusStackSize extends AEBaseGui {
     }
 
     @Override
-    protected void actionPerformed(final GuiButton btn) throws IOException {
+    protected void actionPerformed(@NotNull final GuiButton btn) throws IOException {
         super.actionPerformed(btn);
 
         if (btn == this.originalGuiBtn) {
@@ -101,7 +103,7 @@ public class GuiMEItemOutputBusStackSize extends AEBaseGui {
                         value = 1;
                     }
                     this.sendStackSizeToServer((int) value);
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException ignored) {
                 }
             }
 
@@ -159,7 +161,7 @@ public class GuiMEItemOutputBusStackSize extends AEBaseGui {
                     throw new NumberFormatException("Invalid expression");
                 }
 
-                return (long) Math.round(result);
+                return Math.round(result);
             } catch (Exception ex) {
                 throw new NumberFormatException("Invalid number or expression");
             }
@@ -272,7 +274,7 @@ public class GuiMEItemOutputBusStackSize extends AEBaseGui {
 
     @Override
     public void drawFG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
-        this.fontRenderer.drawString("Stack Size", 8, 6, 0x404040);
+        this.fontRenderer.drawString(I18n.format("gui.meitembus.stack_size.name"), 8, 6, 0x404040);
     }
 
     @Override
@@ -307,7 +309,7 @@ public class GuiMEItemOutputBusStackSize extends AEBaseGui {
                 try {
                     ContainerMEItemOutputBusStackSize container = (ContainerMEItemOutputBusStackSize) this.inventorySlots;
                     sendStackSizeToServer(container.getStackSize());
-                } catch (Exception ex) {
+                } catch (Exception ignored) {
                 }
             }
         }

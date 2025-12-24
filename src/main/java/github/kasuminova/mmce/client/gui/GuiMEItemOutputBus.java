@@ -13,6 +13,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 
 public class GuiMEItemOutputBus extends GuiMEItemBus {
@@ -39,7 +41,7 @@ public class GuiMEItemOutputBus extends GuiMEItemBus {
     }
 
     @Override
-    protected void actionPerformed(final GuiButton btn) throws IOException {
+    protected void actionPerformed(@NotNull final GuiButton btn) throws IOException {
         super.actionPerformed(btn);
 
         if (btn == this.stackSizeBtn) {
@@ -69,7 +71,7 @@ public class GuiMEItemOutputBus extends GuiMEItemBus {
 
         @Override
         public String getMessage() {
-            return "Configure Stack Size";
+            return I18n.format("gui.meitembus.stack_size.config");
         }
     }
 }
